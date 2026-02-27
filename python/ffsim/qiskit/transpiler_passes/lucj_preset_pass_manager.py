@@ -1,4 +1,4 @@
-# (C) Copyright IBM 2024.
+# (C) Copyright IBM 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -32,45 +32,45 @@ IBM_TWO_Q_GATES = {"cx", "ecr", "cz"}
 VF2_CALL_LIMIT = 30_000_000
 
 
-def _create_two_linear_chains(num_orbitals: int) -> PyGraph:
+def _create_two_linear_chains(norb: int) -> PyGraph:
     """Create two disconnected linear qubit chains for the LUCJ ansatz.
 
     Construct a ``rustworkx.PyGraph`` with two disconnected linear chains
-    representing the alpha (nodes ``0`` to ``num_orbitals - 1``) and beta
-    (nodes ``num_orbitals`` to ``2 * num_orbitals - 1``) qubits. This graph
+    representing the alpha (nodes ``0`` to ``norb - 1``) and beta
+    (nodes ``norb`` to ``2 * norb - 1``) qubits. This graph
     serves as the base structure for the LUCJ layout; alpha-beta connections
     between chains are added separately by
     ``_get_layout_graph_and_allowed_alpha_beta_indices``.
 
     Args:
-        num_orbitals: Number of nodes (qubits) in each linear chain.
+        norb: Number of nodes (qubits) in each linear chain.
 
     Returns:
         A ``rustworkx.PyGraph`` containing two disconnected linear
-        chains, each with ``num_orbitals`` nodes and ``num_orbitals - 1``
+        chains, each with ``norb`` nodes and ``norb - 1``
         edges.
     """
     graph = rustworkx.PyGraph()
 
-    for n in range(num_orbitals):
+    for n in range(norb):
         graph.add_node(n)
 
-    for n in range(num_orbitals - 1):
+    for n in range(norb - 1):
         graph.add_edge(n, n + 1, None)
 
-    for n in range(num_orbitals, 2 * num_orbitals):
+    for n in range(norb, 2 * norb):
         graph.add_node(n)
 
-    for n in range(num_orbitals, 2 * num_orbitals - 1):
+    for n in range(norb, 2 * norb - 1):
         graph.add_edge(n, n + 1, None)
 
     return graph
 
 
 def _get_layout_graph_and_allowed_alpha_beta_indices(
-    num_orbitals: int,
+    norb: int,
     backend_coupling_graph: PyGraph,
-    backend_topology: Literal["heavy-hex", "grid"],
+    connectivity: Literal["heavy-hex", "square"],
     alpha_beta_indices: list[tuple[int, int]],
 ) -> tuple[PyGraph, list[tuple[int, int]]]:
     """Build a LUCJ layout graph and determine accommodated alpha-beta interactions.
@@ -87,11 +87,11 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
     - **heavy-hex**: Ancilla qubits are inserted as intermediate nodes between
       each alpha-beta pair, reflecting the limited connectivity of heavy-hex
       devices. The number of ancilla nodes equals ``len(alpha_beta_indices)``.
-    - **grid**: Alpha and beta nodes are connected directly with no ancilla qubits,
-      exploiting the denser connectivity of grid devices.
+    - **square**: Alpha and beta nodes are connected directly with no ancilla qubits,
+      exploiting the denser connectivity of square devices.
 
     Args:
-        num_orbitals: Number of spatial orbitals, i.e., the number of nodes
+        norb: Number of spatial orbitals, i.e., the number of nodes
             in each linear chain (alpha-alpha and beta-beta).
         backend_coupling_graph: Undirected ``rustworkx.PyGraph`` of the
             target backend with at most one edge between any two nodes. Directed
@@ -99,7 +99,7 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
             with duplicate edges (e.g., Heron devices such as ``ibm_torino``) must
             be preprocessed into this form before being passed in. See
             ``_make_backend_cmap_pygraph``.
-        backend_topology: Connectivity topology of the
+        connectivity: Connectivity topology of the
             backend. Determines whether ancilla nodes are inserted between
             alpha-beta pairs.
         alpha_beta_indices: Requested alpha-beta orbital
@@ -115,24 +115,24 @@ def _get_layout_graph_and_allowed_alpha_beta_indices(
           be accommodated given the backend's connectivity constraints.
     """
     isomorphic = False
-    graph = _create_two_linear_chains(num_orbitals=num_orbitals)
+    graph = _create_two_linear_chains(norb=norb)
 
     graph_new = copy.deepcopy(graph)  # to avoid not bound warning
     while (not isomorphic) and alpha_beta_indices:
         graph_new = copy.deepcopy(graph)
 
         # add new nodes and edges
-        if backend_topology == "heavy-hex":
+        if connectivity == "heavy-hex":
             for i, (a, b) in enumerate(sorted(alpha_beta_indices, key=lambda x: x[0])):
-                new_node = 2 * num_orbitals + i
+                new_node = 2 * norb + i
                 graph_new.add_node(new_node)
                 graph_new.add_edge(a, new_node, None)
-                graph_new.add_edge(new_node, b + num_orbitals, None)
-        elif backend_topology == "grid":
+                graph_new.add_edge(new_node, b + norb, None)
+        elif connectivity == "square":
             for i, (a, b) in enumerate(sorted(alpha_beta_indices, key=lambda x: x[0])):
-                graph_new.add_edge(a, b + num_orbitals, None)
+                graph_new.add_edge(a, b + norb, None)
         else:
-            ValueError(f"backend_topology={backend_topology} not supported.")
+            ValueError(f"connectivity={connectivity} not supported.")
 
         isomorphic = rustworkx.is_subgraph_isomorphic(
             backend_coupling_graph,
@@ -225,9 +225,9 @@ def _make_backend_cmap_pygraph(
 
 def _get_placeholder_layout_and_allowed_interactions(
     backend: BackendV2,
-    num_orbitals: int,
-    backend_topology: Literal["heavy-hex", "grid"],
-    requested_alpha_beta_indices: list[tuple[int, int]],
+    norb: int,
+    connectivity: Literal["heavy-hex", "square"],
+    alpha_beta_interaction_pairs: list[tuple[int, int]],
     thresh_two_q: float,
     thresh_meas: float,
 ) -> tuple[list[int], list[tuple[int, int]]]:
@@ -241,11 +241,11 @@ def _get_placeholder_layout_and_allowed_interactions(
 
     Args:
         backend: The target Qiskit backend.
-        num_orbitals: Number of spatial orbitals. The ansatz uses
-            ``2 * num_orbitals`` qubits plus any ancilla qubits.
-        backend_topology: Connectivity topology of the
-            backend. Must be one of ``"heavy-hex"`` or ``"grid"``.
-        requested_alpha_beta_indices: Alpha-beta orbital
+        norb: Number of spatial orbitals. The ansatz uses
+            ``2 * norb`` qubits plus any ancilla qubits.
+        connectivity: Connectivity topology of the
+            backend. Must be one of ``"heavy-hex"`` or ``"square"``.
+        alpha_beta_interaction_pairs: Alpha-beta orbital
             interaction pairs to include in the ansatz. Pairs are dropped from the
             end of the list if they cannot be accommodated by the backend. List
             pairs in descending order of priority to control which are dropped first.
@@ -255,7 +255,7 @@ def _get_placeholder_layout_and_allowed_interactions(
             coupling graph with readout error ``>= thresh_meas`` are removed.
 
     Returns:
-        - Physical qubit indices forming a heavy-hex or grid topology
+        - Physical qubit indices forming a heavy-hex or square topology
           compliant layout, suitable for use as ``initial_layout`` in
           a Qiskit preset pass manager.
         - The subset of requested alpha-beta pairs that
@@ -275,10 +275,10 @@ def _get_placeholder_layout_and_allowed_interactions(
 
     (layout_graph, allowed_alpha_beta_indices) = (
         _get_layout_graph_and_allowed_alpha_beta_indices(
-            num_orbitals=num_orbitals,
+            norb=norb,
             backend_coupling_graph=backend_coupling_graph,
-            backend_topology=backend_topology,
-            alpha_beta_indices=list(requested_alpha_beta_indices),
+            connectivity=connectivity,
+            alpha_beta_indices=list(alpha_beta_interaction_pairs),
         )
     )
     num_allowed_alpha_beta_indices = len(allowed_alpha_beta_indices)
@@ -298,19 +298,19 @@ def _get_placeholder_layout_and_allowed_interactions(
     if mapping is None:
         raise RuntimeError("No layout is found.")
 
-    initial_layout = [-1] * (2 * num_orbitals + num_allowed_alpha_beta_indices)
+    initial_layout = [-1] * (2 * norb + num_allowed_alpha_beta_indices)
 
     for key, value in mapping.items():
         initial_layout[value] = key
 
-    # as grids do not have ancillae qubits, the trailing items
+    # as squares do not have ancilla qubits, the trailing items
     # in the ``initial_layout`` will remain as ``-1``. Therefore,
     # we are ignoring last several qubits in this check.
     if -1 in initial_layout[:-num_allowed_alpha_beta_indices]:
         raise ValueError(
             f"Not all qubits in the placeholder ``initial_layout`` is properly set."
             f"Negative qubit index in ``initial_layout``. "
-            f"intial_layout={initial_layout[:-num_allowed_alpha_beta_indices]}"
+            f"initial_layout={initial_layout[:-num_allowed_alpha_beta_indices]}"
         )
 
     return initial_layout[:-num_allowed_alpha_beta_indices], allowed_alpha_beta_indices
@@ -318,9 +318,9 @@ def _get_placeholder_layout_and_allowed_interactions(
 
 def generate_lucj_pass_manager(
     backend: BackendV2,
-    num_orbitals: int,
-    backend_topology: Literal["heavy-hex", "grid"],
-    requested_alpha_beta_indices: Sequence[tuple[int, int]] | None = None,
+    norb: int,
+    connectivity: Literal["heavy-hex", "square"],
+    alpha_beta_interaction_pairs: Sequence[tuple[int, int]] | None = None,
     thresh_two_q: float = 1.0,
     thresh_meas: float = 0.10,
     **qiskit_pm_kwargs,
@@ -328,20 +328,25 @@ def generate_lucj_pass_manager(
     """Generate a Qiskit preset pass manager for the LUCJ ansatz.
 
     Construct a pass manager that maps a local unitary cluster Jastrow (LUCJ)
-    ansatz circuit onto a target backend using layout strategies, as described
-    in Motta et al. (2023) (https://pubs.rsc.org/en/content/articlehtml/2023/sc/d3sc02516k).
-    The layout is optimized for heavy-hex or grid backend topologies, subject to
-    hardware connectivity and error constraints.
+    ansatz circuit onto a target backend using layout strategies, as described in
+    `Motta et al. (2023)`_. The layout is optimized for heavy-hex or square
+    backend topologies, subject to hardware connectivity and error constraints.
+
+    References:
+        - `Motta et al. (2023)`_: "Bridging physical intuition and hardware
+          efficiency for correlated electronic states: the local unitary cluster
+          Jastrow ansatz for electronic structure."
 
     Args:
         backend: The target Qiskit backend.
-        num_orbitals: Number of spatial orbitals. The ansatz uses
-            ``2 * num_orbitals`` qubits plus any ancilla qubits.
-        backend_topology: Connectivity topology of the
-            backend. Must be one of ``"heavy-hex"`` or ``"grid"``.
-        requested_alpha_beta_indices:
-            Alpha-beta orbital interaction pairs to include in the ansatz. Each
-            entry ``(alpha, beta)`` must satisfy ``0 <= alpha, beta < num_orbitals``.
+        norb: Number of spatial orbitals. The ansatz uses
+            ``2 * norb`` qubits plus any ancilla qubits.
+        connectivity: Connectivity topology of the
+            backend. Must be one of ``"heavy-hex"`` or ``"square"``.
+        alpha_beta_interaction_pairs:
+            Alpha-beta orbital interaction pairs to include in the ansatz as
+            *requested* by a user. Each entry ``(alpha, beta)`` must satisfy
+            ``0 <= alpha, beta < norb``.
 
             If hardware connectivity cannot accommodate all requested pairs, pairs
             are dropped from the end of the list until a valid layout is found.
@@ -350,8 +355,8 @@ def generate_lucj_pass_manager(
 
             If ``None``, defaults to pairs as follows:
 
-            - **heavy-hex**: ``[(p, p) for p in range(num_orbitals) if p % 4 == 0]``
-            - **grid**: ``[(p, p) for p in range(num_orbitals)]``
+            - **heavy-hex**: ``[(p, p) for p in range(norb) if p % 4 == 0]``
+            - **square**: ``[(p, p) for p in range(norb)]``
 
             Default: ``None``.
         thresh_two_q: Two-qubit gate error threshold. Edges in the backend
@@ -373,9 +378,9 @@ def generate_lucj_pass_manager(
           constraints.
 
     Raises:
-        ValueError: If any entry in ``requested_alpha_beta_indices`` references
-            an orbital index ``>= num_orbitals``.
-        ValueError: If ``backend_topology`` is not ``"heavy-hex"`` or ``"grid"``.
+        ValueError: If any entry in ``alpha_beta_interaction_pairs`` references
+            an orbital index ``>= norb``.
+        ValueError: If ``connectivity`` is not ``"heavy-hex"`` or ``"square"``.
 
     Note:
         Providing ``initial_layout`` to
@@ -383,6 +388,8 @@ def generate_lucj_pass_manager(
         the ``VF2PostLayout`` pass. This function re-enables it explicitly so that
         the transpiler can search for a better noise-aware isomorphic subgraph mapping
         after routing.
+
+    .. _Motta et al. (2023): https://pubs.rsc.org/en/content/articlehtml/2023/sc/d3sc02516k
     """
     if "initial_layout" in qiskit_pm_kwargs:
         warnings.warn("Argument ``initial_layout`` is ignored.")
@@ -392,36 +399,34 @@ def generate_lucj_pass_manager(
         warnings.warn("Argument ``layout_method`` is ignored.")
         del qiskit_pm_kwargs["layout_method"]
 
-    if requested_alpha_beta_indices:
-        for alpha, beta in requested_alpha_beta_indices:
-            if alpha >= num_orbitals or beta >= num_orbitals:
+    if alpha_beta_interaction_pairs:
+        for alpha, beta in alpha_beta_interaction_pairs:
+            if alpha >= norb or beta >= norb:
                 raise ValueError(
                     f"Requested alpha-beta interaction {(alpha, beta)} is out of "
-                    f"range for maximum spatial orbital index of {num_orbitals - 1}."
+                    f"range for maximum spatial orbital index of {norb - 1}."
                 )
 
-    if backend_topology.lower() not in ["heavy-hex", "grid"]:
+    if connectivity.lower() not in ["heavy-hex", "square"]:
         raise ValueError(
-            f"backend_topology={backend_topology} is not supported. "
-            f"Only supported topologies are either 'heavy-hex' or 'grid'"
+            f"connectivity={connectivity} is not supported. "
+            f"Only supported topologies are either 'heavy-hex' or 'square'"
         )
 
-    if requested_alpha_beta_indices is None:
-        if backend_topology.lower() == "heavy-hex":
-            resolved_alpha_beta_indices = [
-                (p, p) for p in range(num_orbitals) if p % 4 == 0
-            ]
-        elif backend_topology.lower() == "grid":
-            resolved_alpha_beta_indices = [(p, p) for p in range(num_orbitals)]
+    if alpha_beta_interaction_pairs is None:
+        if connectivity.lower() == "heavy-hex":
+            resolved_alpha_beta_indices = [(p, p) for p in range(norb) if p % 4 == 0]
+        elif connectivity.lower() == "square":
+            resolved_alpha_beta_indices = [(p, p) for p in range(norb)]
     else:
-        resolved_alpha_beta_indices = list(requested_alpha_beta_indices)
+        resolved_alpha_beta_indices = list(alpha_beta_interaction_pairs)
 
     (placeholder_initial_layout, allowed_alpha_beta_indices) = (
         _get_placeholder_layout_and_allowed_interactions(
             backend=backend,
-            num_orbitals=num_orbitals,
-            backend_topology=backend_topology,
-            requested_alpha_beta_indices=resolved_alpha_beta_indices,
+            norb=norb,
+            connectivity=connectivity,
+            alpha_beta_interaction_pairs=resolved_alpha_beta_indices,
             thresh_two_q=thresh_two_q,
             thresh_meas=thresh_meas,
         )
