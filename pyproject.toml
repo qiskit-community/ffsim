@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "ffsim"
 requires-python = ">=3.10"
-version = "0.0.68.dev"
+version = "0.0.69.dev"
 description = "Faster simulations of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -53,9 +53,10 @@ dev = [
     "qiskit-ibm-runtime",
     "qiskit[visualization]",
     "qiskit-sphinx-theme",
-    "ruff == 0.14.13",
+    "ruff",
     "sphinx",
     "sphinx-autodoc-typehints",
+    "typos",
 ]
 
 [tool.maturin]
@@ -87,10 +88,18 @@ include = [
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "NPY", "NPY201", "RUF"]
 
+[tool.typos.default]
+# Jupyter notebook cell IDs
+extend-ignore-re = ["[0-9a-f]{8,}"]
+
+[tool.typos.default.extend-words]
+datas = "datas"
+ket = "ket"
+
 [tool.cibuildwheel]
 build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
 test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "dnf install -y cargo openblas-devel openssl-devel rust"
+before-all = "dnf install -y openblas-devel openssl-devel"

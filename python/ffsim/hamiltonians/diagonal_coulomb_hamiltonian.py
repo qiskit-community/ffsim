@@ -231,7 +231,7 @@ class DiagonalCoulombHamiltonian(
         vals_a += 0.5 * np.sum((occ_a @ mat_aa) * occ_a, axis=1)
         vals_b += 0.5 * np.sum((occ_b @ mat_aa) * occ_b, axis=1)
 
-        # Opposit-spin two-body
+        # Opposite-spin two-body
         result = occ_a @ mat_ab @ occ_b.T
 
         # Combine

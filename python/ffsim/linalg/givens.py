@@ -127,12 +127,10 @@ def givens_decomposition(
     but it may be less. If we think of Givens rotations acting on disjoint indices
     as operations that can be performed in parallel, then the entire sequence of
     rotations can always be performed using at most `n` layers of parallel operations.
-    The decomposition algorithm is described in :ref:`[1] <reference>`.
+    The decomposition algorithm is described in the reference below.
 
-    .. _reference:
-    
-    [1] William R. Clements et al.
-    `Optimal design for universal multiport interferometers`_.
+    References:
+        - `Clements et al., "Optimal design for universal multiport interferometers" (2016)`_
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
@@ -145,8 +143,8 @@ def givens_decomposition(
           indices of the basis vectors of the subspace being rotated.
         - A Numpy array containing the diagonal elements of the matrix :math:`D`.
 
-    .. _Optimal design for universal multiport interferometers: https://doi.org/10.1364/OPTICA.3.001460
-    """
+    .. _Clements et al., "Optimal design for universal multiport interferometers" (2016): https://doi.org/10.1364/OPTICA.3.001460
+    """  # noqa: E501
     n, _ = mat.shape
     current_matrix = mat.astype(complex, copy=True)
     left_rotations = []

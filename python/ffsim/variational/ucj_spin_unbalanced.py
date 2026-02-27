@@ -195,8 +195,8 @@ class UCJOpSpinUnbalanced(
         n_triu_indices = norb * (norb + 1) // 2
         n_params_aa = n_triu_indices if pairs_aa is None else len(pairs_aa)
         n_params_bb = n_triu_indices if pairs_bb is None else len(pairs_bb)
-        # The diffent-spin diagonal Coulomb matrix has norb**2 parameters unless indices
-        # are passed explicitly
+        # The different-spin diagonal Coulomb matrix has norb**2 parameters unless
+        # indices are passed explicitly
         n_params_ab = norb**2 if pairs_ab is None else len(pairs_ab)
         # Each orbital rotation has norb**2 parameters per spin
         return (

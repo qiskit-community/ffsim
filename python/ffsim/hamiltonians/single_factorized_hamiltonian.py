@@ -191,7 +191,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
         dim = len(vecs)
         result = np.zeros((dim, dim), dtype=complex)
         for j, (vec_a_j, vec_b_j) in enumerate(vecs):
-            # vec 0 is A @ vec where A is the one-body term of teh Hamiltonian
+            # vec 0 is A @ vec where A is the one-body term of the Hamiltonian
             vec_0_a = one_body_tensor_linop_a @ vec_a_j
             vec_0_b = one_body_tensor_linop_b @ vec_b_j
             # vec 1 is M @ vec where M is a term that is squared in the Hamiltonian

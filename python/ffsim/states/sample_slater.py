@@ -70,8 +70,11 @@ def sample_slater(
     The Slater determinant is specified as an orbital rotation applied to the
     reference electronic configuration given by `occupied_orbitals`. The sampler
     draws independent samples from the corresponding determinantal point process
-    using the projection-based sequential sampling algorithm of *Fermion Sampling
-    Made More Efficient* (Phys. Rev. B 107, 035119, 2023).
+    using the projection-based sequential sampling algorithm described in the
+    reference below.
+
+    References:
+        - `Sun, Zou, and Li, "Fermion Sampling Made More Efficient" (2023)`_
 
     Args:
         norb: The number of spatial orbitals.
@@ -105,6 +108,8 @@ def sample_slater(
 
     Returns:
         The sampled bitstrings.
+
+    .. _Sun, Zou, and Li, "Fermion Sampling Made More Efficient" (2023): https://arxiv.org/abs/2109.07358
     """
     rng = np.random.default_rng(seed)
 

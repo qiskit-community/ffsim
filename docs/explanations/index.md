@@ -10,5 +10,5 @@ double-factorized
 diag-coulomb-hamiltonian
 lucj
 protocols
-qiskit-gate-decompositions
+qubit-gate-decompositions
 ```

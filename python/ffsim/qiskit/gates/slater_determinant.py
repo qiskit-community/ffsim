@@ -122,10 +122,11 @@ class PrepareSlaterDeterminantJW(Gate):
     correspond to the alpha orbitals and the last `norb` qubits correspond to the
     beta orbitals.
 
-    Reference: `arXiv:1711.05395`_
+    References:
+        - `Jiang et al., "Quantum algorithms to simulate many-body physics of correlated fermions" (2018)`_
 
-    .. _arXiv:1711.05395: https://arxiv.org/abs/1711.05395
-    """
+    .. _Jiang et al., "Quantum algorithms to simulate many-body physics of correlated fermions" (2018): https://arxiv.org/abs/1711.05395
+    """  # noqa: E501
 
     def __init__(
         self,
@@ -144,7 +145,7 @@ class PrepareSlaterDeterminantJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            occupied_orbitals: The occupied orbitals in the electonic configuration.
+            occupied_orbitals: The occupied orbitals in the electronic configuration.
                 This is a pair of lists of integers, where the first list specifies the
                 spin alpha orbitals and the second list specifies the spin beta
                 orbitals.
@@ -242,7 +243,7 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
 
         Args:
             norb: The number of spatial orbitals.
-            occupied_orbitals: The occupied orbitals in the electonic configuration.
+            occupied_orbitals: The occupied orbitals in the electronic configuration.
             orbital_rotation: The optional orbital rotation.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
