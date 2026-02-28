@@ -25,7 +25,7 @@ from qiskit.circuit import (
 from qiskit.circuit.library import CPhaseGate, PhaseGate, RZZGate
 
 
-def _iter_pairs(n: int):
+def _iter_pairs(n: int) -> Iterator[tuple[int, int]]:
     """Iterate over unordered pairs (i, j) such that i, j < n.
 
     Yields the same pairs as itertools.combinations(range(n), 2) but in a different
