@@ -203,7 +203,7 @@ def slater_determinant_rdms(
         # Spinless case
         occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
         if rank == 1:
-            rdm = np.zeros((norb, norb), dtype=complex)
+            rdm = np.zeros((norb, norb))
             if occupied_orbitals:
                 rdm[(occupied_orbitals, occupied_orbitals)] = 1
             if orbital_rotation is not None:
