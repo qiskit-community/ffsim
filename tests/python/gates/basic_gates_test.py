@@ -285,7 +285,7 @@ def test_apply_tunneling_interaction_matrix_spinless(norb: int):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(exhaustive=False)
 )
 def test_apply_num_interaction_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
@@ -305,7 +305,9 @@ def test_apply_num_interaction_spinful(
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_apply_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number interaction, spinless."""
     rng = np.random.default_rng()
@@ -323,7 +325,7 @@ def test_apply_num_interaction_spinless(norb: int, nelec: int):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(4))
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(exhaustive=False)
 )
 def test_apply_num_num_interaction_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
@@ -355,7 +357,9 @@ def test_apply_num_num_interaction_spinful(
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number-number interaction, spinless."""
     rng = np.random.default_rng()
@@ -379,7 +383,9 @@ def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]):
     """Test eigenvalues of number-number interaction."""
     rng = np.random.default_rng()
@@ -404,7 +410,9 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying on-site number-number interaction."""
     dim = ffsim.dim(norb, nelec)
@@ -428,7 +436,9 @@ def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
     """Test applying number operator product interaction."""
     rng = np.random.default_rng()

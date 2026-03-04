@@ -28,7 +28,9 @@ from ffsim._slow.gates.diag_coulomb import (
 )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_num_rep_slow(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diagonal Coulomb operator."""
     rng = np.random.default_rng(40541)
@@ -70,7 +72,9 @@ def test_apply_diag_coulomb_evolution_num_rep_slow(norb: int, nelec: tuple[int, 
         np.testing.assert_allclose(vec_slow, vec_fast)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_z_rep_slow(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diagonal Coulomb operator."""
     rng = np.random.default_rng(744)
@@ -118,7 +122,9 @@ def test_apply_diag_coulomb_evolution_z_rep_slow(norb: int, nelec: tuple[int, in
         np.testing.assert_allclose(vec_slow, vec_fast)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_num_rep_numpy(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diag Coulomb operator, numpy implementation."""
     rng = np.random.default_rng(31267)

@@ -25,7 +25,9 @@ def brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test random Givens rotation ansatz gives correct output state."""
     rng = np.random.default_rng()
@@ -58,7 +60,9 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_spinless(norb: int, nelec: int):
     """Test random spinless Givens rotation ansatz gives correct output state."""
     rng = np.random.default_rng()

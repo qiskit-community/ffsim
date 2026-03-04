@@ -19,7 +19,9 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_ucj_op_spin_unbalanced(norb: int, nelec: tuple[int, int]):
     """Test random spin-unbalanced UCJ gate gives correct output state."""
     rng = np.random.default_rng()
@@ -46,7 +48,9 @@ def test_random_ucj_op_spin_unbalanced(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_ucj_op_spin_balanced(norb: int, nelec: tuple[int, int]):
     """Test random spin-balanced UCJ gate gives correct output state."""
     rng = np.random.default_rng()
@@ -73,7 +77,9 @@ def test_random_ucj_op_spin_balanced(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_ucj_op_spinless(norb: int, nelec: int):
     """Test random spin-balanced UCJ gate gives correct output state."""
     rng = np.random.default_rng()

@@ -23,7 +23,9 @@ import ffsim
 from ffsim.spin import pair_for_spin
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_apply_num_op_sum_evolution_spinless(norb: int, nelec: int):
     """Test applying time evolution of sum of number operators, spinless."""
     rng = np.random.default_rng()
@@ -40,7 +42,7 @@ def test_apply_num_op_sum_evolution_spinless(norb: int, nelec: int):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(range(5))
+    "norb, nelec, spin", ffsim.testing.generate_norb_nelec_spin(exhaustive=False)
 )
 def test_apply_num_op_sum_evolution_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
@@ -68,7 +70,10 @@ def test_apply_num_op_sum_evolution_spinful(
             np.testing.assert_allclose(state, original_state)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_apply_quadratic_hamiltonian_evolution(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of a quadratic Hamiltonian."""
     rng = np.random.default_rng()

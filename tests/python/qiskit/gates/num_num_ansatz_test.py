@@ -21,7 +21,9 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_num_num_ansatz(norb: int, nelec: tuple[int, int]):
     """Test random number-number interaction ansatz gives correct output state."""
     rng = np.random.default_rng()

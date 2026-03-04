@@ -45,7 +45,10 @@ def _brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
     rng = np.random.default_rng(12285)
@@ -122,7 +125,10 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
     rng = np.random.default_rng(52622)
@@ -177,7 +183,10 @@ def test_random_gates_spinless(norb: int, nocc: int):
     assert np.sum(np.sqrt(exact_probs * empirical_probs)) > 0.999
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
     rng = np.random.default_rng(5332)
@@ -225,7 +234,14 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     assert _fidelity(ffsim_probs, qiskit_probs) > 0.99
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(2, 4)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    [
+        (norb, nocc)
+        for norb, nocc in ffsim.testing.generate_norb_nocc(exhaustive=False)
+        if norb >= 2
+    ],
+)
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
     rng = np.random.default_rng(5332)
@@ -388,7 +404,9 @@ def test_edge_cases():
     "norb, nelec",
     [
         (norb, nelec)
-        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 4))
+        for norb, nelec in ffsim.testing.generate_norb_nelec(
+            exhaustive=False, include_norb_zero=False
+        )
         if nelec != (0, 0)
     ],
 )
@@ -464,7 +482,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     "norb, nocc",
     [
         (norb, nocc)
-        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 4))
+        for norb, nocc in ffsim.testing.generate_norb_nocc(
+            exhaustive=False, include_norb_zero=False
+        )
         if nocc
     ],
 )

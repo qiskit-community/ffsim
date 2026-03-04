@@ -71,7 +71,10 @@ def test_yields_equivalent_circuit_spinless(norb: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Slater determinant preparation, spinful."""
     rng = np.random.default_rng()
@@ -114,7 +117,10 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_slater_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Slater determinant preparation, spinless."""
     rng = np.random.default_rng()
@@ -146,7 +152,10 @@ def test_merge_slater_spinless(norb: int, nocc: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Hartree-Fock state preparation, spinful."""
     rng = np.random.default_rng()
@@ -185,7 +194,10 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Hartree-Fock state preparation, spinless."""
     rng = np.random.default_rng()
@@ -217,7 +229,10 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     )
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations in UCJ operator, spinful."""
     rng = np.random.default_rng()
@@ -259,7 +274,10 @@ def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
     )
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 4)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_merge_ucj_spinless(norb: int, nocc: int):
     """Test merging orbital rotations in UCJ operator, spinless."""
     rng = np.random.default_rng()

@@ -17,7 +17,9 @@ import ffsim
 import ffsim.random.random
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random(norb: int, nelec: tuple[int, int]):
     """Test on random fermion Hamiltonian."""
     rng = np.random.default_rng(4482)

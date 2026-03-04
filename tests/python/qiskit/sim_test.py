@@ -58,7 +58,10 @@ def _brickwork(norb: int, n_layers: int):
             yield (j, j + 1)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test with random gates."""
     rng = np.random.default_rng(12285)
@@ -122,7 +125,10 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nocc",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test with random spinless gates."""
     rng = np.random.default_rng(52622)
@@ -168,7 +174,9 @@ def test_random_gates_spinless(norb: int, nocc: int):
     "norb, nelec",
     [
         (norb, nelec)
-        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 5))
+        for norb, nelec in ffsim.testing.generate_norb_nelec(
+            exhaustive=False, include_norb_zero=False
+        )
         if nelec != (0, 0)
     ],
 )
@@ -304,7 +312,9 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     "norb, nocc",
     [
         (norb, nocc)
-        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 5))
+        for norb, nocc in ffsim.testing.generate_norb_nocc(
+            exhaustive=False, include_norb_zero=False
+        )
         if nocc
     ],
 )
@@ -421,7 +431,9 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     "norb, nelec",
     [
         (norb, nelec)
-        for norb, nelec in ffsim.testing.generate_norb_nelec(range(1, 4))
+        for norb, nelec in ffsim.testing.generate_norb_nelec(
+            exhaustive=False, include_norb_zero=False
+        )
         if nelec != (0, 0)
     ],
 )
@@ -458,7 +470,9 @@ def test_z_s_t_gates_spinful(norb: int, nelec: tuple[int, int]):
     "norb, nocc",
     [
         (norb, nocc)
-        for norb, nocc in ffsim.testing.generate_norb_nocc(range(1, 4))
+        for norb, nocc in ffsim.testing.generate_norb_nocc(
+            exhaustive=False, include_norb_zero=False
+        )
         if nocc
     ],
 )

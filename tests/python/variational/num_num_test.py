@@ -51,7 +51,9 @@ def test_parameters_roundtrip():
     assert ffsim.approx_eq(roundtripped, operator)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_diag_coulomb_mats(norb: int, nelec: tuple[int, int]):
     """Test initialization from diagonal Coulomb matrices."""
     mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)

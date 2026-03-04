@@ -19,7 +19,9 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_orbital_rotation_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random orbital rotation circuit gives correct output state."""
     rng = np.random.default_rng()
@@ -43,7 +45,9 @@ def test_random_orbital_rotation_symmetric_spin(norb: int, nelec: tuple[int, int
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random orbital rotation circuit with different rotation for each spin."""
     rng = np.random.default_rng()
@@ -128,7 +132,9 @@ def test_random_orbital_rotation_asymmetric_spin(norb: int, nelec: tuple[int, in
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_orbital_rotation_spinless(norb: int, nocc: int):
     """Test random spinless orbital rotation circuit gives correct output state."""
     rng = np.random.default_rng()
@@ -153,7 +159,9 @@ def test_random_orbital_rotation_spinless(norb: int, nocc: int):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_inverse_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test inverse with the same rotation for each spin."""
     rng = np.random.default_rng()
@@ -172,7 +180,9 @@ def test_inverse_same_rotation(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(np.array(statevec), vec)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_inverse_diff_rotation(norb: int, nelec: tuple[int, int]):
     """Test inverse with different rotations for each spin."""
     rng = np.random.default_rng()
@@ -193,7 +203,9 @@ def test_inverse_diff_rotation(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(np.array(statevec), vec)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_inverse_spinless(norb: int, nocc: int):
     """Test inverse for spinless orbital rotation."""
     rng = np.random.default_rng()
