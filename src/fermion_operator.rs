@@ -562,7 +562,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
     while let Some((mut term, coeff)) = stack.pop() {
         let mut parity = false;
         let mut zero = false;
-        for i in 1..term.len() {
+        'outer: for i in 1..term.len() {
             // shift the operator at index i to the left until it's in the correct location
             for j in (1..=i).rev() {
                 let (action_right, spin_right, index_right) = term[j];
@@ -573,7 +573,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                         Ordering::Equal => {
                             // operators are the same, so product is zero
                             zero = true;
-                            break;
+                            break 'outer;
                         }
                         Ordering::Greater => {
                             // swap operators and update sign
