@@ -11,6 +11,8 @@ crate-type = ["cdylib"]
 [dependencies]
 blas = "0.23"
 blas-src = "0.14"
+lapack = { git = "https://github.com/kevinsung/blas-lapack-rs_lapack.git", branch = "zrot" }
+lapack-src = "0.13"
 ndarray = { version = "0.15", features = ["rayon"] }
 num-integer = "0.1"
 numpy = "0.27"
@@ -23,4 +25,5 @@ rayon = "1.11"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 blas-src = { version = "0.14", features = ["openblas"] }
+lapack-src = { version = "0.13", features = ["openblas"] }
 openblas-src = { version = "0.10", features = ["system"] }
