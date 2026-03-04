@@ -20,7 +20,9 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_prepare_hartree_fock_jw(norb: int, nelec: tuple[int, int]):
     """Test preparing Hartree-Fock state."""
     gate = ffsim.qiskit.PrepareHartreeFockJW(norb, nelec)
@@ -35,7 +37,9 @@ def test_prepare_hartree_fock_jw(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_prepare_hartree_fock_spinless_jw(norb: int, nocc: int):
     """Test preparing Hartree-Fock state."""
     gate = ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc)
@@ -51,7 +55,9 @@ def test_prepare_hartree_fock_spinless_jw(norb: int, nocc: int):
     np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_slater_determinant_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit gives correct output state."""
     rng = np.random.default_rng()
@@ -74,7 +80,9 @@ def test_random_slater_determinant_symmetric_spin(norb: int, nelec: tuple[int, i
         ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_slater_determinant_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit with independent orbital rotations."""
     rng = np.random.default_rng()
@@ -152,7 +160,9 @@ def test_random_slater_determinant_asymmetric_spin(norb: int, nelec: tuple[int, 
         ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant circuit with no orbital rotation."""
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
@@ -178,7 +188,9 @@ def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
     ]
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_slater_determinant_spinless(norb: int, nocc: int):
     """Test random Slater determinant circuit, spinless."""
     rng = np.random.default_rng()

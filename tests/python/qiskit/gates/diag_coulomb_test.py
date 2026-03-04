@@ -27,7 +27,7 @@ import ffsim
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )
@@ -141,7 +141,9 @@ def test_random_diag_coulomb_mat_spinful(
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
     """Test random spinless diag Coulomb gate gives correct output state."""
     rng = np.random.default_rng()
@@ -231,7 +233,7 @@ def test_circuit_depth_spinless_linear():
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )

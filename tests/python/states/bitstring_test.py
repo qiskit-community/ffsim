@@ -369,7 +369,10 @@ def test_strings_to_addresses_string():
     np.testing.assert_array_equal(indices, np.arange(dim))
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(1, 6)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_addresses_and_strings_roundtrip_spinless(norb: int, nelec: int):
     """Test converting statevector addresses to strings and back, spinless."""
     rng = np.random.default_rng(26390)
@@ -380,7 +383,10 @@ def test_addresses_and_strings_roundtrip_spinless(norb: int, nelec: int):
     np.testing.assert_array_equal(indices_again, indices)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 6)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_addresses_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]):
     """Test converting statevector addresses to strings and back, spinful."""
     rng = np.random.default_rng(26390)

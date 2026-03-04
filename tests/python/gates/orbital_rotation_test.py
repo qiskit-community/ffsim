@@ -33,7 +33,9 @@ def _orbital_rotation_generator(mat: np.ndarray, spin: bool) -> ffsim.FermionOpe
     return ffsim.FermionOperator(coeffs)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]):
     """Test applying orbital rotation is consistent one-body linear operator."""
     rng = np.random.default_rng()
@@ -54,7 +56,9 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(4)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
     """Test applying random orbital rotation yields correct output state."""
     rng = np.random.default_rng()
@@ -70,7 +74,9 @@ def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test applying random orbital rotation yields correct output state."""
     rng = np.random.default_rng()
@@ -118,7 +124,9 @@ def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int, int]):
     """Test applying orbital basis change doesn't modify the original vector."""
     rng = np.random.default_rng()

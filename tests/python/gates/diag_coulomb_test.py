@@ -22,7 +22,9 @@ import scipy.sparse.linalg
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(4)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
     """Test applying time evolution of random diagonal Coulomb operator."""
     rng = np.random.default_rng(4305)
@@ -63,7 +65,7 @@ def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(4)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )
@@ -112,7 +114,7 @@ def test_apply_diag_coulomb_evolution_random_symmetric_spin(
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )
@@ -145,7 +147,9 @@ def test_apply_diag_coulomb_evolution_conserves_spin_squared(
         np.testing.assert_allclose(spin_squared_result, spin_squared_init)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
@@ -241,7 +245,9 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
             np.testing.assert_allclose(state, original_state)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
