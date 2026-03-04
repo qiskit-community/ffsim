@@ -254,6 +254,8 @@ def _normal_ordered_term(
                     # swap operators and update sign
                     term[j - 1], term[j] = term[j], term[j - 1]
                     parity = not parity
+            if zero:
+                break
         if zero:
             continue
         term = tuple(term)
