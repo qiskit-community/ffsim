@@ -6,7 +6,7 @@ build-backend = "maturin"
 name = "ffsim"
 requires-python = ">=3.10"
 version = "0.0.71.dev"
-description = "Faster simulations of fermionic quantum circuits."
+description = "Faster simulation of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
