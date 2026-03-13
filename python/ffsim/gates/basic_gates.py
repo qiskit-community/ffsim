@@ -19,6 +19,7 @@ from collections.abc import Sequence
 import numpy as np
 
 from ffsim import linalg
+from ffsim.gates.diag_coulomb import apply_diag_coulomb_evolution
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
 from ffsim.spin import Spin, pair_for_spin
@@ -295,33 +296,43 @@ def apply_num_num_interaction(
         )
     if copy:
         vec = vec.copy()
+
+    i, j = target_orbs
+    zero = np.zeros((norb, norb))
+    mat = np.zeros((norb, norb))
+    mat[i, j] = mat[j, i] = theta
     if isinstance(nelec, int):
-        return apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=(target_orbs, []),
-            norb=norb,
-            nelec=(nelec, 0),
-            copy=False,
+        return apply_diag_coulomb_evolution(
+            vec, mat, -1.0, norb=norb, nelec=nelec, copy=False
         )
-    if spin & Spin.ALPHA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=(target_orbs, []),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
-    if spin & Spin.BETA:
-        vec = apply_num_op_prod_interaction(
-            vec,
-            theta,
-            target_orbs=([], target_orbs),
-            norb=norb,
-            nelec=nelec,
-            copy=False,
-        )
+    match spin:
+        case Spin.ALPHA_AND_BETA:
+            vec = apply_diag_coulomb_evolution(
+                vec,
+                (mat, zero, mat),
+                -1.0,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
+        case Spin.ALPHA:
+            vec = apply_diag_coulomb_evolution(
+                vec,
+                (mat, zero, zero),
+                -1.0,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
+        case Spin.BETA:
+            vec = apply_diag_coulomb_evolution(
+                vec,
+                (zero, zero, mat),
+                -1.0,
+                norb=norb,
+                nelec=nelec,
+                copy=False,
+            )
     return vec
 
 
