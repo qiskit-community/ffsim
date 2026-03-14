@@ -45,7 +45,7 @@ impl KeysIterator {
 /// by scalars. When multiplying by a scalar, the scalar should go on the left side of the
 /// multiplication operator, e.g. ``scalar * op``, not ``op * scalar``.
 ///
-/// See :doc:`/how-to-guides/fermion-operator` for an explanation of how to use this class.
+/// See :doc:`/explanations/fermion-operator` for an explanation of how to use this class.
 ///
 /// Example:
 ///
