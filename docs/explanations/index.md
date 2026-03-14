@@ -5,6 +5,7 @@
 
 state-vectors-and-gates
 hamiltonians
+variational-ansatzes
 orbital-rotation
 double-factorized
 diag-coulomb-hamiltonian

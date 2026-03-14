@@ -5,7 +5,7 @@
 
 sample-from-state-vectors
 compute-expectation-values
-simulate-lucj
+simulate-vqe
 simulate-trotter-mol-ham
 simulate-trotter-hubbard
 entanglement-forging
