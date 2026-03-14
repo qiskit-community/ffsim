@@ -9,6 +9,7 @@ orbital-rotation
 double-factorized
 diag-coulomb-hamiltonian
 lucj
+fermion-operator
 protocols
 qubit-gate-decompositions
 ```
