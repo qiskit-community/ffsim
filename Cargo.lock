@@ -193,6 +193,8 @@ version = "0.0.0"
 dependencies = [
  "blas",
  "blas-src",
+ "lapack",
+ "lapack-src",
  "ndarray",
  "num-integer",
  "numpy",
@@ -304,6 +306,33 @@ dependencies = [
  "hermit-abi",
  "libc",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "lapack"
+version = "0.20.0"
+source = "git+https://github.com/kevinsung/blas-lapack-rs_lapack.git?branch=zrot#bbd1d3c52fb10bc61c3eb94f2c730d1f783b29ff"
+dependencies = [
+ "lapack-sys",
+ "libc",
+ "num-complex",
+]
+
+[[package]]
+name = "lapack-src"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1bcb4a410d9e39126db6ef1b71814618d9f9c3db128e6db674a449cf6a8b668"
+dependencies = [
+ "openblas-src",
+]
+
+[[package]]
+name = "lapack-sys"
+version = "0.15.0"
+source = "git+https://github.com/kevinsung/lapack-sys.git?branch=zrot#0b94aae2d90a0e900e7d46b8321580da602d42c0"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
