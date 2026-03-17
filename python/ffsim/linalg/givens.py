@@ -202,8 +202,10 @@ def givens_decomposition(
     # convert left rotations to right rotations
     for c, s, i, j in reversed(left_rotations):
         c, s = zrotg(c * current_matrix[j, j], s.conjugate() * current_matrix[i, i])
-        # clamp c between -1 and 1 to account for floating point error
-        right_rotations.append(GivensRotation(min(1, max(-1, c)), -s.conjugate(), i, j))
+        right_rotations.append(
+            # clamp c between -1 and 1 to account for floating point error
+            GivensRotation(min(1.0, max(-1.0, c)), -s.conjugate(), i, j)
+        )
 
         givens_mat = np.array([[c, -s], [s.conjugate(), c]])
         givens_mat[:, 0] *= current_matrix[i, i]
