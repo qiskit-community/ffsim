@@ -197,7 +197,7 @@ def _orbital_rotation_jw(
     givens_rotations, phase_shifts = linalg.givens_decomposition(orbital_rotation)
     for c, s, i, j in givens_rotations:
         yield CircuitInstruction(
-            XXPlusYYGate(2 * math.acos(c), cmath.phase(s) - 0.5 * math.pi),
+            XXPlusYYGate(2 * math.acos(max(-1.0, min(1.0, c))), cmath.phase(s) - 0.5 * math.pi),
             (qubits[i], qubits[j]),
         )
     for i, phase_shift in enumerate(phase_shifts):

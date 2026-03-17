@@ -312,7 +312,7 @@ def _prepare_slater_determinant_jw(
     givens_rotations = _givens_decomposition_slater(orbital_coeffs)
     for c, s, i, j in givens_rotations:
         yield CircuitInstruction(
-            XXPlusYYGate(2 * math.acos(c), cmath.phase(s) - 0.5 * math.pi),
+            XXPlusYYGate(2 * math.acos(max(-1.0, min(1.0, c))), cmath.phase(s) - 0.5 * math.pi),
             (qubits[i], qubits[j]),
         )
 
