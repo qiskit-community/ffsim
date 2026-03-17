@@ -347,7 +347,8 @@ def _givens_decomposition_slater(orbital_coeffs: np.ndarray) -> list[GivensRotat
             if not cmath.isclose(current_matrix[i, j], 0):
                 # zero out element j of row i
                 c, s = zrotg(current_matrix[i, j - 1], current_matrix[i, j])
-                rotations.append(GivensRotation(c, s, j, j - 1))
+                # clamp c between -1 and 1 to account for floating point error
+                rotations.append(GivensRotation(min(1, max(-1, c)), s, j, j - 1))
                 (
                     current_matrix[:, j - 1],
                     current_matrix[:, j],
