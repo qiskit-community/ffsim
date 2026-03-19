@@ -96,7 +96,6 @@ datas = "datas"
 ket = "ket"
 
 [tool.tox]
-min_version = "4.6.0"
 env_list = [
     "py{310,311,312,313,314}",
     "coverage",
