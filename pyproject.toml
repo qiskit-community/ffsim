@@ -129,7 +129,6 @@ commands = [
         "ffsim",
         "-m",
         "pytest",
-        "{posargs}",
     ],
     [
         "coverage",
@@ -209,7 +208,6 @@ commands = [
         "-b",
         "html",
         "-W",
-        "{posargs}",
         "docs/",
         "docs/_build/html",
     ],
