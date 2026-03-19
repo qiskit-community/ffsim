@@ -192,26 +192,7 @@ commands = [["typos"]]
 description = "build docs"
 extras = ["dev"]
 set_env = { SPHINX_APIDOC_OPTIONS = "members,show-inheritance" }
-commands = [
-    [
-        "python",
-        "-c",
-        'import shutil, pathlib; shutil.rmtree(pathlib.Path("docs") / "stubs", ignore_errors=True)',
-    ],
-    [
-        "python",
-        "-c",
-        'import shutil, pathlib; shutil.rmtree(pathlib.Path("docs") / "_build" / "html" / ".doctrees", ignore_errors=True)',
-    ],
-    [
-        "sphinx-build",
-        "-b",
-        "html",
-        "-W",
-        "docs/",
-        "docs/_build/html",
-    ],
-]
+commands = [["sphinx-build", "-b", "html", "-W", "docs/", "docs/_build/html"]]
 
 [tool.cibuildwheel]
 build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
