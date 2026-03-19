@@ -33,7 +33,7 @@ jobs:
           pip install tox
       - name: Run tests
         run: |
-          tox run -e py${{ matrix.python-version }}
+          tox run -e test-${{ matrix.python-version }}
   test-linux-arm:
     runs-on: ubuntu-24.04-arm
     strategy:
@@ -54,7 +54,7 @@ jobs:
           pip install tox
       - name: Run tests
         run: |
-          tox run -e py${{ matrix.python-version }}
+          tox run -e test-${{ matrix.python-version }}
   test-macos:
     runs-on: macos-latest
     strategy:
@@ -72,4 +72,4 @@ jobs:
           pip install tox
       - name: Run tests
         run: |
-          tox run -e py${{ matrix.python-version }}
+          tox run -e test-${{ matrix.python-version }}
