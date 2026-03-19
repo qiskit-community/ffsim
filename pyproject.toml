@@ -96,12 +96,13 @@ datas = "datas"
 ket = "ket"
 
 [tool.tox]
+requires = ["tox>=4.50"]
 env_list = [
-    "3.10",
-    "3.11",
-    "3.12",
-    "3.13",
-    "3.14",
+    "test-3.10",
+    "test-3.11",
+    "test-3.12",
+    "test-3.13",
+    "test-3.14",
     "coverage",
     "type",
     "lint",
@@ -110,12 +111,14 @@ env_list = [
     "docs",
 ]
 
-[tool.tox.env_run_base]
+
+[tool.tox.env_base.test]
 description = "run tests"
+factors = [["3.10", "3.11", "3.12", "3.13", "3.14"]]
 package = "wheel"
 wheel_build_env = ".pkg"
-extras = ["dev"]
-commands = [["pytest", "{posargs}"]]
+deps = ["pytest"]
+commands = [["pytest"]]
 
 [tool.tox.env.coverage]
 description = "check test coverage"
