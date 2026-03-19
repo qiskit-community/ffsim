@@ -447,6 +447,50 @@ def random_uccsd_op_unrestricted_real(
     )
 
 
+def random_uccsd_op_unrestricted(
+    norb: int,
+    nelec: tuple[int, int],
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpUnrestricted:
+    """Sample a random UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nelec: The numbers of spin alpha and spin beta fermions.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    t1_a = rng.standard_normal((nocc_a, nvrt_a)).astype(complex)
+    t1_a += 1j * rng.standard_normal((nocc_a, nvrt_a))
+    t1_b = rng.standard_normal((nocc_b, nvrt_b)).astype(complex)
+    t1_b += 1j * rng.standard_normal((nocc_b, nvrt_b))
+    t2_aa = random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=complex)
+    t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)).astype(complex)
+    t2_ab += 1j * rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    t2_bb = random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=complex)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = np.stack(
+            [random_unitary(norb, seed=rng), random_unitary(norb, seed=rng)]
+        )
+    return variational.UCCSDOpUnrestricted(
+        t1=(t1_a, t1_b),
+        t2=(t2_aa, t2_ab, t2_bb),
+        final_orbital_rotation=final_orbital_rotation,
+    )
+
+
 def _random_symmetric_matrix_uniform(
     dim: int, *, mean: float, scale: float, seed=None
 ) -> np.ndarray:
