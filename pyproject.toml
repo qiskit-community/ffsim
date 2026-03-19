@@ -115,8 +115,6 @@ env_list = [
 [tool.tox.env_base.test]
 description = "run tests"
 factors = [["3.10", "3.11", "3.12", "3.13", "3.14"]]
-package = "wheel"
-wheel_build_env = ".pkg"
 deps = ["pytest"]
 commands = [["pytest"]]
 
