@@ -52,6 +52,7 @@ substituting `<environment name>` with the name of the tox environment for the c
 - `type`: Type check
 - `lint`: Lint check
 - `format`: Format check
+- `spell`: Spell check
 - `docs`: Build documentation
 
 ## Run code checks directly
@@ -83,6 +84,12 @@ ruff check --fix
 
 ```bash
 ruff format
+```
+
+### Run spell check
+
+```bash
+typos
 ```
 
 ### Build documentation
