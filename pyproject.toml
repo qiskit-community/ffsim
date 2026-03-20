@@ -63,6 +63,14 @@ features = ["pyo3/extension-module"]
 python-source = "python"
 module-name = "ffsim._lib"
 
+[tool.cibuildwheel]
+build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
+test-requires = "pytest"
+test-command = "pytest {project}/tests"
+
+[tool.cibuildwheel.linux]
+before-all = "dnf install -y openblas-devel openssl-devel"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
@@ -111,6 +119,14 @@ env_list = [
     "docs",
 ]
 
+[tool.tox.env_run_base]
+pass_env = [
+    "OMP_NUM_THREADS",
+    "RAYON_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+]
 
 [tool.tox.env_base.test]
 description = "run tests"
@@ -193,11 +209,3 @@ description = "build docs"
 extras = ["dev"]
 set_env = { SPHINX_APIDOC_OPTIONS = "members,show-inheritance" }
 commands = [["sphinx-build", "-b", "html", "-W", "docs/", "docs/_build/html"]]
-
-[tool.cibuildwheel]
-build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
-test-requires = "pytest"
-test-command = "pytest {project}/tests"
-
-[tool.cibuildwheel.linux]
-before-all = "dnf install -y openblas-devel openssl-devel"
