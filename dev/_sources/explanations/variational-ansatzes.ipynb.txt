@@ -1,0 +1,511 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "0a07a2ad",
+   "metadata": {},
+   "source": [
+    "# Variational ansatzes\n",
+    "\n",
+    "This page explains how ffsim represents variational ansatzes.\n",
+    "\n",
+    "## Design\n",
+    "\n",
+    "In ffsim, a variational ansatz is a parameterized unitary operator. ffsim includes several classes for representing variational ansatzes. Each ansatz class stores the parameters of the ansatz in NumPy arrays, and implements the `SupportsApplyUnitary` [protocol](../explanations/protocols.ipynb) so that it can be passed to [ffsim.apply_unitary](../api/ffsim.rst#ffsim.apply_unitary) to apply the ansatz operator to a state vector.\n",
+    "\n",
+    "To facilitate variational optimization, each ansatz class implements:\n",
+    "\n",
+    "- `n_params`: a static method that returns the number of real-valued parameters\n",
+    "  for a given set of ansatz settings.\n",
+    "- `from_parameters`: a static method that constructs the ansatz from a flat NumPy array of real-valued parameters.\n",
+    "- `to_parameters`: an instance method that converts the ansatz back to a flat NumPy array of real-valued parameters.\n",
+    "\n",
+    "These methods make it straightforward to use the ansatzes with standard numerical optimizers. For a guide on variational optimization, see [Simulate the variational quantum eigensolver (VQE)](../how-to-guides/simulate-vqe.ipynb).\n",
+    "\n",
+    "## Ansatz classes\n",
+    "\n",
+    "The rest of this page gives an overview of the variational ansatz classes in ffsim."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "89bbc9d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "rng = np.random.default_rng(12345)\n",
+    "\n",
+    "# Set example values for closed- and open-shell systems\n",
+    "norb = 4\n",
+    "nelec_closed = (2, 2)\n",
+    "nelec_open = (3, 1)\n",
+    "\n",
+    "nocc, _ = nelec_closed\n",
+    "nvrt = norb - nocc\n",
+    "\n",
+    "nocc_a, nocc_b = nelec_open\n",
+    "nvrt_a = norb - nocc_a\n",
+    "nvrt_b = norb - nocc_b\n",
+    "\n",
+    "# Initialize the reference state as the Hartree-Fock state\n",
+    "reference_state_closed = ffsim.hartree_fock_state(norb, nelec_closed)\n",
+    "reference_state_open = ffsim.hartree_fock_state(norb, nelec_open)\n",
+    "reference_state_spinless = ffsim.hartree_fock_state(norb, nocc)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "926dfe98",
+   "metadata": {},
+   "source": [
+    "### UCJ ansatzes\n",
+    "\n",
+    "The unitary cluster Jastrow (UCJ) ansatz has the form\n",
+    "\n",
+    "$$\n",
+    "  \\lvert \\Psi \\rangle = \\prod_{k = 1}^{L} \\mathcal{U}_k e^{i \\mathcal{J}_k} \\mathcal{U}_k^\\dagger \\lvert \\Phi_0 \\rangle\n",
+    "$$\n",
+    "\n",
+    "where $\\lvert \\Phi_0 \\rangle$ is a reference state, each $\\mathcal{U}_k$ is an\n",
+    "[orbital rotation](orbital-rotation.ipynb), and each $\\mathcal{J}_k$ is a diagonal\n",
+    "Coulomb operator of the form\n",
+    "\n",
+    "$$\n",
+    "    \\mathcal{J} = \\frac{1}{2}\\sum_{\\sigma \\tau, ij} \\mathbf{J}^{\\sigma \\tau}_{ij} n_{\\sigma, i} n_{\\tau, j}.\n",
+    "$$\n",
+    "\n",
+    "The number of terms $L$ is referred to as the number of ansatz repetitions. An optional final orbital rotation can be appended at the end to support variational optimization of the orbital basis.\n",
+    "\n",
+    "The local UCJ (LUCJ) ansatz is implemented using the same classes as UCJ, by specifying additional arguments. For more detail on the UCJ ansatz, including its connection to CCSD and LUCJ, see [The local unitary cluster Jastrow (LUCJ) ansatz](lucj.ipynb).\n",
+    "\n",
+    "ffsim provides three UCJ classes that differ in their spin symmetry assumptions. The diagonal Coulomb matrices and orbital rotations are stored as NumPy arrays. The parameter vector encodes the independent entries of the diagonal Coulomb matrices (upper-triangular entries, since the matrices are symmetric) and the entries of the logarithms of the orbital rotations.\n",
+    "\n",
+    "#### UCJOpSpinBalanced\n",
+    "\n",
+    "The [UCJOpSpinBalanced](../api/ffsim.rst#ffsim.UCJOpSpinBalanced) class represents the spin-balanced UCJ operator, appropriate for closed-shell systems. It imposes the constraints $\\mathbf{J}^{\\alpha\\alpha} = \\mathbf{J}^{\\beta\\beta}$ and $\\mathbf{J}^{\\alpha\\beta} = \\mathbf{J}^{\\beta\\alpha}$, so each diagonal Coulomb operator is described by two symmetric matrices: $\\mathbf{J}^{\\alpha\\alpha}$ and $\\mathbf{J}^{\\alpha\\beta}$. The same orbital rotation is applied to both spin sectors.\n",
+    "\n",
+    "The data stored by this class consists of:\n",
+    "\n",
+    "- `diag_coulomb_mats`: An array of shape `(n_reps, 2, norb, norb)` containing the $\\mathbf{J}^{\\alpha\\alpha}$ and $\\mathbf{J}^{\\alpha\\beta}$ matrices for each repetition.\n",
+    "- `orbital_rotations`: An array of shape `(n_reps, norb, norb)` containing the orbital rotation for each repetition.\n",
+    "- `final_orbital_rotation`: An optional array of shape `(norb, norb)` containing a final orbital rotation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "0c8e7890",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "diag_coulomb_mats shape: (2, 2, 4, 4)\n",
+      "orbital_rotations shape: (2, 4, 4)\n"
+     ]
+    }
+   ],
+   "source": [
+    "n_reps = 2\n",
+    "\n",
+    "# Construct from random t2- and t1-amplitudes. The t2-amplitudes are double factorized\n",
+    "# to obtain the diagonal Coulomb matries and orbital rotations. The t1-amplitudes are\n",
+    "# used to set a final orbital rotation.\n",
+    "t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)\n",
+    "t1 = rng.standard_normal((nocc, nvrt))\n",
+    "\n",
+    "ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)\n",
+    "\n",
+    "print(\"diag_coulomb_mats shape:\", ucj_op.diag_coulomb_mats.shape)\n",
+    "print(\"orbital_rotations shape:\", ucj_op.orbital_rotations.shape)\n",
+    "\n",
+    "# Apply the ansatz to the reference state\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_closed, ucj_op, norb=norb, nelec=nelec_closed\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "74b9489b",
+   "metadata": {},
+   "source": [
+    "You can also initialize the ansatz from a real-valued parameter vector:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "fed25386",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Construct from a random parameter vector\n",
+    "n_params = ffsim.UCJOpSpinBalanced.n_params(norb, n_reps)\n",
+    "params = rng.standard_normal(n_params)\n",
+    "ucj_op = ffsim.UCJOpSpinBalanced.from_parameters(params, norb=norb, n_reps=n_reps)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f15e6315",
+   "metadata": {},
+   "source": [
+    "The `interaction_pairs` argument can be used to restrict the orbital interactions in the diagonal Coulomb operators (setting the remaining entries to zero), which yields the local UCJ (LUCJ) variant:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "86e1ab37",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Restrict to interactions implementable on a square lattice\n",
+    "pairs_aa = [(p, p + 1) for p in range(norb - 1)]\n",
+    "pairs_ab = [(p, p) for p in range(norb)]\n",
+    "interaction_pairs = (pairs_aa, pairs_ab)\n",
+    "\n",
+    "lucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(\n",
+    "    t2, t1=t1, n_reps=n_reps, interaction_pairs=interaction_pairs\n",
+    ")\n",
+    "\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_closed, lucj_op, norb=norb, nelec=nelec_closed\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "529c60a3",
+   "metadata": {},
+   "source": [
+    "#### UCJOpSpinUnbalanced\n",
+    "\n",
+    "The [UCJOpSpinUnbalanced](../api/ffsim.rst#ffsim.UCJOpSpinUnbalanced) class represents the spin-unbalanced UCJ operator, appropriate for open-shell systems. It allows $\\mathbf{J}^{\\alpha\\alpha}$ and $\\mathbf{J}^{\\beta\\beta}$ to differ and does not require $\\mathbf{J}^{\\alpha\\beta}$ to be symmetric (since $\\mathbf{J}^{\\alpha\\beta}_{ij} = \\mathbf{J}^{\\beta\\alpha}_{ji}$, the $\\mathbf{J}^{\\beta\\alpha}$ matrix need not be stored separately). Each diagonal Coulomb operator is therefore described by three matrices: $\\mathbf{J}^{\\alpha\\alpha}$, $\\mathbf{J}^{\\alpha\\beta}$, and $\\mathbf{J}^{\\beta\\beta}$. Separate orbital rotations are applied to the alpha and beta spin sectors.\n",
+    "\n",
+    "The data stored by this class consists of:\n",
+    "\n",
+    "- `diag_coulomb_mats`: An array of shape `(n_reps, 3, norb, norb)` containing the $\\mathbf{J}^{\\alpha\\alpha}$, $\\mathbf{J}^{\\alpha\\beta}$, and $\\mathbf{J}^{\\beta\\beta}$ matrices for each repetition.\n",
+    "- `orbital_rotations`: An array of shape `(n_reps, 2, norb, norb)` containing the alpha and beta orbital rotations for each repetition.\n",
+    "- `final_orbital_rotation`: An optional array of shape `(2, norb, norb)` containing a final orbital rotation for each spin sector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "fee1f1cd",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "diag_coulomb_mats shape: (4, 3, 4, 4)\n",
+      "orbital_rotations shape: (4, 2, 4, 4)\n"
+     ]
+    }
+   ],
+   "source": [
+    "t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)\n",
+    "t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))\n",
+    "t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)\n",
+    "t1a = rng.standard_normal((nocc_a, nvrt_a))\n",
+    "t1b = rng.standard_normal((nocc_b, nvrt_b))\n",
+    "\n",
+    "ucj_op_unbalanced = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(\n",
+    "    (t2aa, t2ab, t2bb), t1=(t1a, t1b), n_reps=(2, 2)\n",
+    ")\n",
+    "\n",
+    "print(\"diag_coulomb_mats shape:\", ucj_op_unbalanced.diag_coulomb_mats.shape)\n",
+    "print(\"orbital_rotations shape:\", ucj_op_unbalanced.orbital_rotations.shape)\n",
+    "\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_open, ucj_op_unbalanced, norb=norb, nelec=nelec_open\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6c3f4b23",
+   "metadata": {},
+   "source": [
+    "#### UCJOpSpinless\n",
+    "\n",
+    "The [UCJOpSpinless](../api/ffsim.rst#ffsim.UCJOpSpinless) class represents the spinless UCJ operator, for systems without a spin degree of freedom. The diagonal Coulomb operator takes the form\n",
+    "\n",
+    "$$\n",
+    "    \\mathcal{J} = \\frac{1}{2}\\sum_{ij} \\mathbf{J}_{ij} n_i n_j\n",
+    "$$\n",
+    "\n",
+    "where $\\mathbf{J}$ is a single real symmetric matrix.\n",
+    "\n",
+    "The data stored by this class consists of:\n",
+    "\n",
+    "- `diag_coulomb_mats`: An array of shape `(n_reps, norb, norb)` containing the diagonal Coulomb matrix for each repetition.\n",
+    "- `orbital_rotations`: An array of shape `(n_reps, norb, norb)` containing the orbital rotation for each repetition.\n",
+    "- `final_orbital_rotation`: An optional array of shape `(norb, norb)` containing a final orbital rotation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "9ecae377",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "diag_coulomb_mats shape: (2, 4, 4)\n",
+      "orbital_rotations shape: (2, 4, 4)\n"
+     ]
+    }
+   ],
+   "source": [
+    "ucj_op_spinless = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)\n",
+    "\n",
+    "print(\"diag_coulomb_mats shape:\", ucj_op_spinless.diag_coulomb_mats.shape)\n",
+    "print(\"orbital_rotations shape:\", ucj_op_spinless.orbital_rotations.shape)\n",
+    "\n",
+    "final_state_spinless = ffsim.apply_unitary(\n",
+    "    reference_state_spinless, ucj_op_spinless, norb=norb, nelec=nocc\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4e0e300",
+   "metadata": {},
+   "source": [
+    "### UCCSD ansatzes\n",
+    "\n",
+    "The unitary coupled cluster singles and doubles (UCCSD) ansatz has the form\n",
+    "\n",
+    "$$\n",
+    "  \\lvert \\Psi \\rangle = e^{T - T^\\dagger} \\lvert \\Phi_0 \\rangle\n",
+    "$$\n",
+    "\n",
+    "where\n",
+    "\n",
+    "$$\n",
+    "  T = T_1 + T_2, \\quad\n",
+    "  T_1 = \\sum_{ia} t_{ia} a^\\dagger_a a_i, \\quad\n",
+    "  T_2 = \\sum_{ijab} t_{ijab} a^\\dagger_a a^\\dagger_b a_j a_i.\n",
+    "$$\n",
+    "\n",
+    "Here $i, j$ index occupied orbitals, $a, b$ index virtual orbitals, and the $t$-amplitudes $t_{ia}$ (singles) and $t_{ijab}$ (doubles) are the variational parameters.\n",
+    "\n",
+    "#### UCCSDOpRestrictedReal\n",
+    "\n",
+    "The [UCCSDOpRestrictedReal](../api/ffsim.rst#ffsim.UCCSDOpRestrictedReal) class represents the restricted UCCSD operator with real-valued $t$-amplitudes. \"Restricted\" means that the same spatial orbitals are used for both spin sectors, and the same $t$-amplitudes apply to both. This is the most common case when starting from a restricted Hartree-Fock (RHF) reference.\n",
+    "\n",
+    "The data stored by this class consists of:\n",
+    "\n",
+    "- `t1`: The real-valued $t_1$-amplitudes, an array of shape `(nocc, nvrt)`.\n",
+    "- `t2`: The real-valued $t_2$-amplitudes, an array of shape `(nocc, nocc, nvrt, nvrt)`.\n",
+    "- `final_orbital_rotation`: An optional array of shape `(norb, norb)` (may be complex-valued)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "8ab56a0c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "t1 shape: (2, 2)\n",
+      "t2 shape: (2, 2, 2, 2)\n"
+     ]
+    }
+   ],
+   "source": [
+    "t1 = rng.standard_normal((nocc, nvrt))\n",
+    "t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=float)\n",
+    "\n",
+    "uccsd_op = ffsim.UCCSDOpRestrictedReal(t1, t2)\n",
+    "\n",
+    "print(\"t1 shape:\", uccsd_op.t1.shape)\n",
+    "print(\"t2 shape:\", uccsd_op.t2.shape)\n",
+    "\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_closed, uccsd_op, norb=norb, nelec=nelec_closed\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3f47e5d1",
+   "metadata": {},
+   "source": [
+    "#### UCCSDOpRestricted\n",
+    "\n",
+    "The [UCCSDOpRestricted](../api/ffsim.rst#ffsim.UCCSDOpRestricted) class is just like `UCCSDOpRestrictedReal` except its $t$-amplitudes are allowed to take complex values, which doubles the number of real parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "1438584f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "t1 shape: (2, 2)\n",
+      "t2 shape: (2, 2, 2, 2)\n"
+     ]
+    }
+   ],
+   "source": [
+    "t1 = rng.standard_normal((nocc, nvrt)) + 1j * rng.standard_normal((nocc, nvrt))\n",
+    "t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=complex)\n",
+    "\n",
+    "uccsd_op = ffsim.UCCSDOpRestricted(t1, t2)\n",
+    "\n",
+    "print(\"t1 shape:\", uccsd_op.t1.shape)\n",
+    "print(\"t2 shape:\", uccsd_op.t2.shape)\n",
+    "\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_closed, uccsd_op, norb=norb, nelec=nelec_closed\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5d8f1747",
+   "metadata": {},
+   "source": [
+    "#### UCCSDOpUnrestrictedReal\n",
+    "\n",
+    "The [UCCSDOpUnrestrictedReal](../api/ffsim.rst#ffsim.UCCSDOpUnrestrictedReal) class represents the unrestricted UCCSD operator with real-valued $t$-amplitudes. \"Unrestricted\" means that separate $t$-amplitudes are used for different spin combinations, suitable for open-shell systems described by an unrestricted Hartree-Fock (UHF) reference.\n",
+    "\n",
+    "The data stored by this class consists of:\n",
+    "\n",
+    "- `t1`: A tuple `(t1_a, t1_b)` of real-valued arrays with shapes `(nocc_a, nvrt_a)` and `(nocc_b, nvrt_b)`.\n",
+    "- `t2`: A tuple `(t2_aa, t2_ab, t2_bb)` of real-valued arrays with shapes `(nocc_a, nocc_a, nvrt_a, nvrt_a)`, `(nocc_a, nocc_b, nvrt_a, nvrt_b)`, and `(nocc_b, nocc_b, nvrt_b, nvrt_b)`.\n",
+    "- `final_orbital_rotation`: An optional array of shape `(2, norb, norb)` containing a final orbital rotation for each spin sector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "c7248787",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "t1_a shape: (3, 1)\n",
+      "t1_b shape: (1, 3)\n",
+      "t2_aa shape: (3, 3, 1, 1)\n",
+      "t2_ab shape: (3, 1, 1, 3)\n",
+      "t2_bb shape: (1, 1, 3, 3)\n"
+     ]
+    }
+   ],
+   "source": [
+    "t1a = rng.standard_normal((nocc_a, nvrt_a))\n",
+    "t1b = rng.standard_normal((nocc_b, nvrt_b))\n",
+    "t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)\n",
+    "t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))\n",
+    "t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)\n",
+    "\n",
+    "uccsd_op = ffsim.UCCSDOpUnrestrictedReal((t1a, t1b), (t2aa, t2ab, t2bb))\n",
+    "\n",
+    "print(\"t1_a shape:\", uccsd_op.t1[0].shape)\n",
+    "print(\"t1_b shape:\", uccsd_op.t1[1].shape)\n",
+    "print(\"t2_aa shape:\", uccsd_op.t2[0].shape)\n",
+    "print(\"t2_ab shape:\", uccsd_op.t2[1].shape)\n",
+    "print(\"t2_bb shape:\", uccsd_op.t2[2].shape)\n",
+    "\n",
+    "reference_state_open = ffsim.hartree_fock_state(norb, nelec_open)\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_open, uccsd_op, norb=norb, nelec=nelec_open\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eti2tfrmpwn",
+   "metadata": {},
+   "source": [
+    "#### UCCSDOpUnrestricted\n",
+    "\n",
+    "The [UCCSDOpUnrestricted](../api/ffsim.rst#ffsim.UCCSDOpUnrestricted) class is just like `UCCSDOpUnrestrictedReal` except its $t$-amplitudes are allowed to take complex values, which doubles the number of real parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "o9y5tcop3c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "t1_a shape: (3, 1)\n",
+      "t1_b shape: (1, 3)\n",
+      "t2_aa shape: (3, 3, 1, 1)\n",
+      "t2_ab shape: (3, 1, 1, 3)\n",
+      "t2_bb shape: (1, 1, 3, 3)\n"
+     ]
+    }
+   ],
+   "source": [
+    "t1a = rng.standard_normal((nocc_a, nvrt_a)) + 1j * rng.standard_normal((nocc_a, nvrt_a))\n",
+    "t1b = rng.standard_normal((nocc_b, nvrt_b)) + 1j * rng.standard_normal((nocc_b, nvrt_b))\n",
+    "t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=complex)\n",
+    "t2ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)) + 1j * rng.standard_normal(\n",
+    "    (nocc_a, nocc_b, nvrt_a, nvrt_b)\n",
+    ")\n",
+    "t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=complex)\n",
+    "\n",
+    "uccsd_op = ffsim.UCCSDOpUnrestricted((t1a, t1b), (t2aa, t2ab, t2bb))\n",
+    "\n",
+    "print(\"t1_a shape:\", uccsd_op.t1[0].shape)\n",
+    "print(\"t1_b shape:\", uccsd_op.t1[1].shape)\n",
+    "print(\"t2_aa shape:\", uccsd_op.t2[0].shape)\n",
+    "print(\"t2_ab shape:\", uccsd_op.t2[1].shape)\n",
+    "print(\"t2_bb shape:\", uccsd_op.t2[2].shape)\n",
+    "\n",
+    "final_state = ffsim.apply_unitary(\n",
+    "    reference_state_open, uccsd_op, norb=norb, nelec=nelec_open\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.12"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

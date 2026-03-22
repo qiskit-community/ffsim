@@ -1,0 +1,191 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Simulate Trotterized time evolution for the Fermi-Hubbard model\n",
+    "\n",
+    "In this guide, we show how to use ffsim to simulate Trotterized time evolution for the Fermi-Hubbard model using the split-operator method. In the split-operator method, the Hamiltonian is expressed as a sum of two terms, the one-body part and the two-body part, for the purposes of the Trotter product formula.\n",
+    "\n",
+    "First, let's create a Fermi-Hubbard Hamiltonian and choose the number of electrons, which will remain fixed throughout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ffsim\n",
+    "\n",
+    "norb_x = 4\n",
+    "norb_y = 4\n",
+    "\n",
+    "norb = norb_x * norb_y\n",
+    "nelec = (2, 2)\n",
+    "n_alpha, n_beta = nelec\n",
+    "\n",
+    "op = ffsim.fermi_hubbard_2d(\n",
+    "    norb_x=norb_x,\n",
+    "    norb_y=norb_y,\n",
+    "    tunneling=1.0,\n",
+    "    interaction=4.0,\n",
+    "    chemical_potential=0.0,\n",
+    "    periodic_x=True,\n",
+    "    periodic_y=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Before we can simulate Trotterized time evolution, we need to convert the operator to an instance of the [DiagonalCoulombHamiltonian](../api/ffsim.rst#ffsim.DiagonalCoulombHamiltonian) class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, let's apply time evolution to an initial state. Here, we'll use the ground state of the one-body part of the Hamiltonian as the initial state."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "# Construct the initial state.\n",
+    "eigs, orbital_rotation = np.linalg.eigh(dc_hamiltonian.one_body_tensor)\n",
+    "initial_state = ffsim.slater_determinant(\n",
+    "    norb,\n",
+    "    occupied_orbitals=(range(n_alpha), range(n_beta)),\n",
+    "    orbital_rotation=orbital_rotation,\n",
+    ")\n",
+    "\n",
+    "# Set the evolution time.\n",
+    "time = 1.0\n",
+    "\n",
+    "# Perform the Trotterized time evolution\n",
+    "final_state = ffsim.simulate_trotter_diag_coulomb_split_op(\n",
+    "    initial_state,\n",
+    "    dc_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=5,\n",
+    "    order=0,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To check the error from Trotterization, we can compute the result of exact time evolution and compare it with the final state we got."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9725640629741713\n"
+     ]
+    }
+   ],
+   "source": [
+    "import scipy.sparse.linalg\n",
+    "\n",
+    "# Convert the Hamiltonian to a LinearOperator\n",
+    "linop = ffsim.linear_operator(dc_hamiltonian, norb=norb, nelec=nelec)\n",
+    "\n",
+    "# Compute the exact result of time evolution\n",
+    "exact_state = scipy.sparse.linalg.expm_multiply(\n",
+    "    -1j * time * linop,\n",
+    "    initial_state,\n",
+    "    traceA=-1j * time * ffsim.trace(dc_hamiltonian, norb=norb, nelec=nelec),\n",
+    ")\n",
+    "\n",
+    "# Compute fidelity between results from Trotterized evolution and exact evolution\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To reduce the Trotter error, you can increase the number of steps or use a higher-order formula."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fidelity of Trotter-evolved state with exact state: 0.9999380169878245\n"
+     ]
+    }
+   ],
+   "source": [
+    "final_state = ffsim.simulate_trotter_diag_coulomb_split_op(\n",
+    "    initial_state,\n",
+    "    dc_hamiltonian,\n",
+    "    time,\n",
+    "    norb=norb,\n",
+    "    nelec=nelec,\n",
+    "    n_steps=10,\n",
+    "    order=1,\n",
+    ")\n",
+    "\n",
+    "fidelity = abs(np.vdot(final_state, exact_state))\n",
+    "\n",
+    "print(f\"Fidelity of Trotter-evolved state with exact state: {fidelity}\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
