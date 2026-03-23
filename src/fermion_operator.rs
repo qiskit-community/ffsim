@@ -442,7 +442,7 @@ impl FermionOperator {
     ///     FermionOperator({
     ///         (cre_a(0), des_a(1)): 1
     ///     })
-    #[pyo3(signature = (tol=1e-8))]
+    #[pyo3(signature = (tol=1e-12))]
     fn simplify(&mut self, tol: f64) -> PyResult<()> {
         self.coeffs.retain(|_, coeff| coeff.norm() > tol);
         Ok(())
