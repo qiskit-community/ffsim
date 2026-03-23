@@ -148,26 +148,18 @@ class MolecularHamiltonian(
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
-        op = FermionOperator({(): self.constant})
+        coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {(): self.constant}
         for p, q in itertools.product(range(self.norb), repeat=2):
             coeff = self.one_body_tensor[p, q]
-            op += FermionOperator(
-                {
-                    (cre_a(p), des_a(q)): coeff,
-                    (cre_b(p), des_b(q)): coeff,
-                }
-            )
+            coeffs[cre_a(p), des_a(q)] = coeff
+            coeffs[cre_b(p), des_b(q)] = coeff
         for p, q, r, s in itertools.product(range(self.norb), repeat=4):
             coeff = 0.5 * self.two_body_tensor[p, q, r, s]
-            op += FermionOperator(
-                {
-                    (cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff,
-                    (cre_a(p), cre_b(r), des_b(s), des_a(q)): coeff,
-                    (cre_b(p), cre_a(r), des_a(s), des_b(q)): coeff,
-                    (cre_b(p), cre_b(r), des_b(s), des_b(q)): coeff,
-                }
-            )
-        return op
+            coeffs[cre_a(p), cre_a(r), des_a(s), des_a(q)] = coeff
+            coeffs[cre_a(p), cre_b(r), des_b(s), des_a(q)] = coeff
+            coeffs[cre_b(p), cre_a(r), des_a(s), des_b(q)] = coeff
+            coeffs[cre_b(p), cre_b(r), des_b(s), des_b(q)] = coeff
+        return FermionOperator(coeffs)
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonian:
