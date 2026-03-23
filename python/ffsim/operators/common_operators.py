@@ -34,7 +34,7 @@ def s_plus_operator(norb: int) -> FermionOperator:
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
-        coeffs[(cre_a(i), des_b(i))] = 1
+        coeffs[cre_a(i), des_b(i)] = 1
     return FermionOperator(coeffs)
 
 
@@ -57,7 +57,7 @@ def s_minus_operator(norb: int) -> FermionOperator:
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
-        coeffs[(cre_b(i), des_a(i))] = 1
+        coeffs[cre_b(i), des_a(i)] = 1
     return FermionOperator(coeffs)
 
 
@@ -83,8 +83,8 @@ def s_x_operator(norb: int) -> FermionOperator:
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
-        coeffs[(cre_a(i), des_b(i))] = 0.5
-        coeffs[(cre_b(i), des_a(i))] = 0.5
+        coeffs[cre_a(i), des_b(i)] = 0.5
+        coeffs[cre_b(i), des_a(i)] = 0.5
     return FermionOperator(coeffs)
 
 
@@ -110,8 +110,8 @@ def s_y_operator(norb: int) -> FermionOperator:
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
-        coeffs[(cre_a(i), des_b(i))] = -0.5j
-        coeffs[(cre_b(i), des_a(i))] = 0.5j
+        coeffs[cre_a(i), des_b(i)] = -0.5j
+        coeffs[cre_b(i), des_a(i)] = 0.5j
     return FermionOperator(coeffs)
 
 
@@ -136,8 +136,8 @@ def s_z_operator(norb: int) -> FermionOperator:
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
-        coeffs[(cre_a(i), des_a(i))] = 0.5
-        coeffs[(cre_b(i), des_b(i))] = -0.5
+        coeffs[cre_a(i), des_a(i)] = 0.5
+        coeffs[cre_b(i), des_b(i)] = -0.5
     return FermionOperator(coeffs)
 
 
@@ -184,7 +184,7 @@ def number_operator(orb: int, spin: Spin = Spin.ALPHA_AND_BETA) -> FermionOperat
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     if spin & Spin.ALPHA:
-        coeffs[(cre_a(orb), des_a(orb))] = 1
+        coeffs[cre_a(orb), des_a(orb)] = 1
     if spin & Spin.BETA:
-        coeffs[(cre_b(orb), des_b(orb))] = 1
+        coeffs[cre_b(orb), des_b(orb)] = 1
     return FermionOperator(coeffs)
