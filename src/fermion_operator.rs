@@ -430,7 +430,7 @@ impl FermionOperator {
     ///
     /// Args:
     ///     tol (float): The tolerance threshold. Terms with coefficients whose
-    ///         absolute value is less than this will be removed. Defaults to 1e-8.
+    ///         absolute value is less than or equal to this value will be removed.
     ///
     /// Example:
     ///     >>> op = FermionOperator({
@@ -444,7 +444,7 @@ impl FermionOperator {
     ///     })
     #[pyo3(signature = (tol=1e-8))]
     fn simplify(&mut self, tol: f64) -> PyResult<()> {
-        self.coeffs.retain(|_, coeff| coeff.norm() >= tol);
+        self.coeffs.retain(|_, coeff| coeff.norm() > tol);
         Ok(())
     }
 
