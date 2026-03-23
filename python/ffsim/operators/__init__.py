@@ -10,7 +10,15 @@
 
 """Operators."""
 
-from ffsim.operators.common_operators import number_operator
+from ffsim.operators.common_operators import (
+    number_operator,
+    s_minus_operator,
+    s_plus_operator,
+    s_squared_operator,
+    s_x_operator,
+    s_y_operator,
+    s_z_operator,
+)
 from ffsim.operators.coupled_cluster import (
     ccsd_generator_restricted,
     ccsd_generator_unrestricted,
@@ -49,6 +57,12 @@ __all__ = [
     "fermi_hubbard_1d",
     "fermi_hubbard_2d",
     "number_operator",
+    "s_minus_operator",
+    "s_plus_operator",
+    "s_squared_operator",
+    "s_x_operator",
+    "s_y_operator",
+    "s_z_operator",
     "singles_excitations_restricted",
     "singles_excitations_unrestricted",
     "uccsd_generator_restricted",
