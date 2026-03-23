@@ -77,11 +77,11 @@ from ffsim.protocols import (
     linear_operator,
     trace,
 )
-from ffsim.spin import Spin
 from ffsim.states import (
     BitstringType,
     ProductStateSum,
     ReducedDensityMatrix,
+    Spin,
     StateVector,
     addresses_to_strings,
     expectation_one_body_power,

@@ -19,7 +19,7 @@ from typing import cast, overload
 import numpy as np
 
 from ffsim.linalg import match_global_phase
-from ffsim.spin import Spin
+from ffsim.states.spin import Spin
 
 _NORB_NELEC_CASES: list[tuple[int, tuple[int, int]]] = [
     (0, (0, 0)),

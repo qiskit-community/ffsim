@@ -24,6 +24,7 @@ from ffsim.states.slater import (
     slater_determinant_amplitudes,
     slater_determinant_rdms,
 )
+from ffsim.states.spin import Spin
 from ffsim.states.states import (
     StateVector,
     sample_state_vector,
@@ -38,6 +39,7 @@ __all__ = [
     "BitstringType",
     "ProductStateSum",
     "ReducedDensityMatrix",
+    "Spin",
     "StateVector",
     "addresses_to_strings",
     "expectation_one_body_power",

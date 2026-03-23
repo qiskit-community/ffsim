@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import dataclasses
+from typing import TYPE_CHECKING
 
 import numpy as np
 from opt_einsum import contract
@@ -28,7 +29,9 @@ from pyscf.fci.direct_spin1 import (
 )
 
 from ffsim.cistring import gen_linkstr_index
-from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
+
+if TYPE_CHECKING:
+    from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 
 
 @dataclasses.dataclass
