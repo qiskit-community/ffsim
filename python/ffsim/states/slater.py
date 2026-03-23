@@ -165,7 +165,7 @@ def slater_determinant_rdms(
     *,
     rank: int = 1,
 ) -> np.ndarray:
-    """Return the reduced density matrices of a `Slater determinant`_.
+    """Return the reduced density matrices of a Slater determinant.
 
     Note:
         Currently, only rank 1 is supported.
@@ -196,8 +196,6 @@ def slater_determinant_rdms(
         In the spinful case, each RDM is represented as a stacked Numpy
         array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and
         the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
-
-    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case

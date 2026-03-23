@@ -596,10 +596,10 @@ def test_simplify():
     op = FermionOperator(
         {
             (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
-            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-12,
             (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
             (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
-            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-13 + 2e-13j,
         }
     )
 
@@ -628,14 +628,14 @@ def test_simplify():
 
     # Test with small tolerance
     op_copy = op.copy()
-    op_copy.simplify(tol=1e-12)
+    op_copy.simplify(tol=1e-15)
     expected = FermionOperator(
         {
             (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
-            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-12,
             (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
             (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
-            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-13 + 2e-13j,
         }
     )
     assert op_copy == expected
@@ -644,10 +644,10 @@ def test_simplify():
     original = FermionOperator(
         {
             (ffsim.cre_a(1), ffsim.des_a(2)): 1.0,
-            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-9,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-12,
             (ffsim.cre_a(3), ffsim.des_a(4)): -1e-7,
             (ffsim.cre_b(4), ffsim.des_b(3)): 0.5,
-            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-10 + 2e-10j,
+            (ffsim.cre_a(0), ffsim.des_a(1)): 1e-13 + 2e-13j,
         }
     )
     assert op == original
@@ -660,8 +660,8 @@ def test_simplify():
     # Test with all small terms
     small_op = FermionOperator(
         {
-            (ffsim.cre_a(1), ffsim.des_a(2)): 1e-9,
-            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-10,
+            (ffsim.cre_a(1), ffsim.des_a(2)): 1e-13,
+            (ffsim.cre_b(2), ffsim.des_b(1)): 1e-14,
         }
     )
     small_op.simplify()
