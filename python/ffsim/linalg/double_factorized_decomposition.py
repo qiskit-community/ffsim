@@ -944,6 +944,9 @@ def double_factorized_t2_alpha_beta(
           the orbital rotations, and the third from last axis, which has 2 dimensions,
           indexes the spin sector of the orbital rotation: first alpha, then beta.
           The first axis indexes the terms of the decomposition.
+
+    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
