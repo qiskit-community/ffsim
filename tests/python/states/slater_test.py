@@ -21,7 +21,9 @@ import pytest
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_hartree_fock_state_spinful(norb: int, nelec: tuple[int, int]):
     """Test Hartree-Fock state."""
     vec = ffsim.hartree_fock_state(norb, nelec)
@@ -31,7 +33,9 @@ def test_hartree_fock_state_spinful(norb: int, nelec: tuple[int, int]):
     assert all(vec[1:] == 0)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_hartree_fock_state_spinless(norb: int, nelec: int):
     """Test Hartree-Fock state."""
     vec = ffsim.hartree_fock_state(norb, nelec)
@@ -62,7 +66,9 @@ def test_slater_determinant_sign_spinless():
     assert vec[0] == -1
 
 
-@pytest.mark.parametrize("norb, nocc", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nocc", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_slater_determinant_spinless(norb: int, nocc: int):
     """Test Slater determinant with same rotation for both spins."""
     rng = np.random.default_rng()
@@ -82,7 +88,9 @@ def test_slater_determinant_spinless(norb: int, nocc: int):
     np.testing.assert_allclose(hamiltonian @ state, eig * state)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant with same rotation for both spins."""
     rng = np.random.default_rng()
@@ -101,7 +109,9 @@ def test_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(hamiltonian @ state, eig * state)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant with different rotations for each spin."""
     rng = np.random.default_rng()
@@ -131,7 +141,9 @@ def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(state, np.kron(state_a, state_b))
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_rdm1s_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant 1-RDM."""
     rng = np.random.default_rng()
@@ -152,7 +164,9 @@ def test_slater_determinant_rdm1s_same_rotation(norb: int, nelec: tuple[int, int
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_rdm1s_diff_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant 1-RDM."""
     rng = np.random.default_rng()
@@ -183,7 +197,9 @@ def test_slater_determinant_rdm1s_diff_rotation(norb: int, nelec: tuple[int, int
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_slater_determinant_rdm1s_spinless(norb: int, nelec: int):
     """Test Slater determinant 1-RDM, spinless."""
     rng = np.random.default_rng()
@@ -204,7 +220,9 @@ def test_slater_determinant_rdm1s_spinless(norb: int, nelec: int):
     np.testing.assert_allclose(rdm, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc([4, 5]))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
     """Test computing Slater determinant amplitudes, spinless."""
     rng = np.random.default_rng(3725)
@@ -223,7 +241,9 @@ def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
         np.testing.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec([3, 4]))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_slater_determinant_amplitudes_spinful(norb: int, nelec: tuple[int, int]):
     """Test computing Slater determinant amplitudes, spinful."""
     rng = np.random.default_rng(3725)

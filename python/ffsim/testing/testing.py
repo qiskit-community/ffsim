@@ -19,46 +19,125 @@ from typing import cast, overload
 import numpy as np
 
 from ffsim.linalg import match_global_phase
-from ffsim.spin import Spin
+from ffsim.states.spin import Spin
+
+_NORB_NELEC_CASES: list[tuple[int, tuple[int, int]]] = [
+    (0, (0, 0)),
+    (1, (0, 0)),
+    (1, (1, 0)),
+    (1, (0, 1)),
+    (1, (1, 1)),
+    (2, (1, 1)),
+    (2, (2, 2)),
+    (3, (2, 1)),
+    (3, (1, 2)),
+    (4, (3, 2)),
+]
+
+_NORB_NOCC_CASES: list[tuple[int, int]] = [
+    (0, 0),
+    (1, 0),
+    (1, 1),
+    (2, 1),
+    (2, 2),
+    (3, 1),
+    (3, 2),
+    (4, 2),
+]
 
 
 def generate_norb_nelec_spin(
-    norb_range: Iterable[int],
+    *,
+    exhaustive: bool = True,
+    norb_range: Iterable[int] | None = None,
+    include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, tuple[int, int], Spin]]:
     """Generate (`norb`, `nelec`, `spin`) tuples for testing.
 
-    Given a range of choices for `norb`, generates all possible
-    (`norb`, `nelec`, `spin`) triplets.
+    Args:
+        exhaustive: If True, generates all possible (`norb`, `nelec`, `spin`)
+            triplets for each ``norb`` in ``norb_range``. If False, yields a small
+            representative set covering edge cases, ignoring ``norb_range``.
+        norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
+        include_norb_zero: Whether to include the case ``norb=0``. Default: True.
     """
-    for norb in norb_range:
-        for nelec in itertools.product(range(norb + 1), repeat=2):
+    if exhaustive:
+        if norb_range is None:
+            raise ValueError("norb_range must be specified when exhaustive=True.")
+        for norb in norb_range:
+            if norb == 0 and not include_norb_zero:
+                continue
+            for nelec in itertools.product(range(norb + 1), repeat=2):
+                for spin in Spin.__members__.values():
+                    yield norb, cast(tuple[int, int], nelec), spin
+    else:
+        for norb, nelec in _NORB_NELEC_CASES:
+            if norb == 0 and not include_norb_zero:
+                continue
             for spin in Spin.__members__.values():
-                yield norb, cast(tuple[int, int], nelec), spin
+                yield norb, nelec, spin
 
 
 def generate_norb_nelec(
-    norb_range: Iterable[int],
+    *,
+    exhaustive: bool = True,
+    norb_range: Iterable[int] | None = None,
+    include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, tuple[int, int]]]:
     """Generate (`norb`, `nelec`) tuples for testing.
 
-    Given a range of choices for `norb`, generates all possible (`norb`, `nelec`) pairs.
+    Args:
+        exhaustive: If True, generates all possible (`norb`, `nelec`) pairs for
+            each ``norb`` in ``norb_range``. If False, yields a small representative
+            set covering edge cases, ignoring ``norb_range``.
+        norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
+        include_norb_zero: Whether to include the case ``norb=0``. Default: True.
     """
-    for norb in norb_range:
-        for nelec in itertools.product(range(norb + 1), repeat=2):
-            yield norb, cast(tuple[int, int], nelec)
+    if exhaustive:
+        if norb_range is None:
+            raise ValueError("norb_range must be specified when exhaustive=True.")
+        for norb in norb_range:
+            if norb == 0 and not include_norb_zero:
+                continue
+            for nelec in itertools.product(range(norb + 1), repeat=2):
+                yield norb, cast(tuple[int, int], nelec)
+    else:
+        for norb, nelec in _NORB_NELEC_CASES:
+            if norb == 0 and not include_norb_zero:
+                continue
+            yield norb, nelec
 
 
 def generate_norb_nocc(
-    norb_range: Iterable[int],
+    *,
+    exhaustive: bool = True,
+    norb_range: Iterable[int] | None = None,
+    include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, int]]:
     """Generate (`norb`, `nocc`) tuples for testing.
 
-    Given a range of choices for `norb`, generates all possible (`norb`, `nocc`) pairs.
-    `nocc` refers to the occupation of a single spin species, so it ranges from 0 to
-    `norb`.
+    `nocc` refers to the occupation of a single spin species, so it ranges from
+    0 to `norb`.
+
+    Args:
+        exhaustive: If True, generates all possible (`norb`, `nocc`) pairs for
+            each ``norb`` in ``norb_range``. If False, yields a small representative
+            set covering edge cases, ignoring ``norb_range``.
+        norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
+        include_norb_zero: Whether to include the case ``norb=0``. Default: True.
     """
-    for norb in norb_range:
-        for nocc in range(norb + 1):
+    if exhaustive:
+        if norb_range is None:
+            raise ValueError("norb_range must be specified when exhaustive=True.")
+        for norb in norb_range:
+            if norb == 0 and not include_norb_zero:
+                continue
+            for nocc in range(norb + 1):
+                yield norb, nocc
+    else:
+        for norb, nocc in _NORB_NOCC_CASES:
+            if norb == 0 and not include_norb_zero:
+                continue
             yield norb, nocc
 
 

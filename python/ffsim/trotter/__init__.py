@@ -8,9 +8,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Hamiltonian simulation via Trotter-Suzuki formulas."""
+"""Hamiltonian simulation.
 
-from ffsim.trotter.diagonal_coulomb import simulate_trotter_diag_coulomb_split_op
+Functions to approximate time evolution by Hamiltonians.
+"""
+
+from ffsim.trotter.diagonal_coulomb_split_op import (
+    simulate_trotter_diag_coulomb_split_op,
+)
 from ffsim.trotter.double_factorized import simulate_trotter_double_factorized
 from ffsim.trotter.qdrift import simulate_qdrift_double_factorized
 

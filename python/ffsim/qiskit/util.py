@@ -15,7 +15,7 @@ from functools import cache
 import numpy as np
 
 from ffsim.cistring import make_strings
-from ffsim.dimensions import dim
+from ffsim.states.dimensions import dim
 
 
 def qiskit_vec_to_ffsim_vec(

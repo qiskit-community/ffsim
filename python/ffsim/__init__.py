@@ -12,7 +12,6 @@
 
 from ffsim import contract, linalg, optimize, qiskit, random, testing
 from ffsim.cistring import init_cache
-from ffsim.dimensions import dim, dims
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -52,6 +51,12 @@ from ffsim.operators import (
     fermi_hubbard_1d,
     fermi_hubbard_2d,
     number_operator,
+    s_minus_operator,
+    s_plus_operator,
+    s_squared_operator,
+    s_x_operator,
+    s_y_operator,
+    s_z_operator,
     singles_excitations_restricted,
     singles_excitations_unrestricted,
     uccsd_generator_restricted,
@@ -71,13 +76,15 @@ from ffsim.protocols import (
     linear_operator,
     trace,
 )
-from ffsim.spin import Spin
 from ffsim.states import (
     BitstringType,
     ProductStateSum,
     ReducedDensityMatrix,
+    Spin,
     StateVector,
     addresses_to_strings,
+    dim,
+    dims,
     expectation_one_body_power,
     expectation_one_body_product,
     hartree_fock_state,
@@ -104,6 +111,7 @@ from ffsim.variational import (
     NumNumAnsatzOpSpinBalanced,
     UCCSDOpRestricted,
     UCCSDOpRestrictedReal,
+    UCCSDOpUnrestricted,
     UCCSDOpUnrestrictedReal,
     UCJAnglesOpSpinBalanced,
     UCJOpSpinBalanced,
@@ -139,6 +147,7 @@ __all__ = [
     "SupportsTrace",
     "UCCSDOpRestricted",
     "UCCSDOpRestrictedReal",
+    "UCCSDOpUnrestricted",
     "UCCSDOpUnrestrictedReal",
     "UCJAnglesOpSpinBalanced",
     "UCJOpSpinBalanced",
@@ -191,6 +200,12 @@ __all__ = [
     "qiskit",
     "random",
     "rdms",
+    "s_minus_operator",
+    "s_plus_operator",
+    "s_squared_operator",
+    "s_x_operator",
+    "s_y_operator",
+    "s_z_operator",
     "sample_slater",
     "sample_state_vector",
     "simulate_qdrift_double_factorized",

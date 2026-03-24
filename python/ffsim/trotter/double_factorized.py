@@ -80,7 +80,8 @@ def simulate_trotter_double_factorized(
             z_representation=hamiltonian.z_representation,
         )
     vec = apply_orbital_rotation(vec, current_basis, norb=norb, nelec=nelec, copy=False)
-    vec *= cmath.exp(-1j * time * hamiltonian.constant)
+    if hamiltonian.constant:
+        vec *= cmath.exp(-1j * time * hamiltonian.constant)
 
     return vec
 

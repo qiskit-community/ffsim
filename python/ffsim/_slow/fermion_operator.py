@@ -15,8 +15,8 @@ import numpy as np
 import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim.dimensions import dim, dims
 from ffsim.operators.fermion_action import FermionAction
+from ffsim.states.dimensions import dim, dims
 
 
 @dataclass
@@ -254,6 +254,8 @@ def _normal_ordered_term(
                     # swap operators and update sign
                     term[j - 1], term[j] = term[j], term[j - 1]
                     parity = not parity
+            if zero:
+                break
         if zero:
             continue
         term = tuple(term)

@@ -14,7 +14,9 @@ from ffsim.qiskit.gates.diag_coulomb import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
 )
-from ffsim.qiskit.gates.diag_coulomb_trotter import SimulateTrotterDiagCoulombSplitOpJW
+from ffsim.qiskit.gates.diag_coulomb_trotter_split_op import (
+    SimulateTrotterDiagCoulombSplitOpJW,
+)
 from ffsim.qiskit.gates.double_factorized_trotter import (
     SimulateTrotterDoubleFactorizedJW,
 )

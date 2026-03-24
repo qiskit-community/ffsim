@@ -8,13 +8,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""States."""
+"""States.
+
+Functions for creating and manipulating fermionic quantum states.
+See :doc:`/explanations/state-vectors-and-gates`.
+"""
 
 from ffsim.states.bitstring import (
     BitstringType,
     addresses_to_strings,
     strings_to_addresses,
 )
+from ffsim.states.dimensions import dim, dims
 from ffsim.states.product_state_sum import ProductStateSum
 from ffsim.states.rdm import ReducedDensityMatrix, rdms
 from ffsim.states.sample_slater import sample_slater
@@ -24,6 +29,7 @@ from ffsim.states.slater import (
     slater_determinant_amplitudes,
     slater_determinant_rdms,
 )
+from ffsim.states.spin import Spin
 from ffsim.states.states import (
     StateVector,
     sample_state_vector,
@@ -38,8 +44,11 @@ __all__ = [
     "BitstringType",
     "ProductStateSum",
     "ReducedDensityMatrix",
+    "Spin",
     "StateVector",
     "addresses_to_strings",
+    "dim",
+    "dims",
     "expectation_one_body_power",
     "expectation_one_body_product",
     "hartree_fock_state",

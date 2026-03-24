@@ -21,7 +21,7 @@ import numpy as np
 from ffsim import linalg
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
-from ffsim.spin import Spin, pair_for_spin
+from ffsim.states.spin import Spin, pair_for_spin
 
 
 def _apply_phase_shift(

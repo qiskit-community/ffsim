@@ -661,7 +661,7 @@ wheels = [
 
 [[package]]
 name = "ffsim"
-version = "0.0.69.dev0"
+version = "0.0.73.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "jax", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -715,7 +715,7 @@ requires-dist = [
     { name = "qiskit", specifier = ">=2.0" },
     { name = "qiskit", extras = ["visualization"], marker = "extra == 'dev'" },
     { name = "qiskit-sphinx-theme", marker = "extra == 'dev'" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.14.13" },
+    { name = "ruff", marker = "extra == 'dev'" },
     { name = "scipy" },
     { name = "sphinx", marker = "extra == 'dev'" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'" },

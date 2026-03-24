@@ -68,8 +68,8 @@ from ffsim.qiskit.gates import (
     UCJOpSpinlessJW,
     UCJOpSpinUnbalancedJW,
 )
-from ffsim.spin import Spin
 from ffsim.states.bitstring import BitstringType, restrict_bitstrings
+from ffsim.states.spin import Spin
 
 
 def final_state_vector(

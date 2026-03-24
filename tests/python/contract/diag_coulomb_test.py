@@ -20,7 +20,9 @@ import pytest
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_contract_diag_coulomb_num_rep_symmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
@@ -47,7 +49,9 @@ def test_contract_diag_coulomb_num_rep_symmetric_spin(
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_contract_diag_coulomb_num_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
@@ -123,7 +127,9 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_contract_diag_coulomb_z_rep_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test contracting a diagonal Coulomb matrix in the Z representation."""
     rng = np.random.default_rng()
@@ -151,7 +157,9 @@ def test_contract_diag_coulomb_z_rep_symmetric_spin(norb: int, nelec: tuple[int,
             np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(6)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_contract_diag_coulomb_z_rep_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test contracting a diagonal Coulomb matrix in the Z representation."""
     rng = np.random.default_rng()

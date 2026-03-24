@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Code that uses Qiskit, e.g. for constructing quantum circuits."""
+"""Code that uses `Qiskit <https://github.com/Qiskit/qiskit>`_."""
 
 from qiskit.transpiler import PassManager
 

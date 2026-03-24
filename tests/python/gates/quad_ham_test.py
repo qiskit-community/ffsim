@@ -22,7 +22,10 @@ import ffsim
 RNG = np.random.default_rng(221925319548051244210434403650365857976)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+)
 def test_apply_quad_ham_evolution_spinless(norb: int, nelec: int):
     """Test applying time evolution of a quadratic Hamiltonian, spin symmetric."""
     mat = ffsim.random.random_hermitian(norb, seed=RNG)
@@ -39,7 +42,10 @@ def test_apply_quad_ham_evolution_spinless(norb: int, nelec: int):
     np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_apply_quad_ham_evolution_spinful_symm(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of a quadratic Hamiltonian, spin symmetric."""
     mat = ffsim.random.random_hermitian(norb, seed=RNG)
@@ -56,7 +62,10 @@ def test_apply_quad_ham_evolution_spinful_symm(norb: int, nelec: tuple[int, int]
     np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(1, 5)))
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
 def test_apply_quad_ham_evolution_spinful_asymm(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of a quadratic Hamiltonian, spin asymmetric."""
     mat_a = ffsim.random.random_hermitian(norb, seed=RNG)

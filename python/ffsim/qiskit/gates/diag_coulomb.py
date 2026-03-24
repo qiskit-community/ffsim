@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import itertools
 from collections.abc import Iterator, Sequence
 
 import numpy as np
@@ -24,6 +23,20 @@ from qiskit.circuit import (
     Qubit,
 )
 from qiskit.circuit.library import CPhaseGate, PhaseGate, RZZGate
+
+
+def _iter_pairs(n: int) -> Iterator[tuple[int, int]]:
+    """Iterate over unordered pairs (i, j) such that i, j < n.
+
+    Yields the same pairs as itertools.combinations(range(n), 2) but in a different
+    order to minimize the number of layers of disjoint pairs.
+    """
+    for distance in range(1, n):
+        # Iterate over pairs (i, j) where |i - j| = distance
+        for offset in range(distance + 1):
+            # Iterate over pairs (i, j) where i % (distance + 1) == offset
+            for i in range(offset, n - distance, distance + 1):
+                yield i, i + distance
 
 
 class DiagCoulombEvolutionJW(Gate):
@@ -155,7 +168,7 @@ def _diag_coulomb_evo_num_rep_spinless_jw(
     for i in range(norb):
         if mat[i, i]:
             yield CircuitInstruction(PhaseGate(-0.5 * mat[i, i] * time), (qubits[i],))
-    for i, j in itertools.combinations(range(norb), 2):
+    for i, j in _iter_pairs(norb):
         if mat[i, j]:
             yield CircuitInstruction(
                 CPhaseGate(-mat[i, j] * time), (qubits[i], qubits[j])
@@ -186,7 +199,7 @@ def _diag_coulomb_evo_num_rep_jw(
                         PhaseGate(-0.5 * this_mat[i, i] * time),
                         (qubits[i + sigma * norb],),
                     )
-            for i, j in itertools.combinations(range(norb), 2):
+            for i, j in _iter_pairs(norb):
                 if this_mat[i, j]:
                     yield CircuitInstruction(
                         CPhaseGate(-this_mat[i, j] * time),
@@ -201,7 +214,7 @@ def _diag_coulomb_evo_num_rep_jw(
                     CPhaseGate(-mat_ab[i, i] * time),
                     (qubits[i], qubits[i + norb]),
                 )
-        for i, j in itertools.combinations(range(norb), 2):
+        for i, j in _iter_pairs(norb):
             if mat_ab[i, j]:
                 yield CircuitInstruction(
                     CPhaseGate(-mat_ab[i, j] * time),
@@ -228,7 +241,7 @@ def _diag_coulomb_evo_z_rep_jw(
         mat_aa, mat_ab, mat_bb = mat, mat, mat
     else:
         mat_aa, mat_ab, mat_bb = mat
-    for i, j in itertools.combinations(range(2 * norb), 2):
+    for i, j in _iter_pairs(2 * norb):
         if (i < norb) and (j < norb):
             this_mat = mat_aa
         elif (i >= norb) and (j >= norb):

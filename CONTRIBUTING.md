@@ -47,11 +47,12 @@ tox run -e <environment name>
 
 substituting `<environment name>` with the name of the tox environment for the check. The following environments are available:
 
-- `py310`, `py311`, `py312`, `py313`, `py314`: Run tests for a specific Python version
+- `test-3.10`, `test-3.11`, `test-3.12`, `test-3.13`, `test-3.14`: Run tests for a specific Python version
 - `coverage`: Code coverage
 - `type`: Type check
 - `lint`: Lint check
 - `format`: Format check
+- `spell`: Spell check
 - `docs`: Build documentation
 
 ## Run code checks directly
@@ -83,6 +84,12 @@ ruff check --fix
 
 ```bash
 ruff format
+```
+
+### Run spell check
+
+```bash
+typos
 ```
 
 ### Build documentation

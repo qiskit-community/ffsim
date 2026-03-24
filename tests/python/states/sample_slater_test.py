@@ -26,7 +26,10 @@ from ffsim.states.bitstring import BitstringType
     [
         (norb, nelec, bitstring_type)
         for (norb, nelec), bitstring_type in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(1, 5)), BitstringType
+            ffsim.testing.generate_norb_nelec(
+                exhaustive=False, include_norb_zero=False
+            ),
+            BitstringType,
         )
     ],
 )
@@ -67,7 +70,8 @@ def test_sample_slater_spinful(
     [
         (norb, nelec, bitstring_type)
         for (norb, nelec), bitstring_type in itertools.product(
-            ffsim.testing.generate_norb_nocc(range(1, 5)), BitstringType
+            ffsim.testing.generate_norb_nocc(exhaustive=False, include_norb_zero=False),
+            BitstringType,
         )
     ],
 )

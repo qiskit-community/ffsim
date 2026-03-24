@@ -20,9 +20,9 @@ import scipy.linalg
 from pyscf.fci import cistring
 
 from ffsim import linalg
-from ffsim.dimensions import dims
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states.bitstring import bitstring_to_occupied_orbitals
+from ffsim.states.dimensions import dims
 
 
 @overload
@@ -165,7 +165,7 @@ def slater_determinant_rdms(
     *,
     rank: int = 1,
 ) -> np.ndarray:
-    """Return the reduced density matrices of a `Slater determinant`_.
+    """Return the reduced density matrices of a Slater determinant.
 
     Note:
         Currently, only rank 1 is supported.
@@ -196,14 +196,12 @@ def slater_determinant_rdms(
         In the spinful case, each RDM is represented as a stacked Numpy
         array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and
         the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
-
-    .. _Slater determinant: ffsim.html#ffsim.slater_determinant
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
         occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
         if rank == 1:
-            rdm = np.zeros((norb, norb), dtype=complex)
+            rdm = np.zeros((norb, norb))
             if occupied_orbitals:
                 rdm[(occupied_orbitals, occupied_orbitals)] = 1
             if orbital_rotation is not None:

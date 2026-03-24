@@ -16,6 +16,7 @@ import itertools
 
 import numpy as np
 import pytest
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -26,7 +27,7 @@ import ffsim
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )
@@ -140,7 +141,9 @@ def test_random_diag_coulomb_mat_spinful(
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
     """Test random spinless diag Coulomb gate gives correct output state."""
     rng = np.random.default_rng()
@@ -169,12 +172,68 @@ def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
         np.testing.assert_allclose(result, expected)
 
 
+def test_circuit_depth_spinful_all_to_all():
+    """Test gate depth for spinful gate decomposition with all-to-all connectivity."""
+    norb = 10
+    mat = np.ones((norb, norb))
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, np.eye(norb), mat), time)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 100
+    assert circuit.depth() == 16
+
+
+def test_circuit_depth_spinless_all_to_all():
+    """Test gate depth for spinless gate decomposition with all-to-all connectivity."""
+    norb = 10
+    mat = np.ones((norb, norb))
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 45
+    assert circuit.depth() == 15
+
+
+def test_circuit_depth_spinful_linear():
+    """Test gate depth for spinful gate decomposition with linear connectivity."""
+    norb = 10
+    mat = np.diag(np.ones(norb - 1), k=1) + np.diag(np.ones(norb - 1), k=-1)
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, np.eye(norb), mat), time)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 28
+    assert circuit.depth() == 3
+
+
+def test_circuit_depth_spinless_linear():
+    """Test gate depth for spinless gate decomposition with linear connectivity."""
+    norb = 10
+    mat = np.diag(np.ones(norb - 1), k=1) + np.diag(np.ones(norb - 1), k=-1)
+    time = 1.0
+    gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(gate, qubits)
+    circuit = circuit.decompose()
+    assert circuit.count_ops()["cp"] == 9
+    assert circuit.depth() == 2
+
+
 @pytest.mark.parametrize(
     "norb, nelec, z_representation",
     [
         (norb, nelec, z_representation)
         for (norb, nelec), z_representation in itertools.product(
-            ffsim.testing.generate_norb_nelec(range(5)), [False, True]
+            ffsim.testing.generate_norb_nelec(exhaustive=False), [False, True]
         )
     ],
 )

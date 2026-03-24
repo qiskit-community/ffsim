@@ -159,7 +159,9 @@ def test_givens_orbital_rotation_t1_roundtrip():
     np.testing.assert_allclose(roundtripped, orbital_rotation, atol=1e-12)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_givens_orbital_rotation_unitary(norb: int, nelec: tuple[int, int]):
     """Test initialization from orbital rotation."""
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)

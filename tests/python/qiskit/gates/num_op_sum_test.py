@@ -19,7 +19,9 @@ from qiskit.quantum_info import Statevector
 import ffsim
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test random gate gives correct output state."""
     rng = np.random.default_rng()
@@ -92,7 +94,9 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nocc(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
+)
 def test_random_spinless(norb: int, nelec: int):
     """Test random spinless gate gives correct output state."""
     rng = np.random.default_rng()
@@ -116,7 +120,9 @@ def test_random_spinless(norb: int, nelec: int):
         np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("norb, nelec", ffsim.testing.generate_norb_nelec(range(5)))
+@pytest.mark.parametrize(
+    "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
+)
 def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
     """Test inverse."""
     rng = np.random.default_rng()

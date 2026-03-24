@@ -45,7 +45,7 @@ impl KeysIterator {
 /// by scalars. When multiplying by a scalar, the scalar should go on the left side of the
 /// multiplication operator, e.g. ``scalar * op``, not ``op * scalar``.
 ///
-/// See :doc:`/how-to-guides/fermion-operator` for an explanation of how to use this class.
+/// See :doc:`/explanations/fermion-operator` for an explanation of how to use this class.
 ///
 /// Example:
 ///
@@ -430,7 +430,7 @@ impl FermionOperator {
     ///
     /// Args:
     ///     tol (float): The tolerance threshold. Terms with coefficients whose
-    ///         absolute value is less than this will be removed. Defaults to 1e-8.
+    ///         absolute value is less than or equal to this value will be removed.
     ///
     /// Example:
     ///     >>> op = FermionOperator({
@@ -442,9 +442,9 @@ impl FermionOperator {
     ///     FermionOperator({
     ///         (cre_a(0), des_a(1)): 1
     ///     })
-    #[pyo3(signature = (tol=1e-8))]
+    #[pyo3(signature = (tol=1e-12))]
     fn simplify(&mut self, tol: f64) -> PyResult<()> {
-        self.coeffs.retain(|_, coeff| coeff.norm() >= tol);
+        self.coeffs.retain(|_, coeff| coeff.norm() > tol);
         Ok(())
     }
 
@@ -562,7 +562,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
     while let Some((mut term, coeff)) = stack.pop() {
         let mut parity = false;
         let mut zero = false;
-        for i in 1..term.len() {
+        'outer: for i in 1..term.len() {
             // shift the operator at index i to the left until it's in the correct location
             for j in (1..=i).rev() {
                 let (action_right, spin_right, index_right) = term[j];
@@ -573,7 +573,7 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
                         Ordering::Equal => {
                             // operators are the same, so product is zero
                             zero = true;
-                            break;
+                            break 'outer;
                         }
                         Ordering::Greater => {
                             // swap operators and update sign

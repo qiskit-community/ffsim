@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Trotter simulation for diagonal Coulomb Hamiltonian."""
+"""Trotter simulation for diagonal Coulomb Hamiltonian using split-operator method."""
 
 from __future__ import annotations
 
@@ -78,7 +78,8 @@ def simulate_trotter_diag_coulomb_split_op(
             order=order,
         )
     vec = apply_orbital_rotation(vec, current_basis, norb=norb, nelec=nelec, copy=False)
-    vec *= cmath.exp(-1j * time * hamiltonian.constant)
+    if hamiltonian.constant:
+        vec *= cmath.exp(-1j * time * hamiltonian.constant)
 
     return vec
 
