@@ -8,7 +8,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fermionic quantum computation gates."""
+"""Gates.
+
+Fermionic quantum computation gates. See :doc:`/explanations/state-vectors-and-gates`.
+"""
 
 from ffsim.gates.basic_gates import (
     apply_fsim_gate,

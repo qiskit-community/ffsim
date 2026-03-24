@@ -8,7 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Variational ansatzes."""
+"""Variational ansatzes.
+
+Variational ansatz classes and related functions.
+See :doc:`/explanations/variational-ansatzes`.
+"""
 
 from ffsim.variational.givens import GivensAnsatzOp
 from ffsim.variational.hopgate import HopGateAnsatzOperator
