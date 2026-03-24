@@ -8,7 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Operators."""
+"""Operators.
+
+The FermionOperator class and functions to construct FermionOperators.
+See :doc:`/explanations/fermion-operator`.
+"""
 
 from ffsim.operators.common_operators import (
     number_operator,

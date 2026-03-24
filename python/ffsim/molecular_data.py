@@ -8,7 +8,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The MolecularData class."""
+"""The MolecularData class.
+
+The MolecularData class stores molecular integrals, geometry, energies, and other data.
+It can be saved to and loaded from JSON (lossless) and FCIDUMP (integrals only) formats.
+"""
 
 from __future__ import annotations
 

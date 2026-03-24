@@ -8,7 +8,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Protocols."""
+"""Protocols.
+
+Python protocols defined in ffsim. See :doc:`/explanations/protocols`.
+"""
 
 from ffsim.protocols.apply_unitary_protocol import SupportsApplyUnitary, apply_unitary
 from ffsim.protocols.approximate_equality_protocol import (
