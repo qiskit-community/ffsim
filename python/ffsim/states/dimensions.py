@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Convenient functions for computing the dimensions of the FCI space."""
+"""Convenience functions for computing the dimensions of the FCI space."""
 
 from __future__ import annotations
 

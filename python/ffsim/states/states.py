@@ -20,7 +20,6 @@ import numpy as np
 import scipy.linalg
 from pyscf.fci.spin_op import contract_ss
 
-from ffsim.dimensions import dim
 from ffsim.states.bitstring import (
     BitstringType,
     addresses_to_strings,
@@ -28,6 +27,7 @@ from ffsim.states.bitstring import (
     restrict_bitstrings,
     strings_to_addresses,
 )
+from ffsim.states.dimensions import dim
 
 
 @dataclass

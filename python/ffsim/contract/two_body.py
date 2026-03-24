@@ -27,7 +27,7 @@ from pyscf.fci.direct_spin1 import (
 )
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import dimensions
+from ffsim import states
 from ffsim.cistring import gen_linkstr_index, gen_linkstr_index_trilidx
 
 
@@ -118,7 +118,7 @@ def _two_body_linop_real(
             result += constant * vec
         return result
 
-    dim_ = dimensions.dim(norb, nelec)
+    dim_ = states.dim(norb, nelec)
     return LinearOperator(
         shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )
@@ -189,7 +189,7 @@ def _two_body_linop_complex(
             result += constant * vec
         return result
 
-    dim_ = dimensions.dim(norb, nelec)
+    dim_ = states.dim(norb, nelec)
     return LinearOperator(
         shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )

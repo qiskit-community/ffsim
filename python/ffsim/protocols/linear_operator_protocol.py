@@ -18,8 +18,8 @@ import numpy as np
 import pyscf.fci
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim.dimensions import dim, dims
 from ffsim.operators import FermionOperator
+from ffsim.states.dimensions import dim, dims
 
 
 class SupportsLinearOperator(Protocol):
