@@ -44,6 +44,7 @@ html_theme_options = {
 
 # autosummary options
 autosummary_generate = True
+templates_path = ["_templates"]
 
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 300
