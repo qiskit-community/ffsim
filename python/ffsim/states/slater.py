@@ -20,9 +20,9 @@ import scipy.linalg
 from pyscf.fci import cistring
 
 from ffsim import linalg
-from ffsim.dimensions import dims
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states.bitstring import bitstring_to_occupied_orbitals
+from ffsim.states.dimensions import dims
 
 
 @overload
