@@ -20,7 +20,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
-from ffsim.spin import pair_for_spin
+from ffsim.states.spin import pair_for_spin
 
 
 @pytest.mark.parametrize(

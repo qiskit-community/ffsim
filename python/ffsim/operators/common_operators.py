@@ -12,7 +12,7 @@
 
 from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
-from ffsim.spin import Spin
+from ffsim.states.spin import Spin
 
 
 def s_plus_operator(norb: int) -> FermionOperator:
