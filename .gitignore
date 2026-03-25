@@ -70,8 +70,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/api/generated/
-docs/api/stubs/
 
 # PyBuilder
 target/
@@ -141,3 +139,6 @@ wheelhouse/
 
 # direnv
 .envrc
+
+# generated API docs
+docs/api/
