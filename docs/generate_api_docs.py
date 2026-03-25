@@ -181,11 +181,11 @@ def main() -> None:
         if not mod.name.startswith("_") and mod.name not in exported_submodules
     )
 
+    # Generate API docs
+    DOCS_API_DIR.mkdir()
     generate_ffsim_rst(sections)
-
     for submodule in standalone_submodules:
         generate_submodule_rst(submodule)
-
     generate_index_md(standalone_submodules)
 
 
