@@ -17,8 +17,8 @@ from typing import cast, overload
 
 import numpy as np
 
+from ffsim._cistring import gen_occslst
 from ffsim._lib import apply_num_op_sum_evolution_in_place
-from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 

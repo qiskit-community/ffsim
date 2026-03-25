@@ -14,7 +14,7 @@ The ``init_cache`` function prepares ffsim to perform operations with given valu
 of ``norb`` and ``nelec``. Typically there is no need to call this function.
 """
 
-from ffsim.cistring import (
+from ffsim._cistring import (
     gen_linkstr_index,
     gen_linkstr_index_trilidx,
     gen_occslst,

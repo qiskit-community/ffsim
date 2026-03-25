@@ -17,10 +17,10 @@ import math
 import numpy as np
 import scipy.sparse.linalg
 
+from ffsim._cistring import gen_occslst
 from ffsim._lib import (
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 

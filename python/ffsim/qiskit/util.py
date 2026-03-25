@@ -14,7 +14,7 @@ from functools import cache
 
 import numpy as np
 
-from ffsim.cistring import make_strings
+from ffsim._cistring import make_strings
 from ffsim.states.dimensions import dim
 
 

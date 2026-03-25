@@ -17,11 +17,11 @@ import math
 import numpy as np
 import scipy.sparse.linalg
 
+from ffsim._cistring import gen_occslst, make_strings
 from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )
-from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
