@@ -8,9 +8,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Function for initializing cached objects.
+"""Initialize cache.
 
-The :func:`~init_cache` function prepares ffsim to perform operations with given values
+The ``init_cache`` function prepares ffsim to perform operations with given values
 of ``norb`` and ``nelec``. Typically there is no need to call this function.
 """
 
@@ -26,7 +26,7 @@ def init_cache(norb: int, nelec: tuple[int, int]) -> None:
     """Initialize cached objects.
 
     Call this function to prepare ffsim for performing operations with given values
-    of `norb` and `nelec`. Typically there is no need to call this function, but it
+    of ``norb`` and ``nelec``. Typically there is no need to call this function, but it
     should be called before benchmarking to avoid counting the cost of initializing
     cached lookup tables.
 
