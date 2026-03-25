@@ -28,7 +28,7 @@ from pyscf.fci.direct_spin1 import (
     trans_rdm12s,
 )
 
-from ffsim.cistring import gen_linkstr_index
+from ffsim._cistring import gen_linkstr_index
 
 if TYPE_CHECKING:
     from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian

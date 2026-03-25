@@ -17,7 +17,7 @@ import numpy as np
 import scipy.linalg
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import cistring, protocols
+from ffsim import _cistring, protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
@@ -215,8 +215,8 @@ class DiagonalCoulombHamiltonian(
         mat_aa, mat_ab = self.diag_coulomb_mats
 
         # Build occupation vectors from occupied orbital lists
-        occslst_a = cistring.gen_occslst(range(norb), n_alpha)
-        occslst_b = cistring.gen_occslst(range(norb), n_beta)
+        occslst_a = _cistring.gen_occslst(range(norb), n_alpha)
+        occslst_b = _cistring.gen_occslst(range(norb), n_beta)
         occ_a = np.zeros((len(occslst_a), norb))
         occ_b = np.zeros((len(occslst_b), norb))
         occ_a[np.arange(len(occslst_a))[:, None], occslst_a] = 1

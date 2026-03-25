@@ -28,7 +28,7 @@ from pyscf.fci.direct_spin1 import (
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import states
-from ffsim.cistring import gen_linkstr_index, gen_linkstr_index_trilidx
+from ffsim._cistring import gen_linkstr_index, gen_linkstr_index_trilidx
 
 
 def two_body_linop(

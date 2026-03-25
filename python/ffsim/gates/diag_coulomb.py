@@ -18,11 +18,11 @@ from typing import overload
 import numpy as np
 from numpy.typing import NDArray
 
+from ffsim._cistring import gen_occslst, make_strings
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
 )
-from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
