@@ -4,6 +4,8 @@
 ffsim.random
 ============
 
+Random sampling utilities
+
 .. currentmodule:: ffsim.random
 
 .. autosummary::

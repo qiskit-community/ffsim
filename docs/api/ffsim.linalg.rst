@@ -4,6 +4,8 @@
 ffsim.linalg
 ============
 
+Linear algebra utilities
+
 .. currentmodule:: ffsim.linalg
 
 .. autosummary::

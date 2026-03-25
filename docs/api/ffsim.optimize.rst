@@ -4,6 +4,8 @@
 ffsim.optimize
 ==============
 
+Optimization algorithms
+
 .. currentmodule:: ffsim.optimize
 
 .. autosummary::

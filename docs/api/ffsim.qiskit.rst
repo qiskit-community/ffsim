@@ -4,6 +4,8 @@
 ffsim.qiskit
 ============
 
+Code that uses `Qiskit <https://github.com/Qiskit/qiskit>`_
+
 .. currentmodule:: ffsim.qiskit
 
 .. autosummary::

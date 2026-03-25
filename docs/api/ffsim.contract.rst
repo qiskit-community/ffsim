@@ -4,6 +4,8 @@
 ffsim.contract
 ==============
 
+Functions for contracting tensors and constructing linear operators
+
 .. currentmodule:: ffsim.contract
 
 .. autosummary::

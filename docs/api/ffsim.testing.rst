@@ -4,6 +4,8 @@
 ffsim.testing
 =============
 
+Testing utilities
+
 .. currentmodule:: ffsim.testing
 
 .. autosummary::
