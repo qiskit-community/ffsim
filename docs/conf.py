@@ -42,6 +42,10 @@ html_theme_options = {
     "sidebar_qiskit_ecosystem_member": True,
 }
 
+# autosummary options
+autosummary_generate = True
+templates_path = ["_templates"]
+
 # nbsphinx options (for tutorials)
 nbsphinx_timeout = 300
 nbsphinx_execute = "always"
