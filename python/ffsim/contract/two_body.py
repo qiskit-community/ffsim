@@ -44,7 +44,7 @@ def two_body_linop(
 
     .. math::
 
-        \sum_{\sigma \tau, pqrs} h_{pqrs}
+        \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
         a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
 
     where :math:`h_{pqrs}` is a tensor of complex coefficients.
