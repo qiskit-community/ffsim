@@ -73,6 +73,13 @@ class UCJOpSpinUnbalanced(
             as a Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of
             two orbital rotations, the first one for spin alpha and the second one for
             spin beta.
+
+    Args:
+        validate: Whether to validate the operator attributes. Setting this to False
+            skips validation, which is useful if you need to create many instances
+            of this class and are confident that the attributes are valid.
+        rtol: Relative numerical tolerance for validation checks.
+        atol: Absolute numerical tolerance for validation checks.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 3, norb, norb)
