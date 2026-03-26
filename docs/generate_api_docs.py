@@ -128,7 +128,17 @@ def generate_submodule_rst(submodule: str) -> None:
 
 def generate_index_rst(submodules: list[str]) -> None:
     """Generate docs/api/index.rst."""
-    entries = "\n".join(f"   ffsim.{sub}" for sub in submodules)
+    toctree_entries = "\n".join(f"   ffsim.{sub}" for sub in submodules)
+    rows = [
+        "   * - :doc:`ffsim`\n"
+        "     - Top-level module where ffsim's main functions and classes are exposed"
+    ]
+    rows += [
+        f"   * - :doc:`ffsim.{sub}`\n     - {get_module_docstring(sub)[0]}"
+        for sub in submodules
+    ]
+    table_rows = "\n".join(rows)
+
     output_path = DOCS_API_DIR / "index.rst"
     output_path.write_text(
         f"API reference\n"
@@ -136,9 +146,15 @@ def generate_index_rst(submodules: list[str]) -> None:
         f"\n"
         f".. toctree::\n"
         f"   :maxdepth: 1\n"
+        f"   :hidden:\n"
         f"\n"
         f"   ffsim\n"
-        f"{entries}\n"
+        f"{toctree_entries}\n"
+        f"\n"
+        f".. list-table::\n"
+        f"   :widths: auto\n"
+        f"\n"
+        f"{table_rows}\n"
     )
     print(f"Written {output_path}")
 
