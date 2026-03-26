@@ -15,6 +15,7 @@ Run this script after adding or removing symbols from the ffsim package:
     python docs/generate_api_docs.py
 
 This generates:
+- docs/api/index.rst (API index page)
 - docs/api/ffsim.rst from python/ffsim/__init__.py
 - docs/api/ffsim.<submodule>.rst for each public submodule
 
@@ -125,12 +126,19 @@ def generate_submodule_rst(submodule: str) -> None:
     print(f"Written {output_path}")
 
 
-def generate_index_md(submodules: list[str]) -> None:
-    """Generate docs/api/index.md."""
-    entries = "\n".join(f"ffsim.{sub}" for sub in submodules)
-    output_path = DOCS_API_DIR / "index.md"
+def generate_index_rst(submodules: list[str]) -> None:
+    """Generate docs/api/index.rst."""
+    entries = "\n".join(f"   ffsim.{sub}" for sub in submodules)
+    output_path = DOCS_API_DIR / "index.rst"
     output_path.write_text(
-        f"# API reference\n\n```{{toctree}}\n:maxdepth: 1\n\nffsim\n{entries}\n```\n"
+        f"API reference\n"
+        f"=============\n"
+        f"\n"
+        f".. toctree::\n"
+        f"   :maxdepth: 1\n"
+        f"\n"
+        f"   ffsim\n"
+        f"{entries}\n"
     )
     print(f"Written {output_path}")
 
@@ -161,11 +169,11 @@ def main() -> None:
     )
 
     # Generate API docs
-    DOCS_API_DIR.mkdir()
+    DOCS_API_DIR.mkdir(parents=True, exist_ok=True)
     generate_ffsim_rst(sections)
     for submodule in standalone_submodules:
         generate_submodule_rst(submodule)
-    generate_index_md(standalone_submodules)
+    generate_index_rst(standalone_submodules)
 
 
 if __name__ == "__main__":
