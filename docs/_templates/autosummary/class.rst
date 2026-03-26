@@ -6,8 +6,6 @@
    :show-inheritance:
 
    {% block methods %}
-   .. automethod:: __init__
-
    {%- set is_protocol = '__protocol_attrs__' in members and '__protocol_attrs__' not in inherited_members %}
    {%- set ns = namespace(protocol_methods=[]) %}
    {%- if is_protocol %}
@@ -21,7 +19,7 @@
    .. rubric:: {{ _('Methods') }}
 
    .. autosummary::
-   {% for item in methods if item not in inherited_members %}
+   {% for item in methods if item not in inherited_members and item != '__init__' %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
    {%- for item in ns.protocol_methods if item not in inherited_members %}
