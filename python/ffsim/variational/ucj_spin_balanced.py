@@ -71,6 +71,13 @@ class UCJOpSpinBalanced(
             of shape `(n_reps, norb, norb)`.
         final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
             as a Numpy array of shape `(norb, norb)`.
+
+    Args:
+        validate: Whether to validate the operator attributes. Setting this to False
+            skips validation, which is useful if you need to create many instances
+            of this class and are confident that the attributes are valid.
+        rtol: Relative numerical tolerance for validation checks.
+        atol: Absolute numerical tolerance for validation checks.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 2, norb, norb)
