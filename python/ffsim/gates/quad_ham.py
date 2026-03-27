@@ -55,8 +55,8 @@ def apply_quad_ham_evolution(
 
     .. math::
 
-        \exp\left(-i t \sum_{\sigma, ij}
-        \mathbf{M}^{(\sigma)}_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+        \exp\left(-i t \sum_{\substack{ij \\ \sigma}}
+        \mathbf{M}^{(\sigma)}_{ij} a^\dagger_{i\sigma} a_{j\sigma}\right)
 
     where each :math:`\mathbf{M}^{(\sigma)}` is a Hermitian matrix.
 

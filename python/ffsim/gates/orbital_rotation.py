@@ -55,7 +55,7 @@ def apply_orbital_rotation(
 
     .. math::
 
-        a^\dagger_{\sigma, i} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{\sigma, j}
+        a^\dagger_{i\sigma} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{j\sigma}
 
     where :math:`U^{(\sigma)}` is a unitary matrix representing the action of the
     orbital rotation on spin sector :math:`\sigma`.
@@ -65,7 +65,7 @@ def apply_orbital_rotation(
 
         \prod_{\sigma}
         \exp\left(\sum_{ij}
-        \log(U^{(\sigma)})_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+        \log(U^{(\sigma)})_{ij} a^\dagger_{i\sigma} a_{j\sigma}\right)
 
     Args:
         vec: The state vector to be transformed.

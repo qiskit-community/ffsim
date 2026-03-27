@@ -37,11 +37,11 @@ class DiagonalCoulombHamiltonian(
 
     .. math::
 
-        H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pq} J^{\sigma \tau}_{pq} n_{\sigma, p}
-            n_{\tau, q} + \text{constant}.
+        H = \sum_{\substack{pq \\ \sigma}} h_{pq} a^\dagger_{p\sigma} a_{q\sigma}
+            + \frac12 \sum_{\substack{pq \\ \sigma \tau}}
+            J^{\sigma \tau}_{pq} n_{p\sigma} n_{q\tau} + \text{constant}.
 
-    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
+    where :math:`n_{p\sigma} = a_{p\sigma}^\dagger a_{p\sigma}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma`.
 
     Here :math:`h_{pq}` is called the one-body tensor and the :math:`J^{\sigma \tau}`
@@ -127,8 +127,8 @@ class DiagonalCoulombHamiltonian(
         The input operator must contain only terms of the following form:
 
         - A real-valued constant
-        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`
-        - :math:`n_{\sigma, p} n_{\tau, q}`
+        - :math:`a^\dagger_{p\sigma} a_{q\sigma}`
+        - :math:`n_{p\sigma} n_{q\tau}`
 
         Any other terms will cause an error to be raised. No attempt will be made to
         normal-order terms.
@@ -168,7 +168,7 @@ class DiagonalCoulombHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to "
                         f"DiagonalCoulombHamiltonian. The quadratic term {term} is not "
-                        r"of the form a^\dagger_{\sigma, p} a_{\sigma, q}."
+                        r"of the form a^\dagger_{p\sigma} a_{q\sigma}."
                     )
             elif len(term) == 4:
                 # two-body term
@@ -189,7 +189,7 @@ class DiagonalCoulombHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to "
                         f"DiagonalCoulombHamiltonian. The quartic term {term} is not "
-                        r"of the form n_{\sigma, p} n_{\tau, q}."
+                        r"of the form n_{p\sigma} n_{q\tau}."
                     )
             else:
                 raise ValueError(

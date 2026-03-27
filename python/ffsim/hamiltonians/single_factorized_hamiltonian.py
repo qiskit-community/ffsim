@@ -34,7 +34,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
 
     .. math::
 
-        H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+        H = \sum_{\substack{pq \\ \sigma}} \kappa_{pq} a^\dagger_{p\sigma} a_{q\sigma}
         + \frac12 \sum_{t=1}^L \left(\mathcal{M}^{(t)}\right)^2
         + \text{constant}'.
 
@@ -43,7 +43,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
     .. math::
 
         \mathcal{M}^{(t)} =
-        \sum_{\sigma, pq} M^{(t)}_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
+        \sum_{\substack{pq \\ \sigma}} M^{(t)}_{pq} a^\dagger_{p\sigma} a_{q\sigma}
 
     where each :math:`M^{(t)}` is a Hermitian matrix.
 

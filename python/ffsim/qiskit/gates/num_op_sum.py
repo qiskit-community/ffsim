@@ -32,9 +32,10 @@ class NumOpSumEvolutionJW(Gate):
 
     .. math::
 
-        \exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)
+        \exp\left(-i t \sum_{i \sigma}
+        \lambda^{(\sigma)}_i n_{i\sigma}\right)
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and the :math:`\lambda_i` are real numbers.
 
     This gate assumes that qubits are ordered such that the first ``norb`` qubits
