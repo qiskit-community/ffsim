@@ -221,11 +221,12 @@ def addresses_to_strings(
             that is, the alpha string appears on the right.
             If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
             the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
+            In the spinless case (when ``nelec`` is an integer), this argument is
+            ignored.
 
     Returns:
-        The bitstrings. The type of the output depends on `bitstring_type` and
-        `concatenate`.
+        The bitstrings. The type of the output depends on ``bitstring_type`` and
+        ``concatenate``.
     """
     if isinstance(nelec, int):
         # Spinless case

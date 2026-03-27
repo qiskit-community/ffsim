@@ -136,7 +136,8 @@ def rdms(
     Returns:
         The reduced density matrices.
         All RDMs up to and including the specified rank are returned, in increasing
-        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
+        order of rank. For example, if ``rank=2`` then a tuple ``(rdm1, rdm2)`` is
+        returned.
         The 1-RDMs are: (alpha-alpha, beta-beta).
         The spin-summed 1-RDM is alpha-alpha + alpha-beta.
         The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).

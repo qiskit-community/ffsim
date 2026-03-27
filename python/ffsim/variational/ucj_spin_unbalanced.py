@@ -50,29 +50,29 @@ class UCJOpSpinUnbalanced(
     each diagonal Coulomb operator requires 3 matrices for its description:
     :math:`\mathbf{J}^{(\alpha \alpha)}`, :math:`\mathbf{J}^{(\alpha \beta)}`, and
     :math:`\mathbf{J}^{(\beta \beta)}`. The number of terms :math:`L` is referred to as
-    the number of ansatz repetitions and is accessible via the `n_reps` attribute.
+    the number of ansatz repetitions and is accessible via the ``n_reps`` attribute.
 
     To support variational optimization of the orbital basis, an optional final
     orbital rotation can be included in the operator, to be performed at the end.
 
     Attributes:
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array
-            of shape `(n_reps, 3, norb, norb)`
+            of shape ``(n_reps, 3, norb, norb)``
             The last two axes index the rows and columns of
             the matrices, and the third from last axis, which has 3 dimensions, indexes
             the spin interaction type of the matrix: alpha-alpha, alpha-beta, and
             beta-beta (in that order).
             The first axis indexes the ansatz repetitions.
         orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array of shape
-            `(n_reps, 2, norb, norb)`. The last two axes index the rows and columns
+            ``(n_reps, 2, norb, norb)``. The last two axes index the rows and columns
             of the orbital rotations, and the third from last axis, which has 2
             dimensions, indexes the spin sector of the orbital rotation: first alpha,
             then beta.
             The first axis indexes the ansatz repetitions.
         final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape `(2, norb, norb)`. This can be viewed as a list of
-            two orbital rotations, the first one for spin alpha and the second one for
-            spin beta.
+            as a Numpy array of shape ``(2, norb, norb)``. This can be viewed as a
+            list of two orbital rotations, the first one for spin alpha and the second
+            one for spin beta.
 
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
@@ -169,7 +169,7 @@ class UCJOpSpinUnbalanced(
             n_reps: The number of ansatz repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                If specified, ``interaction_pairs`` should be a tuple of 3 lists,
                 for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
                 Any list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -233,7 +233,7 @@ class UCJOpSpinUnbalanced(
             n_reps: The number of ansatz repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                If specified, ``interaction_pairs`` should be a tuple of 3 lists,
                 for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
                 Any list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -347,7 +347,7 @@ class UCJOpSpinUnbalanced(
         r"""Convert the UCJ operator to a real-valued parameter vector.
 
         Note:
-            If `interaction_pairs` is specified, the returned parameter vector will
+            If ``interaction_pairs`` is specified, the returned parameter vector will
             incorporate only the diagonal Coulomb matrix entries corresponding to the
             specified interactions, so the original operator will not be recoverable
             from the parameter vector.
@@ -355,7 +355,7 @@ class UCJOpSpinUnbalanced(
         Args:
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                If specified, ``interaction_pairs`` should be a tuple of 3 lists,
                 for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
                 Any list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -463,10 +463,10 @@ class UCJOpSpinUnbalanced(
 
         Args:
             t2: The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
-                `(t2aa, t2ab, t2bb)`, containing the alpha-alpha, alpha-beta, and
+                ``(t2aa, t2ab, t2bb)``, containing the alpha-alpha, alpha-beta, and
                 beta-beta t2 amplitudes.
-            t1: The t1 amplitudes. This should be a pair of Numpy arrays, `(t1a, t1b)`,
-                containing the alpha and beta t1 amplitudes.
+            t1: The t1 amplitudes. This should be a pair of Numpy arrays,
+                ``(t1a, t1b)``, containing the alpha and beta t1 amplitudes.
             n_reps: The number of ansatz repetitions.
                 You can pass a single integer or a pair of integers.
                 If a single integer, terms from the alpha-beta t2 amplitudes are
@@ -483,7 +483,7 @@ class UCJOpSpinUnbalanced(
                 of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a tuple of 3 lists,
+                If specified, ``interaction_pairs`` should be a tuple of 3 lists,
                 for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
                 Any list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -503,22 +503,22 @@ class UCJOpSpinUnbalanced(
                 to minimize the error in the factorization.
             method: The optimization method. See the documentation of
                 `scipy.optimize.minimize`_ for possible values.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             callback: Callback function for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             options: Options for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.

@@ -75,7 +75,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
 
         The number of terms in the decomposition depends on the allowed
         error threshold. A larger error threshold leads to a smaller number of terms.
-        Furthermore, the `max_vecs` parameter specifies an optional upper bound
+        Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
         on the number of terms.
 
         Note: Currently, only real-valued two-body tensors are supported.
@@ -164,7 +164,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
         H \lvert \alpha_j, \beta_j \rangle`.
 
         Args:
-            vecs: The product states, as a list of pairs `(vec_a, vec_b)` containing
+            vecs: The product states, as a list of pairs ``(vec_a, vec_b)`` containing
                 the alpha and beta components of each state.
             norb: The number of spatial orbitals.
             nelec: The number of alpha and beta electrons.
@@ -235,8 +235,8 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
         """Return expectation value with respect to a product state.
 
         Args:
-            vec: The product state, as a pair `(vec_a, vec_b)` containing the alpha and
-                beta components of the state.
+            vec: The product state, as a pair ``(vec_a, vec_b)`` containing the
+                alpha and beta components of the state.
             norb: The number of spatial orbitals.
             nelec: The number of alpha and beta electrons.
         """

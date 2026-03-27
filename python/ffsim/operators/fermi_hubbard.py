@@ -146,7 +146,7 @@ def fermi_hubbard_2d(
         nearest_neighbor_interaction: The nearest-neighbor interaction strength
             :math:`V`.
         periodic: Whether to use periodic boundary conditions in all dimensions.
-            This argument overrides the `periodic_x` and `periodic_y` arguments.
+            This argument overrides the ``periodic_x`` and ``periodic_y`` arguments.
         periodic_x: Whether to use periodic boundary conditions in the X dimension.
         periodic_y: Whether to use periodic boundary conditions in the Y dimension.
 

@@ -46,7 +46,7 @@ def expectation_one_body_product(
         treated on an equal footing. The 1-RDM passed here should not be spin-summed,
         and the one-body tensors should be expanded when compared to the usual
         one-body tensors elsewhere in ffsim, i.e.,
-        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.
+        ``scipy.linalg.block_diag(one_body_tensor, one_body_tensor)``.
 
     Args:
         one_rdm: The one-body reduced density matrix of the Slater determinant.
@@ -119,7 +119,7 @@ def expectation_one_body_power(
         treated on an equal footing. The 1-RDM passed here should not be spin-summed,
         and the one-body tensors should be expanded when compared to the usual
         one-body tensors elsewhere in ffsim, i.e.,
-        `scipy.linalg.block_diag(one_body_tensor, one_body_tensor)`.
+        ``scipy.linalg.block_diag(one_body_tensor, one_body_tensor)``.
 
     Args:
         one_rdm: The one-body reduced density matrix of the Slater determinant.
