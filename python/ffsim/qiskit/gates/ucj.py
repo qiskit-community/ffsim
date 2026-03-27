@@ -38,8 +38,8 @@ class UCJOpSpinBalancedJW(Gate):
 
     See :class:`ffsim.UCJOpSpinBalanced` for a description of this gate's unitary.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 
@@ -97,8 +97,8 @@ class UCJOpSpinUnbalancedJW(Gate):
 
     See :class:`ffsim.UCJOpSpinUnbalanced` for a description of this gate's unitary.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 

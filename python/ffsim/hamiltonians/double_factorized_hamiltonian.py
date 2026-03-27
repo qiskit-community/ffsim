@@ -161,7 +161,7 @@ class DoubleFactorizedHamiltonian(
         results.
 
         See :class:`DoubleFactorizedHamiltonian` for a description of the
-        `z_representation` argument. See :func:`ffsim.linalg.double_factorized` for a
+        ``z_representation`` argument. See :func:`ffsim.linalg.double_factorized` for a
         description of the rest of the arguments.
 
         Args:
@@ -187,11 +187,11 @@ class DoubleFactorizedHamiltonian(
                 list will be set to zero. This list should contain only upper
                 triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
                 Passing a list with lower triangular indices will raise an error.
-                This parameter is only used if `optimize` is set to True.
+                This parameter is only used if ``optimize`` is set to True.
             cholesky: Whether to perform the factorization using a modified Cholesky
                 decomposition. If False, a full eigenvalue decomposition is used
                 instead, which can be much more expensive. This argument is ignored if
-                `optimize` is set to True.
+                ``optimize`` is set to True.
 
         Returns:
             The double-factorized Hamiltonian.

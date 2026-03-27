@@ -66,8 +66,8 @@ class OrbitalRotationJW(Gate):
         \prod_{\sigma}
         \exp\left(\sum_{ij} \log(U)_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 

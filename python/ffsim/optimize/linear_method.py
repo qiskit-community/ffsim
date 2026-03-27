@@ -71,11 +71,11 @@ def minimize_linear_method(
         variation: Hyperparameter controlling the size of parameter variations
             used in the linear expansion of the wavefunction. Its value must be
             strictly between 0 and 1. A larger value results in larger variations.
-        optimize_regularization: Whether to optimize the `regularization` hyperparameter
+        optimize_regularization: Whether to optimize the ``regularization`` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
             The optimization is performed using `scipy.optimize.minimize`_.
-        optimize_variation: Whether to optimize the `variation` hyperparameter
+        optimize_variation: Whether to optimize the ``variation`` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
             The optimization is performed using `scipy.optimize.minimize`_.
@@ -101,7 +101,7 @@ def minimize_linear_method(
             vector and objective function. For all iterations except for the last,
             it also contains the ``jac`` attribute holding the present value of the
             gradient, as well as ``regularization`` and ``variation`` attributes
-            holding the present values of the `regularization` and `variation`
+            holding the present values of the ``regularization`` and ``variation``
             hyperparameters.
 
     Returns:

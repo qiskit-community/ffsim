@@ -35,8 +35,8 @@ from ffsim.trotter._util import simulate_trotter_step_iterator
 class SimulateTrotterDoubleFactorizedJW(Gate):
     r"""Trotter time evolution of double-factorized Hamiltonian, Jordan-Wigner.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 

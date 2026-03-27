@@ -37,8 +37,8 @@ class NumOpSumEvolutionJW(Gate):
     where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and the :math:`\lambda_i` are real numbers.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 

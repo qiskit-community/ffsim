@@ -36,7 +36,7 @@ def pair_for_spin(obj: T, spin: Spin) -> tuple[T | None, T | None]:
     """Create a pair of objects for a given spin setting.
 
     Given an object, return a pair where each element of the pair is either the object
-    or `None`, depending on the specified `spin`. The first element of the pair
+    or ``None``, depending on the specified ``spin``. The first element of the pair
     corresponds to spin alpha and the second corresponds to spin beta.
     """
     if spin is Spin.ALPHA:

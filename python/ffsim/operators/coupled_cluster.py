@@ -159,10 +159,10 @@ def doubles_excitations_unrestricted(
 
     where
 
-    - :math:`i` and `j` run over occupied spin-up orbitals,
-    - :math:`a` and `b` run over virtual spin-up orbitals,
-    - :math:`I` and `J` run over occupied spin-down orbitals,
-    - :math:`A` and `B` run over virtual spin-down orbitals,
+    - :math:`i` and :math:`j` run over occupied spin-up orbitals,
+    - :math:`a` and :math:`b` run over virtual spin-up orbitals,
+    - :math:`I` and :math:`J` run over occupied spin-down orbitals,
+    - :math:`A` and :math:`B` run over virtual spin-down orbitals,
     - :math:`t^{(\alpha \alpha})_{ijab}` are the doubles amplitudes within spin-up
       orbitals,
     - :math:`t^{(\alpha beta})_{iJaB}` are the doubles amplitudes between spin-up

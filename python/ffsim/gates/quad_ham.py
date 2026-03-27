@@ -75,9 +75,9 @@ def apply_quad_ham_evolution(
             and spin beta fermions.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.

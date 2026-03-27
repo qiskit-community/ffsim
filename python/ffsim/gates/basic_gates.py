@@ -103,9 +103,9 @@ def apply_givens_rotation(
         phi: The optional phase angle.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -171,9 +171,9 @@ def apply_tunneling_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -227,9 +227,9 @@ def apply_num_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -282,9 +282,9 @@ def apply_num_num_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -352,9 +352,9 @@ def apply_on_site_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -403,9 +403,9 @@ def apply_num_op_prod_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -479,9 +479,9 @@ def apply_hop_gate(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -554,9 +554,9 @@ def apply_fsim_gate(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -611,9 +611,9 @@ def apply_fswap_gate(
         spin: Choice of spin sector(s) to act on.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
                 vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
                 vector, but the original vector may have its data overwritten.
                 It is also possible that the original vector is returned,
                 modified in-place.
