@@ -43,8 +43,8 @@ class UCJOpSpinUnbalanced(
 
     .. math::
 
-        \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
-        \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
+        \mathcal{J} = \frac12\sum_{\substack{ij \\ \sigma \tau}}
+        \mathbf{J}^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau}.
 
     Since :math:`\mathbf{J}^{(\sigma \tau)}_{ij} = \mathbf{J}^{(\tau \sigma)}_{ji}`,
     each diagonal Coulomb operator requires 3 matrices for its description:

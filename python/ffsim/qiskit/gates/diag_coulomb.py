@@ -46,10 +46,10 @@ class DiagCoulombEvolutionJW(Gate):
 
     .. math::
 
-        \exp\left(-i t \sum_{\sigma, \tau, i, j}
-        Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
+        \exp\left(-i t \sum_{\substack{ij \\ \sigma \tau}}
+        Z^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau} / 2\right)
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix.
 
     This gate assumes that qubits are ordered such that the first ``norb`` qubits

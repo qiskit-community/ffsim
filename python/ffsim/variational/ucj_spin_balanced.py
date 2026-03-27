@@ -43,8 +43,8 @@ class UCJOpSpinBalanced(
 
     .. math::
 
-        \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
-        \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
+        \mathcal{J} = \frac12\sum_{\substack{ij \\ \sigma \tau}}
+        \mathbf{J}^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau}.
 
     For the spin-balanced operator, we require that
     :math:`\mathbf{J}^{(\alpha \alpha)} = \mathbf{J}^{(\beta \beta)}` and

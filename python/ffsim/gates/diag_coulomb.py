@@ -85,11 +85,11 @@ def apply_diag_coulomb_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{\sigma, \tau, i, j}
-        J^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
+        \exp\left(-i t \sum_{\substack{ij \\ \sigma \tau}}
+        J^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau} / 2\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`J^{(\sigma \tau)}` is a real-valued matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
 

@@ -78,10 +78,11 @@ def apply_num_op_sum_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)
+        \exp\left(-i t \sum_{i \sigma}
+        \lambda^{(\sigma)}_i n_{i\sigma}\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
     :math:`\mathcal{U}` is an optional orbital rotation.
 
