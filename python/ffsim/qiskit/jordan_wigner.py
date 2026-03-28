@@ -36,7 +36,7 @@ def jordan_wigner(
     result of this convention, the qubit index that an orbital is mapped to depends on
     the total number of spatial orbitals. By default, the total number of spatial
     orbitals is automatically determined by the largest-index orbital present in the
-    operator, but you can manually specify the number using the `norb` argument.
+    operator, but you can manually specify the number using the ``norb`` argument.
 
     Args:
         op: The fermion operator to transform.

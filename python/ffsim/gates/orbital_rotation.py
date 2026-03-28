@@ -55,7 +55,7 @@ def apply_orbital_rotation(
 
     .. math::
 
-        a^\dagger_{\sigma, i} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{\sigma, j}
+        a^\dagger_{i\sigma} \mapsto \sum_{j} U^{(\sigma)}_{ji} a^\dagger_{j\sigma}
 
     where :math:`U^{(\sigma)}` is a unitary matrix representing the action of the
     orbital rotation on spin sector :math:`\sigma`.
@@ -65,7 +65,7 @@ def apply_orbital_rotation(
 
         \prod_{\sigma}
         \exp\left(\sum_{ij}
-        \log(U^{(\sigma)})_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+        \log(U^{(\sigma)})_{ij} a^\dagger_{i\sigma} a_{j\sigma}\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -82,9 +82,9 @@ def apply_orbital_rotation(
             and spin beta fermions.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.

@@ -38,9 +38,9 @@ class MolecularHamiltonian(
 
     .. math::
 
-        H = \sum_{\sigma, pq} h_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-            + \frac12 \sum_{\sigma \tau, pqrs} h_{pqrs}
-            a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
+        H = \sum_{\substack{pq \\ \sigma}} h_{pq} a^\dagger_{p\sigma} a_{q\sigma}
+            + \frac12 \sum_{\substack{pqrs \\ \sigma \tau}} h_{pqrs}
+            a^\dagger_{p\sigma} a^\dagger_{r\tau} a_{s\tau} a_{q\sigma}
             + \text{constant}.
 
     Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called
@@ -148,26 +148,18 @@ class MolecularHamiltonian(
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
-        op = FermionOperator({(): self.constant})
+        coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {(): self.constant}
         for p, q in itertools.product(range(self.norb), repeat=2):
             coeff = self.one_body_tensor[p, q]
-            op += FermionOperator(
-                {
-                    (cre_a(p), des_a(q)): coeff,
-                    (cre_b(p), des_b(q)): coeff,
-                }
-            )
+            coeffs[cre_a(p), des_a(q)] = coeff
+            coeffs[cre_b(p), des_b(q)] = coeff
         for p, q, r, s in itertools.product(range(self.norb), repeat=4):
             coeff = 0.5 * self.two_body_tensor[p, q, r, s]
-            op += FermionOperator(
-                {
-                    (cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff,
-                    (cre_a(p), cre_b(r), des_b(s), des_a(q)): coeff,
-                    (cre_b(p), cre_a(r), des_a(s), des_b(q)): coeff,
-                    (cre_b(p), cre_b(r), des_b(s), des_b(q)): coeff,
-                }
-            )
-        return op
+            coeffs[cre_a(p), cre_a(r), des_a(s), des_a(q)] = coeff
+            coeffs[cre_a(p), cre_b(r), des_b(s), des_a(q)] = coeff
+            coeffs[cre_b(p), cre_a(r), des_a(s), des_b(q)] = coeff
+            coeffs[cre_b(p), cre_b(r), des_b(s), des_b(q)] = coeff
+        return FermionOperator(coeffs)
 
     @staticmethod
     def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonian:
@@ -176,8 +168,8 @@ class MolecularHamiltonian(
         The input operator must contain only terms of the following form:
 
         - A real-valued constant
-        - :math:`a^\dagger_{\sigma, p} a_{\sigma, q}`
-        - :math:`a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}`
+        - :math:`a^\dagger_{p\sigma} a_{q\sigma}`
+        - :math:`a^\dagger_{p\sigma}a^\dagger_{r\tau}a_{s\tau}a_{q\sigma}`
 
         Any other terms will cause an error to be raised. No attempt will be made to
         normal-order terms.
@@ -214,7 +206,7 @@ class MolecularHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to MolecularHamiltonian. "
                         f"The quadratic term {term} is not of the required form "
-                        r"a^\dagger_{\sigma, p} a_{\sigma, q}."
+                        r"a^\dagger_{p\sigma} a_{q\sigma}."
                     )
             # two-body term
             elif len(term) == 4:
@@ -229,7 +221,7 @@ class MolecularHamiltonian(
                     raise ValueError(
                         "FermionOperator cannot be converted to MolecularHamiltonian. "
                         f"The quartic term {term} is not of the required form "
-                        r"a^\dagger_{\sigma,p}a^\dagger_{\tau,r}a_{\tau,s}a_{\sigma,q}."
+                        r"a^\dagger_{p\sigma}a^\dagger_{r\tau}a_{s\tau}a_{q\sigma}."
                     )
                 two_body_tensor[p, q, r, s] += 0.5 * coeff
             # other terms
@@ -275,7 +267,7 @@ class MolecularHamiltonianSpinless(
 
     .. math::
 
-        H = \sum_{pq} h_{pq} a^\dagger_{\sigma, p} a_{q}
+        H = \sum_{pq} h_{pq} a^\dagger_{p} a_{q}
             + \frac12 \sum_{pqrs} h_{pqrs}
             a^\dagger_{p} a^\dagger_{r} a_{s} a_{q}
             + \text{constant}.

@@ -17,11 +17,11 @@ import math
 import numpy as np
 import scipy.sparse.linalg
 
+from ffsim._cistring import gen_occslst, make_strings
 from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
 )
-from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -52,9 +52,10 @@ def contract_diag_coulomb(
 
     .. math::
 
-        \sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2
+        \sum_{\substack{ij \\ \sigma \tau}}
+        Z^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau} / 2
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and :math:`Z^{(\sigma \tau)}` is a real-valued matrix
 
     Args:
@@ -208,10 +209,11 @@ def diag_coulomb_linop(
     .. math::
 
         \mathcal{U}
-        (\sum_{i, j, \sigma, \tau} Z^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2)
+        (\sum_{\substack{ij \\ \sigma \tau}}
+        Z^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau} / 2)
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`Z^{(\sigma \tau)}` is a real-valued matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
 

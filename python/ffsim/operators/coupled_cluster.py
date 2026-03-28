@@ -26,7 +26,7 @@ def singles_excitations_restricted(t1: np.ndarray) -> FermionOperator:
     .. math::
 
         T_1 = \sum_{ia} t_{ia}
-        (a^\dagger_{\alpha, a} a_{\alpha, i} + a^\dagger_{\beta, a} a_{\beta, i})
+        (a^\dagger_{a\alpha} a_{i\alpha} + a^\dagger_{a\beta} a_{i\beta})
 
     where :math:`i` runs over occupied orbitals, :math:`a` runs over virtual orbitals,
     and :math:`t_{ia}` are the singles amplitudes.
@@ -62,9 +62,9 @@ def singles_excitations_unrestricted(
     .. math::
 
         T_1 = \sum_{ia} t^{(\alpha)}_{ia}
-        a^\dagger_{\alpha, a} a_{\alpha, i}
+        a^\dagger_{a\alpha} a_{i\alpha}
         + \sum_{IA} t^{(\beta)}_{IA}
-        a^\dagger_{\beta, A} a_{\beta, I}
+        a^\dagger_{A\beta} a_{I\beta}
 
     where
 
@@ -110,9 +110,9 @@ def doubles_excitations_restricted(t2: np.ndarray) -> FermionOperator:
 
         T_2 = \sum_{ijab} t_{ijab} \left[
         \frac12 \left(
-        a^\dagger_{\alpha, a} a^\dagger_{\alpha, b} a_{\alpha, j} a_{\alpha, i} +
-        a^\dagger_{\beta, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\beta, i} \right)
-        + a^\dagger_{\alpha, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\alpha, i}\right]
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha} +
+        a^\dagger_{a\beta} a^\dagger_{b\beta} a_{j\beta} a_{i\beta} \right)
+        + a^\dagger_{a\alpha} a^\dagger_{b\beta} a_{j\beta} a_{i\alpha}\right]
 
     where :math:`i` and :math:`j` run over occupied orbitals, :math:`a` and :math:`b`
     run over virtual orbitals, and :math:`t_{ijab}` are the doubles amplitudes.
@@ -151,18 +151,18 @@ def doubles_excitations_unrestricted(
     .. math::
 
         T_2 = \frac12 \sum_{ijab} t^{(\alpha \alpha)}_{ijab}
-        a^\dagger_{\alpha, a} a^\dagger_{\alpha, b} a_{\alpha, j} a_{\alpha, i} +
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha} +
         \frac12 \sum_{ijab} t^{(\beta \beta)}_{IJAB}
-        a^\dagger_{\beta, a} a^\dagger_{\beta, b} a_{\beta, j} a_{\beta, i} \right) +
+        a^\dagger_{a\beta} a^\dagger_{b\beta} a_{j\beta} a_{i\beta} \right) +
         \sum_{ijab} t^{(\alpha \beta)}_{iJaB}
-        + a^\dagger_{\alpha, a} a^\dagger_{\beta, B} a_{\beta, J} a_{\alpha, i}
+        + a^\dagger_{a\alpha} a^\dagger_{B\beta} a_{J\beta} a_{i\alpha}
 
     where
 
-    - :math:`i` and `j` run over occupied spin-up orbitals,
-    - :math:`a` and `b` run over virtual spin-up orbitals,
-    - :math:`I` and `J` run over occupied spin-down orbitals,
-    - :math:`A` and `B` run over virtual spin-down orbitals,
+    - :math:`i` and :math:`j` run over occupied spin-up orbitals,
+    - :math:`a` and :math:`b` run over virtual spin-up orbitals,
+    - :math:`I` and :math:`J` run over occupied spin-down orbitals,
+    - :math:`A` and :math:`B` run over virtual spin-down orbitals,
     - :math:`t^{(\alpha \alpha})_{ijab}` are the doubles amplitudes within spin-up
       orbitals,
     - :math:`t^{(\alpha beta})_{iJaB}` are the doubles amplitudes between spin-up

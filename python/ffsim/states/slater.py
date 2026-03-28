@@ -20,9 +20,9 @@ import scipy.linalg
 from pyscf.fci import cistring
 
 from ffsim import linalg
-from ffsim.dimensions import dims
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 from ffsim.states.bitstring import bitstring_to_occupied_orbitals
+from ffsim.states.dimensions import dims
 
 
 @overload
@@ -189,8 +189,9 @@ def slater_determinant_rdms(
     Returns:
         The reduced density matrices of the Slater determinant.
         All RDMs up to and including the specified rank are returned, in increasing
-        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
-        The representation of an RDM depends on whether `occupied_orbitals` is a
+        order of rank. For example, if ``rank=2`` then a tuple ``(rdm1, rdm2)`` is
+        returned.
+        The representation of an RDM depends on whether ``occupied_orbitals`` is a
         sequence of integers (spinless case), or a pair of such sequences
         (spinful case). In the spinless case, the full RDM is returned.
         In the spinful case, each RDM is represented as a stacked Numpy

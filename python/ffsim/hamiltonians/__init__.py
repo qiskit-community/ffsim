@@ -8,7 +8,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Classes for representing Hamiltonians."""
+"""Hamiltonians.
+
+Classes for representing Hamiltonians. See :doc:`/explanations/hamiltonians`.
+"""
 
 from ffsim.hamiltonians.diagonal_coulomb_hamiltonian import DiagonalCoulombHamiltonian
 from ffsim.hamiltonians.double_factorized_hamiltonian import DoubleFactorizedHamiltonian

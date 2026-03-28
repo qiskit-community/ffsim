@@ -11,8 +11,6 @@
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
 from ffsim import contract, linalg, optimize, qiskit, random, testing
-from ffsim.cistring import init_cache
-from ffsim.dimensions import dim, dims
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -35,6 +33,7 @@ from ffsim.hamiltonians import (
     MolecularHamiltonianSpinless,
     SingleFactorizedHamiltonian,
 )
+from ffsim.init_cache import init_cache
 from ffsim.molecular_data import MolecularData
 from ffsim.operators import (
     FermionAction,
@@ -77,13 +76,15 @@ from ffsim.protocols import (
     linear_operator,
     trace,
 )
-from ffsim.spin import Spin
 from ffsim.states import (
     BitstringType,
     ProductStateSum,
     ReducedDensityMatrix,
+    Spin,
     StateVector,
     addresses_to_strings,
+    dim,
+    dims,
     expectation_one_body_power,
     expectation_one_body_product,
     hartree_fock_state,

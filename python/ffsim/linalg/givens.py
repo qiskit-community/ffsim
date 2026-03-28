@@ -79,7 +79,7 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
     close to zero. This function detects if either a or b is close to zero up to the
     specified tolerance, in which case it behaves as if it were exactly zero.
 
-    Note that in contrast to `scipy.linalg.blas.zrotg`, this function returns c as a
+    Note that in contrast to ``scipy.linalg.blas.zrotg``, this function returns c as a
     float rather than a complex.
     """
     if cmath.isclose(a, 0.0, abs_tol=tol):
@@ -126,8 +126,8 @@ def givens_decomposition(
     The number of Givens rotations :math:`L` is at most :math:`\frac{n (n-1)}{2}`,
     but it may be less. If we think of Givens rotations acting on disjoint indices
     as operations that can be performed in parallel, then the entire sequence of
-    rotations can always be performed using at most `n` layers of parallel operations.
-    The decomposition algorithm is described in the reference below.
+    rotations can always be performed using at most :math:`n` layers of parallel
+    operations. The decomposition algorithm is described in the reference below.
 
     References:
         - `Clements et al., "Optimal design for universal multiport interferometers" (2016)`_

@@ -27,8 +27,8 @@ from pyscf.fci.direct_spin1 import (
 )
 from scipy.sparse.linalg import LinearOperator
 
-from ffsim import dimensions
-from ffsim.cistring import gen_linkstr_index, gen_linkstr_index_trilidx
+from ffsim import states
+from ffsim._cistring import gen_linkstr_index, gen_linkstr_index_trilidx
 
 
 def two_body_linop(
@@ -38,6 +38,28 @@ def two_body_linop(
     one_body_tensor: np.ndarray | None = None,
     constant: float = 0,
 ) -> LinearOperator:
+    r"""Convert a two-body tensor to a linear operator.
+
+    A two-body tensor has the form
+
+    .. math::
+
+        \frac12 \sum_{\substack{pqrs \\ \sigma \tau}} h_{pqrs}
+        a^\dagger_{p\sigma} a^\dagger_{r\tau} a_{s\tau} a_{q\sigma}
+
+    where :math:`h_{pqrs}` is a tensor of complex coefficients.
+
+    Args:
+        two_body_tensor: The two-body tensor.
+        norb: The number of spatial orbitals.
+        nelec: The number of alpha and beta electrons.
+        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.
+            See :func:`~.one_body_linop`.
+        constant: Optional constant to add to the operator.
+
+    Returns:
+        A LinearOperator that implements the action of the two-body tensor.
+    """
     if np.iscomplexobj(two_body_tensor) or (
         one_body_tensor is not None and np.iscomplexobj(one_body_tensor)
     ):
@@ -64,28 +86,6 @@ def _two_body_linop_real(
     one_body_tensor: np.ndarray | None = None,
     constant: float = 0,
 ) -> LinearOperator:
-    r"""Convert a two-body tensor to a linear operator.
-
-    A two-body tensor has the form
-
-    .. math::
-
-        \sum_{\sigma \tau, pqrs} h_{pqrs}
-        a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
-
-    where :math:`h_{pqrs}` is a tensor of complex coefficients.
-
-    Args:
-        two_body_tensor: The two-body tensor.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.
-            See :func:`~.one_body_linop`.
-        constant: Optional constant to add to the operator.
-
-    Returns:
-        A LinearOperator that implements the action of the two-body tensor.
-    """
     if one_body_tensor is None:
         one_body_tensor = np.zeros((norb, norb))
 
@@ -118,7 +118,7 @@ def _two_body_linop_real(
             result += constant * vec
         return result
 
-    dim_ = dimensions.dim(norb, nelec)
+    dim_ = states.dim(norb, nelec)
     return LinearOperator(
         shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
     )
@@ -131,28 +131,6 @@ def _two_body_linop_complex(
     one_body_tensor: np.ndarray | None = None,
     constant: float = 0,
 ) -> LinearOperator:
-    r"""Convert a two-body tensor to a linear operator.
-
-    A two-body tensor has the form
-
-    .. math::
-
-        \sum_{\sigma \tau, pqrs} h_{pqrs}
-        a^\dagger_{\sigma, p} a^\dagger_{\tau, r} a_{\tau, s} a_{\sigma, q}
-
-    where :math:`h_{pqrs}` is a tensor of complex coefficients.
-
-    Args:
-        two_body_tensor: The two-body tensor.
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-        one_body_tensor: Optional one-body tensor to absorb into the two-body operator.
-            See :func:`~.one_body_linop`.
-        constant: Optional constant to add to the operator.
-
-    Returns:
-        A LinearOperator that implements the action of the two-body tensor.
-    """
     if one_body_tensor is None:
         one_body_tensor = np.zeros((norb, norb))
 
@@ -189,7 +167,7 @@ def _two_body_linop_complex(
             result += constant * vec
         return result
 
-    dim_ = dimensions.dim(norb, nelec)
+    dim_ = states.dim(norb, nelec)
     return LinearOperator(
         shape=(dim_, dim_), matvec=matvec, rmatvec=rmatvec, dtype=complex
     )

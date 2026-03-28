@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import dataclasses
+from typing import TYPE_CHECKING
 
 import numpy as np
 from opt_einsum import contract
@@ -27,8 +28,10 @@ from pyscf.fci.direct_spin1 import (
     trans_rdm12s,
 )
 
-from ffsim.cistring import gen_linkstr_index
-from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
+from ffsim._cistring import gen_linkstr_index
+
+if TYPE_CHECKING:
+    from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
 
 
 @dataclasses.dataclass
@@ -133,7 +136,8 @@ def rdms(
     Returns:
         The reduced density matrices.
         All RDMs up to and including the specified rank are returned, in increasing
-        order of rank. For example, if `rank=2` then a tuple `(rdm1, rdm2)` is returned.
+        order of rank. For example, if ``rank=2`` then a tuple ``(rdm1, rdm2)`` is
+        returned.
         The 1-RDMs are: (alpha-alpha, beta-beta).
         The spin-summed 1-RDM is alpha-alpha + alpha-beta.
         The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).

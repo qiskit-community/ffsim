@@ -21,6 +21,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
@@ -40,6 +41,18 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
     "sidebar_qiskit_ecosystem_member": True,
+}
+
+# autosummary options
+autosummary_generate = True
+templates_path = ["_templates"]
+
+# intersphinx options
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit", None),
 }
 
 # nbsphinx options (for tutorials)

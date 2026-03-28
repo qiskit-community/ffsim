@@ -20,7 +20,6 @@ import numpy as np
 import scipy.linalg
 from pyscf.fci.spin_op import contract_ss
 
-from ffsim.dimensions import dim
 from ffsim.states.bitstring import (
     BitstringType,
     addresses_to_strings,
@@ -28,6 +27,7 @@ from ffsim.states.bitstring import (
     restrict_bitstrings,
     strings_to_addresses,
 )
+from ffsim.states.dimensions import dim
 
 
 @dataclass
@@ -91,7 +91,7 @@ def sample_state_vector(
             spinless system, or a pair of integers storing the numbers of spin alpha
             and spin beta fermions.
         orbs: The spin-orbitals to sample.
-            In the spinless case (when `nelec` is an integer), this is a list of
+            In the spinless case (when ``nelec`` is an integer), this is a list of
             integers ranging from ``0`` to ``norb``.
             In the spinful case, this is a pair of lists of such integers, with the
             first list storing the spin-alpha orbitals and the second list storing
@@ -104,13 +104,14 @@ def sample_state_vector(
             that is, the alpha string appears on the right.
             If False, then two lists are returned, ``(strings_a, strings_b)``. Note that
             the list of alpha strings appears first, that is, on the left.
-            In the spinless case (when `nelec` is an integer), this argument is ignored.
+            In the spinless case (when ``nelec`` is an integer), this argument is
+            ignored.
         bitstring_type: The desired type of bitstring output.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
-        The sampled bitstrings, as a list of strings of length `shots`.
+        The sampled bitstrings, as a list of strings of length ``shots``.
 
     Raises:
         TypeError: When passing vec as a Numpy array, norb and nelec must be specified.
@@ -203,10 +204,11 @@ def canonicalize_vec_norb_nelec(
 
     Args:
         vec: The state vector.
-        norb: The number of spatial orbitals, or None if `vec` is a StateVector.
+        norb: The number of spatial orbitals, or None if ``vec`` is a StateVector.
         nelec: Either a single integer representing the number of fermions for a
             spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions. If `vec` is a StateVector then this should be None.
+            and spin beta fermions. If ``vec`` is a StateVector then this should be
+            None.
 
     Returns:
         The state vector as a Numpy array, the number of spatial orbitals, and the

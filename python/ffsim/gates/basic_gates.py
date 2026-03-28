@@ -21,7 +21,7 @@ import numpy as np
 from ffsim import linalg
 from ffsim.gates.num_op_sum import apply_num_op_sum_evolution
 from ffsim.gates.orbital_rotation import _one_subspace_indices, apply_orbital_rotation
-from ffsim.spin import Spin, pair_for_spin
+from ffsim.states.spin import Spin, pair_for_spin
 
 
 def _apply_phase_shift(
@@ -69,10 +69,10 @@ def apply_givens_rotation(
     .. math::
 
         \text{G}(\theta, \varphi, (p, q)) = \prod_{\sigma}
-        \exp\left(i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)
-        \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
-        - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
-        \exp\left(-i\varphi a^\dagger_{\sigma, p} a_{\sigma, p}\right)
+        \exp\left(i\varphi a^\dagger_{p\sigma} a_{p\sigma}\right)
+        \exp\left(\theta (a^\dagger_{p\sigma} a_{q\sigma}
+        - a^\dagger_{q\sigma} a_{p\sigma})\right)
+        \exp\left(-i\varphi a^\dagger_{p\sigma} a_{p\sigma}\right)
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -103,9 +103,9 @@ def apply_givens_rotation(
         phi: The optional phase angle.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -140,8 +140,8 @@ def apply_tunneling_interaction(
     .. math::
 
         \text{T}(\theta, (p, q)) = \prod_\sigma
-        \exp\left(i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}
-        + a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+        \exp\left(i \theta (a^\dagger_{p\sigma} a_{q\sigma}
+        + a^\dagger_{q\sigma} a_{p\sigma})\right)
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
     to neighboring qubits:
@@ -171,9 +171,9 @@ def apply_tunneling_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -209,7 +209,7 @@ def apply_num_interaction(
     .. math::
 
         \text{N}(\theta, p) = \prod_{\sigma}
-        \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}\right)
+        \exp\left(i \theta a^\dagger_{p\sigma} a_{p\sigma}\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -227,9 +227,9 @@ def apply_num_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -263,8 +263,8 @@ def apply_num_num_interaction(
     .. math::
 
         \text{NN}(\theta, (p, q)) = \prod_{\sigma}
-        \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
-        a^\dagger_{\sigma, q} a_{\sigma, q}\right)
+        \exp\left(i \theta a^\dagger_{p\sigma} a_{p\sigma}
+        a^\dagger_{q\sigma} a_{q\sigma}\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -282,9 +282,9 @@ def apply_num_num_interaction(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -341,8 +341,8 @@ def apply_on_site_interaction(
     .. math::
 
         \text{OS}(\theta, p) =
-        \exp\left(i \theta a^\dagger_{\alpha, p} a_{\alpha, p}
-        a^\dagger_{\beta, p} a_{\beta, p}\right)
+        \exp\left(i \theta a^\dagger_{p\alpha} a_{p\alpha}
+        a^\dagger_{p\beta} a_{p\beta}\right)
 
     Args:
         vec: The state vector to be transformed.
@@ -352,9 +352,9 @@ def apply_on_site_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -389,8 +389,8 @@ def apply_num_op_prod_interaction(
 
         \text{NP}(\theta, (S_\alpha, S_\beta)) =
         \exp\left(i \theta
-        \prod_{p \in S_\alpha} a^\dagger_{\alpha, p} a_{\alpha, p}
-        \prod_{p \in S_\beta} a^\dagger_{\beta, p} a_{\beta, p}
+        \prod_{p \in S_\alpha} a^\dagger_{p\alpha} a_{p\alpha}
+        \prod_{p \in S_\beta} a^\dagger_{p\beta} a_{p\beta}
         \right)
 
     Args:
@@ -403,9 +403,9 @@ def apply_num_op_prod_interaction(
         nelec: The number of alpha and beta electrons.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -445,10 +445,10 @@ def apply_hop_gate(
             \text{Hop}&(\theta, (p, q))
             = \text{NN}(\pi, (p, q)) \text{G}(\theta, (p, q)) \\
             &= \prod_{\sigma}
-            \exp\left(i \theta a^\dagger_{\sigma, p} a_{\sigma, p}
-            a^\dagger_{\sigma, q} a_{\sigma, q}\right)
-            \exp\left(\theta (a^\dagger_{\sigma, p} a_{\sigma, q}
-            - a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+            \exp\left(i \theta a^\dagger_{p\sigma} a_{p\sigma}
+            a^\dagger_{q\sigma} a_{q\sigma}\right)
+            \exp\left(\theta (a^\dagger_{p\sigma} a_{q\sigma}
+            - a^\dagger_{q\sigma} a_{p\sigma})\right)
         \end{align}
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
@@ -479,9 +479,9 @@ def apply_hop_gate(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -519,10 +519,10 @@ def apply_fsim_gate(
             \text{fSim}&(\theta, \phi, (p, q))
             = \text{NN}(-\phi, (p, q)) \text{T}(-\theta, (p, q)) \\
             &= \prod_\sigma
-            \exp\left(-i \phi a^\dagger_{\sigma, p} a_{\sigma, p}
-            a^\dagger_{\sigma, q} a_{\sigma, q}\right)
-            \exp\left(-i \theta (a^\dagger_{\sigma, p} a_{\sigma, q}
-            + a^\dagger_{\sigma, q} a_{\sigma, p})\right)
+            \exp\left(-i \phi a^\dagger_{p\sigma} a_{p\sigma}
+            a^\dagger_{q\sigma} a_{q\sigma}\right)
+            \exp\left(-i \theta (a^\dagger_{p\sigma} a_{q\sigma}
+            + a^\dagger_{q\sigma} a_{p\sigma})\right)
         \end{align}
 
     Under the Jordan-Wigner transform, this gate has the following matrix when applied
@@ -554,9 +554,9 @@ def apply_fsim_gate(
               :const:`ffsim.Spin.ALPHA_AND_BETA` (this is the default value).
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.
@@ -611,9 +611,9 @@ def apply_fswap_gate(
         spin: Choice of spin sector(s) to act on.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
                 vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
                 vector, but the original vector may have its data overwritten.
                 It is also possible that the original vector is returned,
                 modified in-place.

@@ -12,7 +12,7 @@
 
 from ffsim._lib import FermionOperator
 from ffsim.operators.fermion_action import cre_a, cre_b, des_a, des_b
-from ffsim.spin import Spin
+from ffsim.states.spin import Spin
 
 
 def s_plus_operator(norb: int) -> FermionOperator:
@@ -22,7 +22,7 @@ def s_plus_operator(norb: int) -> FermionOperator:
 
     .. math::
 
-        S_+ = \sum_{i=0}^{N-1} a^\dagger_{\alpha, i} a_{\beta, i}
+        S_+ = \sum_{i=0}^{N-1} a^\dagger_{i\alpha} a_{i\beta}
 
     where :math:`N` is the number of spatial orbitals.
 
@@ -45,7 +45,7 @@ def s_minus_operator(norb: int) -> FermionOperator:
 
     .. math::
 
-        S_- = \sum_{i=0}^{N-1} a^\dagger_{\beta, i} a_{\alpha, i}
+        S_- = \sum_{i=0}^{N-1} a^\dagger_{i\beta} a_{i\alpha}
 
     where :math:`N` is the number of spatial orbitals.
 
@@ -70,8 +70,8 @@ def s_x_operator(norb: int) -> FermionOperator:
 
         S_x = \frac{1}{2}(S_+ + S_-)
             = \frac{1}{2} \sum_{i=0}^{N-1}
-              \left( a^\dagger_{\alpha, i} a_{\beta, i}
-              + a^\dagger_{\beta, i} a_{\alpha, i} \right)
+              \left( a^\dagger_{i\alpha} a_{i\beta}
+              + a^\dagger_{i\beta} a_{i\alpha} \right)
 
     where :math:`N` is the number of spatial orbitals.
 
@@ -97,8 +97,8 @@ def s_y_operator(norb: int) -> FermionOperator:
 
         S_y = \frac{1}{2i}(S_+ - S_-)
             = \frac{1}{2i} \sum_{i=0}^{N-1}
-              \left( a^\dagger_{\alpha, i} a_{\beta, i}
-              - a^\dagger_{\beta, i} a_{\alpha, i} \right)
+              \left( a^\dagger_{i\alpha} a_{i\beta}
+              - a^\dagger_{i\beta} a_{i\alpha} \right)
 
     where :math:`N` is the number of spatial orbitals.
 
@@ -123,8 +123,8 @@ def s_z_operator(norb: int) -> FermionOperator:
     .. math::
 
         S_z = \frac{1}{2} \sum_{i=0}^{N-1}
-              \left( a^\dagger_{\alpha, i} a_{\alpha, i}
-              - a^\dagger_{\beta, i} a_{\beta, i} \right)
+              \left( a^\dagger_{i\alpha} a_{i\alpha}
+              - a^\dagger_{i\beta} a_{i\beta} \right)
 
     where :math:`N` is the number of spatial orbitals.
 
@@ -168,7 +168,7 @@ def number_operator(orb: int, spin: Spin = Spin.ALPHA_AND_BETA) -> FermionOperat
 
     .. math::
 
-        n_p = \sum_\sigma a^\dagger_{\sigma, p} a_{\sigma, p}
+        n_p = \sum_\sigma a^\dagger_{p\sigma} a_{p\sigma}
 
     Args:
         orb: The orbital.
