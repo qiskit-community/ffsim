@@ -14,6 +14,7 @@ mod contract;
 mod fermion_operator;
 mod gates;
 mod jordan_wigner;
+mod linalg;
 
 /// Python module exposing Rust extensions.
 #[pymodule]
@@ -38,6 +39,7 @@ fn _lib(m: &Bound<'_, PyModule>) -> PyResult<()> {
         gates::diag_coulomb::apply_diag_coulomb_evolution_in_place_z_rep,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(linalg::givens::givens_decomposition, m)?)?;
     m.add_function(wrap_pyfunction!(
         contract::diag_coulomb::contract_diag_coulomb_into_buffer_num_rep,
         m
