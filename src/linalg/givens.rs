@@ -14,26 +14,14 @@ use numpy::{Complex64, IntoPyArray, PyArray1, PyReadonlyArray2};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-#[derive(Clone, Copy)]
-struct GivensRotation {
-    c: f64,
-    s: Complex64,
-    i: usize,
-    j: usize,
-}
-
 type GivensRotationTuple = (f64, Complex64, usize, usize);
 type GivensDecompositionResult = (Vec<GivensRotationTuple>, Py<PyArray1<Complex64>>);
 
-fn is_close_zero(x: Complex64, tol: f64) -> bool {
-    x.norm() <= tol
-}
-
 fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
-    if is_close_zero(a, tol) {
+    if a.norm() <= tol {
         return (0.0, Complex64::new(1.0, 0.0));
     }
-    if is_close_zero(b, tol) {
+    if b.norm() <= tol {
         return (1.0, Complex64::new(0.0, 0.0));
     }
     let mut a_mut = a;
@@ -68,8 +56,8 @@ pub fn givens_decomposition(
     }
     let n = shape[0];
     let mut current_matrix: Array2<Complex64> = mat_view.to_owned();
-    let mut left_rotations: Vec<GivensRotation> = Vec::new();
-    let mut right_rotations: Vec<GivensRotation> = Vec::new();
+    let mut left_rotations: Vec<GivensRotationTuple> = Vec::new();
+    let mut right_rotations: Vec<GivensRotationTuple> = Vec::new();
     let tol = 1e-12;
 
     for i in 0..n.saturating_sub(1) {
@@ -83,12 +71,7 @@ pub fn givens_decomposition(
                         current_matrix[[row, target_index]],
                         tol,
                     );
-                    right_rotations.push(GivensRotation {
-                        c,
-                        s,
-                        i: target_index + 1,
-                        j: target_index,
-                    });
+                    right_rotations.push((c, s, target_index + 1, target_index));
 
                     let mut col_ip1 = current_matrix.column(target_index + 1).to_owned();
                     let mut col_i = current_matrix.column(target_index).to_owned();
@@ -107,12 +90,7 @@ pub fn givens_decomposition(
                         current_matrix[[target_index, col]],
                         tol,
                     );
-                    left_rotations.push(GivensRotation {
-                        c,
-                        s,
-                        i: target_index - 1,
-                        j: target_index,
-                    });
+                    left_rotations.push((c, s, target_index - 1, target_index));
 
                     let mut row_im1 = current_matrix.row(target_index - 1).to_owned();
                     let mut row_i = current_matrix.row(target_index).to_owned();
@@ -124,21 +102,14 @@ pub fn givens_decomposition(
         }
     }
 
-    for rotation in left_rotations.iter().rev() {
-        let i = rotation.i;
-        let j = rotation.j;
+    for &(c_left, s_left, i, j) in left_rotations.iter().rev() {
         let (c, s) = zrotg_safe(
-            Complex64::new(rotation.c, 0.0) * current_matrix[[j, j]],
-            rotation.s.conj() * current_matrix[[i, i]],
+            Complex64::new(c_left, 0.0) * current_matrix[[j, j]],
+            s_left.conj() * current_matrix[[i, i]],
             tol,
         );
 
-        right_rotations.push(GivensRotation {
-            c: c.clamp(-1.0, 1.0),
-            s: -s.conj(),
-            i,
-            j,
-        });
+        right_rotations.push((c.clamp(-1.0, 1.0), -s.conj(), i, j));
 
         let diag_i = current_matrix[[i, i]];
         let diag_j = current_matrix[[j, j]];
@@ -154,10 +125,6 @@ pub fn givens_decomposition(
         current_matrix[[j, j]] = phase11;
     }
 
-    let rotations: Vec<GivensRotationTuple> = right_rotations
-        .iter()
-        .map(|rotation| (rotation.c, rotation.s, rotation.i, rotation.j))
-        .collect();
     let diagonal = current_matrix.diag().to_owned();
-    Ok((rotations, diagonal.into_pyarray(py).unbind()))
+    Ok((right_rotations, diagonal.into_pyarray(py).unbind()))
 }
