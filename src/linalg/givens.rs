@@ -9,7 +9,7 @@
 // that they have been altered from the originals.
 
 use blas::zrotg as zrotg_blas;
-use ndarray::{Array1, Array2};
+use ndarray::Array2;
 use numpy::{Complex64, IntoPyArray, PyArray1, PyReadonlyArray2};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -33,13 +33,23 @@ fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     (c, s)
 }
 
-fn zrot(x: &mut Array1<Complex64>, y: &mut Array1<Complex64>, c: f64, s: Complex64) {
-    let n = x.len().min(y.len());
-    for idx in 0..n {
-        let x_old = x[idx];
-        let y_old = y[idx];
-        x[idx] = c * x_old + s * y_old;
-        y[idx] = c * y_old - s.conj() * x_old;
+fn rotate_columns_in_place(mat: &mut Array2<Complex64>, col_x: usize, col_y: usize, c: f64, s: Complex64) {
+    let n_rows = mat.nrows();
+    for row in 0..n_rows {
+        let x_old = mat[[row, col_x]];
+        let y_old = mat[[row, col_y]];
+        mat[[row, col_x]] = c * x_old + s * y_old;
+        mat[[row, col_y]] = c * y_old - s.conj() * x_old;
+    }
+}
+
+fn rotate_rows_in_place(mat: &mut Array2<Complex64>, row_x: usize, row_y: usize, c: f64, s: Complex64) {
+    let n_cols = mat.ncols();
+    for col in 0..n_cols {
+        let x_old = mat[[row_x, col]];
+        let y_old = mat[[row_y, col]];
+        mat[[row_x, col]] = c * x_old + s * y_old;
+        mat[[row_y, col]] = c * y_old - s.conj() * x_old;
     }
 }
 
@@ -72,12 +82,7 @@ pub fn givens_decomposition(
                         tol,
                     );
                     right_rotations.push((c, s, target_index + 1, target_index));
-
-                    let mut col_ip1 = current_matrix.column(target_index + 1).to_owned();
-                    let mut col_i = current_matrix.column(target_index).to_owned();
-                    zrot(&mut col_ip1, &mut col_i, c, s);
-                    current_matrix.column_mut(target_index + 1).assign(&col_ip1);
-                    current_matrix.column_mut(target_index).assign(&col_i);
+                    rotate_columns_in_place(&mut current_matrix, target_index + 1, target_index, c, s);
                 }
             }
         } else {
@@ -91,12 +96,7 @@ pub fn givens_decomposition(
                         tol,
                     );
                     left_rotations.push((c, s, target_index - 1, target_index));
-
-                    let mut row_im1 = current_matrix.row(target_index - 1).to_owned();
-                    let mut row_i = current_matrix.row(target_index).to_owned();
-                    zrot(&mut row_im1, &mut row_i, c, s);
-                    current_matrix.row_mut(target_index - 1).assign(&row_im1);
-                    current_matrix.row_mut(target_index).assign(&row_i);
+                    rotate_rows_in_place(&mut current_matrix, target_index - 1, target_index, c, s);
                 }
             }
         }
