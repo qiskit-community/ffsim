@@ -8,7 +8,7 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
-use blas::zrotg as zrotg_blas;
+use blas::{zdrot, zrotg as zrotg_blas, zscal};
 use ndarray::Array2;
 use numpy::{Complex64, IntoPyArray, PyArray1, PyReadonlyArray2};
 use pyo3::exceptions::PyValueError;
@@ -33,23 +33,58 @@ fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     (c, s)
 }
 
-fn rotate_columns_in_place(mat: &mut Array2<Complex64>, col_x: usize, col_y: usize, c: f64, s: Complex64) {
-    let n_rows = mat.nrows();
-    for row in 0..n_rows {
-        let x_old = mat[[row, col_x]];
-        let y_old = mat[[row, col_y]];
-        mat[[row, col_x]] = c * x_old + s * y_old;
-        mat[[row, col_y]] = c * y_old - s.conj() * x_old;
+unsafe fn apply_givens_rotation_strided(
+    x_ptr: *mut Complex64,
+    y_ptr: *mut Complex64,
+    n: i32,
+    inc: i32,
+    c: f64,
+    s: Complex64,
+) {
+    let s_abs = s.norm();
+    let angle = s.arg();
+    let phase = Complex64::new(angle.cos(), angle.sin());
+    let phase_conj = phase.conj();
+    let logical_len = ((n - 1) * inc + 1) as usize;
+    let x = std::slice::from_raw_parts_mut(x_ptr, logical_len);
+    let y = std::slice::from_raw_parts_mut(y_ptr, logical_len);
+    zscal(n, phase_conj, x, inc);
+    zdrot(n, x, inc, y, inc, c, s_abs);
+    zscal(n, phase, x, inc);
+}
+
+fn rotate_columns_in_place(
+    mat: &mut Array2<Complex64>,
+    col_x: usize,
+    col_y: usize,
+    c: f64,
+    s: Complex64,
+) {
+    let n = mat.nrows() as i32;
+    if n == 0 {
+        return;
+    }
+    let inc = mat.ncols() as i32;
+    let base = mat.as_mut_ptr();
+    unsafe {
+        let x_ptr = base.add(col_x);
+        let y_ptr = base.add(col_y);
+        apply_givens_rotation_strided(x_ptr, y_ptr, n, inc, c, s);
     }
 }
 
 fn rotate_rows_in_place(mat: &mut Array2<Complex64>, row_x: usize, row_y: usize, c: f64, s: Complex64) {
-    let n_cols = mat.ncols();
-    for col in 0..n_cols {
-        let x_old = mat[[row_x, col]];
-        let y_old = mat[[row_y, col]];
-        mat[[row_x, col]] = c * x_old + s * y_old;
-        mat[[row_y, col]] = c * y_old - s.conj() * x_old;
+    let n = mat.ncols() as i32;
+    if n == 0 {
+        return;
+    }
+    let row_len = mat.ncols();
+    let inc = 1_i32;
+    let base = mat.as_mut_ptr();
+    unsafe {
+        let x_ptr = base.add(row_x * row_len);
+        let y_ptr = base.add(row_y * row_len);
+        apply_givens_rotation_strided(x_ptr, y_ptr, n, inc, c, s);
     }
 }
 
