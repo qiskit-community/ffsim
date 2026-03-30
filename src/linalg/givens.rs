@@ -33,7 +33,13 @@ fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     (c, s)
 }
 
-fn rotate_columns_in_place(mat: &mut Array2<Complex64>, col_x: usize, col_y: usize, c: f64, s: Complex64) {
+fn rotate_columns_in_place(
+    mat: &mut Array2<Complex64>,
+    col_x: usize,
+    col_y: usize,
+    c: f64,
+    s: Complex64,
+) {
     let n_rows = mat.nrows();
     for row in 0..n_rows {
         let x_old = mat[[row, col_x]];
@@ -43,7 +49,13 @@ fn rotate_columns_in_place(mat: &mut Array2<Complex64>, col_x: usize, col_y: usi
     }
 }
 
-fn rotate_rows_in_place(mat: &mut Array2<Complex64>, row_x: usize, row_y: usize, c: f64, s: Complex64) {
+fn rotate_rows_in_place(
+    mat: &mut Array2<Complex64>,
+    row_x: usize,
+    row_y: usize,
+    c: f64,
+    s: Complex64,
+) {
     let n_cols = mat.ncols();
     for col in 0..n_cols {
         let x_old = mat[[row_x, col]];
@@ -82,7 +94,13 @@ pub fn givens_decomposition(
                         tol,
                     );
                     right_rotations.push((c, s, target_index + 1, target_index));
-                    rotate_columns_in_place(&mut current_matrix, target_index + 1, target_index, c, s);
+                    rotate_columns_in_place(
+                        &mut current_matrix,
+                        target_index + 1,
+                        target_index,
+                        c,
+                        s,
+                    );
                 }
             }
         } else {
