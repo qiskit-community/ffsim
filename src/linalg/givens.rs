@@ -73,13 +73,7 @@ fn rotate_columns_in_place(
     }
 }
 
-fn rotate_rows_in_place(
-    mat: &mut Array2<Complex64>,
-    row_x: usize,
-    row_y: usize,
-    c: f64,
-    s: Complex64,
-) {
+fn rotate_rows_in_place(mat: &mut Array2<Complex64>, row_x: usize, row_y: usize, c: f64, s: Complex64) {
     let n = mat.ncols() as i32;
     if n == 0 {
         return;
@@ -123,13 +117,7 @@ pub fn givens_decomposition(
                         tol,
                     );
                     right_rotations.push((c, s, target_index + 1, target_index));
-                    rotate_columns_in_place(
-                        &mut current_matrix,
-                        target_index + 1,
-                        target_index,
-                        c,
-                        s,
-                    );
+                    rotate_columns_in_place(&mut current_matrix, target_index + 1, target_index, c, s);
                 }
             }
         } else {
