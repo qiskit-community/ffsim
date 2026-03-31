@@ -94,6 +94,8 @@ unsafe fn _apply_givens_rotation_to_pair(
     let row_i = std::slice::from_raw_parts_mut(vec_ptr.add(i * dim_b), dim_b);
     let row_j = std::slice::from_raw_parts_mut(vec_ptr.add(j * dim_b), dim_b);
     for k in 0..dim_b {
+        // This is BLAS zrot but it's not available
+        // See See https://github.com/qiskit-community/ffsim/issues/28
         let i_old = row_i[k];
         let j_old = row_j[k];
         row_i[k] = c * i_old + s * j_old;
