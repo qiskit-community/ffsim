@@ -20,7 +20,7 @@ import numpy as np
 from pyscf.fci import cistring
 
 from ffsim._lib import apply_givens_rotation_in_place, apply_phase_shift_in_place
-from ffsim.linalg import GivensRotation, givens_decomposition
+from ffsim.linalg import givens_decomposition
 
 
 @overload
@@ -157,8 +157,8 @@ def _apply_orbital_rotation_spinful(
 def _get_givens_decomposition(
     mat: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
 ) -> tuple[
-    tuple[list[GivensRotation], np.ndarray] | None,
-    tuple[list[GivensRotation], np.ndarray] | None,
+    tuple[list[tuple[float, complex, int, int]], np.ndarray] | None,
+    tuple[list[tuple[float, complex, int, int]], np.ndarray] | None,
 ]:
     if isinstance(mat, np.ndarray) and mat.ndim == 2:
         decomp = givens_decomposition(mat)
