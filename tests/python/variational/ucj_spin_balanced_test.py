@@ -15,6 +15,7 @@ import itertools
 import numpy as np
 import pyscf
 import pyscf.cc
+import pyscf.ci
 import pytest
 
 import ffsim
@@ -282,6 +283,37 @@ def test_t_amplitudes_restrict_indices():
         interaction_pairs=(pairs_aa, pairs_ab),
     )
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+
+def test_cisd_vec_matches_t_amplitudes():
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        basis="sto-6g",
+        symmetry="Dooh",
+    )
+    n_frozen = 2
+    active_space = range(n_frozen, mol.nao_nr())
+    scf = pyscf.scf.RHF(mol).run()
+    cisd = pyscf.ci.RCISD(
+        scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]
+    ).run()
+
+    ci_before = cisd.ci.copy()
+
+    c0, c1, c2 = pyscf.ci.cisd.cisdvec_to_amplitudes(
+        cisd.ci, cisd.nmo, cisd.nocc, copy=False
+    )
+    t1 = c1 / c0
+    t2 = c2 / c0 - 0.5 * np.einsum("ia,jb->ijab", t1, t1)
+
+    operator = ffsim.UCJOpSpinBalanced.from_cisd_vec(
+        cisd.ci, norb=cisd.nmo, nocc=cisd.nocc
+    )
+    expected = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, t1=t1)
+
+    assert ffsim.approx_eq(operator, expected, rtol=1e-12)
+    np.testing.assert_allclose(cisd.ci, ci_before)
 
 
 def test_validate():
