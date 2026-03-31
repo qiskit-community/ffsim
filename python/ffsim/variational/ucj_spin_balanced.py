@@ -540,7 +540,7 @@ class UCJOpSpinBalanced(
         *,
         norb: int,
         nocc: int,
-        c0_threshold: float = 1e-8,
+        c0_threshold: float = 1e-12,
         n_reps: int | None = None,
         interaction_pairs: tuple[
             list[tuple[int, int]] | None, list[tuple[int, int]] | None
@@ -569,15 +569,20 @@ class UCJOpSpinBalanced(
         :meth:`from_t_amplitudes`.
 
         Args:
-            cisd_vec: The CISD vector. This is a one-dimensional array storing the
-            reference coefficient :math:`c_0` in the first entry, followed by the
-            singles and then doubles coefficients.
+            cisd_vec: The CISD vector. This is a one-dimensional array containing the
+                reference coefficient :math:`c_0` in the first entry, followed by the
+                singles and then doubles coefficients.
             norb: The number of spatial orbitals.
             nocc: The number of occupied orbitals.
-            c0_threshold: Absolute value threshold for the reference coefficient.
-            An error is raised if the absolute value of the reference coefficient is
-            smaller than this threshold.
-            n_reps: The number of ansatz repetitions.
+            c0_threshold: Absolute value threshold for the reference coefficient. An
+                error is raised if the absolute value of :math:`c_0` is smaller than
+                this threshold.
+            n_reps: The number of ansatz repetitions. If not specified, then it is set
+                to the number of terms resulting from the double factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
                 If specified, `interaction_pairs` should be a pair of lists,
