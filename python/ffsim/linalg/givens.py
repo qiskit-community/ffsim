@@ -18,7 +18,7 @@ from typing import NamedTuple
 import numpy as np
 from scipy.linalg.blas import zrotg as zrotg_
 
-from ffsim._lib import givens_decomposition as _givens_decomposition
+from ffsim import _lib
 
 
 class GivensRotation(NamedTuple):
@@ -93,7 +93,7 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
 
 def givens_decomposition(
     mat: np.ndarray,
-) -> tuple[list[GivensRotation], np.ndarray]:
+) -> tuple[list[tuple[float, complex, int, int]], np.ndarray]:
     r"""Givens rotation decomposition of a unitary matrix.
 
     The Givens rotation decomposition of an :math:`n \times n` unitary matrix :math:`U`
@@ -146,6 +146,4 @@ def givens_decomposition(
 
     .. _Clements et al., "Optimal design for universal multiport interferometers" (2016): https://doi.org/10.1364/OPTICA.3.001460
     """  # noqa: E501
-    mat = np.asarray(mat, dtype=complex)
-    right_rotations, diagonal = _givens_decomposition(mat)
-    return [GivensRotation(*rotation) for rotation in right_rotations], diagonal
+    return _lib.givens_decomposition(np.asarray(mat, dtype=complex))
