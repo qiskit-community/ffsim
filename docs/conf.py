@@ -43,6 +43,11 @@ html_theme_options = {
     "sidebar_qiskit_ecosystem_member": True,
 }
 
+# HTML static files
+html_static_path = ["_static"]
+html_logo = "_static/logo.svg"
+html_favicon = "_static/logo.svg"
+
 # autosummary options
 autosummary_generate = True
 templates_path = ["_templates"]
