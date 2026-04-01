@@ -41,7 +41,13 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
     "sidebar_qiskit_ecosystem_member": True,
+    "light_logo": "logo.svg",
+    "dark_logo": "logo-dark.svg",
 }
+
+# HTML static files
+html_static_path = ["_static"]
+html_favicon = "_static/logo.svg"
 
 # autosummary options
 autosummary_generate = True
