@@ -19,59 +19,16 @@ import pyscf
 import pyscf.cc
 import pyscf.mcscf
 import pytest
-import scipy.linalg
 from opt_einsum import contract
 
 import ffsim
-from ffsim.linalg.double_factorized_decomposition import optimal_diag_coulomb_mats
+from ffsim.linalg.double_factorized_decomposition import (
+    optimal_diag_coulomb_mats,
+    reconstruct_t2,
+    reconstruct_t2_alpha_beta,
+)
 
 RNG = np.random.default_rng(139632037091916421993148931543991464292)
-
-
-def reconstruct_t2(
-    diag_coulomb_mats: np.ndarray, orbital_rotations: np.ndarray, nocc: int
-) -> np.ndarray:
-    return (
-        1j
-        * contract(
-            "kpq,kap,kip,kbq,kjq->ijab",
-            diag_coulomb_mats,
-            orbital_rotations,
-            orbital_rotations.conj(),
-            orbital_rotations,
-            orbital_rotations.conj(),
-        )[:nocc, :nocc, nocc:, nocc:]
-    )
-
-
-def reconstruct_t2_alpha_beta(
-    diag_coulomb_mats: np.ndarray,
-    orbital_rotations: np.ndarray,
-    norb: int,
-    nocc_a: int,
-    nocc_b: int,
-) -> np.ndarray:
-    n_terms = diag_coulomb_mats.shape[0]
-    expanded_diag_coulomb_mats = np.zeros((n_terms, 2 * norb, 2 * norb))
-    expanded_orbital_rotations = np.zeros((n_terms, 2 * norb, 2 * norb), dtype=complex)
-    for k in range(n_terms):
-        (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
-        expanded_diag_coulomb_mats[k] = np.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
-        orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
-        expanded_orbital_rotations[k] = scipy.linalg.block_diag(
-            orbital_rotation_a, orbital_rotation_b
-        )
-    return (
-        1j
-        * contract(
-            "kpq,kap,kip,kbq,kjq->ijab",
-            expanded_diag_coulomb_mats,
-            expanded_orbital_rotations,
-            expanded_orbital_rotations.conj(),
-            expanded_orbital_rotations,
-            expanded_orbital_rotations.conj(),
-        )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
-    )
 
 
 @pytest.mark.parametrize("dim", range(6))

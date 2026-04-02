@@ -13,10 +13,12 @@
 from __future__ import annotations
 
 import itertools
+import math
 from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
+import pyscf.ci
 
 from ffsim import gates, linalg, protocols
 from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
@@ -43,8 +45,8 @@ class UCJOpSpinBalanced(
 
     .. math::
 
-        \mathcal{J} = \frac12\sum_{\sigma \tau, ij}
-        \mathbf{J}^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j}.
+        \mathcal{J} = \frac12\sum_{\substack{ij \\ \sigma \tau}}
+        \mathbf{J}^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau}.
 
     For the spin-balanced operator, we require that
     :math:`\mathbf{J}^{(\alpha \alpha)} = \mathbf{J}^{(\beta \beta)}` and
@@ -55,22 +57,29 @@ class UCJOpSpinBalanced(
     Furthermore, each orbital rotation is described by a single matrix because the
     same orbital rotation is applied to both spin alpha and spin beta.
     The number of terms :math:`L` is referred to as the
-    number of ansatz repetitions and is accessible via the `n_reps` attribute.
+    number of ansatz repetitions and is accessible via the ``n_reps`` attribute.
 
     To support variational optimization of the orbital basis, an optional final
     orbital rotation can be included in the operator, to be performed at the end.
 
     Attributes:
         diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array
-            of shape `(n_reps, 2, norb, norb)`
+            of shape ``(n_reps, 2, norb, norb)``
             The last two axes index the rows and columns of
             the matrices, and the third from last axis, which has 2 dimensions, indexes
             the spin interaction type of the matrix: alpha-alpha, and then alpha-beta.
             The first axis indexes the ansatz repetitions.
         orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array
-            of shape `(n_reps, norb, norb)`.
+            of shape ``(n_reps, norb, norb)``.
         final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape `(norb, norb)`.
+            as a Numpy array of shape ``(norb, norb)``.
+
+    Args:
+        validate: Whether to validate the operator attributes. Setting this to False
+            skips validation, which is useful if you need to create many instances
+            of this class and are confident that the attributes are valid.
+        rtol: Relative numerical tolerance for validation checks.
+        atol: Absolute numerical tolerance for validation checks.
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 2, norb, norb)
@@ -153,7 +162,7 @@ class UCJOpSpinBalanced(
             n_reps: The number of ansatz repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a pair of lists,
+                If specified, ``interaction_pairs`` should be a pair of lists,
                 for alpha-alpha and alpha-beta interactions, in that order.
                 Either list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -209,7 +218,7 @@ class UCJOpSpinBalanced(
             n_reps: The number of ansatz repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a pair of lists,
+                If specified, ``interaction_pairs`` should be a pair of lists,
                 for alpha-alpha and alpha-beta interactions, in that order.
                 Either list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -298,7 +307,7 @@ class UCJOpSpinBalanced(
         r"""Convert the UCJ operator to a real-valued parameter vector.
 
         Note:
-            If `interaction_pairs` is specified, the returned parameter vector will
+            If ``interaction_pairs`` is specified, the returned parameter vector will
             incorporate only the diagonal Coulomb matrix entries corresponding to the
             specified interactions, so the original operator will not be recoverable
             from the parameter vector.
@@ -306,7 +315,7 @@ class UCJOpSpinBalanced(
         Args:
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a pair of lists,
+                If specified, ``interaction_pairs`` should be a pair of lists,
                 for alpha-alpha and alpha-beta interactions, in that order.
                 Either list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -396,8 +405,8 @@ class UCJOpSpinBalanced(
         The default behavior of this routine is to perform a straightforward
         "exact" factorization of the t2 amplitudes tensor based on a nested
         eigenvalue decomposition, and then truncate the terms based on the values of
-        `tol` and `n_reps`.
-        If `optimize` is set to ``True``, then the entries of the resulting tensors
+        ``tol`` and ``n_reps``.
+        If ``optimize`` is set to ``True``, then the entries of the resulting tensors
         (the diagonal Coulomb matrices and orbital rotations) are further optimized with
         `scipy.optimize.minimize`_ to reduce the error in the factorization.
         See :func:`ffsim.linalg.double_factorized_t2` for details.
@@ -413,7 +422,7 @@ class UCJOpSpinBalanced(
                 of repetitions.
             interaction_pairs: Optional restrictions on allowed orbital interactions
                 for the diagonal Coulomb operators.
-                If specified, `interaction_pairs` should be a pair of lists,
+                If specified, ``interaction_pairs`` should be a pair of lists,
                 for alpha-alpha and alpha-beta interactions, in that order.
                 Either list can be substituted with ``None`` to indicate no restrictions
                 on interactions.
@@ -432,22 +441,22 @@ class UCJOpSpinBalanced(
                 to minimize the error in the factorization.
             method: The optimization method. See the documentation of
                 `scipy.optimize.minimize`_ for possible values.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             callback: Callback function for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             options: Options for the optimization. See the documentation of
                 `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
-                This argument is ignored if `optimize` is set to ``False``.
+                This argument is ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -523,6 +532,130 @@ class UCJOpSpinBalanced(
             diag_coulomb_mats=diag_coulomb_mats,
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=final_orbital_rotation,
+        )
+
+    @staticmethod
+    def from_cisd_vec(
+        cisd_vec: np.ndarray,
+        *,
+        norb: int,
+        nocc: int,
+        c0_threshold: float = 1e-12,
+        n_reps: int | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None, list[tuple[int, int]] | None
+        ]
+        | None = None,
+        tol: float = 1e-8,
+        optimize: bool = False,
+        method: str = "L-BFGS-B",
+        callback=None,
+        options: dict | None = None,
+        regularization: float = 0,
+        multi_stage_start: int | None = None,
+        multi_stage_step: int | None = None,
+    ) -> UCJOpSpinBalanced:
+        r"""Initialize the UCJ operator from a CISD vector.
+
+        The CISD amplitudes are converted to CC-style amplitudes using
+
+        .. math::
+
+            t_{1,ia} = \frac{c^{(1)}_{ia}}{c_0},
+            \qquad
+            t_{2,ijab} = \frac{c^{(2)}_{ijab}}{c_0} - \frac{t_{1,ia} t_{1,jb}}{2},
+
+        and the resulting amplitudes are then passed to
+        :meth:`from_t_amplitudes`.
+
+        Args:
+            cisd_vec: The CISD vector. This is a one-dimensional array containing the
+                reference coefficient :math:`c_0` in the first entry, followed by the
+                singles and then doubles coefficients.
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            c0_threshold: Absolute value threshold for the reference coefficient. An
+                error is raised if the absolute value of :math:`c_0` is smaller than
+                this threshold.
+            n_reps: The number of ansatz repetitions. If not specified, then it is set
+                to the number of terms resulting from the double factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the diagonal Coulomb operators.
+                If specified, `interaction_pairs` should be a pair of lists,
+                for alpha-alpha and alpha-beta interactions, in that order.
+                Either list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact. These pairs can also be interpreted as
+                indices of diagonal Coulomb matrix entries that are allowed to be
+                nonzero.
+                Each integer pair must be upper triangular, that is, of the form
+                :math:`(i, j)` where :math:`i \leq j`.
+            tol: Tolerance for error in the double-factorized decomposition of the
+                converted t2 amplitudes.
+                The error is defined as the maximum absolute difference between
+                an element of the original tensor and the corresponding element of
+                the reconstructed tensor.
+            optimize: Whether to optimize the tensors returned by the decomposition to
+                to minimize the error in the factorization.
+            method: The optimization method. See the documentation of
+                `scipy.optimize.minimize`_ for possible values.
+                This argument is ignored if `optimize` is set to ``False``.
+            callback: Callback function for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            options: Options for the optimization. See the documentation of
+                `scipy.optimize.minimize`_ for usage.
+                This argument is ignored if `optimize` is set to ``False``.
+            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
+                description of this argument.
+                This argument is ignored if `optimize` is set to ``False``.
+
+        Returns:
+            The UCJ operator with parameters initialized from the CISD amplitudes.
+
+        Raises:
+            ValueError: The CISD reference coefficient is smaller than the
+                specified threshold c0_tol.
+
+        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+        """
+        c0, c1, c2 = pyscf.ci.cisd.cisdvec_to_amplitudes(
+            cisd_vec, norb, nocc, copy=False
+        )
+
+        if math.isclose(c0, 0.0, abs_tol=c0_threshold):
+            raise ValueError(
+                f"CISD reference coefficient c0={c0} is smaller than the"
+                f"specified threshold, c0_tol={c0_threshold}."
+            )
+
+        t1 = c1 / c0
+        t2 = c2 / c0 - 0.5 * np.einsum("ia,jb->ijab", t1, t1)
+
+        return UCJOpSpinBalanced.from_t_amplitudes(
+            t2,
+            t1=t1,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            tol=tol,
+            optimize=optimize,
+            method=method,
+            callback=callback,
+            options=options,
+            regularization=regularization,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
         )
 
     def _apply_unitary_(

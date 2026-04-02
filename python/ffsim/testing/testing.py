@@ -52,10 +52,10 @@ def generate_norb_nelec_spin(
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, tuple[int, int], Spin]]:
-    """Generate (`norb`, `nelec`, `spin`) tuples for testing.
+    """Generate (``norb``, ``nelec``, ``spin``) tuples for testing.
 
     Args:
-        exhaustive: If True, generates all possible (`norb`, `nelec`, `spin`)
+        exhaustive: If True, generates all possible (``norb``, ``nelec``, ``spin``)
             triplets for each ``norb`` in ``norb_range``. If False, yields a small
             representative set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
@@ -84,10 +84,10 @@ def generate_norb_nelec(
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, tuple[int, int]]]:
-    """Generate (`norb`, `nelec`) tuples for testing.
+    """Generate (``norb``, ``nelec``) tuples for testing.
 
     Args:
-        exhaustive: If True, generates all possible (`norb`, `nelec`) pairs for
+        exhaustive: If True, generates all possible (``norb``, ``nelec``) pairs for
             each ``norb`` in ``norb_range``. If False, yields a small representative
             set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
@@ -114,13 +114,13 @@ def generate_norb_nocc(
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
 ) -> Iterator[tuple[int, int]]:
-    """Generate (`norb`, `nocc`) tuples for testing.
+    """Generate (``norb``, ``nocc``) tuples for testing.
 
-    `nocc` refers to the occupation of a single spin species, so it ranges from
-    0 to `norb`.
+    ``nocc`` refers to the occupation of a single spin species, so it ranges from
+    0 to ``norb``.
 
     Args:
-        exhaustive: If True, generates all possible (`norb`, `nocc`) pairs for
+        exhaustive: If True, generates all possible (``norb``, ``nocc``) pairs for
             each ``norb`` in ``norb_range``. If False, yields a small representative
             set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
@@ -142,9 +142,10 @@ def generate_norb_nocc(
 
 
 def generate_norb_spin(norb_range: Iterable[int]) -> Iterator[tuple[int, Spin]]:
-    """Generate (`norb`, `spin`) tuples for testing.
+    """Generate (``norb``, ``spin``) tuples for testing.
 
-    Given a range of choices for `norb`, generates all possible (`norb`, `spin`) pairs.
+    Given a range of choices for ``norb``, generates all possible (``norb``, ``spin``)
+    pairs.
     """
     for norb in norb_range:
         for spin in Spin.__members__.values():

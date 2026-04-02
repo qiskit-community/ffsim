@@ -17,8 +17,8 @@ from typing import cast, overload
 
 import numpy as np
 
+from ffsim._cistring import gen_occslst
 from ffsim._lib import apply_num_op_sum_evolution_in_place
-from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -78,10 +78,11 @@ def apply_num_op_sum_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{\sigma, i} \lambda^{(\sigma)}_i n_{\sigma, i}\right)
+        \exp\left(-i t \sum_{i \sigma}
+        \lambda^{(\sigma)}_i n_{i\sigma}\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
     :math:`\mathcal{U}` is an optional orbital rotation.
 
@@ -108,9 +109,9 @@ def apply_num_op_sum_evolution(
             spin sector.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.

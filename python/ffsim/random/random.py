@@ -111,8 +111,8 @@ def random_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
     Args:
         dim: The width and height of the matrix.
         seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+            instance of ``np.random.Generator`` or else a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled orthogonal matrix.
@@ -135,8 +135,8 @@ def random_special_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
     Args:
         dim: The width and height of the matrix.
         seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+            instance of ``np.random.Generator`` or else a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled special orthogonal matrix.
@@ -152,7 +152,7 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
-        rank: The rank of the matrix. If `None`, the maximum rank is used.
+        rank: The rank of the matrix. If ``None``, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -173,10 +173,10 @@ def random_real_symmetric_matrix(
 
     Args:
         dim: The width and height of the matrix.
-        rank: The rank of the matrix. If `None`, the maximum rank is used.
+        rank: The rank of the matrix. If ``None``, the maximum rank is used.
         seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+            instance of ``np.random.Generator`` or else a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled real symmetric matrix.
@@ -193,7 +193,7 @@ def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
-        rank: The rank of the matrix. If `None`, the maximum rank is used.
+        rank: The rank of the matrix. If ``None``, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -538,7 +538,7 @@ def random_ucj_op_spin_balanced(
         n_reps: The number of ansatz repetitions.
         interaction_pairs: Optional restrictions on allowed orbital interactions
             for the diagonal Coulomb operators.
-            If specified, `interaction_pairs` should be a pair of lists,
+            If specified, ``interaction_pairs`` should be a pair of lists,
             for alpha-alpha and alpha-beta interactions, in that order.
             Either list can be substituted with ``None`` to indicate no restrictions
             on interactions.
@@ -647,7 +647,7 @@ def random_ucj_op_spin_unbalanced(
         n_reps: The number of ansatz repetitions.
         interaction_pairs: Optional restrictions on allowed orbital interactions
             for the diagonal Coulomb operators.
-            If specified, `interaction_pairs` should be a tuple of 3 lists,
+            If specified, ``interaction_pairs`` should be a tuple of 3 lists,
             for alpha-alpha, alpha-beta, and beta-beta interactions, in that order.
             Any list can be substituted with ``None`` to indicate no restrictions
             on interactions.
@@ -776,7 +776,7 @@ def random_ucj_op_spinless(
         n_reps: The number of ansatz repetitions.
         interaction_pairs: Optional restrictions on allowed orbital interactions
             for the diagonal Coulomb operators.
-            If specified, `interaction_pairs` should be a list of integer pairs
+            If specified, ``interaction_pairs`` should be a list of integer pairs
             representing the orbitals that are allowed to interact. These pairs
             can also be interpreted as indices of diagonal Coulomb matrix entries
             that are allowed to be nonzero.
@@ -923,8 +923,9 @@ def random_fermion_operator(
     Args:
         norb: The number of spatial orbitals.
         n_terms: The number of terms to include in the operator. If not specified,
-            `norb` is used.
-        max_term_length: The maximum length of a term. If not specified, `norb` is used.
+            ``norb`` is used.
+        max_term_length: The maximum length of a term. If not specified, ``norb`` is
+            used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
@@ -960,7 +961,7 @@ def random_fermion_hamiltonian(
     Args:
         norb: The number of spatial orbitals.
         n_terms: The number of terms to include in the operator. If not specified,
-            `norb` is used.
+            ``norb`` is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 

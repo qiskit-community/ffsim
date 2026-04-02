@@ -36,8 +36,8 @@ class PrepareHartreeFockJW(Gate):
     This gate is meant to be applied to the all zeros state. It decomposes simply as
     a sequence of X gates that prepares the Hartree-Fock electronic configuration.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
     """
 
@@ -118,8 +118,8 @@ class PrepareSlaterDeterminantJW(Gate):
     to any other state is not guaranteed. The global phase of the prepared state may
     be arbitrary.
 
-    This gate assumes that qubits are ordered such that the first `norb` qubits
-    correspond to the alpha orbitals and the last `norb` qubits correspond to the
+    This gate assumes that qubits are ordered such that the first ``norb`` qubits
+    correspond to the alpha orbitals and the last ``norb`` qubits correspond to the
     beta orbitals.
 
     References:

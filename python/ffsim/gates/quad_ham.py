@@ -55,8 +55,8 @@ def apply_quad_ham_evolution(
 
     .. math::
 
-        \exp\left(-i t \sum_{\sigma, ij}
-        \mathbf{M}^{(\sigma)}_{ij} a^\dagger_{\sigma, i} a_{\sigma, j}\right)
+        \exp\left(-i t \sum_{\substack{ij \\ \sigma}}
+        \mathbf{M}^{(\sigma)}_{ij} a^\dagger_{i\sigma} a_{j\sigma}\right)
 
     where each :math:`\mathbf{M}^{(\sigma)}` is a Hermitian matrix.
 
@@ -75,9 +75,9 @@ def apply_quad_ham_evolution(
             and spin beta fermions.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.

@@ -18,11 +18,11 @@ from typing import overload
 import numpy as np
 from numpy.typing import NDArray
 
+from ffsim._cistring import gen_occslst, make_strings
 from ffsim._lib import (
     apply_diag_coulomb_evolution_in_place_num_rep,
     apply_diag_coulomb_evolution_in_place_z_rep,
 )
-from ffsim.cistring import gen_occslst, make_strings
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -85,11 +85,11 @@ def apply_diag_coulomb_evolution(
     .. math::
 
         \mathcal{U}
-        \exp\left(-i t \sum_{\sigma, \tau, i, j}
-        J^{(\sigma \tau)}_{ij} n_{\sigma, i} n_{\tau, j} / 2\right)
+        \exp\left(-i t \sum_{\substack{ij \\ \sigma \tau}}
+        J^{(\sigma \tau)}_{ij} n_{i\sigma} n_{j\tau} / 2\right)
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, :math:`J^{(\sigma \tau)}` is a real-valued matrix,
     and :math:`\mathcal{U}` is an optional orbital rotation.
 
@@ -118,9 +118,9 @@ def apply_diag_coulomb_evolution(
         z_representation: Whether the input matrices are in the "Z" representation.
         copy: Whether to copy the vector before operating on it.
 
-            - If `copy=True` then this function always returns a newly allocated
+            - If ``copy=True`` then this function always returns a newly allocated
               vector and the original vector is left untouched.
-            - If `copy=False` then this function may still return a newly allocated
+            - If ``copy=False`` then this function may still return a newly allocated
               vector, but the original vector may have its data overwritten.
               It is also possible that the original vector is returned,
               modified in-place.

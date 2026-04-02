@@ -14,7 +14,13 @@ from typing import NamedTuple
 
 
 class FermionAction(NamedTuple):
-    """A fermionic action."""
+    """A fermionic action.
+
+    Args:
+        action: ``False`` = destroy (annihilate), ``True`` = create
+        spin: ``False`` = alpha (spin up), ``True`` = beta (spin down)
+        orb: Index of the orbital to act on
+    """
 
     action: bool  # False = destroy (annihilate), True = create
     spin: bool  # False = alpha, True = beta

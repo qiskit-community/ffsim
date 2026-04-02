@@ -95,6 +95,7 @@ typos
 ### Build documentation
 
 ```bash
+python docs/generate_api_docs.py
 sphinx-build -b html -W docs/ docs/_build/html
 ```
 

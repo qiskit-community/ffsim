@@ -17,7 +17,8 @@ from typing import NamedTuple
 
 import numpy as np
 from scipy.linalg.blas import zrotg as zrotg_
-from scipy.linalg.lapack import zrot
+
+from ffsim import _lib
 
 
 class GivensRotation(NamedTuple):
@@ -79,7 +80,7 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
     close to zero. This function detects if either a or b is close to zero up to the
     specified tolerance, in which case it behaves as if it were exactly zero.
 
-    Note that in contrast to `scipy.linalg.blas.zrotg`, this function returns c as a
+    Note that in contrast to ``scipy.linalg.blas.zrotg``, this function returns c as a
     float rather than a complex.
     """
     if cmath.isclose(a, 0.0, abs_tol=tol):
@@ -92,7 +93,7 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
 
 def givens_decomposition(
     mat: np.ndarray,
-) -> tuple[list[GivensRotation], np.ndarray]:
+) -> tuple[list[tuple[float, complex, int, int]], np.ndarray]:
     r"""Givens rotation decomposition of a unitary matrix.
 
     The Givens rotation decomposition of an :math:`n \times n` unitary matrix :math:`U`
@@ -126,8 +127,8 @@ def givens_decomposition(
     The number of Givens rotations :math:`L` is at most :math:`\frac{n (n-1)}{2}`,
     but it may be less. If we think of Givens rotations acting on disjoint indices
     as operations that can be performed in parallel, then the entire sequence of
-    rotations can always be performed using at most `n` layers of parallel operations.
-    The decomposition algorithm is described in the reference below.
+    rotations can always be performed using at most :math:`n` layers of parallel
+    operations. The decomposition algorithm is described in the reference below.
 
     References:
         - `Clements et al., "Optimal design for universal multiport interferometers" (2016)`_
@@ -145,76 +146,4 @@ def givens_decomposition(
 
     .. _Clements et al., "Optimal design for universal multiport interferometers" (2016): https://doi.org/10.1364/OPTICA.3.001460
     """  # noqa: E501
-    n, _ = mat.shape
-    current_matrix = mat.astype(complex, copy=True)
-    left_rotations = []
-    right_rotations = []
-
-    # compute left and right Givens rotations
-    for i in range(n - 1):
-        if i % 2 == 0:
-            # rotate columns by right multiplication
-            for j in range(i + 1):
-                target_index = i - j
-                row = n - j - 1
-                if not cmath.isclose(current_matrix[row, target_index], 0.0):
-                    # zero out element at target index in given row
-                    c, s = zrotg(
-                        current_matrix[row, target_index + 1],
-                        current_matrix[row, target_index],
-                    )
-                    right_rotations.append(
-                        GivensRotation(c, s, target_index + 1, target_index)
-                    )
-                    (
-                        current_matrix[:, target_index + 1],
-                        current_matrix[:, target_index],
-                    ) = zrot(
-                        current_matrix[:, target_index + 1],
-                        current_matrix[:, target_index],
-                        c,
-                        s,
-                    )
-        else:
-            # rotate rows by left multiplication
-            for j in range(i + 1):
-                target_index = n - i + j - 1
-                col = j
-                if not cmath.isclose(current_matrix[target_index, col], 0.0):
-                    # zero out element at target index in given column
-                    c, s = zrotg(
-                        current_matrix[target_index - 1, col],
-                        current_matrix[target_index, col],
-                    )
-                    left_rotations.append(
-                        GivensRotation(c, s, target_index - 1, target_index)
-                    )
-                    (
-                        current_matrix[target_index - 1],
-                        current_matrix[target_index],
-                    ) = zrot(
-                        current_matrix[target_index - 1],
-                        current_matrix[target_index],
-                        c,
-                        s,
-                    )
-
-    # convert left rotations to right rotations
-    for c, s, i, j in reversed(left_rotations):
-        c, s = zrotg(c * current_matrix[j, j], s.conjugate() * current_matrix[i, i])
-        right_rotations.append(
-            # clamp c between -1 and 1 to account for floating point error
-            GivensRotation(min(1.0, max(-1.0, c)), -s.conjugate(), i, j)
-        )
-
-        givens_mat = np.array([[c, -s], [s.conjugate(), c]])
-        givens_mat[:, 0] *= current_matrix[i, i]
-        givens_mat[:, 1] *= current_matrix[j, j]
-        c, s = zrotg(givens_mat[1, 1], givens_mat[1, 0])
-        new_givens_mat = np.array([[c, s], [-s.conjugate(), c]])
-        phase_matrix = givens_mat @ new_givens_mat
-        current_matrix[i, i] = phase_matrix[0, 0]
-        current_matrix[j, j] = phase_matrix[1, 1]
-
-    # return decomposition
-    return right_rotations, np.diagonal(current_matrix)
+    return _lib.givens_decomposition(np.asarray(mat, dtype=complex))

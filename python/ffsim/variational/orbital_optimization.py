@@ -77,7 +77,7 @@ def optimize_orbitals(
     Returns:
         The orbital rotation, which, when applied to the reduced density matrix
         (or conjugated and applied to the Hamiltonian), minimizes its energy.
-        If `return_optimize_result` is set to ``True``, the `OptimizeResult`_ returned
+        If ``return_optimize_result`` is set to ``True``, the `OptimizeResult`_ returned
         by `scipy.optimize.minimize`_ is also returned.
 
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
