@@ -17,7 +17,7 @@ import math
 import numpy as np
 
 import ffsim
-from ffsim import cistring
+from ffsim import _cistring
 from ffsim._lib import (
     contract_diag_coulomb_into_buffer_num_rep,
     contract_diag_coulomb_into_buffer_z_rep,
@@ -37,8 +37,8 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
-        occupations_a = cistring.gen_occslst(range(norb), n_alpha)
-        occupations_b = cistring.gen_occslst(range(norb), n_beta)
+        occupations_a = _cistring.gen_occslst(range(norb), n_alpha)
+        occupations_b = _cistring.gen_occslst(range(norb), n_beta)
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
@@ -79,8 +79,8 @@ def test_contract_diag_coulomb_into_buffer_z_rep_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
-        strings_a = cistring.make_strings(range(norb), n_alpha)
-        strings_b = cistring.make_strings(range(norb), n_beta)
+        strings_a = _cistring.make_strings(range(norb), n_alpha)
+        strings_b = _cistring.make_strings(range(norb), n_beta)
         mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
         mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)

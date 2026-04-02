@@ -8,10 +8,6 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
-extern crate blas_src;
-
-use blas::zdrot;
-use blas::zscal;
 use numpy::Complex64;
 use numpy::PyReadonlyArray1;
 
@@ -36,11 +32,6 @@ pub fn apply_givens_rotation_in_place(
     let slice1 = slice1.as_array();
     let slice2 = slice2.as_array();
     let dim_b = vec.shape()[1];
-    let dim_b_i32 = dim_b as i32;
-    let s_abs = s.norm();
-    let angle = s.arg();
-    let phase = Complex64::new(angle.cos(), angle.sin());
-    let phase_conj = phase.conj();
 
     let n_pairs = slice1.len();
     let n_threads = std::env::var("RAYON_NUM_THREADS")
@@ -61,9 +52,7 @@ pub fn apply_givens_rotation_in_place(
         let vec_ptr = vec.as_mut_ptr();
         for (&i, &j) in slice1_slice.iter().zip(slice2_slice) {
             unsafe {
-                _apply_givens_rotation_to_pair(
-                    vec_ptr, i, j, dim_b, dim_b_i32, c, s_abs, phase, phase_conj,
-                );
+                _apply_givens_rotation_to_pair(vec_ptr, i, j, dim_b, c, s);
             }
         }
         return;
@@ -85,9 +74,7 @@ pub fn apply_givens_rotation_in_place(
                 let vec_ptr = vec_ptr as *mut Complex64;
                 for (&i, &j) in slice1_chunk.iter().zip(slice2_chunk) {
                     unsafe {
-                        _apply_givens_rotation_to_pair(
-                            vec_ptr, i, j, dim_b, dim_b_i32, c, s_abs, phase, phase_conj,
-                        );
+                        _apply_givens_rotation_to_pair(vec_ptr, i, j, dim_b, c, s);
                     }
                 }
             });
@@ -96,23 +83,22 @@ pub fn apply_givens_rotation_in_place(
 }
 
 /// Apply Givens rotation to a pair of rows
-#[allow(clippy::too_many_arguments)]
 unsafe fn _apply_givens_rotation_to_pair(
     vec_ptr: *mut Complex64,
     i: usize,
     j: usize,
     dim_b: usize,
-    dim_b_i32: i32,
     c: f64,
-    s_abs: f64,
-    phase: Complex64,
-    phase_conj: Complex64,
+    s: Complex64,
 ) {
     let row_i = std::slice::from_raw_parts_mut(vec_ptr.add(i * dim_b), dim_b);
     let row_j = std::slice::from_raw_parts_mut(vec_ptr.add(j * dim_b), dim_b);
-    // Use zdrot and zscal because zrot is not currently available
-    // See https://github.com/qiskit-community/ffsim/issues/28
-    zscal(dim_b_i32, phase_conj, row_i, 1);
-    zdrot(dim_b_i32, row_i, 1, row_j, 1, c, s_abs);
-    zscal(dim_b_i32, phase, row_i, 1);
+    for k in 0..dim_b {
+        // This is BLAS zrot but it's not available
+        // See https://github.com/qiskit-community/ffsim/issues/28
+        let i_old = row_i[k];
+        let j_old = row_j[k];
+        row_i[k] = c * i_old + s * j_old;
+        row_j[k] = c * j_old - s.conj() * i_old;
+    }
 }

@@ -17,7 +17,7 @@ import math
 import numpy as np
 
 import ffsim
-from ffsim import cistring
+from ffsim import _cistring
 from ffsim._lib import contract_num_op_sum_spin_into_buffer
 from ffsim._slow.contract.num_op_sum import contract_num_op_sum_spin_into_buffer_slow
 
@@ -31,7 +31,7 @@ def test_contract_num_op_sum_spin_into_buffer_slow():
         n_beta = rng.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
-        occupations = cistring.gen_occslst(range(norb), n_alpha)
+        occupations = _cistring.gen_occslst(range(norb), n_alpha)
         coeffs = rng.uniform(size=norb)
         vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
             (dim_a, dim_b)

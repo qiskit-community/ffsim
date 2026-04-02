@@ -39,6 +39,9 @@ def apply_phase_shift_in_place(
 def apply_givens_rotation_in_place(
     vec: np.ndarray, c: float, s: complex, slice1: np.ndarray, slice2: np.ndarray
 ) -> None: ...
+def givens_decomposition(
+    mat: np.ndarray,
+) -> tuple[list[tuple[float, complex, int, int]], np.ndarray]: ...
 def apply_num_op_sum_evolution_in_place(
     vec: np.ndarray,
     phases: np.ndarray,

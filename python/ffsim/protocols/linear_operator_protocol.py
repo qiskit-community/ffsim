@@ -107,12 +107,12 @@ def _apply_fermion_term(
     Given a state vector and a string of ladder operators that conserves particle number
     and total spin Z, return the state vector that results from applying the ladder
     operators to the given state vector. The string of ladder operators is represented
-    as a sequence of (`action`, `spin`, `orbital`) tuples, where:
+    as a sequence of (``action``, ``spin``, ``orbital``) tuples, where:
 
-    - `action` is a bool. False indicates a destruction operator and True indicates
+    - ``action`` is a bool. False indicates a destruction operator and True indicates
       a creation operator.
-    - `spin` is a bool. False indicates spin alpha and True indicates spin beta.
-    - `orbital` is an integer giving the index of the spatial orbital to act on.
+    - ``spin`` is a bool. False indicates spin alpha and True indicates spin beta.
+    - ``orbital`` is an integer giving the index of the spatial orbital to act on.
 
     The string of ladder operators acts on a state vector by left multiplication,
     so the resulting state vector is obtained by applying the ladder operators to the

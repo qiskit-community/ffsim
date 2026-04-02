@@ -32,13 +32,13 @@ def fermi_hubbard_1d(
 
     .. math::
 
-        H = -t \sum_{\sigma, \braket{pq}}
-        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})
-        + U \sum_p n_{\alpha, p} n_{\beta, p}
-        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})
-        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}
+        H = -t \sum_{\substack{\braket{pq} \\ \sigma}}
+        (a^\dagger_{p\sigma} a_{q\sigma} + a^\dagger_{q\sigma} a_{p\sigma})
+        + U \sum_p n_{p\alpha} n_{p\beta}
+        - \mu \sum_p (n_{p\alpha} + n_{p\beta})
+        + V \sum_{\substack{\braket{pq} \\ \sigma \tau}} n_{p\sigma} n_{q\tau}
 
-    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
+    where :math:`n_{p\sigma} = a_{p\sigma}^\dagger a_{p\sigma}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma` and the index
     :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are
     connected on the line. If periodic boundary conditions are chosen, then the first
@@ -119,13 +119,13 @@ def fermi_hubbard_2d(
 
     .. math::
 
-        H = -t \sum_{\sigma, \braket{pq}}
-        (a^\dagger_{\sigma, p} a_{\sigma, q} + a^\dagger_{\sigma, q} a_{\sigma, p})
-        + U \sum_p n_{\alpha, p} n_{\beta, p}
-        - \mu \sum_p (n_{\alpha, p} + n_{\beta, p})
-        + V \sum_{\sigma \tau, \braket{pq}} n_{\sigma, p} n_{\tau, q}
+        H = -t \sum_{\substack{\braket{pq} \\ \sigma}}
+        (a^\dagger_{p\sigma} a_{q\sigma} + a^\dagger_{q\sigma} a_{p\sigma})
+        + U \sum_p n_{p\alpha} n_{p\beta}
+        - \mu \sum_p (n_{p\alpha} + n_{p\beta})
+        + V \sum_{\substack{\braket{pq} \\ \sigma \tau}} n_{p\sigma} n_{q\tau}
 
-    where :math:`n_{\sigma, p} = a_{\sigma, p}^\dagger a_{\sigma, p}` is the number
+    where :math:`n_{p\sigma} = a_{p\sigma}^\dagger a_{p\sigma}` is the number
     operator on orbital :math:`p` with spin :math:`\sigma` and the index
     :math:`\braket{pq}` runs over pairs of orbitals :math:`p` and :math:`q` that are
     connected on the lattice. If periodic boundary conditions are chosen, then
@@ -146,7 +146,7 @@ def fermi_hubbard_2d(
         nearest_neighbor_interaction: The nearest-neighbor interaction strength
             :math:`V`.
         periodic: Whether to use periodic boundary conditions in all dimensions.
-            This argument overrides the `periodic_x` and `periodic_y` arguments.
+            This argument overrides the ``periodic_x`` and ``periodic_y`` arguments.
         periodic_x: Whether to use periodic boundary conditions in the X dimension.
         periodic_y: Whether to use periodic boundary conditions in the Y dimension.
 

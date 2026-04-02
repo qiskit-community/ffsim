@@ -17,10 +17,10 @@ import math
 import numpy as np
 import scipy.sparse.linalg
 
+from ffsim._cistring import gen_occslst
 from ffsim._lib import (
     contract_num_op_sum_spin_into_buffer,
 )
-from ffsim.cistring import gen_occslst
 from ffsim.gates.orbital_rotation import apply_orbital_rotation
 
 
@@ -33,9 +33,9 @@ def contract_num_op_sum(
 
     .. math::
 
-        \sum_{\sigma, i} \lambda_i n_{\sigma, i}
+        \sum_{i \sigma} \lambda_i n_{i\sigma}
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma` and the :math:`\lambda_i` are real numbers.
 
     Args:
@@ -86,10 +86,10 @@ def num_op_sum_linop(
     .. math::
 
         \mathcal{U}
-        (\sum_{\sigma, i} \lambda_i n_{\sigma, i})
+        (\sum_{i \sigma} \lambda_i n_{i\sigma})
         \mathcal{U}^\dagger
 
-    where :math:`n_{\sigma, i}` denotes the number operator on orbital :math:`i`
+    where :math:`n_{i\sigma}` denotes the number operator on orbital :math:`i`
     with spin :math:`\sigma`, the :math:`\lambda_i` are real numbers, and
     :math:`\mathcal{U}` is an optional orbital rotation.
 

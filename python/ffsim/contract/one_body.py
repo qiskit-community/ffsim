@@ -18,7 +18,7 @@ import numpy as np
 import scipy.sparse.linalg
 from pyscf.fci.direct_nosym import contract_1e
 
-from ffsim.cistring import gen_linkstr_index
+from ffsim._cistring import gen_linkstr_index
 
 
 def contract_one_body(

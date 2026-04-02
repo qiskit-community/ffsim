@@ -68,7 +68,7 @@ def sample_slater(
     """Collect samples of electronic configurations from a Slater determinant.
 
     The Slater determinant is specified as an orbital rotation applied to the
-    reference electronic configuration given by `occupied_orbitals`. The sampler
+    reference electronic configuration given by ``occupied_orbitals``. The sampler
     draws independent samples from the corresponding determinantal point process
     using the projection-based sequential sampling algorithm described in the
     reference below.
@@ -100,7 +100,7 @@ def sample_slater(
             that is, the alpha string appears on the right.
             If False, then two lists are returned, ``(strings_a, strings_b)``, with the
             alpha strings listed first.
-            In the spinless case (when `occupied_orbitals` is a sequence of integers),
+            In the spinless case (when ``occupied_orbitals`` is a sequence of integers),
             this argument is ignored.
         bitstring_type: The desired type of bitstring output.
         seed: A seed to initialize the pseudorandom number generator.

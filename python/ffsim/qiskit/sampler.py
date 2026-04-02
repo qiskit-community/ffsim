@@ -66,7 +66,7 @@ class FfsimSampler(BaseSamplerV2):
         Finally, measurement gates must only occur at the end of the circuit.
 
         When simulating spinful circuits constructed from Qiskit gates, you should
-        pass the `norb` and `nelec` arguments to the FfsimSampler initialization.
+        pass the ``norb`` and ``nelec`` arguments to the FfsimSampler initialization.
         Otherwise, a spinless simulation will be performed, which is less efficient.
 
         Currently, spinless circuits are limited to 64 qubits, and spinful circuits are

@@ -38,17 +38,17 @@ class DoubleFactorizedHamiltonian(
 
     .. math::
 
-        H = \sum_{\sigma, pq} \kappa_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-        + \frac12 \sum_t \sum_{\sigma\tau, ij}
-        J^{(t)}_{ij} n^{(t)}_{\sigma, i} n^{(t)}_{\tau, j}
+        H = \sum_{\substack{pq \\ \sigma}} \kappa_{pq} a^\dagger_{p\sigma} a_{q\sigma}
+        + \frac12 \sum_t \sum_{\substack{ij \\ \sigma\tau}}
+        J^{(t)}_{ij} n^{(t)}_{i\sigma} n^{(t)}_{j\tau}
         + \text{constant}.
 
     where
 
     .. math::
 
-        n^{(t)}_{\sigma, i} = \sum_{pq} U^{(t)}_{pi}
-        a^\dagger_{\sigma, p} a_{\sigma, q} U^{(t)*}_{qi}.
+        n^{(t)}_{i\sigma} = \sum_{pq} U^{(t)}_{pi}
+        a^\dagger_{p\sigma} a_{q\sigma} U^{(t)*}_{qi}.
 
     Here each :math:`U^{(t)}` is a unitary matrix and each :math:`J^{(t)}`
     is a real symmetric matrix.
@@ -62,20 +62,20 @@ class DoubleFactorizedHamiltonian(
 
     .. math::
 
-        n^{(t)}_{\sigma, i} = \frac{(1 - z^{(t)}_{\sigma, i})}{2}
+        n^{(t)}_{i\sigma} = \frac{(1 - z^{(t)}_{i\sigma})}{2}
 
-    where :math:`z^{(t)}_{\sigma, i}` is the Pauli Z operator in the rotated basis.
+    where :math:`z^{(t)}_{i\sigma}` is the Pauli Z operator in the rotated basis.
     The "Z" representation is obtained by rewriting the two-body part in terms
     of these Pauli Z operators and updating the one-body term as appropriate:
 
     .. math::
 
-        H = \sum_{\sigma, pq} \kappa'_{pq} a^\dagger_{\sigma, p} a_{\sigma, q}
-        + \frac18 \sum_t \sum_{\sigma\tau, ij}^*
-        J^{(t)}_{ij} z^{(t)}_{\sigma, i} z^{(t)}_{\tau, j}
+        H = \sum_{\substack{pq \\ \sigma}} \kappa'_{pq} a^\dagger_{p\sigma} a_{q\sigma}
+        + \frac18 \sum_t \sum_{\substack{ij \\ \sigma\tau}}^*
+        J^{(t)}_{ij} z^{(t)}_{i\sigma} z^{(t)}_{j\tau}
         + \text{constant}''
 
-    where the asterisk denotes summation over indices :math:`\sigma\tau, ij`
+    where the asterisk denotes summation over indices :math:`ij, \sigma\tau`
     where :math:`\sigma \neq \tau` or :math:`i \neq j`.
 
     References:
@@ -161,7 +161,7 @@ class DoubleFactorizedHamiltonian(
         results.
 
         See :class:`DoubleFactorizedHamiltonian` for a description of the
-        `z_representation` argument. See :func:`ffsim.linalg.double_factorized` for a
+        ``z_representation`` argument. See :func:`ffsim.linalg.double_factorized` for a
         description of the rest of the arguments.
 
         Args:
@@ -187,11 +187,11 @@ class DoubleFactorizedHamiltonian(
                 list will be set to zero. This list should contain only upper
                 triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
                 Passing a list with lower triangular indices will raise an error.
-                This parameter is only used if `optimize` is set to True.
+                This parameter is only used if ``optimize`` is set to True.
             cholesky: Whether to perform the factorization using a modified Cholesky
                 decomposition. If False, a full eigenvalue decomposition is used
                 instead, which can be much more expensive. This argument is ignored if
-                `optimize` is set to True.
+                ``optimize`` is set to True.
 
         Returns:
             The double-factorized Hamiltonian.

@@ -8,7 +8,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tools for handling FCI strings."""
+"""Cached versions of functions from pyscf.fci.cistring."""
 
 from __future__ import annotations
 
@@ -40,22 +40,3 @@ def gen_linkstr_index(orbitals: range, nocc: int) -> np.ndarray:
 def gen_linkstr_index_trilidx(orbitals: range, nocc: int) -> np.ndarray:
     """Cached version of pyscf.fci.cistring.gen_linkstr_index_trilidx."""
     return cistring.gen_linkstr_index_trilidx(orbitals, nocc)
-
-
-def init_cache(norb: int, nelec: tuple[int, int]) -> None:
-    """Initialize cached objects.
-
-    Call this function to prepare ffsim for performing operations with given values
-    of `norb` and `nelec`. Typically there is no need to call this function, but it
-    should be called before benchmarking to avoid counting the cost of initializing
-    cached lookup tables.
-
-    Args:
-        norb: The number of spatial orbitals.
-        nelec: The number of alpha and beta electrons.
-    """
-    for nocc in nelec:
-        make_strings(range(norb), nocc)
-        gen_occslst(range(norb), nocc)
-        gen_linkstr_index(range(norb), nocc)
-        gen_linkstr_index_trilidx(range(norb), nocc)
