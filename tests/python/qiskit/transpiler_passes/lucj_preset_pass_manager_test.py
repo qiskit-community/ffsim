@@ -49,12 +49,15 @@ norb = 36
 def test_raise_warning1(connectivity_and_backend):
     """Test UserWarning raised when ``initial_layout`` is specified and ignored."""
     connectivity, backend = connectivity_and_backend
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = None
+    interaction_pairs = (pairs_aa, pairs_ab)
     with pytest.warns(UserWarning, match="Argument ``initial_layout`` is ignored."):
         _, _ = generate_lucj_pass_manager(
             backend=backend,
             norb=norb,
             connectivity=connectivity,
-            alpha_beta_interaction_pairs=None,
+            interaction_pairs=interaction_pairs,
             optimization_level=3,
             initial_layout=[1],
         )
@@ -67,12 +70,15 @@ def test_raise_warning1(connectivity_and_backend):
 def test_raise_warning2(connectivity_and_backend):
     """Test UserWarning raised when ``layout_method`` is specified and ignored."""
     connectivity, backend = connectivity_and_backend
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = None
+    interaction_pairs = (pairs_aa, pairs_ab)
     with pytest.warns(UserWarning, match="Argument ``layout_method`` is ignored."):
         _, _ = generate_lucj_pass_manager(
             backend=backend,
             norb=norb,
             connectivity=connectivity,
-            alpha_beta_interaction_pairs=None,
+            interaction_pairs=interaction_pairs,
             optimization_level=3,
             layout_method="placeholder",
         )
@@ -83,24 +89,29 @@ def test_raise_warning2(connectivity_and_backend):
     [("heavy-hex", backend_heavy_hex), ("square", backend_square)],
 )
 @pytest.mark.parametrize(
-    "alpha_beta_interaction_pairs",
+    "pairs_ab",
     [[(norb + 1, norb + 1)], [(norb, norb)]],
 )
-def test_raise_value_error1(alpha_beta_interaction_pairs, connectivity_and_backend):
-    """Test ValueError raised when requested alpha-beta > num orbitals."""
+def test_raise_value_error1(pairs_ab, connectivity_and_backend):
+    """Test ValueError raised when requested aa, ab, or bb > num orbitals."""
     connectivity, backend = connectivity_and_backend
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    interaction_pairs = (pairs_aa, pairs_ab)
     with pytest.raises(ValueError):
         _, _ = generate_lucj_pass_manager(
             backend=backend,
             norb=norb,
             connectivity=connectivity,
-            alpha_beta_interaction_pairs=alpha_beta_interaction_pairs,
+            interaction_pairs=interaction_pairs,
             optimization_level=3,
         )
 
 
 def test_raise_value_error2():
     """Test ValueError raised when connectivity is neither 'heavy-hex' nor 'square'."""
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = None
+    interaction_pairs = (pairs_aa, pairs_ab)
     with pytest.raises(ValueError):
         _, _ = generate_lucj_pass_manager(
             backend=backend_heavy_hex,
@@ -108,18 +119,21 @@ def test_raise_value_error2():
             connectivity=cast(
                 Literal["heavy-hex", "square"], "line"
             ),  # to avoid mypy error
-            alpha_beta_interaction_pairs=None,
+            interaction_pairs=interaction_pairs,
             optimization_level=3,
         )
 
 
 def test_backend_with_none_noise_info():
     """Test handling of backend with no noise info."""
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = None
+    interaction_pairs = (pairs_aa, pairs_ab)
     _, allowed_alpha_beta_pairs = generate_lucj_pass_manager(
         backend=backend_noise_info_none,
         norb=norb,
         connectivity="square",
-        alpha_beta_interaction_pairs=None,
+        interaction_pairs=interaction_pairs,
         optimization_level=1,
     )
 
@@ -135,12 +149,10 @@ def test_backend_with_none_noise_info():
     ],
 )
 @pytest.mark.parametrize(
-    "alpha_beta_interaction_pairs",
+    "pairs_ab",
     [None, [(32, 32), (4, 4), (8, 8), (24, 24), (16, 16), (28, 28)]],
 )
-def test_generate_lucj_pass_manager(
-    alpha_beta_interaction_pairs, connectivity_and_backend
-):
+def test_generate_lucj_pass_manager(pairs_ab, connectivity_and_backend):
     """Test whether the transpiled LUCJ ansatz retains correct a-b interactions.
 
     On heavy-hex, it should alpha - ancilla - beta, and on square, it must
@@ -152,19 +164,20 @@ def test_generate_lucj_pass_manager(
     """
     connectivity, backend = connectivity_and_backend
     n_reps = 2
-    alpha_alpha_indices = [(p, p + 1) for p in range(norb - 1)]
-    pm, alpha_beta_indices = generate_lucj_pass_manager(
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    interaction_pairs = (pairs_aa, pairs_ab)
+    pm, allowed_pairs_ab = generate_lucj_pass_manager(
         backend=backend,
         norb=norb,
         connectivity=connectivity,
-        alpha_beta_interaction_pairs=alpha_beta_interaction_pairs,
+        interaction_pairs=interaction_pairs,
         optimization_level=3,
     )
 
     ucj_op = ffsim.random.random_ucj_op_spin_balanced(
         norb=norb,
         n_reps=n_reps,
-        interaction_pairs=(alpha_alpha_indices, alpha_beta_indices),
+        interaction_pairs=(pairs_aa, allowed_pairs_ab),
         seed=0,
     )
 
@@ -183,7 +196,7 @@ def test_generate_lucj_pass_manager(
 
     coupling_map = backend.target.build_coupling_map()
 
-    for idx, _ in alpha_beta_indices:
+    for idx, _ in allowed_pairs_ab:
         dist = coupling_map.distance(alpha_qubits[idx], beta_qubits[idx])
         if connectivity == "heavy-hex":
             # alpha and beta qubits
