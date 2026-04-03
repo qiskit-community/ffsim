@@ -195,7 +195,7 @@ def slater_determinant_rdms(
         sequence of integers (spinless case), or a pair of such sequences
         (spinful case). In the spinless case, the full RDM is returned.
         In the spinful case, each RDM is represented as a stacked Numpy
-        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and
+        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, beta-beta), and
         the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
