@@ -145,7 +145,8 @@ def slater_determinant_rdms(
     orbital_rotation: np.ndarray | None = None,
     *,
     rank: int = 1,
-) -> np.ndarray: ...
+    reorder: bool = True,
+) -> np.ndarray | tuple[np.ndarray, ...]: ...
 @overload
 def slater_determinant_rdms(
     norb: int,
@@ -155,7 +156,8 @@ def slater_determinant_rdms(
     | None = None,
     *,
     rank: int = 1,
-) -> np.ndarray: ...
+    reorder: bool = True,
+) -> np.ndarray | tuple[np.ndarray, ...]: ...
 def slater_determinant_rdms(
     norb: int,
     occupied_orbitals: Sequence[int] | tuple[Sequence[int], Sequence[int]],
@@ -164,11 +166,41 @@ def slater_determinant_rdms(
     | None = None,
     *,
     rank: int = 1,
-) -> np.ndarray:
+    reorder: bool = True,
+) -> np.ndarray | tuple[np.ndarray, ...]:
     """Return the reduced density matrices of a Slater determinant.
 
+    The rank 1 RDM is defined as follows:
+
+    .. code::
+
+        rdm1[p, q] = ⟨p+ q⟩
+
+    The definition of higher-rank RDMs depends on the ``reorder`` argument, which
+    defaults to True.
+
+    **reorder = True**
+
+    The reordered RDMs are defined as follows:
+
+    .. code::
+
+        rdm2[p, q, r, s] = ⟨p+ r+ s q⟩
+        rdm3[p, q, r, s, t, u] = ⟨p+ r+ t+ u s q⟩
+        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ r+ t+ v+ w u s q⟩
+
+    **reorder = False**
+
+    If reorder is set to False, the RDMs are defined as follows:
+
+    .. code::
+
+        rdm2[p, q, r, s] = ⟨p+ q r+ s⟩
+        rdm3[p, q, r, s, t, u] = ⟨p+ q r+ s t+ u⟩
+        rdm4[p, q, r, s, t, u, v, w] = ⟨p+ q r+ s t+ u v+ w⟩
+
     Note:
-        Currently, only rank 1 is supported.
+        Currently, only ranks 1 and 2 are supported.
 
     Args:
         norb: The number of spatial orbitals.
@@ -185,6 +217,7 @@ def slater_determinant_rdms(
             that spin sector.
         rank: The rank of the reduced density matrix. I.e., rank 1 corresponds to the
             one-particle RDM, rank 2 corresponds to the 2-particle RDM, etc.
+        reorder: Whether to reorder the indices of the reduced density matrix.
 
     Returns:
         The reduced density matrices of the Slater determinant.
@@ -195,20 +228,28 @@ def slater_determinant_rdms(
         sequence of integers (spinless case), or a pair of such sequences
         (spinful case). In the spinless case, the full RDM is returned.
         In the spinful case, each RDM is represented as a stacked Numpy
-        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, alpha-beta), and
+        array of sub-RDMs. For example, the 1-RDMs are: (alpha-alpha, beta-beta), and
         the 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
     """
     if not occupied_orbitals or isinstance(occupied_orbitals[0], (int, np.integer)):
         # Spinless case
         occupied_orbitals = list(cast(Sequence[int], occupied_orbitals))
+        rdm1 = np.zeros((norb, norb))
+        if occupied_orbitals:
+            rdm1[(occupied_orbitals, occupied_orbitals)] = 1
+        if orbital_rotation is not None:
+            orbital_rotation = cast(np.ndarray, orbital_rotation)
+            rdm1 = orbital_rotation.conj() @ rdm1 @ orbital_rotation.T
         if rank == 1:
-            rdm = np.zeros((norb, norb))
-            if occupied_orbitals:
-                rdm[(occupied_orbitals, occupied_orbitals)] = 1
-            if orbital_rotation is not None:
-                orbital_rotation = cast(np.ndarray, orbital_rotation)
-                rdm = orbital_rotation.conj() @ rdm @ orbital_rotation.T
-            return rdm
+            return rdm1
+        if rank == 2:
+            eye = np.eye(norb)
+            rdm2 = np.einsum("pq,rs->pqrs", rdm1, rdm1) - np.einsum(
+                "ps,rq->pqrs", rdm1, rdm1
+            )
+            if not reorder:
+                rdm2 += np.einsum("ps,qr->pqrs", rdm1, eye)
+            return rdm1, rdm2
         raise NotImplementedError(
             f"Returning the rank {rank} reduced density matrix is currently not "
             "supported."
@@ -220,27 +261,39 @@ def slater_determinant_rdms(
         )
         alpha_orbitals = list(alpha_orbitals)
         beta_orbitals = list(beta_orbitals)
+        rdm_a = np.zeros((norb, norb))
+        rdm_b = np.zeros((norb, norb))
+        if alpha_orbitals:
+            rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
+        if beta_orbitals:
+            rdm_b[(beta_orbitals, beta_orbitals)] = 1
+        if orbital_rotation is not None:
+            if isinstance(orbital_rotation, np.ndarray) and orbital_rotation.ndim == 2:
+                orbital_rotation_a: np.ndarray | None = orbital_rotation
+                orbital_rotation_b: np.ndarray | None = orbital_rotation
+            else:
+                orbital_rotation_a, orbital_rotation_b = orbital_rotation
+            if orbital_rotation_a is not None:
+                rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
+            if orbital_rotation_b is not None:
+                rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
+        rdm1 = np.stack([rdm_a, rdm_b])
         if rank == 1:
-            rdm_a = np.zeros((norb, norb))
-            rdm_b = np.zeros((norb, norb))
-            if alpha_orbitals:
-                rdm_a[(alpha_orbitals, alpha_orbitals)] = 1
-            if beta_orbitals:
-                rdm_b[(beta_orbitals, beta_orbitals)] = 1
-            if orbital_rotation is not None:
-                if (
-                    isinstance(orbital_rotation, np.ndarray)
-                    and orbital_rotation.ndim == 2
-                ):
-                    orbital_rotation_a: np.ndarray | None = orbital_rotation
-                    orbital_rotation_b: np.ndarray | None = orbital_rotation
-                else:
-                    orbital_rotation_a, orbital_rotation_b = orbital_rotation
-                if orbital_rotation_a is not None:
-                    rdm_a = orbital_rotation_a.conj() @ rdm_a @ orbital_rotation_a.T
-                if orbital_rotation_b is not None:
-                    rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
-            return np.stack([rdm_a, rdm_b])
+            return rdm1
+        if rank == 2:
+            eye = np.eye(norb)
+            rdm2_aa = np.einsum("pq,rs->pqrs", rdm_a, rdm_a) - np.einsum(
+                "ps,rq->pqrs", rdm_a, rdm_a
+            )
+            rdm2_ab = np.einsum("pq,rs->pqrs", rdm_a, rdm_b)
+            rdm2_bb = np.einsum("pq,rs->pqrs", rdm_b, rdm_b) - np.einsum(
+                "ps,rq->pqrs", rdm_b, rdm_b
+            )
+            if not reorder:
+                rdm2_aa += np.einsum("ps,qr->pqrs", rdm_a, eye)
+                rdm2_bb += np.einsum("ps,qr->pqrs", rdm_b, eye)
+            rdm2 = np.stack([rdm2_aa, rdm2_ab, rdm2_bb])
+            return rdm1, rdm2
         raise NotImplementedError(
             f"Returning the rank {rank} reduced density matrix is currently not "
             "supported."
