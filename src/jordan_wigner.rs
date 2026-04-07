@@ -14,6 +14,7 @@ type SparseList = Vec<SparseListEntry>;
 ///
 /// Returns (sparse_list, num_qubits) where sparse_list is used to construct a Sparse Pauli Operator in Qiskit.
 #[pyfunction]
+#[pyo3(signature = (op, norb, tol=1e-12))]
 pub fn jordan_wigner_qiskit(
     op: &FermionOperator,
     norb: usize,
