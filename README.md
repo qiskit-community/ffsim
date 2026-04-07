@@ -32,6 +32,14 @@ Visit [*State vectors and gates*](https://qiskit-community.github.io/ffsim/expla
 
 <!-- end get-started -->
 
+## Multithreading
+
+<!-- start multithreading -->
+
+Some ffsim functions implemented in Rust use multithreading. The number of threads can be set using the environment variable `RAYON_NUM_THREADS`. For example, to disable multithreading, set this variable as `RAYON_NUM_THREADS=1`.
+
+<!-- end multithreading -->
+
 ## Code example
 
 <!-- start code-example -->
@@ -66,10 +74,6 @@ print(energy)  # prints -104.17181289596
 ```
 
 <!-- end code-example -->
-
-## Multithreading
-
-Some ffsim functions implemented in Rust use multithreading. The number of threads can be set using the environment variable `RAYON_NUM_THREADS`. For example, to disable multithreading, set this variable as `RAYON_NUM_THREADS=1`.
 
 ## Citing ffsim
 

@@ -19,6 +19,13 @@
 :end-before: <!-- end get-started -->
 ```
 
+## Multithreading
+
+```{include} ../README.md
+:start-after: <!-- start multithreading -->
+:end-before: <!-- end multithreading -->
+```
+
 ## Code example
 
 ```{include} ../README.md
