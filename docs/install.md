@@ -9,7 +9,7 @@ ffsim is not supported directly on Windows. Windows users have two main options:
 
 ## Pip install
 
-ffsim is available on [PyPI](https://pypi.org/project/ffsim/). It can be installed by running
+ffsim is available on [PyPI](https://pypi.org/project/ffsim/). You can install it by running
 
 ```bash
 pip install ffsim
@@ -27,7 +27,7 @@ pip install .
 
 ## Use within Docker
 
-We have provided a [Dockerfile](https://github.com/qiskit-community/ffsim/blob/main/Dockerfile), which can be used to build a [Docker](https://www.docker.com/) image, as well as a [compose.yaml](https://github.com/qiskit-community/ffsim/blob/main/compose.yaml) file, which allows one to use the Docker image with just a few simple commands:
+We provide a [Dockerfile](https://github.com/qiskit-community/ffsim/blob/main/Dockerfile) and a [compose.yaml](https://github.com/qiskit-community/ffsim/blob/main/compose.yaml) file, which you can use to build a [Docker](https://www.docker.com/) image with just a few simple commands:
 
 ```bash
 git clone https://github.com/qiskit-community/ffsim.git
