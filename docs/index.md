@@ -12,6 +12,13 @@
 :end-before: <!-- end installation -->
 ```
 
+## Get started
+
+```{include} ../README.md
+:start-after: <!-- start get-started -->
+:end-before: <!-- end get-started -->
+```
+
 ## Code example
 
 ```{include} ../README.md

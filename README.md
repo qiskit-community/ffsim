@@ -24,6 +24,14 @@ This method won't work natively on Windows, however. Refer to the [installation 
 
 <!-- end installation -->
 
+## Get started
+
+<!-- start get-started -->
+
+Visit [*State vectors and gates*](https://qiskit-community.github.io/ffsim/explanations/state-vectors-and-gates.html) to start learning ffsim's core concepts, or jump straight into a [tutorial](https://qiskit-community.github.io/ffsim/tutorials/double-factorized-trotter.html). Check out the [guides](https://qiskit-community.github.io/ffsim/how-to-guides/index.html) for help with specific tasks, or visit the [API reference](https://qiskit-community.github.io/ffsim/api/index.html) for detailed documentation of all function and classes available in the library.
+
+<!-- end get-started -->
+
 ## Code example
 
 <!-- start code-example -->
