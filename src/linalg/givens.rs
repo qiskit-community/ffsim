@@ -65,9 +65,11 @@ fn rotate_rows_in_place(
 
 /// Givens rotation decomposition of a unitary matrix.
 #[pyfunction]
+#[pyo3(signature = (mat, tol=1e-12))]
 pub fn givens_decomposition(
     py: Python<'_>,
     mat: PyReadonlyArray2<Complex64>,
+    tol: f64,
 ) -> PyResult<GivensDecompositionResult> {
     let mat_view = mat.as_array();
     let shape = mat_view.shape();
@@ -78,7 +80,6 @@ pub fn givens_decomposition(
     let mut current_matrix: Array2<Complex64> = mat_view.to_owned();
     let mut left_rotations: Vec<GivensRotationTuple> = Vec::new();
     let mut right_rotations: Vec<GivensRotationTuple> = Vec::new();
-    let tol = 1e-12;
 
     for i in 0..n.saturating_sub(1) {
         if i % 2 == 0 {
