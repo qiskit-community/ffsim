@@ -92,7 +92,7 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
 
 
 def givens_decomposition(
-    mat: np.ndarray,
+    mat: np.ndarray, tol: float = 1e-12
 ) -> tuple[list[tuple[float, complex, int, int]], np.ndarray]:
     r"""Givens rotation decomposition of a unitary matrix.
 
@@ -135,6 +135,7 @@ def givens_decomposition(
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
+        tol: Matrix entries smaller than this value will be treated as equal to zero.
 
     Returns:
         - A list containing the Givens rotations :math:`G_1, \ldots, G_L`.
@@ -146,4 +147,4 @@ def givens_decomposition(
 
     .. _Clements et al., "Optimal design for universal multiport interferometers" (2016): https://doi.org/10.1364/OPTICA.3.001460
     """  # noqa: E501
-    return _lib.givens_decomposition(np.asarray(mat, dtype=complex))
+    return _lib.givens_decomposition(mat.astype(complex, copy=False), tol=tol)
