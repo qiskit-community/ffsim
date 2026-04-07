@@ -8,7 +8,6 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
-use blas::zrotg as zrotg_blas;
 use ndarray::Array2;
 use numpy::{Complex64, IntoPyArray, PyArray1, PyReadonlyArray2};
 use pyo3::exceptions::PyValueError;
@@ -24,12 +23,11 @@ fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     if b.norm() <= tol {
         return (1.0, Complex64::new(0.0, 0.0));
     }
-    let mut a_mut = a;
-    let mut c = 0.0;
-    let mut s = Complex64::new(0.0, 0.0);
-    unsafe {
-        zrotg_blas(&mut a_mut, b, &mut c, &mut s);
-    }
+    let abs_a = a.norm();
+    let abs_b = b.norm();
+    let r = abs_a.hypot(abs_b);
+    let c = abs_a / r;
+    let s = (a / abs_a) * b.conj() / r;
     (c, s)
 }
 
