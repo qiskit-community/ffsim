@@ -69,7 +69,7 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
 [tool.cibuildwheel.linux]
-before-all = "dnf install -y openblas-devel openssl-devel"
+before-all = "dnf install -y openssl-devel"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install dependencies
         run: |
-          sudo apt install -y libopenblas-dev pandoc
+          sudo apt install -y pandoc
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
