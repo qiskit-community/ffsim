@@ -17,29 +17,7 @@ pip install ffsim
 
 ## Install from source
 
-Installing ffsim from source requires a [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) implementation to be present on the system.
-
-- On macOS, ffsim uses the [Accelerate](https://developer.apple.com/documentation/accelerate) framework that is included with the operating system, so no action is required.
-- On Linux, ffsim uses [OpenBLAS](https://www.openblas.net/). You may be able to install it using your system package manager:
-  - Arch Linux:
-
-    ```bash
-    sudo pacman -S openblas
-    ```
-
-  - Fedora:
-
-    ```bash
-    sudo dnf install openblas-devel
-    ```
-
-  - Ubuntu:
-
-    ```bash
-    sudo apt install libopenblas-dev
-    ```
-
-Once this dependency is satisfied, ffsim can be installed by cloning the repository and then using pip to install the package from source. For example:
+You can use pip to install ffsim from source. For example:
 
 ```bash
 git clone https://github.com/qiskit-community/ffsim.git
