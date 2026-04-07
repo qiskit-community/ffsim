@@ -63,14 +63,6 @@ features = ["pyo3/extension-module"]
 python-source = "python"
 module-name = "ffsim._lib"
 
-[tool.cibuildwheel]
-build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
-test-requires = "pytest"
-test-command = "pytest {project}/tests"
-
-[tool.cibuildwheel.linux]
-before-all = "dnf install -y openssl-devel"
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
