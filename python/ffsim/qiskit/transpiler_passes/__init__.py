@@ -11,9 +11,6 @@
 """Qiskit transpiler passes for fermionic quantum circuits."""
 
 from ffsim.qiskit.transpiler_passes.drop_negligible import DropNegligible
-from ffsim.qiskit.transpiler_passes.lucj_preset_pass_manager import (
-    generate_lucj_pass_manager,
-)
 from ffsim.qiskit.transpiler_passes.merge_orbital_rotations import MergeOrbitalRotations
 
 __all__ = [
