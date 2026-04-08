@@ -150,12 +150,12 @@ def doubles_excitations_unrestricted(
 
     .. math::
 
-        T_2 = \frac12 \sum_{ijab} t^{(\alpha \alpha)}_{ijab}
+        T_2 = \frac14 \sum_{ijab} t^{(\alpha \alpha)}_{ijab}
         a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha} +
-        \frac12 \sum_{ijab} t^{(\beta \beta)}_{IJAB}
-        a^\dagger_{a\beta} a^\dagger_{b\beta} a_{j\beta} a_{i\beta} \right) +
-        \sum_{ijab} t^{(\alpha \beta)}_{iJaB}
-        + a^\dagger_{a\alpha} a^\dagger_{B\beta} a_{J\beta} a_{i\alpha}
+        \frac14 \sum_{IJAB} t^{(\beta \beta)}_{IJAB}
+        a^\dagger_{A\beta} a^\dagger_{B\beta} a_{J\beta} a_{I\beta} +
+        \sum_{iJaB} t^{(\alpha \beta)}_{iJaB}
+        a^\dagger_{a\alpha} a^\dagger_{B\beta} a_{J\beta} a_{i\alpha}
 
     where
 
