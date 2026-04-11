@@ -27,7 +27,6 @@ from qiskit.circuit.library import GlobalPhaseGate
 
 from ffsim.hamiltonians import DiagonalCoulombHamiltonian
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
-from ffsim.qiskit.gates.num_op_sum import NumOpSumEvolutionJW
 from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.trotter._util import simulate_trotter_step_iterator
 
@@ -96,18 +95,13 @@ def _simulate_trotter_diag_coulomb_split_op(
     if n_steps == 0:
         return
 
-    one_body_energies, one_body_basis_change = scipy.linalg.eigh(
-        hamiltonian.one_body_tensor
-    )
     step_time = time / n_steps
-
     current_basis = np.eye(hamiltonian.norb, dtype=complex)
     for _ in range(n_steps):
         current_basis = yield from _simulate_trotter_step_diag_coulomb_split_op(
             qubits,
             current_basis,
-            one_body_energies,
-            one_body_basis_change,
+            hamiltonian.one_body_tensor,
             hamiltonian.diag_coulomb_mats,
             step_time,
             norb=hamiltonian.norb,
@@ -120,8 +114,7 @@ def _simulate_trotter_diag_coulomb_split_op(
 def _simulate_trotter_step_diag_coulomb_split_op(
     qubits: Sequence[Qubit],
     current_basis: np.ndarray,
-    one_body_energies: np.ndarray,
-    one_body_basis_change: np.ndarray,
+    one_body_tensor: np.ndarray,
     diag_coulomb_mats: np.ndarray,
     time: float,
     norb: int,
@@ -131,14 +124,9 @@ def _simulate_trotter_step_diag_coulomb_split_op(
     eye = np.eye(norb)
     for term_index, time in simulate_trotter_step_iterator(2, time, order):
         if term_index == 0:
-            yield CircuitInstruction(
-                OrbitalRotationJW(norb, one_body_basis_change.T.conj() @ current_basis),
-                qubits,
+            current_basis = (
+                scipy.linalg.expm(-1j * time * one_body_tensor) @ current_basis
             )
-            yield CircuitInstruction(
-                NumOpSumEvolutionJW(norb, coeffs=one_body_energies, time=time), qubits
-            )
-            current_basis = one_body_basis_change
         else:
             yield CircuitInstruction(OrbitalRotationJW(norb, current_basis), qubits)
             yield CircuitInstruction(
