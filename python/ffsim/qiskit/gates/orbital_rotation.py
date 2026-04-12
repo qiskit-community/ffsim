@@ -201,4 +201,6 @@ def _orbital_rotation_jw(
             (qubits[i], qubits[j]),
         )
     for i, phase_shift in enumerate(phase_shifts):
-        yield CircuitInstruction(PhaseGate(cmath.phase(phase_shift)), (qubits[i],))
+        phase = cmath.phase(phase_shift)
+        if phase:
+            yield CircuitInstruction(PhaseGate(phase), (qubits[i],))
