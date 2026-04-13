@@ -107,7 +107,10 @@ def _simulate_trotter_diag_coulomb_split_op(
             norb=hamiltonian.norb,
             order=order,
         )
-    yield CircuitInstruction(OrbitalRotationJW(hamiltonian.norb, current_basis), qubits)
+    if not np.all(np.diagonal(current_basis) == 1):
+        yield CircuitInstruction(
+            OrbitalRotationJW(hamiltonian.norb, current_basis), qubits
+        )
     yield CircuitInstruction(GlobalPhaseGate(-time * hamiltonian.constant), [])
 
 
