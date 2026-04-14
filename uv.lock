@@ -725,7 +725,7 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "coverage" },
     { name = "maturin" },
@@ -748,30 +748,33 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "coverage", marker = "extra == 'dev'" },
     { name = "jax" },
-    { name = "maturin", marker = "extra == 'dev'" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "myst-parser", marker = "extra == 'dev'" },
-    { name = "nbmake", marker = "extra == 'dev'" },
-    { name = "nbsphinx", marker = "extra == 'dev'" },
     { name = "numpy", specifier = "<=2.3" },
     { name = "opt-einsum" },
     { name = "orjson" },
-    { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pyscf", specifier = ">=2.9" },
-    { name = "pytest", marker = "extra == 'dev'" },
     { name = "qiskit", specifier = ">=2.0" },
-    { name = "qiskit", extras = ["visualization"], marker = "extra == 'dev'" },
-    { name = "qiskit-sphinx-theme", marker = "extra == 'dev'" },
-    { name = "ruff", marker = "extra == 'dev'" },
     { name = "scipy" },
-    { name = "sphinx", marker = "extra == 'dev'" },
-    { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'" },
     { name = "typing-extensions" },
-    { name = "typos", marker = "extra == 'dev'" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage" },
+    { name = "maturin" },
+    { name = "mypy" },
+    { name = "myst-parser" },
+    { name = "nbmake" },
+    { name = "nbsphinx" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "qiskit", extras = ["visualization"] },
+    { name = "qiskit-sphinx-theme" },
+    { name = "ruff" },
+    { name = "sphinx" },
+    { name = "sphinx-autodoc-typehints" },
+    { name = "typos" },
+]
 
 [[package]]
 name = "filelock"

@@ -40,7 +40,7 @@ dependencies = [
 Homepage = "https://github.com/qiskit-community/ffsim"
 Documentation = "https://qiskit-community.github.io/ffsim/"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "coverage",
     "maturin",
@@ -140,7 +140,7 @@ commands = [["pytest"]]
 
 [tool.tox.env.coverage]
 description = "check test coverage"
-extras = ["dev"]
+dependency_groups = ["dev"]
 commands = [
     [
         "coverage",
@@ -159,7 +159,7 @@ commands = [
 
 [tool.tox.env.type]
 description = "run type check"
-extras = ["dev"]
+dependency_groups = ["dev"]
 commands = [["mypy"]]
 
 [tool.tox.env.lint]
@@ -210,7 +210,7 @@ commands = [["typos"]]
 
 [tool.tox.env.docs]
 description = "build docs"
-extras = ["dev"]
+dependency_groups = ["dev"]
 set_env = { SPHINX_APIDOC_OPTIONS = "members,show-inheritance" }
 commands = [
     [
