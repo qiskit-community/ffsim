@@ -86,15 +86,13 @@ pub fn givens_decomposition(
             for j in 0..=i {
                 let target_index = i - j;
                 let row = n - j - 1;
-                if current_matrix[[row, target_index]] != Complex64::new(0.0, 0.0) {
+                if current_matrix[[row, target_index]].norm() > tol {
                     let (c, s) = zrotg_safe(
                         current_matrix[[row, target_index + 1]],
                         current_matrix[[row, target_index]],
                         tol,
                     );
-                    if (c - 1.0).abs() > tol {
-                        right_rotations.push((c, s, target_index + 1, target_index));
-                    }
+                    right_rotations.push((c, s, target_index + 1, target_index));
                     rotate_columns_in_place(
                         &mut current_matrix,
                         target_index + 1,
@@ -108,15 +106,13 @@ pub fn givens_decomposition(
             for j in 0..=i {
                 let target_index = n - i + j - 1;
                 let col = j;
-                if current_matrix[[target_index, col]] != Complex64::new(0.0, 0.0) {
+                if current_matrix[[target_index, col]].norm() > tol {
                     let (c, s) = zrotg_safe(
                         current_matrix[[target_index - 1, col]],
                         current_matrix[[target_index, col]],
                         tol,
                     );
-                    if (c - 1.0).abs() > tol {
-                        left_rotations.push((c, s, target_index - 1, target_index));
-                    }
+                    left_rotations.push((c, s, target_index - 1, target_index));
                     rotate_rows_in_place(&mut current_matrix, target_index - 1, target_index, c, s);
                 }
             }
