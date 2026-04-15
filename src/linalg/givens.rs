@@ -17,11 +17,11 @@ type GivensRotationTuple = (f64, Complex64, usize, usize);
 type GivensDecompositionResult = (Vec<GivensRotationTuple>, Py<PyArray1<Complex64>>);
 
 fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
-    if a.norm() <= tol {
-        return (0.0, Complex64::new(1.0, 0.0));
-    }
     if b.norm() <= tol {
         return (1.0, Complex64::new(0.0, 0.0));
+    }
+    if a.norm() <= tol {
+        return (0.0, Complex64::new(1.0, 0.0));
     }
     let abs_a = a.norm();
     let abs_b = b.norm();
@@ -92,7 +92,9 @@ pub fn givens_decomposition(
                         current_matrix[[row, target_index]],
                         tol,
                     );
-                    right_rotations.push((c, s, target_index + 1, target_index));
+                    if (c - 1.0).abs() > tol {
+                        right_rotations.push((c, s, target_index + 1, target_index));
+                    }
                     rotate_columns_in_place(
                         &mut current_matrix,
                         target_index + 1,
@@ -112,7 +114,9 @@ pub fn givens_decomposition(
                         current_matrix[[target_index, col]],
                         tol,
                     );
-                    left_rotations.push((c, s, target_index - 1, target_index));
+                    if (c - 1.0).abs() > tol {
+                        left_rotations.push((c, s, target_index - 1, target_index));
+                    }
                     rotate_rows_in_place(&mut current_matrix, target_index - 1, target_index, c, s);
                 }
             }
