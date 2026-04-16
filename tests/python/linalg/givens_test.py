@@ -17,7 +17,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 from scipy.linalg.lapack import zrot
-from scipy.linalg import expm
 
 import ffsim
 from ffsim.linalg import givens_decomposition
