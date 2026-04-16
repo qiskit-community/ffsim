@@ -257,7 +257,15 @@ def _brickwork_givens_rotations(
         if i % 2 == 0:
             # Even layer
             # Get the index of the even layer this Givens rotation should go in
-            index = max(odd_layer_index[i], odd_layer_index[j]) + 1
+            index = (
+                max(
+                    even_layer_index[i],
+                    even_layer_index[j],
+                    odd_layer_index[i],
+                    odd_layer_index[j],
+                )
+                + 1
+            )
             # Add the Givens rotation in the appropriate place
             even_layers[index][i // 2] = ((i, j), theta, phi)
             # Update the even layer index
@@ -266,7 +274,12 @@ def _brickwork_givens_rotations(
         else:
             # Odd layer
             # Get the index of the odd layer this Givens rotation should go in
-            index = max(even_layer_index[i], even_layer_index[j])
+            index = max(
+                odd_layer_index[i] + 1,
+                odd_layer_index[j] + 1,
+                even_layer_index[i],
+                even_layer_index[j],
+            )
             # Add the Givens rotation in the appropriate place
             odd_layers[index][i // 2] = ((i, j), theta, phi)
             # Update the odd layer index
