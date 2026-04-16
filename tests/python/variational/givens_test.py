@@ -213,6 +213,22 @@ def test_givens_orbital_rotation_t_amplitudes():
     np.testing.assert_allclose(actual, expected)
 
 
+def test_givens_orbital_rotation_sparse_roundtrip():
+    """Test round-tripping a sparse orbital rotation."""
+    orbital_rotation = np.array(
+        [
+            [1, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+            [0, 1, 0, 0],
+        ],
+        dtype=complex,
+    )
+    operator = ffsim.GivensAnsatzOp.from_orbital_rotation(orbital_rotation)
+    roundtripped = operator.to_orbital_rotation()
+    np.testing.assert_allclose(roundtripped, orbital_rotation, atol=1e-12)
+
+
 def test_givens_orbital_rotation_fully_parameterized():
     """Test initialization from orbital rotation gives fully parametrized ansatz."""
     norb = 8
