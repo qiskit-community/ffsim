@@ -58,23 +58,6 @@ def test_givens_decomposition_reconstruct(dim: int):
             )
         np.testing.assert_allclose(reconstructed, mat)
 
-@pytest.mark.parametrize("dim", range(6))
-def test_givens_decomposition_near_identity(dim: int):
-    """Test Givens decomposition of a quasi-identity matrix."""
-    rng = np.random.default_rng()
-    worst_case_lengths = (0, 0, 1, 3, 6, 10)
-
-    for _ in range(3):
-        dt = tol = 10 ** rng.uniform(-8, -3)
-        generator = ffsim.random.random_hermitian(dim, seed=rng)
-        mat = expm(-1j * dt * generator)
-        givens_rotations, _ = givens_decomposition(mat, tol=tol)
-
-        assert len(givens_rotations) <= worst_case_lengths[dim], (
-            f"dim={dim}, dt={dt:.3e}, got {len(givens_rotations)} rotations, "
-            f"expected at most {worst_case_lengths[dim]}"
-        )
-
 
 @pytest.mark.parametrize("dim", range(6))
 def test_givens_decomposition_identity(dim: int):

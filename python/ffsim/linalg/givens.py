@@ -83,10 +83,10 @@ def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
     Note that in contrast to ``scipy.linalg.blas.zrotg``, this function returns c as a
     float rather than a complex.
     """
-    if cmath.isclose(b, 0.0, abs_tol=tol):
-        return 1.0, 0j
     if cmath.isclose(a, 0.0, abs_tol=tol):
         return 0.0, 1 + 0j
+    if cmath.isclose(b, 0.0, abs_tol=tol):
+        return 1.0, 0j
     c, s = zrotg_(a, b)
     return c.real, s
 
