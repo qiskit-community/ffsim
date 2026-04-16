@@ -23,6 +23,22 @@ import ffsim
 from ffsim.linalg import givens_decomposition
 
 
+def reconstruct_orbital_rotation(
+    dim: int,
+    givens_rotations: list[tuple[float, complex, int, int]],
+    phase_shifts: np.ndarray,
+) -> np.ndarray:
+    """Reconstruct matrix from Givens decomposition."""
+    reconstructed = np.eye(dim, dtype=complex)
+    for i, phase_shift in enumerate(phase_shifts):
+        reconstructed[i] *= phase_shift
+    for c, s, i, j in givens_rotations[::-1]:
+        reconstructed[:, j], reconstructed[:, i] = zrot(
+            reconstructed[:, j], reconstructed[:, i], c, s.conjugate()
+        )
+    return reconstructed
+
+
 @pytest.mark.parametrize("dim", range(6))
 def test_givens_decomposition_definition(dim: int):
     """Test Givens decomposition definition."""
@@ -49,13 +65,9 @@ def test_givens_decomposition_reconstruct(dim: int):
     for _ in range(3):
         mat = ffsim.random.random_unitary(dim, seed=rng)
         givens_rotations, phase_shifts = givens_decomposition(mat)
-        reconstructed = np.eye(dim, dtype=complex)
-        for i, phase_shift in enumerate(phase_shifts):
-            reconstructed[i] *= phase_shift
-        for c, s, i, j in givens_rotations[::-1]:
-            reconstructed[:, j], reconstructed[:, i] = zrot(
-                reconstructed[:, j], reconstructed[:, i], c, s.conjugate()
-            )
+        reconstructed = reconstruct_orbital_rotation(
+            dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
+        )
         np.testing.assert_allclose(reconstructed, mat)
 
 
@@ -63,18 +75,25 @@ def test_givens_decomposition_reconstruct(dim: int):
 def test_givens_decomposition_near_identity(dim: int):
     """Test Givens decomposition of a quasi-identity matrix."""
     rng = np.random.default_rng()
-    worst_case_lengths = (0, 0, 1, 3, 6, 10)
+    # Worst case: one elimination per subdiagonal entry of the unitary
+    worst_case_length = (dim * (dim - 1)) // 2
+    tol = 1e-12
+    dts = [1e-1, 1e-3, 1e-6, 1e-9]
 
-    for _ in range(3):
-        dt = tol = 10 ** rng.uniform(-8, -3)
+    for dt in dts:
         generator = ffsim.random.random_hermitian(dim, seed=rng)
         mat = expm(-1j * dt * generator)
-        givens_rotations, _ = givens_decomposition(mat, tol=tol)
+        givens_rotations, phase_shifts = givens_decomposition(mat, tol=tol)
 
-        assert len(givens_rotations) <= worst_case_lengths[dim], (
+        assert len(givens_rotations) <= worst_case_length, (
             f"dim={dim}, dt={dt:.3e}, got {len(givens_rotations)} rotations, "
-            f"expected at most {worst_case_lengths[dim]}"
+            f"expected at most {worst_case_length}"
         )
+
+        reconstructed = reconstruct_orbital_rotation(
+            dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
+        )
+        np.testing.assert_allclose(reconstructed, mat, atol=tol)
 
 
 @pytest.mark.parametrize("dim", range(6))
