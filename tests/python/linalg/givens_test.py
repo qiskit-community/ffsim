@@ -77,18 +77,19 @@ def test_givens_decomposition_near_identity(dim: int):
     rng = np.random.default_rng()
     # Worst case: one elimination per subdiagonal entry of the unitary
     worst_case_length = dim * (dim - 1) // 2
-    tol = 1e-12
     dts = [1e-1, 1e-3, 1e-6, 1e-9]
 
     for dt in dts:
+        tol = 10 * dt
         generator = ffsim.random.random_hermitian(dim, seed=rng)
         mat = expm(-1j * dt * generator)
         givens_rotations, phase_shifts = givens_decomposition(mat, tol=tol)
 
-        assert len(givens_rotations) <= worst_case_length, (
-            f"dim={dim}, dt={dt:.3e}, got {len(givens_rotations)} rotations, "
-            f"expected at most {worst_case_length}"
-        )
+        if givens_rotations:
+            assert len(givens_rotations) < worst_case_length, (
+                f"dim={dim}, dt={dt:.3e}, got {len(givens_rotations)} rotations, "
+                f"expected at most {worst_case_length}"
+            )
 
         reconstructed = reconstruct_orbital_rotation(
             dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
