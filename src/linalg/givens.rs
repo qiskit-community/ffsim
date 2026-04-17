@@ -145,3 +145,48 @@ pub fn givens_decomposition(
     let diagonal = current_matrix.diag().to_owned();
     Ok((right_rotations, diagonal.into_pyarray(py).unbind()))
 }
+
+/// Givens rotation decomposition for Slater determinant preparation.
+#[pyfunction]
+#[pyo3(signature = (orbital_coeffs, tol=1e-12))]
+pub fn givens_decomposition_slater(
+    orbital_coeffs: PyReadonlyArray2<Complex64>,
+    tol: f64,
+) -> Vec<GivensRotationTuple> {
+    let mat_view = orbital_coeffs.as_array();
+    let shape = mat_view.shape();
+    let m = shape[0];
+    let n = shape[1];
+
+    let mut current_matrix: Array2<Complex64> = mat_view.to_owned();
+
+    // zero out top right corner by rotating rows; this is a no-op
+    if n > m {
+        let n_minus_m = n - m;
+        for j in (n_minus_m + 1..n).rev() {
+            for i in 0..(j - n_minus_m) {
+                if current_matrix[[i, j]].norm() > tol {
+                    let (c, s) =
+                        zrotg_safe(current_matrix[[i + 1, j]], current_matrix[[i, j]], tol);
+                    rotate_rows_in_place(&mut current_matrix, i + 1, i, c, s);
+                }
+            }
+        }
+    }
+
+    // decompose matrix into Givens rotations
+    let mut rotations: Vec<GivensRotationTuple> = Vec::new();
+    for i in 0..m {
+        let j_max = n - m + i;
+        for j in (i + 1..=j_max).rev() {
+            if current_matrix[[i, j]].norm() > tol {
+                let (c, s) = zrotg_safe(current_matrix[[i, j - 1]], current_matrix[[i, j]], tol);
+                rotations.push((c.clamp(-1.0, 1.0), s, j, j - 1));
+                rotate_columns_in_place(&mut current_matrix, j - 1, j, c, s);
+            }
+        }
+    }
+
+    rotations.reverse();
+    rotations
+}

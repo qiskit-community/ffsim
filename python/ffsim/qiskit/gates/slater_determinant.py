@@ -20,10 +20,8 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import CircuitInstruction, Gate, Qubit
 from qiskit.circuit.library import GlobalPhaseGate, XGate, XXPlusYYGate
-from scipy.linalg.lapack import zrot
 
-from ffsim import linalg
-from ffsim.linalg.givens import GivensRotation, zrotg
+from ffsim import _lib, linalg
 from ffsim.qiskit.gates.orbital_rotation import _validate_orbital_rotation
 from ffsim.states.slater import _permutation_sign
 
@@ -319,7 +317,9 @@ def _prepare_slater_determinant_jw(
         return
 
     # yield Givens rotations
-    givens_rotations = _givens_decomposition_slater(orbital_coeffs, tol)
+    givens_rotations = _lib.givens_decomposition_slater(
+        orbital_coeffs.astype(complex, copy=False), tol
+    )
     for c, s, i, j in givens_rotations:
         c_angle = math.acos(c)
         if c_angle:
@@ -327,50 +327,3 @@ def _prepare_slater_determinant_jw(
                 XXPlusYYGate(2 * c_angle, cmath.phase(s) - 0.5 * math.pi),
                 (qubits[i], qubits[j]),
             )
-
-
-def _givens_decomposition_slater(
-    orbital_coeffs: np.ndarray, tol: float
-) -> list[GivensRotation]:
-    m, n = orbital_coeffs.shape
-
-    current_matrix = orbital_coeffs.astype(complex, copy=True)
-
-    # zero out top right corner by rotating rows; this is a no-op
-    for j in reversed(range(n - m + 1, n)):
-        # Zero out entries in column j
-        for i in range(m - n + j):
-            # Zero out entry in row i if needed
-            if abs(current_matrix[i, j]) > tol:
-                c, s = zrotg(current_matrix[i + 1, j], current_matrix[i, j])
-                (
-                    current_matrix[i + 1],
-                    current_matrix[i],
-                ) = zrot(
-                    current_matrix[i + 1],
-                    current_matrix[i],
-                    c,
-                    s,
-                )
-
-    # decompose matrix into Givens rotations
-    rotations = []
-    for i in range(m):
-        # zero out the columns in row i
-        for j in range(n - m + i, i, -1):
-            if abs(current_matrix[i, j]) > tol:
-                # zero out element j of row i
-                c, s = zrotg(current_matrix[i, j - 1], current_matrix[i, j])
-                # clamp c between -1 and 1 to account for floating point error
-                rotations.append(GivensRotation(min(1.0, max(-1.0, c)), s, j, j - 1))
-                (
-                    current_matrix[:, j - 1],
-                    current_matrix[:, j],
-                ) = zrot(
-                    current_matrix[:, j - 1],
-                    current_matrix[:, j],
-                    c,
-                    s,
-                )
-
-    return rotations[::-1]
