@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import scipy.linalg
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
@@ -217,3 +218,33 @@ def test_random_slater_determinant_spinless(norb: int, nocc: int):
         )
 
         ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
+
+
+def test_slater_determinant_tol():
+    """Test passing tol."""
+    rng = np.random.default_rng()
+    norb = 6
+    generator = 1e-8j * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+
+    # Spinful
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb, (range(norb // 2), range(norb // 2)), orbital_rotation, tol=1e-7
+        ),
+        qubits,
+    )
+    assert circuit.decompose().count_ops() == {"x": norb, "global_phase": 1}
+
+    # Spinless
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb, range(norb // 2), orbital_rotation, tol=1e-7
+        ),
+        qubits,
+    )
+    assert circuit.decompose().count_ops() == {"x": norb // 2, "global_phase": 1}
