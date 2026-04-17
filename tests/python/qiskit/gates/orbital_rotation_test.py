@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import scipy.linalg
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -157,6 +159,30 @@ def test_random_orbital_rotation_spinless(norb: int, nocc: int):
         expected = ffsim.apply_orbital_rotation(small_vec, mat, norb=norb, nelec=nelec)
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_orbital_rotation_tol():
+    """Test passing tol."""
+    rng = np.random.default_rng()
+    norb = 6
+    generator = 1e-8j * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+
+    # Spinful
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, tol=1e-7), qubits
+    )
+    assert circuit.decompose().count_ops() == {"p": 2 * norb}
+
+    # Spinless
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation, tol=1e-7), qubits
+    )
+    assert circuit.decompose().count_ops() == {"p": norb}
 
 
 @pytest.mark.parametrize(
