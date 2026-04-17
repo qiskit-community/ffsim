@@ -28,7 +28,7 @@ def reconstruct_orbital_rotation(
     givens_rotations: list[tuple[float, complex, int, int]],
     phase_shifts: np.ndarray,
 ) -> np.ndarray:
-    """Reconstruct matrix from Givens decomposition."""
+    """Reconstruct orbital rotation from Givens decomposition."""
     reconstructed = np.eye(dim, dtype=complex)
     for i, phase_shift in enumerate(phase_shifts):
         reconstructed[i] *= phase_shift
@@ -72,29 +72,22 @@ def test_givens_decomposition_reconstruct(dim: int):
 
 
 @pytest.mark.parametrize("dim", range(6))
-def test_givens_decomposition_near_identity(dim: int):
-    """Test Givens decomposition of a quasi-identity matrix."""
+@pytest.mark.parametrize("scale", [1e-3, 1e-6, 1e-9, 1e-12, 1e-15])
+def test_givens_decomposition_near_identity(dim: int, scale: float):
+    """Test Givens decomposition of a near-identity orbital rotation."""
     rng = np.random.default_rng()
     # Worst case: one elimination per subdiagonal entry of the unitary
     worst_case_length = dim * (dim - 1) // 2
-    dts = [1e-1, 1e-3, 1e-6, 1e-9]
-
-    for dt in dts:
-        tol = 10 * dt
-        generator = ffsim.random.random_hermitian(dim, seed=rng)
-        mat = expm(-1j * dt * generator)
-        givens_rotations, phase_shifts = givens_decomposition(mat, tol=tol)
-
-        if givens_rotations:
-            assert len(givens_rotations) < worst_case_length, (
-                f"dim={dim}, dt={dt:.3e}, got {len(givens_rotations)} rotations, "
-                f"expected at most {worst_case_length}"
-            )
-
-        reconstructed = reconstruct_orbital_rotation(
-            dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
-        )
-        np.testing.assert_allclose(reconstructed, mat, atol=tol)
+    generator = 1j * scale * ffsim.random.random_hermitian(dim, seed=rng)
+    orbital_rotation = expm(generator)
+    tol = 10 * scale
+    givens_rotations, phase_shifts = givens_decomposition(orbital_rotation, tol=tol)
+    if dim > 1:
+        assert len(givens_rotations) < worst_case_length
+    reconstructed = reconstruct_orbital_rotation(
+        dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
+    )
+    np.testing.assert_allclose(reconstructed, orbital_rotation, atol=tol)
 
 
 @pytest.mark.parametrize("dim", range(6))
