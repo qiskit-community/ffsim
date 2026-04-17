@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import scipy.linalg
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Operator, Statevector
 
@@ -297,3 +298,153 @@ def test_merge_ucj_spinless(norb: int, nocc: int):
     ffsim.testing.assert_allclose_up_to_global_phase(
         np.array(Statevector(circuit)), np.array(Statevector(transpiled))
     )
+
+
+def test_tol_spinful():
+    """Test passing tol, spinful."""
+    rng = np.random.default_rng()
+    norb = 6
+    tol = 1e-8
+
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    for _ in range(3):
+        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+        orbital_rotation = scipy.linalg.expm(generator)
+        circuit.append(
+            ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, tol=tol), qubits
+        )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_tol_spinless():
+    """Test passing tol, spinless."""
+    rng = np.random.default_rng()
+    norb = 6
+    tol = 1e-8
+
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    for _ in range(3):
+        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+        orbital_rotation = scipy.linalg.expm(generator)
+        circuit.append(
+            ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation, tol=tol),
+            qubits,
+        )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_tol_slater_spinful():
+    """Test passing tol, Slater determinant spinful."""
+    rng = np.random.default_rng()
+    norb = 6
+    nelec = (3, 3)
+    slater_tol = 1e-6
+    orb_rot_tol = 1e-8
+    tol = min(slater_tol, orb_rot_tol)
+
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb, (range(nelec[0]), range(nelec[1])), tol=slater_tol
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, tol=orb_rot_tol),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_jw": 1}
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_tol_slater_spinless():
+    """Test passing tol, Slater determinant spinless."""
+    rng = np.random.default_rng()
+    norb = 6
+    nocc = 3
+    slater_tol = 1e-6
+    orb_rot_tol = 1e-8
+    tol = min(slater_tol, orb_rot_tol)
+
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb, range(nocc), tol=slater_tol
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation, tol=orb_rot_tol),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_spinless_jw": 1}
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_tol_hartree_fock_spinful():
+    """Test passing tol, Hartree-Fock spinful."""
+    rng = np.random.default_rng()
+    norb = 6
+    nelec = (3, 3)
+    slater_tol = 1e-12  # default tol from PrepareHartreeFockJW decomposition
+    orb_rot_tol = 1e-8
+    tol = min(slater_tol, orb_rot_tol)
+
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, tol=orb_rot_tol), qubits
+    )
+    transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
+    assert transpiled.count_ops() == {"slater_jw": 1}
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_tol_hartree_fock_spinless():
+    """Test passing tol, Hartree-Fock spinless."""
+    rng = np.random.default_rng()
+    norb = 6
+    nocc = 3
+    slater_tol = 1e-12  # default tol from PrepareHartreeFockSpinlessJW decomposition
+    orb_rot_tol = 1e-8
+    tol = min(slater_tol, orb_rot_tol)
+
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    orbital_rotation = scipy.linalg.expm(generator)
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation, tol=orb_rot_tol),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
+    assert transpiled.count_ops() == {"slater_spinless_jw": 1}
+    assert next(iter(transpiled.data)).operation.tol == tol
+    assert "xx_plus_yy" not in circuit.decompose().count_ops()
+    assert "xx_plus_yy" not in transpiled.decompose().count_ops()
