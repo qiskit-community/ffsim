@@ -76,7 +76,7 @@ def test_givens_decomposition_near_identity(dim: int):
     """Test Givens decomposition of a quasi-identity matrix."""
     rng = np.random.default_rng()
     # Worst case: one elimination per subdiagonal entry of the unitary
-    worst_case_length = (dim * (dim - 1)) // 2
+    worst_case_length = dim * (dim - 1) // 2
     tol = 1e-12
     dts = [1e-1, 1e-3, 1e-6, 1e-9]
 
