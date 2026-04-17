@@ -35,7 +35,7 @@ class MergeOrbitalRotations(TransformationPass):
             norb = node.op.norb
             combined_mat_a = np.eye(norb)
             combined_mat_b = np.eye(norb)
-            tol = min(node.op.tol for node in run)
+            tol = max(node.op.tol for node in run)
             for node in run:
                 combined_mat_a = node.op.orbital_rotation_a @ combined_mat_a
                 combined_mat_b = node.op.orbital_rotation_b @ combined_mat_b
@@ -58,7 +58,7 @@ class MergeOrbitalRotations(TransformationPass):
                 combined_mat_b = (
                     successor_node.op.orbital_rotation_b @ node.op.orbital_rotation_b
                 )
-                tol = min(node.op.tol, successor_node.op.tol)
+                tol = max(node.op.tol, successor_node.op.tol)
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantJW(
@@ -77,7 +77,7 @@ class MergeOrbitalRotations(TransformationPass):
             qubits = node.qargs
             norb = node.op.norb
             combined_mat = np.eye(norb)
-            tol = min(node.op.tol for node in run)
+            tol = max(node.op.tol for node in run)
             for node in run:
                 combined_mat = node.op.orbital_rotation @ combined_mat
             dag.replace_block_with_op(
@@ -96,7 +96,7 @@ class MergeOrbitalRotations(TransformationPass):
                 combined_mat = (
                     successor_node.op.orbital_rotation @ node.op.orbital_rotation
                 )
-                tol = min(node.op.tol, successor_node.op.tol)
+                tol = max(node.op.tol, successor_node.op.tol)
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantSpinlessJW(

@@ -316,7 +316,6 @@ def test_tol_spinful():
         )
     transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
 
 
@@ -337,7 +336,6 @@ def test_tol_spinless():
         )
     transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
 
 
@@ -348,7 +346,7 @@ def test_tol_slater_spinful():
     nelec = (3, 3)
     slater_tol = 1e-6
     orb_rot_tol = 1e-8
-    tol = min(slater_tol, orb_rot_tol)
+    tol = max(slater_tol, orb_rot_tol)
 
     generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
     orbital_rotation = scipy.linalg.expm(generator)
@@ -367,7 +365,6 @@ def test_tol_slater_spinful():
     transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
     assert transpiled.count_ops() == {"slater_jw": 1}
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
 
 
@@ -378,7 +375,7 @@ def test_tol_slater_spinless():
     nocc = 3
     slater_tol = 1e-6
     orb_rot_tol = 1e-8
-    tol = min(slater_tol, orb_rot_tol)
+    tol = max(slater_tol, orb_rot_tol)
 
     generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
     orbital_rotation = scipy.linalg.expm(generator)
@@ -397,7 +394,6 @@ def test_tol_slater_spinless():
     transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
     assert transpiled.count_ops() == {"slater_spinless_jw": 1}
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
 
 
@@ -408,7 +404,7 @@ def test_tol_hartree_fock_spinful():
     nelec = (3, 3)
     slater_tol = 1e-12  # default tol from PrepareHartreeFockJW decomposition
     orb_rot_tol = 1e-8
-    tol = min(slater_tol, orb_rot_tol)
+    tol = max(slater_tol, orb_rot_tol)
 
     generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
     orbital_rotation = scipy.linalg.expm(generator)
@@ -421,7 +417,6 @@ def test_tol_hartree_fock_spinful():
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
     assert transpiled.count_ops() == {"slater_jw": 1}
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
 
 
@@ -432,7 +427,7 @@ def test_tol_hartree_fock_spinless():
     nocc = 3
     slater_tol = 1e-12  # default tol from PrepareHartreeFockSpinlessJW decomposition
     orb_rot_tol = 1e-8
-    tol = min(slater_tol, orb_rot_tol)
+    tol = max(slater_tol, orb_rot_tol)
 
     generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
     orbital_rotation = scipy.linalg.expm(generator)
@@ -446,5 +441,4 @@ def test_tol_hartree_fock_spinless():
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
     assert transpiled.count_ops() == {"slater_spinless_jw": 1}
     assert next(iter(transpiled.data)).operation.tol == tol
-    assert "xx_plus_yy" not in circuit.decompose().count_ops()
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
