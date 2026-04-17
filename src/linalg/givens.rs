@@ -16,6 +16,7 @@ use pyo3::prelude::*;
 type GivensRotationTuple = (f64, Complex64, usize, usize);
 type GivensDecompositionResult = (Vec<GivensRotationTuple>, Py<PyArray1<Complex64>>);
 
+/// Safe version of BLAS zrotg.
 fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     let abs_a = a.norm();
     let abs_b = b.norm();
@@ -28,7 +29,8 @@ fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
     let r = abs_a.hypot(abs_b);
     let c = abs_a / r;
     let s = (a / abs_a) * b.conj() / r;
-    (c, s)
+    // clamp c between -1 and 1 to account for floating point error
+    (c.clamp(-1.0, 1.0), s)
 }
 
 fn rotate_columns_in_place(
@@ -126,7 +128,7 @@ pub fn givens_decomposition(
             tol,
         );
 
-        right_rotations.push((c.clamp(-1.0, 1.0), -s.conj(), i, j));
+        right_rotations.push((c, -s.conj(), i, j));
 
         let diag_i = current_matrix[[i, i]];
         let diag_j = current_matrix[[j, j]];
@@ -185,7 +187,7 @@ pub fn givens_decomposition_slater(
             if current_matrix[[i, j]].norm() > tol {
                 // zero out element j of row i
                 let (c, s) = zrotg_safe(current_matrix[[i, j - 1]], current_matrix[[i, j]], tol);
-                rotations.push((c.clamp(-1.0, 1.0), s, j, j - 1));
+                rotations.push((c, s, j, j - 1));
                 rotate_columns_in_place(&mut current_matrix, j - 1, j, c, s);
             }
         }
