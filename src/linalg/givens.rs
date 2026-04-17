@@ -164,7 +164,9 @@ pub fn givens_decomposition_slater(
     if n > m {
         let n_minus_m = n - m;
         for j in (n_minus_m + 1..n).rev() {
+            // zero out entries in column j
             for i in 0..(j - n_minus_m) {
+                // zero out entry in row i if needed
                 if current_matrix[[i, j]].norm() > tol {
                     let (c, s) =
                         zrotg_safe(current_matrix[[i + 1, j]], current_matrix[[i, j]], tol);
@@ -177,9 +179,11 @@ pub fn givens_decomposition_slater(
     // decompose matrix into Givens rotations
     let mut rotations: Vec<GivensRotationTuple> = Vec::new();
     for i in 0..m {
+        // zero out the columns in row i
         let j_max = n - m + i;
         for j in (i + 1..=j_max).rev() {
             if current_matrix[[i, j]].norm() > tol {
+                // zero out element j of row i
                 let (c, s) = zrotg_safe(current_matrix[[i, j - 1]], current_matrix[[i, j]], tol);
                 rotations.push((c.clamp(-1.0, 1.0), s, j, j - 1));
                 rotate_columns_in_place(&mut current_matrix, j - 1, j, c, s);
