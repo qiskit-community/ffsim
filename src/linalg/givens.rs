@@ -17,14 +17,14 @@ type GivensRotationTuple = (f64, Complex64, usize, usize);
 type GivensDecompositionResult = (Vec<GivensRotationTuple>, Py<PyArray1<Complex64>>);
 
 fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
-    if b.norm() <= tol {
-        return (1.0, Complex64::new(0.0, 0.0));
-    }
-    if a.norm() <= tol {
-        return (0.0, Complex64::new(1.0, 0.0));
-    }
     let abs_a = a.norm();
     let abs_b = b.norm();
+    if abs_b <= tol {
+        return (1.0, Complex64::new(0.0, 0.0));
+    }
+    if abs_a <= tol {
+        return (0.0, Complex64::new(1.0, 0.0));
+    }
     let r = abs_a.hypot(abs_b);
     let c = abs_a / r;
     let s = (a / abs_a) * b.conj() / r;
