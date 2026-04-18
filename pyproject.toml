@@ -159,10 +159,25 @@ commands = [
     ],
 ]
 
-[tool.tox.env.type]
-description = "run type check"
-dependency_groups = ["dev"]
-commands = [["mypy"]]
+[tool.tox.env.format]
+description = "check formatting"
+skip_install = true
+deps = ["ruff"]
+allowlist_externals = ["cargo"]
+commands = [
+    [
+        "ruff",
+        "format",
+        "--check",
+    ],
+    [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check",
+    ],
+]
 
 [tool.tox.env.lint]
 description = "check for lint"
@@ -184,25 +199,10 @@ commands = [
     ],
 ]
 
-[tool.tox.env.format]
-description = "check formatting"
-skip_install = true
-deps = ["ruff"]
-allowlist_externals = ["cargo"]
-commands = [
-    [
-        "ruff",
-        "format",
-        "--check",
-    ],
-    [
-        "cargo",
-        "fmt",
-        "--all",
-        "--",
-        "--check",
-    ],
-]
+[tool.tox.env.type]
+description = "run type check"
+deps = ["mypy"]
+commands = [["mypy"]]
 
 [tool.tox.env.spell]
 description = "check spelling"
