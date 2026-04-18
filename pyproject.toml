@@ -142,7 +142,7 @@ commands = [["pytest"]]
 
 [tool.tox.env.coverage]
 description = "check test coverage"
-dependency_groups = ["dev"]
+deps = ["coverage", "pytest"]
 commands = [
     [
         "coverage",
@@ -199,16 +199,16 @@ commands = [
     ],
 ]
 
-[tool.tox.env.type]
-description = "run type check"
-deps = ["mypy"]
-commands = [["mypy"]]
-
 [tool.tox.env.spell]
 description = "check spelling"
 skip_install = true
 deps = ["typos"]
 commands = [["typos"]]
+
+[tool.tox.env.type]
+description = "run type check"
+deps = ["mypy"]
+commands = [["mypy"]]
 
 [tool.tox.env.docs]
 description = "build docs"
