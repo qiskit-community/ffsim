@@ -213,7 +213,6 @@ commands = [["mypy"]]
 [tool.tox.env.docs]
 description = "build docs"
 dependency_groups = ["docs"]
-set_env = { SPHINX_APIDOC_OPTIONS = "members,show-inheritance" }
 commands = [
     [
         "python",
