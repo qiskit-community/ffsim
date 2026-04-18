@@ -18,17 +18,18 @@ from qiskit.quantum_info import Operator, Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(49392490163314280547973100414356125766)
+
 
 @pytest.mark.parametrize("norb", range(1, 4))
 def test_yields_equivalent_circuit_spinful(norb: int):
     """Test merging orbital rotations results in an equivalent circuit, spinful."""
-    rng = np.random.default_rng()
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -37,8 +38,8 @@ def test_yields_equivalent_circuit_spinful(norb: int):
             ffsim.qiskit.OrbitalRotationJW(
                 norb,
                 (
-                    ffsim.random.random_unitary(norb, seed=rng),
-                    ffsim.random.random_unitary(norb, seed=rng),
+                    ffsim.random.random_unitary(norb, seed=RNG),
+                    ffsim.random.random_unitary(norb, seed=RNG),
                 ),
             ),
             qubits,
@@ -54,13 +55,12 @@ def test_yields_equivalent_circuit_spinful(norb: int):
 @pytest.mark.parametrize("norb", range(1, 4))
 def test_yields_equivalent_circuit_spinless(norb: int):
     """Test merging orbital rotations results in an equivalent circuit, spinless."""
-    rng = np.random.default_rng()
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationSpinlessJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -78,8 +78,6 @@ def test_yields_equivalent_circuit_spinless(norb: int):
 )
 def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Slater determinant preparation, spinful."""
-    rng = np.random.default_rng()
-
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
 
@@ -87,14 +85,14 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
         ffsim.qiskit.PrepareSlaterDeterminantJW(
             norb,
             ffsim.testing.random_occupied_orbitals(norb, nelec),
-            ffsim.random.random_unitary(norb, seed=rng),
+            ffsim.random.random_unitary(norb, seed=RNG),
         ),
         qubits,
     )
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -103,8 +101,8 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
             ffsim.qiskit.OrbitalRotationJW(
                 norb,
                 (
-                    ffsim.random.random_unitary(norb, seed=rng),
-                    ffsim.random.random_unitary(norb, seed=rng),
+                    ffsim.random.random_unitary(norb, seed=RNG),
+                    ffsim.random.random_unitary(norb, seed=RNG),
                 ),
             ),
             qubits,
@@ -124,8 +122,6 @@ def test_merge_slater_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_merge_slater_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Slater determinant preparation, spinless."""
-    rng = np.random.default_rng()
-
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
 
@@ -133,14 +129,14 @@ def test_merge_slater_spinless(norb: int, nocc: int):
         ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
             norb,
             ffsim.testing.random_occupied_orbitals(norb, (nocc, 0))[0],
-            ffsim.random.random_unitary(norb, seed=rng),
+            ffsim.random.random_unitary(norb, seed=RNG),
         ),
         qubits,
     )
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationSpinlessJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -159,8 +155,6 @@ def test_merge_slater_spinless(norb: int, nocc: int):
 )
 def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations into Hartree-Fock state preparation, spinful."""
-    rng = np.random.default_rng()
-
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
 
@@ -171,7 +165,7 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -180,8 +174,8 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
             ffsim.qiskit.OrbitalRotationJW(
                 norb,
                 (
-                    ffsim.random.random_unitary(norb, seed=rng),
-                    ffsim.random.random_unitary(norb, seed=rng),
+                    ffsim.random.random_unitary(norb, seed=RNG),
+                    ffsim.random.random_unitary(norb, seed=RNG),
                 ),
             ),
             qubits,
@@ -201,8 +195,6 @@ def test_merge_hartree_fock_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     """Test merging orbital rotations into Hartree-Fock state preparation, spinless."""
-    rng = np.random.default_rng()
-
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
 
@@ -213,7 +205,7 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
     for _ in range(3):
         circuit.append(
             ffsim.qiskit.OrbitalRotationSpinlessJW(
-                norb, ffsim.random.random_unitary(norb, seed=rng)
+                norb, ffsim.random.random_unitary(norb, seed=RNG)
             ),
             qubits,
         )
@@ -236,7 +228,6 @@ def test_merge_hartree_fock_spinless(norb: int, nocc: int):
 )
 def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
     """Test merging orbital rotations in UCJ operator, spinful."""
-    rng = np.random.default_rng()
     qubits = QuantumRegister(2 * norb)
     n_reps = 3
 
@@ -246,7 +237,7 @@ def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
         qubits,
     )
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
-        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=RNG
     )
     circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
@@ -263,7 +254,7 @@ def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
         qubits,
     )
     ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
-        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=RNG
     )
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
@@ -281,14 +272,13 @@ def test_merge_ucj_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_merge_ucj_spinless(norb: int, nocc: int):
     """Test merging orbital rotations in UCJ operator, spinless."""
-    rng = np.random.default_rng()
     qubits = QuantumRegister(norb)
     n_reps = 3
 
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
     ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
-        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=n_reps, with_final_orbital_rotation=True, seed=RNG
     )
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless), qubits)
     transpiled = ffsim.qiskit.PRE_INIT.run(circuit)
@@ -302,14 +292,13 @@ def test_merge_ucj_spinless(norb: int, nocc: int):
 
 def test_tol_spinful():
     """Test passing tol, spinful."""
-    rng = np.random.default_rng()
     norb = 6
     tol = 1e-8
 
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
-        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
         orbital_rotation = scipy.linalg.expm(generator)
         circuit.append(
             ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, tol=tol), qubits
@@ -321,14 +310,13 @@ def test_tol_spinful():
 
 def test_tol_spinless():
     """Test passing tol, spinless."""
-    rng = np.random.default_rng()
     norb = 6
     tol = 1e-8
 
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
     for _ in range(3):
-        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+        generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
         orbital_rotation = scipy.linalg.expm(generator)
         circuit.append(
             ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation, tol=tol),
@@ -341,14 +329,13 @@ def test_tol_spinless():
 
 def test_tol_slater_spinful():
     """Test passing tol, Slater determinant spinful."""
-    rng = np.random.default_rng()
     norb = 6
     nelec = (3, 3)
     slater_tol = 1e-6
     orb_rot_tol = 1e-8
     tol = max(slater_tol, orb_rot_tol)
 
-    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
     orbital_rotation = scipy.linalg.expm(generator)
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
@@ -370,14 +357,13 @@ def test_tol_slater_spinful():
 
 def test_tol_slater_spinless():
     """Test passing tol, Slater determinant spinless."""
-    rng = np.random.default_rng()
     norb = 6
     nocc = 3
     slater_tol = 1e-6
     orb_rot_tol = 1e-8
     tol = max(slater_tol, orb_rot_tol)
 
-    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
     orbital_rotation = scipy.linalg.expm(generator)
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
@@ -399,14 +385,13 @@ def test_tol_slater_spinless():
 
 def test_tol_hartree_fock_spinful():
     """Test passing tol, Hartree-Fock spinful."""
-    rng = np.random.default_rng()
     norb = 6
     nelec = (3, 3)
     slater_tol = 1e-12  # default tol from PrepareHartreeFockJW decomposition
     orb_rot_tol = 1e-8
     tol = max(slater_tol, orb_rot_tol)
 
-    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
     orbital_rotation = scipy.linalg.expm(generator)
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
@@ -422,14 +407,13 @@ def test_tol_hartree_fock_spinful():
 
 def test_tol_hartree_fock_spinless():
     """Test passing tol, Hartree-Fock spinless."""
-    rng = np.random.default_rng()
     norb = 6
     nocc = 3
     slater_tol = 1e-12  # default tol from PrepareHartreeFockSpinlessJW decomposition
     orb_rot_tol = 1e-8
     tol = max(slater_tol, orb_rot_tol)
 
-    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=rng)
+    generator = 0.1j * tol * ffsim.random.random_hermitian(norb, seed=RNG)
     orbital_rotation = scipy.linalg.expm(generator)
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)
