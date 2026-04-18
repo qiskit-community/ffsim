@@ -16,11 +16,7 @@ from ffsim.linalg.double_factorized_decomposition import (
     double_factorized_t2_alpha_beta,
     modified_cholesky,
 )
-from ffsim.linalg.givens import (
-    GivensRotation,
-    apply_matrix_to_slices,
-    givens_decomposition,
-)
+from ffsim.linalg.givens import apply_matrix_to_slices, givens_decomposition
 from ffsim.linalg.linalg import (
     expm_multiply_taylor,
     lup,
@@ -38,7 +34,6 @@ from ffsim.linalg.predicates import (
 )
 
 __all__ = [
-    "GivensRotation",
     "apply_matrix_to_slices",
     "double_factorized",
     "double_factorized_t2",
