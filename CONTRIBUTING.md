@@ -7,7 +7,7 @@ The instructions on this page won't work natively on Windows. For ffsim developm
 To set up ffsim for development, install it from source in editable mode along with the development requirements:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e . --group dev
 ```
 
 To install the git pre-commit hooks, run
