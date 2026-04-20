@@ -18,6 +18,8 @@ import pytest
 import ffsim
 from ffsim import FermionOperator
 
+RNG = np.random.default_rng(29435539612092344901653985996932170379)
+
 
 def test_add():
     """Test adding FermionOperators."""
@@ -515,8 +517,6 @@ def test_linear_operator_one_body():
     """Test linear operator of a one-body operator."""
     norb = 5
 
-    rng = np.random.default_rng()
-
     one_body_tensor = np.zeros((norb, norb)).astype(complex)
     one_body_tensor[1, 2] = 0.5
     one_body_tensor[2, 1] = -0.5
@@ -538,7 +538,7 @@ def test_linear_operator_one_body():
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
         original = vec.copy()
         actual = actual_linop @ vec
         expected = expected_linop @ vec
@@ -558,7 +558,7 @@ def test_linear_operator_one_body():
             }
         )
         actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
         original = vec.copy()
         actual = actual_linop @ vec
         expected = expected_linop @ vec
@@ -744,19 +744,18 @@ def test_mapping_methods():
 
 
 def test_trace():
-    rng = np.random.default_rng(12345)
     norb = 10
     nelec = (3, 3)
     ham: ffsim.DiagonalCoulombHamiltonian | ffsim.MolecularHamiltonian
 
     # compare for random_diagonal_coulomb_hamiltonian
-    ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=rng)
+    ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, real=True, seed=RNG)
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
     np.testing.assert_allclose(t1, t2)
 
     # compare for random_molecular_hamiltonian
-    ham = ffsim.random.random_molecular_hamiltonian(norb, seed=rng, dtype=float)
+    ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
     np.testing.assert_allclose(t1, t2)

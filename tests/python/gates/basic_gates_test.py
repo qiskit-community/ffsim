@@ -21,6 +21,8 @@ import scipy.sparse.linalg
 
 import ffsim
 
+RNG = np.random.default_rng(38008015894980849163476786550719547568)
+
 
 def assert_has_two_orbital_matrix(
     gate: Callable[[np.ndarray, int, tuple[int, int]], np.ndarray],
@@ -119,7 +121,6 @@ def assert_has_two_orbital_matrix_spinless(
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_givens_rotation_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test Givens rotation matrix."""
-    rng = np.random.default_rng()
 
     def mat(theta: float, phi: float) -> np.ndarray:
         c = np.cos(theta)
@@ -130,8 +131,8 @@ def test_apply_givens_rotation_matrix_spinful(norb: int, spin: ffsim.Spin):
     phase_11 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
-        phi = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
+        phi = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
@@ -156,7 +157,6 @@ def test_apply_givens_rotation_matrix_spinful(norb: int, spin: ffsim.Spin):
 @pytest.mark.parametrize("norb", range(4))
 def test_apply_givens_rotation_matrix_spinless(norb: int):
     """Test Givens rotation matrix, spinless."""
-    rng = np.random.default_rng()
 
     def mat(theta: float, phi: float) -> np.ndarray:
         c = np.cos(theta)
@@ -167,8 +167,8 @@ def test_apply_givens_rotation_matrix_spinless(norb: int):
     phase_11 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
-        phi = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
+        phi = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix_spinless(
@@ -192,10 +192,9 @@ def test_apply_givens_rotation_definition():
     """Test definition of complex Givens in terms of real Givens and phases."""
     norb = 5
     nelec = (3, 2)
-    rng = np.random.default_rng()
-    theta = rng.uniform(-10, 10)
-    phi = rng.uniform(-10, 10)
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    theta = RNG.uniform(-10, 10)
+    phi = RNG.uniform(-10, 10)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
 
     # apply complex givens rotation
     result = ffsim.apply_givens_rotation(
@@ -219,7 +218,6 @@ def test_apply_givens_rotation_definition():
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_tunneling_interaction_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test tunneling interaction matrix."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -230,7 +228,7 @@ def test_apply_tunneling_interaction_matrix_spinful(norb: int, spin: ffsim.Spin)
     phase_11 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
@@ -254,7 +252,6 @@ def test_apply_tunneling_interaction_matrix_spinful(norb: int, spin: ffsim.Spin)
 @pytest.mark.parametrize("norb", range(4))
 def test_apply_tunneling_interaction_matrix_spinless(norb: int):
     """Test tunneling interaction matrix."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -265,7 +262,7 @@ def test_apply_tunneling_interaction_matrix_spinless(norb: int):
     phase_11 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix_spinless(
@@ -291,10 +288,9 @@ def test_apply_num_interaction_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
 ):
     """Test applying number interaction."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=RNG))
+    theta = RNG.uniform(-10, 10)
     for target_orb in range(norb):
         result = ffsim.apply_num_interaction(
             vec, theta, target_orb, norb=norb, nelec=nelec, spin=spin
@@ -310,10 +306,9 @@ def test_apply_num_interaction_spinful(
 )
 def test_apply_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number interaction, spinless."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=RNG))
+    theta = RNG.uniform(-10, 10)
     for target_orb in range(norb):
         result = ffsim.apply_num_interaction(
             vec, theta, target_orb, norb=norb, nelec=nelec
@@ -331,10 +326,9 @@ def test_apply_num_num_interaction_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
 ):
     """Test applying number-number interaction."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=RNG))
+    theta = RNG.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
         for m, n in [(i, j), (j, i)]:
             result = ffsim.apply_num_num_interaction(
@@ -362,10 +356,9 @@ def test_apply_num_num_interaction_spinful(
 )
 def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
     """Test applying number-number interaction, spinless."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
-    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=RNG))
+    theta = RNG.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
         for m, n in [(i, j), (j, i)]:
             result = ffsim.apply_num_num_interaction(
@@ -388,11 +381,10 @@ def test_apply_num_num_interaction_spinless(norb: int, nelec: int):
 )
 def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]):
     """Test eigenvalues of number-number interaction."""
-    rng = np.random.default_rng()
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
     vec = ffsim.slater_determinant(norb, occupied_orbitals)
 
-    theta = rng.uniform(-10, 10)
+    theta = RNG.uniform(-10, 10)
     for i, j in itertools.combinations(range(norb), 2):
         for target_orbs in [(i, j), (j, i)]:
             result = ffsim.apply_num_num_interaction(
@@ -416,9 +408,8 @@ def test_apply_num_num_interaction_eigenvalues(norb: int, nelec: tuple[int, int]
 def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
     """Test applying on-site number-number interaction."""
     dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng()
-    vec = np.array(ffsim.random.random_state_vector(dim, seed=rng))
-    theta = rng.uniform(-10, 10)
+    vec = np.array(ffsim.random.random_state_vector(dim, seed=RNG))
+    theta = RNG.uniform(-10, 10)
     for i in range(norb):
         result = ffsim.apply_on_site_interaction(vec, theta, i, norb=norb, nelec=nelec)
         generator = ffsim.FermionOperator(
@@ -441,11 +432,10 @@ def test_apply_on_site_interaction(norb: int, nelec: tuple[int, int]):
 )
 def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
     """Test applying number operator product interaction."""
-    rng = np.random.default_rng()
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
     vec = ffsim.slater_determinant(norb, occupied_orbitals)
 
-    theta = rng.uniform(-10, 10)
+    theta = RNG.uniform(-10, 10)
     for i, j in itertools.combinations_with_replacement(range(norb), 2):
         for spin_i, spin_j in itertools.product(range(2), repeat=2):
             target_orbs: tuple[set[int], set[int]] = (set(), set())
@@ -470,7 +460,6 @@ def test_apply_num_op_prod(norb: int, nelec: tuple[int, int]):
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_hop_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test applying hop gate matrix."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -481,7 +470,7 @@ def test_apply_hop_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
     phase_11 = -1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix(
@@ -505,7 +494,6 @@ def test_apply_hop_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
 @pytest.mark.parametrize("norb", range(4))
 def test_apply_hop_gate_matrix_spinless(norb: int):
     """Test applying hop gate matrix, spinless."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -516,7 +504,7 @@ def test_apply_hop_gate_matrix_spinless(norb: int):
     phase_11 = -1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
                 assert_has_two_orbital_matrix_spinless(
@@ -538,7 +526,6 @@ def test_apply_hop_gate_matrix_spinless(norb: int):
 @pytest.mark.parametrize("norb, spin", ffsim.testing.generate_norb_spin(range(4)))
 def test_apply_fsim_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
     """Test applying fSim gate matrix."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -548,8 +535,8 @@ def test_apply_fsim_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
     phase_00 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
-        phi = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
+        phi = RNG.uniform(-10, 10)
         phase_11 = np.exp(-1j * phi)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:
@@ -575,7 +562,6 @@ def test_apply_fsim_gate_matrix_spinful(norb: int, spin: ffsim.Spin):
 @pytest.mark.parametrize("norb", range(4))
 def test_apply_fsim_gate_matrix_spinless(norb: int):
     """Test applying fSim gate matrix, spinless."""
-    rng = np.random.default_rng()
 
     def mat(theta: float) -> np.ndarray:
         c = np.cos(theta)
@@ -585,8 +571,8 @@ def test_apply_fsim_gate_matrix_spinless(norb: int):
     phase_00 = 1
 
     for _ in range(3):
-        theta = rng.uniform(-10, 10)
-        phi = rng.uniform(-10, 10)
+        theta = RNG.uniform(-10, 10)
+        phi = RNG.uniform(-10, 10)
         phase_11 = np.exp(-1j * phi)
         for i, j in itertools.combinations(range(norb), 2):
             for target_orbs in [(i, j), (j, i)]:

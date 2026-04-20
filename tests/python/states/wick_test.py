@@ -20,6 +20,8 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
+RNG = np.random.default_rng(128190988973967509227642835569417102895)
+
 
 @pytest.mark.parametrize(
     "norb, occupied_orbitals",
@@ -35,15 +37,13 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
     nelec = len(occ_a), len(occ_b)
     dim = ffsim.dim(norb, nelec)
 
-    rng = np.random.default_rng()
-
     # generate random one-body tensors
     n_tensors = 6
     one_body_tensors = []
     linops = []
     for _ in range(n_tensors):
-        one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
-        one_body_tensor += 1j * rng.standard_normal((norb, norb))
+        one_body_tensor = RNG.standard_normal((norb, norb)).astype(complex)
+        one_body_tensor += 1j * RNG.standard_normal((norb, norb))
         linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
         one_body_tensors.append(
             scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
@@ -51,7 +51,7 @@ def test_expectation_product(norb: int, occupied_orbitals: tuple[list[int], list
         linops.append(linop)
 
     # generate a random Slater determinant
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     rdm = scipy.linalg.block_diag(
         *ffsim.slater_determinant_rdms(
             norb, occupied_orbitals, orbital_rotation=orbital_rotation
@@ -82,16 +82,14 @@ def test_expectation_power():
     nelec = len(occ_a), len(occ_b)
     dim = ffsim.dim(norb, nelec)
 
-    rng = np.random.default_rng()
-
     # generate a random one-body tensor
-    one_body_tensor = rng.standard_normal((norb, norb)).astype(complex)
-    one_body_tensor += 1j * rng.standard_normal((norb, norb))
+    one_body_tensor = RNG.standard_normal((norb, norb)).astype(complex)
+    one_body_tensor += 1j * RNG.standard_normal((norb, norb))
     linop = ffsim.contract.one_body_linop(one_body_tensor, norb=norb, nelec=nelec)
     one_body_tensor = scipy.linalg.block_diag(one_body_tensor, one_body_tensor)
 
     # generate a random Slater determinant
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     rdm = scipy.linalg.block_diag(
         *ffsim.slater_determinant_rdms(
             norb, occupied_orbitals, orbital_rotation=orbital_rotation

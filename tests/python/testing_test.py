@@ -17,12 +17,13 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(118618998178774302696786466563464388521)
+
 
 def test_assert_allclose_up_to_global_phase():
-    rng = np.random.default_rng()
     shape = (2, 3, 4)
-    a = rng.standard_normal(shape).astype(complex)
-    a += 1j + rng.standard_normal(shape)
+    a = RNG.standard_normal(shape).astype(complex)
+    a += 1j + RNG.standard_normal(shape)
     b = a * (1j) ** 1.5
 
     ffsim.testing.assert_allclose_up_to_global_phase(a, b)

@@ -19,6 +19,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(66951516488404785947596221830894117530)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
@@ -27,9 +29,8 @@ def test_contract_diag_coulomb_num_rep_symmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
     """Test contracting a diagonal Coulomb matrix, symmetric spin."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
@@ -56,11 +57,10 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
     """Test contracting a diagonal Coulomb matrix, asymmetric spin."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = rng.standard_normal((norb, norb))
-    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    mat_ab = RNG.standard_normal((norb, norb))
+    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
@@ -132,9 +132,8 @@ def test_contract_diag_coulomb_num_rep_asymmetric_spin(
 )
 def test_contract_diag_coulomb_z_rep_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test contracting a diagonal Coulomb matrix in the Z representation."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
@@ -162,11 +161,10 @@ def test_contract_diag_coulomb_z_rep_symmetric_spin(norb: int, nelec: tuple[int,
 )
 def test_contract_diag_coulomb_z_rep_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test contracting a diagonal Coulomb matrix in the Z representation."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = rng.standard_normal((norb, norb))
-    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    mat_ab = RNG.standard_normal((norb, norb))
+    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
@@ -256,15 +254,14 @@ def test_contract_diag_coulomb_z_rep_asymmetric_spin(norb: int, nelec: tuple[int
 def test_diag_coulomb_to_linop():
     """Test converting a diagonal Coulomb matrix to a linear operator."""
     norb = 5
-    rng = np.random.default_rng()
-    n_alpha = int(rng.integers(1, norb + 1))
-    n_beta = int(rng.integers(1, norb + 1))
+    n_alpha = int(RNG.integers(1, norb + 1))
+    n_beta = int(RNG.integers(1, norb + 1))
     nelec = (n_alpha, n_beta)
     dim = ffsim.dim(norb, nelec)
 
-    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
 
     linop = ffsim.contract.diag_coulomb_linop(
         mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation

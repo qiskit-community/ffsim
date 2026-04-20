@@ -21,7 +21,7 @@ import pytest
 
 import ffsim
 
-rng = np.random.default_rng(263516597386892983361450709003146582085)
+RNG = np.random.default_rng(280996458591531712403898936288775160509)
 
 
 def assert_t2_has_correct_symmetry(t2: np.ndarray):
@@ -52,7 +52,7 @@ def test_random_t2_amplitudes_symmetry():
     """Test random t2 amplitudes symmetry."""
     norb = 5
     nocc = 3
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng)
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG)
     assert_t2_has_correct_symmetry(t2)
 
 
@@ -60,7 +60,7 @@ def test_random_two_body_tensor_symmetry_real():
     """Test random real two-body tensor symmetry."""
     n_orbitals = 5
     two_body_tensor = ffsim.random.random_two_body_tensor(
-        n_orbitals, seed=rng, dtype=float
+        n_orbitals, seed=RNG, dtype=float
     )
     assert np.issubdtype(two_body_tensor.dtype, np.floating)
     for i, j, k, ell in itertools.product(range(n_orbitals), repeat=4):
@@ -77,7 +77,7 @@ def test_random_two_body_tensor_symmetry_real():
 def test_random_two_body_tensor_symmetry():
     """Test random two-body tensor symmetry."""
     n_orbitals = 5
-    two_body_tensor = ffsim.random.random_two_body_tensor(n_orbitals, seed=rng)
+    two_body_tensor = ffsim.random.random_two_body_tensor(n_orbitals, seed=RNG)
     for i, j, k, ell in itertools.product(range(n_orbitals), repeat=4):
         val = two_body_tensor[i, j, k, ell]
         np.testing.assert_allclose(two_body_tensor[k, ell, i, j], val)
@@ -88,7 +88,7 @@ def test_random_two_body_tensor_symmetry():
 @pytest.mark.parametrize("dim", range(10))
 def test_random_unitary(dim: int):
     """Test random unitary."""
-    mat = ffsim.random.random_unitary(dim, seed=rng)
+    mat = ffsim.random.random_unitary(dim, seed=RNG)
     assert mat.dtype == complex
     assert ffsim.linalg.is_unitary(mat)
 
@@ -96,11 +96,11 @@ def test_random_unitary(dim: int):
 @pytest.mark.parametrize("dim", range(10))
 def test_random_orthogonal(dim: int):
     """Test random orthogonal."""
-    mat = ffsim.random.random_orthogonal(dim, seed=rng)
+    mat = ffsim.random.random_orthogonal(dim, seed=RNG)
     assert mat.dtype == float
     assert ffsim.linalg.is_orthogonal(mat)
 
-    mat = ffsim.random.random_orthogonal(dim, seed=rng, dtype=complex)
+    mat = ffsim.random.random_orthogonal(dim, seed=RNG, dtype=complex)
     assert mat.dtype == complex
     assert ffsim.linalg.is_orthogonal(mat)
 
@@ -108,11 +108,11 @@ def test_random_orthogonal(dim: int):
 @pytest.mark.parametrize("dim", range(10))
 def test_random_special_orthogonal(dim: int):
     """Test random special orthogonal."""
-    mat = ffsim.random.random_special_orthogonal(dim, seed=rng)
+    mat = ffsim.random.random_special_orthogonal(dim, seed=RNG)
     assert mat.dtype == float
     assert ffsim.linalg.is_special_orthogonal(mat)
 
-    mat = ffsim.random.random_special_orthogonal(dim, seed=rng, dtype=np.float32)
+    mat = ffsim.random.random_special_orthogonal(dim, seed=RNG, dtype=np.float32)
     assert mat.dtype == np.float32
     assert ffsim.linalg.is_special_orthogonal(mat, atol=1e-5)
 
@@ -120,12 +120,12 @@ def test_random_special_orthogonal(dim: int):
 def test_random_real_symmetric_matrix():
     """Test random real symmetric matrix."""
     dim = 5
-    mat = ffsim.random.random_real_symmetric_matrix(dim, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(dim, seed=RNG)
     assert ffsim.linalg.is_real_symmetric(mat)
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), dim)
 
     rank = 3
-    mat = ffsim.random.random_real_symmetric_matrix(dim, rank=rank, seed=rng)
+    mat = ffsim.random.random_real_symmetric_matrix(dim, rank=rank, seed=RNG)
     assert ffsim.linalg.is_real_symmetric(mat)
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), rank)
 
@@ -133,18 +133,18 @@ def test_random_real_symmetric_matrix():
 @pytest.mark.parametrize("dim", range(10))
 def test_random_antihermitian_matrix(dim: int):
     """Test random anti-Hermitian matrix."""
-    mat = ffsim.random.random_antihermitian(dim, seed=rng)
+    mat = ffsim.random.random_antihermitian(dim, seed=RNG)
     assert ffsim.linalg.is_antihermitian(mat)
 
 
 @pytest.mark.parametrize("dim", range(1, 10))
 def test_random_state_vector(dim: int):
     """Test random state vector."""
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
     assert vec.dtype == complex
     np.testing.assert_allclose(np.linalg.norm(vec), 1)
 
-    vec = ffsim.random.random_state_vector(dim, seed=rng, dtype=float)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG, dtype=float)
     assert vec.dtype == float
     np.testing.assert_allclose(np.linalg.norm(vec), 1)
 
@@ -152,14 +152,14 @@ def test_random_state_vector(dim: int):
 @pytest.mark.parametrize("dim", range(1, 10))
 def test_random_density_matrix(dim: int):
     """Test random density matrix."""
-    mat = ffsim.random.random_density_matrix(dim, seed=rng)
+    mat = ffsim.random.random_density_matrix(dim, seed=RNG)
     assert mat.dtype == complex
     assert ffsim.linalg.is_hermitian(mat)
     eigs, _ = np.linalg.eigh(mat)
     assert all(eigs >= 0)
     np.testing.assert_allclose(np.trace(mat), 1)
 
-    mat = ffsim.random.random_density_matrix(dim, seed=rng, dtype=float)
+    mat = ffsim.random.random_density_matrix(dim, seed=RNG, dtype=float)
     assert mat.dtype == float
     assert ffsim.linalg.is_hermitian(mat)
     eigs, _ = np.linalg.eigh(mat)
@@ -171,17 +171,17 @@ def test_random_diagonal_coulomb_hamiltonian():
     """Test random diagonal Coulomb Hamiltonian."""
     norb = 5
 
-    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
     assert dc_ham.one_body_tensor.dtype == complex
 
-    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng, real=True)
+    dc_ham = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG, real=True)
     assert dc_ham.one_body_tensor.dtype == float
 
 
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
-        _ = ffsim.random.random_state_vector(0, seed=rng)
+        _ = ffsim.random.random_state_vector(0, seed=RNG)
 
     with pytest.raises(ValueError, match="Dimension"):
-        _ = ffsim.random.random_density_matrix(0, seed=rng)
+        _ = ffsim.random.random_density_matrix(0, seed=RNG)

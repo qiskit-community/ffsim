@@ -18,6 +18,8 @@ import pytest
 import ffsim
 from ffsim.states.bitstring import convert_bitstring_type
 
+RNG = np.random.default_rng(291150469124652350272054627599441552339)
+
 
 def test_addresses_to_strings_int_spinless():
     """Test converting statevector addresses to strings, int output, spinless."""
@@ -375,9 +377,8 @@ def test_strings_to_addresses_string():
 )
 def test_addresses_and_strings_roundtrip_spinless(norb: int, nelec: int):
     """Test converting statevector addresses to strings and back, spinless."""
-    rng = np.random.default_rng(26390)
     dim = ffsim.dim(norb, nelec)
-    indices = rng.choice(dim, size=10)
+    indices = RNG.choice(dim, size=10)
     strings = ffsim.addresses_to_strings(indices, norb=norb, nelec=nelec)
     indices_again = ffsim.strings_to_addresses(strings, norb=norb, nelec=nelec)
     np.testing.assert_array_equal(indices_again, indices)
@@ -389,9 +390,8 @@ def test_addresses_and_strings_roundtrip_spinless(norb: int, nelec: int):
 )
 def test_addresses_and_strings_roundtrip_spinful(norb: int, nelec: tuple[int, int]):
     """Test converting statevector addresses to strings and back, spinful."""
-    rng = np.random.default_rng(26390)
     dim = ffsim.dim(norb, nelec)
-    indices = rng.choice(dim, size=10)
+    indices = RNG.choice(dim, size=10)
     strings = ffsim.addresses_to_strings(
         indices,
         norb=norb,

@@ -29,6 +29,8 @@ from qiskit.primitives import StatevectorSampler
 
 import ffsim
 
+RNG = np.random.default_rng(137416770190023538209099300955283429942)
+
 
 def _fidelity(probs1: dict, probs2: dict) -> float:
     result = 0.0
@@ -51,27 +53,26 @@ def _brickwork(norb: int, n_layers: int):
 )
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
-    rng = np.random.default_rng(12285)
 
     # Initialize test objects
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
-        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
     )
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
-        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
     )
     df_hamiltonian_num_rep = ffsim.random.random_double_factorized_hamiltonian(
-        norb, rank=3, z_representation=False, seed=rng
+        norb, rank=3, z_representation=False, seed=RNG
     )
     df_hamiltonian_z_rep = ffsim.random.random_double_factorized_hamiltonian(
-        norb, rank=3, z_representation=True, seed=rng
+        norb, rank=3, z_representation=True, seed=RNG
     )
     interaction_pairs = list(_brickwork(norb, norb))
-    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+    thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
     givens_ansatz_op = ffsim.GivensAnsatzOp(
         norb, interaction_pairs, thetas, phis=phis, phase_angles=phase_angles
     )
@@ -101,7 +102,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 
     # Sample using ffsim Sampler
     shots = 5000
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -131,19 +132,18 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
-    rng = np.random.default_rng(52622)
 
     # Initialize test objects
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     interaction_pairs = list(_brickwork(norb, norb))
-    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-    phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+    thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
     givens_ansatz_op = ffsim.GivensAnsatzOp(
         norb, interaction_pairs, thetas, phis=phis, phase_angles=phase_angles
     )
     ucj_op = ffsim.random.random_ucj_op_spinless(
-        norb, n_reps=2, with_final_orbital_rotation=True, seed=rng
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
     )
 
     # Construct circuit
@@ -159,7 +159,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
 
     # Sample using ffsim Sampler
     shots = 1000
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -189,17 +189,16 @@ def test_random_gates_spinless(norb: int, nocc: int):
 )
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
-    rng = np.random.default_rng(5332)
 
     # Initialize test objects
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb, name="q")
     clbits = ClassicalRegister(norb, name="meas")
-    measured_qubits = list(rng.choice(qubits, size=len(clbits), replace=False))
-    measured_clbits = list(rng.choice(clbits, size=len(clbits), replace=False))
+    measured_qubits = list(RNG.choice(qubits, size=len(clbits), replace=False))
+    measured_clbits = list(RNG.choice(clbits, size=len(clbits), replace=False))
     circuit = QuantumCircuit(qubits, clbits)
     circuit.append(
         ffsim.qiskit.PrepareSlaterDeterminantJW(
@@ -211,7 +210,7 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
 
     # Sample using ffsim Sampler
     shots = 3000
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -221,7 +220,7 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
 
     # Sample using Qiskit Sampler
-    sampler = StatevectorSampler(default_shots=shots, seed=rng)
+    sampler = StatevectorSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -244,19 +243,18 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
-    rng = np.random.default_rng(5332)
 
     # Initialize test objects
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(
-        norb, (nocc, 0), seed=rng
+        norb, (nocc, 0), seed=RNG
     )[0]
 
     # Construct circuit
     qubits = QuantumRegister(norb, name="q")
     clbits = ClassicalRegister(norb - 1, name="meas")
-    measured_qubits = list(rng.choice(qubits, size=len(clbits), replace=False))
-    measured_clbits = list(rng.choice(clbits, size=len(clbits), replace=False))
+    measured_qubits = list(RNG.choice(qubits, size=len(clbits), replace=False))
+    measured_clbits = list(RNG.choice(clbits, size=len(clbits), replace=False))
     circuit = QuantumCircuit(qubits, clbits)
     circuit.append(
         ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
@@ -268,7 +266,7 @@ def test_measure_subset_spinless(norb: int, nocc: int):
 
     # Sample using ffsim Sampler
     shots = 3000
-    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=rng)
+    sampler = ffsim.qiskit.FfsimSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -278,7 +276,7 @@ def test_measure_subset_spinless(norb: int, nocc: int):
     np.testing.assert_allclose(sum(ffsim_probs.values()), 1)
 
     # Sample using Qiskit Sampler
-    sampler = StatevectorSampler(default_shots=shots, seed=rng)
+    sampler = StatevectorSampler(default_shots=shots, seed=RNG)
     pub = (circuit,)
     job = sampler.run([pub])
     result = job.result()
@@ -303,11 +301,10 @@ def test_global_depolarizing(
     norb: int, nelec: tuple[int, int], global_depolarizing: float
 ):
     """Test sampler with global depolarizing noise."""
-    rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     circuit = QuantumCircuit(qubits)
     circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
@@ -316,7 +313,7 @@ def test_global_depolarizing(
     # Sample using ffsim Sampler
     shots = 10_000
     sampler = ffsim.qiskit.FfsimSampler(
-        default_shots=shots, global_depolarizing=global_depolarizing, seed=rng
+        default_shots=shots, global_depolarizing=global_depolarizing, seed=RNG
     )
     pub = (circuit,)
     job = sampler.run([pub])
@@ -348,15 +345,14 @@ def test_global_depolarizing(
 
 def test_reproducible_with_seed():
     """Test sampler with random gates."""
-    rng = np.random.default_rng(14062)
 
     norb = 4
     nelec = (2, 2)
 
     qubits = QuantumRegister(2 * norb, name="q")
 
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
 
     circuit = QuantumCircuit(qubits)
     circuit.append(
@@ -412,7 +408,6 @@ def test_edge_cases():
 )
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with Qiskit gates, spinful."""
-    rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
@@ -424,28 +419,28 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
         circuit.append(XGate(), [qubits[norb + i]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[norb + j], qubits[norb + i]],
         )
     for q in qubits:
-        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+        circuit.append(PhaseGate(RNG.uniform(-10, 10)), [q])
     for i, j in _brickwork(2 * norb, norb):
-        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(CPhaseGate(RNG.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
-        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+        circuit.append(RZGate(RNG.uniform(-10, 10)), [q])
     for i, j in _brickwork(2 * norb, norb):
-        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(RZZGate(RNG.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[norb + i], qubits[norb + j]],
         )
     circuit.measure_all()
@@ -453,7 +448,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     # Sample using ffsim Sampler
     shots = 5000
     sampler = ffsim.qiskit.FfsimSampler(
-        default_shots=shots, norb=norb, nelec=nelec, seed=rng
+        default_shots=shots, norb=norb, nelec=nelec, seed=RNG
     )
     pub = (circuit,)
     job = sampler.run([pub])
@@ -490,7 +485,6 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test sampler with Qiskit gates, spinless."""
-    rng = np.random.default_rng(12285)
 
     # Construct circuit
     qubits = QuantumRegister(norb)
@@ -499,20 +493,20 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
         circuit.append(XGate(), [qubits[i]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
     for q in qubits:
-        circuit.append(PhaseGate(rng.uniform(-10, 10)), [q])
+        circuit.append(PhaseGate(RNG.uniform(-10, 10)), [q])
     for i, j in _brickwork(norb, norb):
-        circuit.append(CPhaseGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(CPhaseGate(RNG.uniform(-10, 10)), [qubits[i], qubits[j]])
     for q in qubits:
-        circuit.append(RZGate(rng.uniform(-10, 10)), [q])
+        circuit.append(RZGate(RNG.uniform(-10, 10)), [q])
     for i, j in _brickwork(norb, norb):
-        circuit.append(RZZGate(rng.uniform(-10, 10)), [qubits[i], qubits[j]])
+        circuit.append(RZZGate(RNG.uniform(-10, 10)), [qubits[i], qubits[j]])
     for i, j in _brickwork(norb, norb):
         circuit.append(
-            XXPlusYYGate(rng.uniform(-10, 10), rng.uniform(-10, 10)),
+            XXPlusYYGate(RNG.uniform(-10, 10), RNG.uniform(-10, 10)),
             [qubits[i], qubits[j]],
         )
     circuit.measure_all()
@@ -520,7 +514,7 @@ def test_qiskit_gates_spinless(norb: int, nocc: int):
     # Sample using ffsim Sampler
     shots = 5000
     sampler = ffsim.qiskit.FfsimSampler(
-        default_shots=shots, norb=norb, nelec=nocc, seed=rng
+        default_shots=shots, norb=norb, nelec=nocc, seed=RNG
     )
     pub = (circuit,)
     job = sampler.run([pub])

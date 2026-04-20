@@ -21,19 +21,20 @@ import scipy.sparse.linalg
 
 import ffsim
 
+RNG = np.random.default_rng(210948038748721996009453002937838898704)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
 )
 def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
     """Test applying time evolution of random diagonal Coulomb operator."""
-    rng = np.random.default_rng(4305)
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
-        time = rng.uniform()
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
+        time = RNG.uniform()
 
         result = ffsim.apply_diag_coulomb_evolution(
             vec,
@@ -73,13 +74,12 @@ def test_apply_diag_coulomb_evolution_random_symmetric_spin(
     norb: int, nelec: tuple[int, int], z_representation: bool
 ):
     """Test applying time evolution of random diagonal Coulomb operator."""
-    rng = np.random.default_rng(4305)
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
-        time = rng.uniform()
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
+        time = RNG.uniform()
 
         result = ffsim.apply_diag_coulomb_evolution(
             vec,
@@ -122,14 +122,13 @@ def test_apply_diag_coulomb_evolution_conserves_spin_squared(
     norb: int, nelec: tuple[int, int], z_representation: bool
 ):
     """Test diagonal Coulomb evolution conserves spin squared."""
-    rng = np.random.default_rng(8222)
     dim = ffsim.dim(norb, nelec)
 
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
-        time = rng.uniform()
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
+        time = RNG.uniform()
 
         spin_squared_init = ffsim.spin_square(vec, norb=norb, nelec=nelec)
 
@@ -154,12 +153,11 @@ def test_apply_diag_coulomb_evolution_num_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
     """Test applying diagonal Coulomb evolution with asymmetric spin action."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    time = rng.uniform(-10, 10)
-    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = rng.standard_normal((norb, norb))
-    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    time = RNG.uniform(-10, 10)
+    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    mat_ab = RNG.standard_normal((norb, norb))
+    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)
@@ -252,12 +250,11 @@ def test_apply_diag_coulomb_evolution_z_rep_asymmetric_spin(
     norb: int, nelec: tuple[int, int]
 ):
     """Test applying diagonal Coulomb evolution with asymmetric spin action."""
-    rng = np.random.default_rng()
     n_alpha, n_beta = nelec
-    time = rng.uniform(-10, 10)
-    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    mat_ab = rng.standard_normal((norb, norb))
-    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    time = RNG.uniform(-10, 10)
+    mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    mat_ab = RNG.standard_normal((norb, norb))
+    mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
             occupied_orbitals = (alpha_orbitals, beta_orbitals)

@@ -18,6 +18,8 @@ import scipy.sparse.linalg
 
 import ffsim
 
+RNG = np.random.default_rng(124723489227278663416473729558309155987)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, time, n_steps, order, atol",
@@ -35,15 +37,14 @@ def test_random(
     order: int,
     atol: float,
 ):
-    rng = np.random.default_rng(2488)
 
     # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
-    diag_coulomb_mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    diag_coulomb_mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
+    diag_coulomb_mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    diag_coulomb_mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     diag_coulomb_mats = np.stack([diag_coulomb_mat_aa, diag_coulomb_mat_ab])
-    constant = rng.uniform(-10, 10)
+    constant = RNG.uniform(-10, 10)
     dc_hamiltonian = ffsim.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mats, constant=constant
     )
@@ -51,7 +52,7 @@ def test_random(
 
     # generate initial state
     dim = ffsim.dim(norb, nelec)
-    initial_state = ffsim.random.random_state_vector(dim, seed=rng)
+    initial_state = ffsim.random.random_state_vector(dim, seed=RNG)
     original_state = initial_state.copy()
 
     # compute exact state
@@ -84,7 +85,6 @@ def test_random(
 
 
 def test_hubbard():
-    rng = np.random.default_rng(2488)
 
     hubbard_model = ffsim.fermi_hubbard_2d(
         norb_x=3,
@@ -110,7 +110,7 @@ def test_hubbard():
 
     # generate initial state
     dim = ffsim.dim(norb, nelec)
-    initial_state = ffsim.random.random_state_vector(dim, seed=rng)
+    initial_state = ffsim.random.random_state_vector(dim, seed=RNG)
     original_state = initial_state.copy()
 
     # compute exact state
