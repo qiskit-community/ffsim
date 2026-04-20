@@ -18,22 +18,23 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(104729668835623385137598226265085774118)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
 def test_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test random gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        coeffs_a = rng.standard_normal(norb)
-        coeffs_b = rng.standard_normal(norb)
-        time = rng.uniform(-10, 10)
+        coeffs_a = RNG.standard_normal(norb)
+        coeffs_b = RNG.standard_normal(norb)
+        time = RNG.uniform(-10, 10)
 
         # coeffs
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs_a, time)
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -48,7 +49,7 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
 
         # (coeffs_a, coeffs_b)
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs_a, coeffs_b), time)
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -63,7 +64,7 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
 
         # (coeffs_a, None)
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs_a, None), time)
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -80,7 +81,7 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
         gate = ffsim.qiskit.NumOpSumEvolutionJW(
             norb, np.stack((coeffs_a, coeffs_b)), time
         )
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -99,14 +100,13 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_random_spinless(norb: int, nelec: int):
     """Test random spinless gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        coeffs = rng.standard_normal(norb)
-        time = rng.uniform(-10, 10)
+        coeffs = RNG.standard_normal(norb)
+        time = RNG.uniform(-10, 10)
 
         gate = ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, coeffs, time)
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -125,17 +125,16 @@ def test_random_spinless(norb: int, nelec: int):
 )
 def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
     """Test inverse."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        coeffs_a = rng.standard_normal(norb)
-        coeffs_b = rng.standard_normal(norb)
-        time = rng.uniform(-10, 10)
+        coeffs_a = RNG.standard_normal(norb)
+        coeffs_b = RNG.standard_normal(norb)
+        time = RNG.uniform(-10, 10)
 
         # coeffs
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs_a, time)
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
@@ -144,7 +143,7 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
         # (coeffs_a, coeffs_b)
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs_a, coeffs_b), time)
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
@@ -153,7 +152,7 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
         # (coeffs_a, None)
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs_a, None), time)
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
@@ -162,7 +161,7 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
         # (None, coeffs_b)
         gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, (None, coeffs_b), time)
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())

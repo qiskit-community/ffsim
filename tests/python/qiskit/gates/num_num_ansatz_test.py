@@ -20,25 +20,26 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(246583475261572787649809156599847353682)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
 def test_random_num_num_ansatz(norb: int, nelec: tuple[int, int]):
     """Test random number-number interaction ansatz gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         pairs_aa = list(itertools.combinations_with_replacement(range(norb), 2))
         pairs_ab = list(itertools.combinations_with_replacement(range(norb), 2))
-        thetas_aa = rng.uniform(-np.pi, np.pi, size=len(pairs_aa))
-        thetas_ab = rng.uniform(-np.pi, np.pi, size=len(pairs_ab))
+        thetas_aa = RNG.uniform(-np.pi, np.pi, size=len(pairs_aa))
+        thetas_ab = RNG.uniform(-np.pi, np.pi, size=len(pairs_ab))
         num_num_ansatz_op = ffsim.NumNumAnsatzOpSpinBalanced(
             norb, interaction_pairs=(pairs_aa, pairs_ab), thetas=(thetas_aa, thetas_ab)
         )
         gate = ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(num_num_ansatz_op)
 
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )

@@ -20,6 +20,8 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(287562854856070651192978344696668967104)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, time, n_steps, order, z_representation",
@@ -43,18 +45,17 @@ def test_random(
     z_representation: bool,
 ):
     """Test random gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     time = 1.0
     for _ in range(3):
         hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
-            norb, rank=norb, z_representation=z_representation, seed=rng
+            norb, rank=norb, z_representation=z_representation, seed=RNG
         )
         gate = ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(
             hamiltonian, time, n_steps=n_steps, order=order
         )
 
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -79,13 +80,12 @@ def test_random(
 
 def test_tol():
     """Test passing tol."""
-    rng = np.random.default_rng()
     norb = 4
     rank = 2
-    generator = 1e-8j * ffsim.random.random_hermitian(norb, seed=rng)
+    generator = 1e-8j * ffsim.random.random_hermitian(norb, seed=RNG)
     orbital_rotation = scipy.linalg.expm(generator)
     hamiltonian = ffsim.DoubleFactorizedHamiltonian(
-        one_body_tensor=1e-8 * ffsim.random.random_hermitian(norb, seed=rng),
+        one_body_tensor=1e-8 * ffsim.random.random_hermitian(norb, seed=RNG),
         diag_coulomb_mats=np.zeros((rank, norb, norb)),
         orbital_rotations=np.tile(orbital_rotation, (rank, 1, 1)),
     )
