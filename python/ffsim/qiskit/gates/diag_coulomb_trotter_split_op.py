@@ -46,6 +46,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
         *,
         n_steps: int = 1,
         order: int = 0,
+        tol: float = 1e-12,
         label: str | None = None,
     ):
         r"""Create diagonal Coulomb split-operator Trotter evolution gate.
@@ -56,6 +57,8 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
             time: The evolution time.
             n_steps: The number of Trotter steps.
             order: The order of the Trotter decomposition.
+            tol: Tolerance for the Givens decomposition of the orbital rotations.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
         """
         if order < 0:
@@ -66,6 +69,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
         self.time = time
         self.n_steps = n_steps
         self.order = order
+        self.tol = tol
         super().__init__(
             "dc_trotter_split_op_jw", 2 * self.hamiltonian.norb, [], label=label
         )
@@ -80,6 +84,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
                 time=self.time,
                 n_steps=self.n_steps,
                 order=self.order,
+                tol=self.tol,
             ),
             qubits=qubits,
         )
@@ -91,6 +96,7 @@ def _simulate_trotter_diag_coulomb_split_op(
     time: float,
     n_steps: int = 1,
     order: int = 0,
+    tol: float = 1e-12,
 ) -> Iterator[CircuitInstruction]:
     if n_steps == 0:
         return
@@ -106,10 +112,11 @@ def _simulate_trotter_diag_coulomb_split_op(
             step_time,
             norb=hamiltonian.norb,
             order=order,
+            tol=tol,
         )
     if not np.all(np.diagonal(current_basis) == 1):
         yield CircuitInstruction(
-            OrbitalRotationJW(hamiltonian.norb, current_basis), qubits
+            OrbitalRotationJW(hamiltonian.norb, current_basis, tol=tol), qubits
         )
     yield CircuitInstruction(GlobalPhaseGate(-time * hamiltonian.constant), [])
 
@@ -122,6 +129,7 @@ def _simulate_trotter_step_diag_coulomb_split_op(
     time: float,
     norb: int,
     order: int,
+    tol: float = 1e-12,
 ) -> Generator[CircuitInstruction, None, np.ndarray]:
     diag_coulomb_aa, diag_coulomb_ab = diag_coulomb_mats
     eye = np.eye(norb)
@@ -131,7 +139,9 @@ def _simulate_trotter_step_diag_coulomb_split_op(
                 scipy.linalg.expm(-1j * time * one_body_tensor) @ current_basis
             )
         else:
-            yield CircuitInstruction(OrbitalRotationJW(norb, current_basis), qubits)
+            yield CircuitInstruction(
+                OrbitalRotationJW(norb, current_basis, tol=tol), qubits
+            )
             yield CircuitInstruction(
                 DiagCoulombEvolutionJW(
                     norb,

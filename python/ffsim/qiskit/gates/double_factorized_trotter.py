@@ -46,6 +46,7 @@ class SimulateTrotterDoubleFactorizedJW(Gate):
         *,
         n_steps: int = 1,
         order: int = 0,
+        tol: float = 1e-12,
         label: str | None = None,
     ):
         r"""Create double-factorized Trotter evolution gate.
@@ -56,6 +57,8 @@ class SimulateTrotterDoubleFactorizedJW(Gate):
             time: The evolution time.
             n_steps: The number of Trotter steps.
             order: The order of the Trotter decomposition.
+            tol: Tolerance for the Givens decomposition of the orbital rotations.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
         """
         if order < 0:
@@ -66,6 +69,7 @@ class SimulateTrotterDoubleFactorizedJW(Gate):
         self.time = time
         self.n_steps = n_steps
         self.order = order
+        self.tol = tol
         super().__init__("df_trotter_jw", 2 * self.hamiltonian.norb, [], label=label)
 
     def _define(self):
@@ -78,6 +82,7 @@ class SimulateTrotterDoubleFactorizedJW(Gate):
                 time=self.time,
                 n_steps=self.n_steps,
                 order=self.order,
+                tol=self.tol,
             ),
             qubits=qubits,
         )
@@ -89,6 +94,7 @@ def _simulate_trotter_double_factorized(
     time: float,
     n_steps: int = 1,
     order: int = 0,
+    tol: float = 1e-12,
 ) -> Iterator[CircuitInstruction]:
     if n_steps == 0:
         return
@@ -106,10 +112,11 @@ def _simulate_trotter_double_factorized(
             norb=hamiltonian.norb,
             order=order,
             z_representation=hamiltonian.z_representation,
+            tol=tol,
         )
     if not np.all(np.diagonal(current_basis) == 1):
         yield CircuitInstruction(
-            OrbitalRotationJW(hamiltonian.norb, current_basis), qubits
+            OrbitalRotationJW(hamiltonian.norb, current_basis, tol=tol), qubits
         )
     yield CircuitInstruction(GlobalPhaseGate(-time * hamiltonian.constant), [])
 
@@ -124,6 +131,7 @@ def _simulate_trotter_step_double_factorized(
     norb: int,
     order: int,
     z_representation: bool,
+    tol: float = 1e-12,
 ) -> Generator[CircuitInstruction, None, np.ndarray]:
     for term_index, time in simulate_trotter_step_iterator(
         1 + len(diag_coulomb_mats), time, order
@@ -135,7 +143,9 @@ def _simulate_trotter_step_double_factorized(
         else:
             orbital_rotation = orbital_rotations[term_index - 1]
             yield CircuitInstruction(
-                OrbitalRotationJW(norb, orbital_rotation.T.conj() @ current_basis),
+                OrbitalRotationJW(
+                    norb, orbital_rotation.T.conj() @ current_basis, tol=tol
+                ),
                 qubits,
             )
             yield CircuitInstruction(
