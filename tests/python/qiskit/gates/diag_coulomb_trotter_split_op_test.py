@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -66,3 +67,22 @@ def test_random(
         )
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_tol():
+    """Test passing tol."""
+    rng = np.random.default_rng()
+    norb = 4
+    hamiltonian = ffsim.DiagonalCoulombHamiltonian(
+        one_body_tensor=1e-8 * ffsim.random.random_hermitian(norb, seed=rng),
+        diag_coulomb_mats=np.zeros((2, norb, norb)),
+    )
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+            hamiltonian, time=1.0, tol=1e-7
+        ),
+        qubits,
+    )
+    assert "xx_plus_yy" not in circuit.decompose(reps=2).count_ops()
