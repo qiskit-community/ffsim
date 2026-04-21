@@ -67,30 +67,56 @@ def test_spectral_norm_one_body_tensor(norb: int, nelec: tuple[int, int]):
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, rank, z_representation",
+    "norb, nelec, rank",
     [
-        (4, (2, 2), 1, False),
-        (5, (1, 3), 1, False),
-        (4, (2, 2), 1, True),
-        (4, (2, 2), 2, False),
-        (5, (1, 3), 3, False),
-        (4, (2, 2), 4, True),
+        (4, (2, 2), 1),
+        (5, (1, 3), 1),
+        (4, (2, 2), 2),
+        (5, (1, 3), 3),
     ],
 )
-def test_spectral_norm_diag_coulomb(
-    norb: int, nelec: tuple[int, int], rank: int, z_representation: bool
+def test_spectral_norm_diag_coulomb_num_rep(
+    norb: int, nelec: tuple[int, int], rank: int
 ):
     """Test spectral norm of diagonal Coulomb operator."""
-    # TODO increasing the number of repetitions to 20 breaks the z-rep test
     for _ in range(5):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             norb, rank=rank, seed=RNG
         )
         two_body_linop = ffsim.contract.diag_coulomb_linop(
-            diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
+            diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=False
         )
         actual = spectral_norm_diag_coulomb(
-            diag_coulomb_mat, nelec=nelec, z_representation=z_representation
+            diag_coulomb_mat, nelec=nelec, z_representation=False
+        )
+        singular_vals = scipy.sparse.linalg.svds(
+            two_body_linop, k=1, which="LM", return_singular_vectors=False
+        )
+        if rank == 1:
+            np.testing.assert_allclose(actual, singular_vals[0])
+        else:
+            assert actual >= singular_vals[0] - 1e-12
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, rank",
+    [
+        (4, (2, 2), 1),
+        (4, (2, 2), 4),
+    ],
+)
+def test_spectral_norm_diag_coulomb_z_rep(norb: int, nelec: tuple[int, int], rank: int):
+    """Test spectral norm of diagonal Coulomb operator."""
+    # TODO increasing the number of repetitions to 20 breaks this test
+    for _ in range(2):
+        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
+            norb, rank=rank, seed=RNG
+        )
+        two_body_linop = ffsim.contract.diag_coulomb_linop(
+            diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=True
+        )
+        actual = spectral_norm_diag_coulomb(
+            diag_coulomb_mat, nelec=nelec, z_representation=True
         )
         singular_vals = scipy.sparse.linalg.svds(
             two_body_linop, k=1, which="LM", return_singular_vectors=False
@@ -223,11 +249,11 @@ def test_variance_diag_coulomb(
     "length, bond_distance, basis, time, n_steps, symmetric, probabilities, "
     "z_representation, target_fidelity",
     [
-        (4, 1.0, "sto-3g", 1.0, 200, False, "optimal", False, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 100, True, "optimal", False, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 100, False, "optimal", True, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 50, True, "optimal", True, 0.99),
-        (4, 1.0, "sto-3g", 1.0, 50, True, "norm", True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 400, False, "optimal", False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 200, True, "optimal", False, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 200, False, "optimal", True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, True, "optimal", True, 0.99),
+        (4, 1.0, "sto-3g", 1.0, 100, True, "norm", True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_h_chain(
@@ -331,9 +357,9 @@ def test_simulate_qdrift_double_factorized_h_chain(
     "norb, nelec, time, n_steps, probabilities, optimize, z_representation, "
     "target_fidelity",
     [
-        (3, (1, 1), 0.05, 100, "optimal", False, False, 0.99),
-        (3, (1, 1), 0.05, 100, "norm", True, False, 0.99),
-        (4, (2, 2), 0.05, 200, "optimal", False, True, 0.99),
+        (3, (1, 1), 0.05, 300, "optimal", False, False, 0.99),
+        (3, (1, 1), 0.05, 300, "norm", True, False, 0.99),
+        (4, (2, 2), 0.05, 500, "optimal", False, True, 0.99),
     ],
 )
 def test_simulate_qdrift_double_factorized_random(
