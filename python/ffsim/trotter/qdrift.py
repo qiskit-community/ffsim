@@ -405,18 +405,16 @@ def spectral_norm_diag_coulomb(
     # decompose the diag Coulomb mat as a sum of squared one-body operators
     one_body_tensors = one_body_square_decomposition(diag_coulomb_mat)
 
-    # for a rank-1 diag Coulomb mat, we can compute the exact spectral norm
+    # for a rank-1 diag Coulomb mat, we can compute the exact spectral norm in the
+    # number representation. In the Z representation we return an upper bound instead.
     if len(one_body_tensors) == 1:
         one_body_tensor = one_body_tensors[0]
         if z_representation:
-            # TODO this abs is probably not necessary
-            return abs(
-                spectral_norm_one_body_tensor(
-                    one_body_tensor, nelec=nelec, z_representation=True
-                )
-                ** 2
-                - 0.25 * np.trace(diag_coulomb_mat)
+            norm_bound = spectral_norm_one_body_tensor(
+                one_body_tensor, nelec=nelec, z_representation=True
             )
+            quarter_trace = 0.25 * np.trace(diag_coulomb_mat)
+            return max(quarter_trace, norm_bound**2 - quarter_trace)
         return spectral_norm_one_body_tensor(one_body_tensor, nelec=nelec) ** 2
 
     # when the rank is greater than one, we only know how to return an upper bound

@@ -107,8 +107,7 @@ def test_spectral_norm_diag_coulomb_num_rep(
 )
 def test_spectral_norm_diag_coulomb_z_rep(norb: int, nelec: tuple[int, int], rank: int):
     """Test spectral norm of diagonal Coulomb operator."""
-    # TODO increasing the number of repetitions to 20 breaks this test
-    for _ in range(2):
+    for _ in range(5):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
             norb, rank=rank, seed=RNG
         )
@@ -121,10 +120,7 @@ def test_spectral_norm_diag_coulomb_z_rep(norb: int, nelec: tuple[int, int], ran
         singular_vals = scipy.sparse.linalg.svds(
             two_body_linop, k=1, which="LM", return_singular_vectors=False
         )
-        if rank == 1:
-            np.testing.assert_allclose(actual, singular_vals[0])
-        else:
-            assert actual >= singular_vals[0] - 1e-12
+        assert actual >= singular_vals[0] - 1e-12
 
 
 @pytest.mark.parametrize(
