@@ -180,7 +180,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
 )
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test with Qiskit gates, spinful."""
-    prng = random.Random(11832)
+    prng = random.Random(RNG.bytes(16))
     pairs = list(itertools.combinations(range(norb), 2))
     prng.shuffle(pairs)
     big_pairs = list(itertools.combinations(range(2 * norb), 2))
@@ -317,7 +317,7 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test with Qiskit gates, spinless."""
-    prng = random.Random(11832)
+    prng = random.Random(RNG.bytes(16))
     pairs = list(itertools.combinations(range(norb), 2))
     prng.shuffle(pairs)
     triples = list(itertools.combinations(range(norb), 3))
