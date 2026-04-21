@@ -402,6 +402,8 @@ class UCJOpSpinless(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
+
+        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
