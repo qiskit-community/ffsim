@@ -16,16 +16,17 @@ import pytest
 import ffsim
 import ffsim.random.random
 
+RNG = np.random.default_rng(61969437871920116688508761617134405155)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
 def test_random(norb: int, nelec: tuple[int, int]):
     """Test on random fermion Hamiltonian."""
-    rng = np.random.default_rng(4482)
-    op = ffsim.random.random_fermion_hamiltonian(norb, seed=rng)
+    op = ffsim.random.random_fermion_hamiltonian(norb, seed=RNG)
     linop = ffsim.linear_operator(op, norb=norb, nelec=nelec)
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     expected_result = ffsim.qiskit.ffsim_vec_to_qiskit_vec(linop @ vec, norb, nelec)
 
     qubit_op = ffsim.qiskit.jordan_wigner(op)
@@ -77,7 +78,6 @@ def test_bad_norb():
 
 def test_hubbard():
     """Test on Hubbard model"""
-    rng = np.random.default_rng(7431)
     norb_x = 2
     norb_y = 2
     norb = norb_x * norb_y
@@ -85,14 +85,14 @@ def test_hubbard():
     op = ffsim.fermi_hubbard_2d(
         norb_x=norb_x,
         norb_y=norb_y,
-        tunneling=rng.uniform(-10, 10),
-        interaction=rng.uniform(-10, 10),
-        chemical_potential=rng.uniform(-10, 10),
-        nearest_neighbor_interaction=rng.uniform(-10, 10),
+        tunneling=RNG.uniform(-10, 10),
+        interaction=RNG.uniform(-10, 10),
+        chemical_potential=RNG.uniform(-10, 10),
+        nearest_neighbor_interaction=RNG.uniform(-10, 10),
         periodic=False,
     )
     linop = ffsim.linear_operator(op, norb=norb, nelec=nelec)
-    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=rng)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     qubit_op = ffsim.qiskit.jordan_wigner(op)
     qubit_op_sparse = qubit_op.to_matrix(sparse=True)
     actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(

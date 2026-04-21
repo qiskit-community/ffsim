@@ -27,6 +27,8 @@ from ffsim.trotter.qdrift import (
     variance_one_body_tensor,
 )
 
+RNG = np.random.default_rng(308889027252660451925526599784898034970)
+
 
 def expectation(
     operator: scipy.sparse.linalg.LinearOperator, state: np.ndarray
@@ -79,11 +81,10 @@ def test_spectral_norm_diag_coulomb(
     norb: int, nelec: tuple[int, int], rank: int, z_representation: bool
 ):
     """Test spectral norm of diagonal Coulomb operator."""
-    rng = np.random.default_rng(5745)
     # TODO increasing the number of repetitions to 20 breaks the z-rep test
     for _ in range(5):
         diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(
-            norb, rank=rank, seed=rng
+            norb, rank=rank, seed=RNG
         )
         two_body_linop = ffsim.contract.diag_coulomb_linop(
             diag_coulomb_mat, norb=norb, nelec=nelec, z_representation=z_representation
@@ -112,12 +113,11 @@ def test_spectral_norm_diag_coulomb(
 )
 def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
     """Test one-body squared decomposition."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
 
     for _ in range(10):
-        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
         one_body_tensors = one_body_square_decomposition(
             diag_coulomb_mat, orbital_rotation
@@ -136,7 +136,7 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
             diag_coulomb_mat, norb=norb, nelec=nelec, orbital_rotation=orbital_rotation
         )
 
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
         np.testing.assert_allclose(actual @ vec, expected @ vec)
 
 
@@ -152,15 +152,13 @@ def test_one_body_squared_decomposition(norb: int, nelec: tuple[int, int]):
 def test_variance_one_body_tensor(norb: int, nelec: tuple[int, int]):
     """Test variance of one-body tensor."""
     n_alpha, n_beta = nelec
-    rng = np.random.default_rng()
-
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     one_body_linop = ffsim.contract.one_body_linop(
         one_body_tensor, norb=norb, nelec=nelec
     )
 
     # generate a random Slater determinant
-    vecs = ffsim.random.random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=RNG)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
@@ -190,13 +188,11 @@ def test_variance_diag_coulomb(
 ):
     """Test variance of two-body tensor."""
     n_alpha, n_beta = nelec
-    rng = np.random.default_rng()
-
-    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
     # generate a random Slater determinant
-    vecs = ffsim.random.random_unitary(norb, seed=rng)
+    vecs = ffsim.random.random_unitary(norb, seed=RNG)
     occupied_orbitals_a = vecs[:, :n_alpha]
     occupied_orbitals_b = vecs[:, :n_beta]
     one_rdm_a = occupied_orbitals_a.conj() @ occupied_orbitals_a.T
@@ -245,7 +241,6 @@ def test_simulate_qdrift_double_factorized_h_chain(
     z_representation: bool,
     target_fidelity: float,
 ):
-    rng = np.random.default_rng(1733)
     mol = gto.Mole()
     mol.build(
         verbose=0,
@@ -299,7 +294,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
         symmetric=symmetric,
         probabilities=probabilities,
         one_rdm=one_rdm,
-        seed=rng,
+        seed=RNG,
     )
 
     # check that initial state was not modified
@@ -322,7 +317,7 @@ def test_simulate_qdrift_double_factorized_h_chain(
         probabilities=probabilities,
         one_rdm=one_rdm,
         n_samples=2,
-        seed=rng,
+        seed=RNG,
     )
 
     # check agreement
@@ -351,13 +346,12 @@ def test_simulate_qdrift_double_factorized_random(
     z_representation: bool,
     target_fidelity: float,
 ):
-    rng = np.random.default_rng(2030)
     # generate random Hamiltonian
     # TODO test with complex one-body tensor fails due to the following issue
     # https://github.com/qiskit-community/ffsim/issues/14
-    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
     two_body_tensor = ffsim.random.random_two_body_tensor(
-        norb, rank=norb, seed=rng, dtype=float
+        norb, rank=norb, seed=RNG, dtype=float
     )
     mol_hamiltonian = ffsim.MolecularHamiltonian(one_body_tensor, two_body_tensor)
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
@@ -399,7 +393,7 @@ def test_simulate_qdrift_double_factorized_random(
         symmetric=True,
         probabilities=probabilities,
         one_rdm=one_rdm,
-        seed=rng,
+        seed=RNG,
     )
 
     # check that initial state was not modified
