@@ -29,17 +29,31 @@ def test_random(norb: int, nelec: tuple[int, int]):
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     expected_result = ffsim.qiskit.ffsim_vec_to_qiskit_vec(linop @ vec, norb, nelec)
 
-    qubit_op = ffsim.qiskit.jordan_wigner(op)
+    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
     qubit_op_sparse = qubit_op.to_matrix(sparse=True)
     actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
         vec, norb, nelec
     )
     np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
 
-    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
+
+@pytest.mark.parametrize("norb", range(5))
+def test_inferred_norb(norb: int):
+    """Test that norb is correctly inferred from the operator when not specified."""
+    op = ffsim.random.random_fermion_hamiltonian(norb, seed=RNG)
+    norb_in_op = (1 + max(orb for term in op for _, _, orb in term)) if op else 0
+    nelec = (norb_in_op // 2, norb_in_op - norb_in_op // 2)
+    linop = ffsim.linear_operator(op, norb=norb_in_op, nelec=nelec)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb_in_op, nelec), seed=RNG)
+    expected_result = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+        linop @ vec, norb_in_op, nelec
+    )
+
+    qubit_op = ffsim.qiskit.jordan_wigner(op)
+    assert qubit_op.num_qubits == 2 * norb_in_op
     qubit_op_sparse = qubit_op.to_matrix(sparse=True)
     actual_result = qubit_op_sparse @ ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-        vec, norb, nelec
+        vec, norb_in_op, nelec
     )
     np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
 
