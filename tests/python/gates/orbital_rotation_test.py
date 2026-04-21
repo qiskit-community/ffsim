@@ -23,6 +23,8 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states import slater_determinant
 
+RNG = np.random.default_rng(125518952074177759733155483194098165391)
+
 
 def _orbital_rotation_generator(mat: np.ndarray, spin: bool) -> ffsim.FermionOperator:
     norb, _ = mat.shape
@@ -38,11 +40,10 @@ def _orbital_rotation_generator(mat: np.ndarray, spin: bool) -> ffsim.FermionOpe
 )
 def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]):
     """Test applying orbital rotation is consistent one-body linear operator."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
+        mat = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
 
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
         if norb:
@@ -61,11 +62,10 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
 )
 def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
     """Test applying random orbital rotation yields correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nocc)
     for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
+        mat = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
         if norb:
             gen = _orbital_rotation_generator(scipy.linalg.logm(mat), spin=False)
             op = ffsim.linear_operator(gen, norb=norb, nelec=(nocc, 0))
@@ -79,12 +79,11 @@ def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
 )
 def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test applying random orbital rotation yields correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat_a = ffsim.random.random_unitary(norb, seed=rng)
-        mat_b = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
+        mat_a = ffsim.random.random_unitary(norb, seed=RNG)
+        mat_b = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
 
         if norb:
             gen_a = _orbital_rotation_generator(scipy.linalg.logm(mat_a), spin=False)
@@ -129,11 +128,10 @@ def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]
 )
 def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int, int]):
     """Test applying orbital basis change doesn't modify the original vector."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim, seed=rng)
+        mat = ffsim.random.random_unitary(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim, seed=RNG)
         original_vec = vec.copy()
         _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
         np.testing.assert_allclose(vec, original_vec)
@@ -142,14 +140,13 @@ def test_apply_orbital_rotation_no_side_effects_vec(norb: int, nelec: tuple[int,
 def test_apply_orbital_rotation_eigenstates():
     """Test applying orbital basis change prepares eigenstates of one-body tensor."""
     norb = 5
-    rng = np.random.default_rng()
     for _ in range(5):
-        nelec = ffsim.testing.random_nelec(norb, seed=rng)
+        nelec = ffsim.testing.random_nelec(norb, seed=RNG)
         occupied_orbitals = ffsim.testing.random_occupied_orbitals(
-            norb, nelec, seed=rng
+            norb, nelec, seed=RNG
         )
         occ_a, occ_b = occupied_orbitals
-        one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+        one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
         eigs, vecs = scipy.linalg.eigh(one_body_tensor)
         eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
         state = slater_determinant(norb, occupied_orbitals)
@@ -168,14 +165,13 @@ def test_apply_orbital_rotation_eigenstates():
 def test_apply_orbital_rotation_compose():
     """Test composing orbital basis changes."""
     norb = 5
-    rng = np.random.default_rng()
     for _ in range(5):
-        basis_change_1 = ffsim.random.random_unitary(norb, seed=rng)
-        basis_change_2 = ffsim.random.random_unitary(norb, seed=rng)
+        basis_change_1 = ffsim.random.random_unitary(norb, seed=RNG)
+        basis_change_2 = ffsim.random.random_unitary(norb, seed=RNG)
 
-        nelec = ffsim.testing.random_nelec(norb, seed=rng)
+        nelec = ffsim.testing.random_nelec(norb, seed=RNG)
         dim = ffsim.dim(norb, nelec)
-        state = ffsim.random.random_state_vector(dim, seed=rng)
+        state = ffsim.random.random_state_vector(dim, seed=RNG)
 
         result = ffsim.apply_orbital_rotation(state, basis_change_1, norb, nelec)
         result = ffsim.apply_orbital_rotation(
@@ -216,9 +212,8 @@ def test_apply_orbital_rotation_no_side_effects_mat():
     nelec = 5, 5
     vec = ffsim.hartree_fock_state(norb, nelec)
 
-    rng = np.random.default_rng()
     for _ in range(5):
-        mat = ffsim.random.random_unitary(norb, seed=rng)
+        mat = ffsim.random.random_unitary(norb, seed=RNG)
         original_mat = mat.copy()
         _ = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
 
@@ -254,10 +249,9 @@ def test_apply_orbital_rotation_large_spinful_regression():
     nelec = 6, 6
     dim = ffsim.dim(norb, nelec)
 
-    rng = np.random.default_rng(123)
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
-    mat_a = ffsim.random.random_unitary(norb, seed=rng)
-    mat_b = ffsim.random.random_unitary(norb, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
+    mat_a = ffsim.random.random_unitary(norb, seed=RNG)
+    mat_b = ffsim.random.random_unitary(norb, seed=RNG)
 
     result = ffsim.apply_orbital_rotation(vec, (mat_a, mat_b), norb, nelec)
     np.testing.assert_allclose(np.linalg.norm(result), 1.0)

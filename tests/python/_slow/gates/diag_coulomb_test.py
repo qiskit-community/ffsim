@@ -27,27 +27,28 @@ from ffsim._slow.gates.diag_coulomb import (
     apply_diag_coulomb_evolution_in_place_z_rep_slow,
 )
 
+RNG = np.random.default_rng(114578808861875541540322785902551571980)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
 def test_apply_diag_coulomb_evolution_num_rep_slow(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diagonal Coulomb operator."""
-    rng = np.random.default_rng(40541)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
     occupations_a = _cistring.gen_occslst(range(norb), n_alpha)
     occupations_b = _cistring.gen_occslst(range(norb), n_beta)
     for _ in range(5):
-        time = rng.uniform(-10, 10)
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        time = RNG.uniform(-10, 10)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
@@ -77,21 +78,20 @@ def test_apply_diag_coulomb_evolution_num_rep_slow(norb: int, nelec: tuple[int, 
 )
 def test_apply_diag_coulomb_evolution_z_rep_slow(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diagonal Coulomb operator."""
-    rng = np.random.default_rng(744)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
     strings_a = _cistring.make_strings(range(norb), n_alpha)
     strings_b = _cistring.make_strings(range(norb), n_beta)
     for _ in range(5):
-        time = rng.uniform(-10, 10)
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        time = RNG.uniform(-10, 10)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
@@ -127,21 +127,20 @@ def test_apply_diag_coulomb_evolution_z_rep_slow(norb: int, nelec: tuple[int, in
 )
 def test_apply_diag_coulomb_evolution_num_rep_numpy(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of diag Coulomb operator, numpy implementation."""
-    rng = np.random.default_rng(31267)
     n_alpha, n_beta = nelec
     dim_a = math.comb(norb, n_alpha)
     dim_b = math.comb(norb, n_beta)
     occupations_a = _cistring.gen_occslst(range(norb), n_alpha)
     occupations_b = _cistring.gen_occslst(range(norb), n_beta)
     for _ in range(5):
-        time = rng.uniform(-10, 10)
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
+        time = RNG.uniform(-10, 10)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
         mat_exp_aa = np.exp(-1j * time * mat_aa)
         mat_exp_ab = np.exp(-1j * time * mat_ab)
         mat_exp_bb = np.exp(-1j * time * mat_bb)
-        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
