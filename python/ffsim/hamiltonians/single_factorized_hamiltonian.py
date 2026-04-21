@@ -47,16 +47,15 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
 
     where each :math:`M^{(t)}` is a Hermitian matrix.
 
-    Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
-        one_body_squares (np.ndarray): The one-body tensors :math:`M^{(t)}` whose
-            squares are summed in the Hamiltonian.
-        constant (float): The constant.
     """
 
     one_body_tensor: np.ndarray
+    r"""The one-body tensor :math:`\kappa`."""
     one_body_squares: np.ndarray
+    r"""The one-body tensors :math:`M^{(t)}` whose squares are summed in the
+    Hamiltonian."""
     constant: float = 0.0
+    """The constant."""
 
     @property
     def norb(self) -> int:

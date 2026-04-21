@@ -35,14 +35,6 @@ class HopGateAnsatzOperator(
     spin beta orbitals. It was designed to be used with entanglement forging (see
     the references).
 
-    Attributes:
-        norb (int): The number of spatial orbitals.
-        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the hop
-            gates to.
-        thetas (np.ndarray): The rotation angles for the hop gates.
-        final_orbital_rotation (np.ndarray): An optional final orbital rotation to
-            append to the ansatz, used to optimize the orbital basis.
-
     References:
         - `Eddins et al., "Doubling the Size of Quantum Simulators by Entanglement Forging" (2022)`_
 
@@ -51,9 +43,14 @@ class HopGateAnsatzOperator(
     """  # noqa: E501
 
     norb: int
+    """The number of spatial orbitals."""
     interaction_pairs: list[tuple[int, int]]
+    """The orbital pairs to apply the hop gates to."""
     thetas: np.ndarray
+    """The rotation angles for the hop gates."""
     final_orbital_rotation: np.ndarray | None = None
+    """An optional final orbital rotation to append to the ansatz, used to optimize
+    the orbital basis."""
 
     def _apply_unitary_(
         self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
