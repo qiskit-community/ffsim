@@ -14,7 +14,7 @@ Documentation is located at the [project website](https://qiskit-community.githu
 
 <!-- start installation -->
 
-On Linux and macOS, you can install ffsim using pip:
+On Linux and macOS you can install ffsim using pip:
 
 ```bash
 pip install ffsim
