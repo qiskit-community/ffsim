@@ -21,7 +21,7 @@ from ffsim._lib import (
 from ffsim._slow.gates.orbital_rotation import apply_givens_rotation_in_place_slow
 from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
 
-RNG = np.random.default_rng(218457246147716556144278714704017407306)
+RNG = np.random.default_rng(195198474930785014673895260425575371540)
 
 
 def test_apply_givens_rotation_in_place_slow():

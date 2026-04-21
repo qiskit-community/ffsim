@@ -20,7 +20,7 @@ import pytest
 import ffsim
 from ffsim.states.bitstring import BitstringType
 
-RNG = np.random.default_rng(231495954192882649020267795547836811344)
+RNG = np.random.default_rng(84802403388088473552498444996456845651)
 
 
 @pytest.mark.parametrize(

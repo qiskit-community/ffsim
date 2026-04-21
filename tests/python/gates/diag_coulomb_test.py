@@ -21,7 +21,7 @@ import scipy.sparse.linalg
 
 import ffsim
 
-RNG = np.random.default_rng(210948038748721996009453002937838898704)
+RNG = np.random.default_rng(292658334274787324534903727550980589706)
 
 
 @pytest.mark.parametrize(

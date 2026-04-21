@@ -21,7 +21,7 @@ import scipy.sparse.linalg
 
 import ffsim
 
-RNG = np.random.default_rng(38008015894980849163476786550719547568)
+RNG = np.random.default_rng(122876587820755543368795580021809321038)
 
 
 def assert_has_two_orbital_matrix(

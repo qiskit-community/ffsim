@@ -19,7 +19,7 @@ import pytest
 
 import ffsim
 
-RNG = np.random.default_rng(66951516488404785947596221830894117530)
+RNG = np.random.default_rng(53988631206851184959832541943701474254)
 
 
 @pytest.mark.parametrize(

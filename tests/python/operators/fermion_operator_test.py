@@ -18,7 +18,7 @@ import pytest
 import ffsim
 from ffsim import FermionOperator
 
-RNG = np.random.default_rng(29435539612092344901653985996932170379)
+RNG = np.random.default_rng(308444818162923832831691142041679886023)
 
 
 def test_add():

@@ -29,7 +29,7 @@ from qiskit.primitives import StatevectorSampler
 
 import ffsim
 
-RNG = np.random.default_rng(137416770190023538209099300955283429942)
+RNG = np.random.default_rng(135945631560152727139623905318605245468)
 
 
 def _fidelity(probs1: dict, probs2: dict) -> float:
@@ -53,7 +53,6 @@ def _brickwork(norb: int, n_layers: int):
 )
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with random gates."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
@@ -132,7 +131,6 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test sampler with random spinless gates."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     interaction_pairs = list(_brickwork(norb, norb))
@@ -189,7 +187,6 @@ def test_random_gates_spinless(norb: int, nocc: int):
 )
 def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
     """Test measuring a subset of qubits."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
@@ -243,7 +240,6 @@ def test_measure_subset_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_measure_subset_spinless(norb: int, nocc: int):
     """Test measuring a subset of qubits, spinless."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(
@@ -301,7 +297,6 @@ def test_global_depolarizing(
     norb: int, nelec: tuple[int, int], global_depolarizing: float
 ):
     """Test sampler with global depolarizing noise."""
-
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
@@ -345,7 +340,6 @@ def test_global_depolarizing(
 
 def test_reproducible_with_seed():
     """Test sampler with random gates."""
-
     norb = 4
     nelec = (2, 2)
 
@@ -408,7 +402,6 @@ def test_edge_cases():
 )
 def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test sampler with Qiskit gates, spinful."""
-
     # Construct circuit
     qubits = QuantumRegister(2 * norb)
     circuit = QuantumCircuit(qubits)
@@ -485,7 +478,6 @@ def test_qiskit_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_qiskit_gates_spinless(norb: int, nocc: int):
     """Test sampler with Qiskit gates, spinless."""
-
     # Construct circuit
     qubits = QuantumRegister(norb)
     circuit = QuantumCircuit(qubits)

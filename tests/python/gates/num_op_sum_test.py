@@ -22,7 +22,7 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states.spin import pair_for_spin
 
-RNG = np.random.default_rng(54936726470442088928873806245777808982)
+RNG = np.random.default_rng(23953771903670759356531587606188530886)
 
 
 @pytest.mark.parametrize(

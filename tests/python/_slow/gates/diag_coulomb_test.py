@@ -27,7 +27,7 @@ from ffsim._slow.gates.diag_coulomb import (
     apply_diag_coulomb_evolution_in_place_z_rep_slow,
 )
 
-RNG = np.random.default_rng(255755772925054783588105067862306426602)
+RNG = np.random.default_rng(114578808861875541540322785902551571980)
 
 
 @pytest.mark.parametrize(

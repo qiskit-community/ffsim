@@ -18,7 +18,7 @@ import scipy.sparse.linalg
 
 import ffsim
 
-RNG = np.random.default_rng(124723489227278663416473729558309155987)
+RNG = np.random.default_rng(59409857034680041709746050388110385019)
 
 
 @pytest.mark.parametrize(
@@ -37,7 +37,6 @@ def test_random(
     order: int,
     atol: float,
 ):
-
     # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
     one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
@@ -85,7 +84,6 @@ def test_random(
 
 
 def test_hubbard():
-
     hubbard_model = ffsim.fermi_hubbard_2d(
         norb_x=3,
         norb_y=3,

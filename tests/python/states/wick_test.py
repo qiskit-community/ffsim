@@ -20,7 +20,7 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states.wick import expectation_one_body_power, expectation_one_body_product
 
-RNG = np.random.default_rng(128190988973967509227642835569417102895)
+RNG = np.random.default_rng(312667529368813433856332789101495122132)
 
 
 @pytest.mark.parametrize(

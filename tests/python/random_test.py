@@ -21,7 +21,7 @@ import pytest
 
 import ffsim
 
-RNG = np.random.default_rng(280996458591531712403898936288775160509)
+RNG = np.random.default_rng(316042750382801529624398161754791060982)
 
 
 def assert_t2_has_correct_symmetry(t2: np.ndarray):

@@ -21,7 +21,7 @@ from ffsim import _cistring
 from ffsim._lib import contract_num_op_sum_spin_into_buffer
 from ffsim._slow.contract.num_op_sum import contract_num_op_sum_spin_into_buffer_slow
 
-RNG = np.random.default_rng(4445452238846373791784574700353952459)
+RNG = np.random.default_rng(135548475951775547683209560954712292073)
 
 
 def test_contract_num_op_sum_spin_into_buffer_slow():

@@ -19,7 +19,7 @@ import pytest
 
 import ffsim
 
-RNG = np.random.default_rng(49357187488120312879382818957408575746)
+RNG = np.random.default_rng(169273111718651392627598708290856329828)
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,6 @@ RNG = np.random.default_rng(49357187488120312879382818957408575746)
 )
 def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     """Test linear operator."""
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=RNG, dtype=float
     )
@@ -62,7 +61,6 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
 )
 def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     """Test computing reduced matrix on product states."""
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=RNG, dtype=float
     )
@@ -109,7 +107,6 @@ def test_expectation_product_state_slater_determinant(
     norb: int, nelec: tuple[int, int]
 ):
     """Test computing expectation value on Slater determinant product state."""
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=RNG, dtype=float
     )
@@ -143,7 +140,6 @@ def test_expectation_product_state_slater_determinant(
 )
 def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     """Test computing expectation value on product state."""
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
         norb, seed=RNG, dtype=float
     )

@@ -51,7 +51,7 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
-RNG = np.random.default_rng(126137650299720508985482567879716850071)
+RNG = np.random.default_rng(26315741277058578238401729559131932765)
 
 
 def _brickwork(norb: int, n_layers: int):
@@ -66,7 +66,6 @@ def _brickwork(norb: int, n_layers: int):
 )
 def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     """Test with random gates."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     diag_coulomb_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
@@ -132,7 +131,6 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_random_gates_spinless(norb: int, nocc: int):
     """Test with random spinless gates."""
-
     # Initialize test objects
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     interaction_pairs = list(_brickwork(norb, norb))

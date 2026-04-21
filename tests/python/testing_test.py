@@ -17,7 +17,7 @@ import pytest
 
 import ffsim
 
-RNG = np.random.default_rng(118618998178774302696786466563464388521)
+RNG = np.random.default_rng(110092394358633943793256893885529611049)
 
 
 def test_assert_allclose_up_to_global_phase():

@@ -23,7 +23,7 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states import slater_determinant
 
-RNG = np.random.default_rng(299906757265886396768735651884734500862)
+RNG = np.random.default_rng(125518952074177759733155483194098165391)
 
 
 def _orbital_rotation_generator(mat: np.ndarray, spin: bool) -> ffsim.FermionOperator:

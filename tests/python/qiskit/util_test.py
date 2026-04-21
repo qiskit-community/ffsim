@@ -14,7 +14,7 @@ import numpy as np
 
 import ffsim
 
-RNG = np.random.default_rng(526378041291973255997056677367563914)
+RNG = np.random.default_rng(235867053685162325584905064598944895546)
 
 
 def test_ffsim_to_qiskit_roundtrip():

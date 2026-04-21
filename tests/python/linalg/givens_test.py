@@ -22,7 +22,7 @@ from scipy.linalg.lapack import zrot
 import ffsim
 from ffsim.linalg import givens_decomposition
 
-RNG = np.random.default_rng(70553648517091672823050930667634482183)
+RNG = np.random.default_rng(145192569164181441104242148618648061604)
 
 
 def reconstruct_orbital_rotation(

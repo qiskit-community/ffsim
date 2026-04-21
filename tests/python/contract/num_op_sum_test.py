@@ -20,7 +20,7 @@ import pytest
 
 import ffsim
 
-RNG = np.random.default_rng(45919151480494240944540973497175394703)
+RNG = np.random.default_rng(102040508764354003843213099464340638721)
 
 
 @pytest.mark.parametrize("norb", [4, 5])

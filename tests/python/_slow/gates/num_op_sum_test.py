@@ -19,7 +19,7 @@ from ffsim import _cistring
 from ffsim._lib import apply_num_op_sum_evolution_in_place
 from ffsim._slow.gates.num_op_sum import apply_num_op_sum_evolution_in_place_slow
 
-RNG = np.random.default_rng(243172488786976197564100876236563224581)
+RNG = np.random.default_rng(187623363224105294377845072749466012434)
 
 
 def test_apply_num_op_sum_evolution_in_place_slow():

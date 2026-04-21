@@ -18,7 +18,7 @@ import pytest
 import ffsim
 from ffsim.states.bitstring import convert_bitstring_type
 
-RNG = np.random.default_rng(291150469124652350272054627599441552339)
+RNG = np.random.default_rng(133036212131585539453191767426464648177)
 
 
 def test_addresses_to_strings_int_spinless():

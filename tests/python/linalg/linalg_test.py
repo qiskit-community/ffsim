@@ -19,7 +19,7 @@ import scipy.sparse
 
 import ffsim
 
-RNG = np.random.default_rng(22454456690729226156993402332781385655)
+RNG = np.random.default_rng(21131415246441775736488838123610662270)
 
 
 def test_lup():

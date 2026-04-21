@@ -27,7 +27,7 @@ from ffsim._slow.contract.diag_coulomb import (
     contract_diag_coulomb_into_buffer_z_rep_slow,
 )
 
-RNG = np.random.default_rng(153364921919814634290676972255542859633)
+RNG = np.random.default_rng(284358932940250752909122492609338962885)
 
 
 def test_contract_diag_coulomb_into_buffer_num_rep_slow():
