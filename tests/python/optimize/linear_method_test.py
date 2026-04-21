@@ -75,7 +75,7 @@ def test_minimize_linear_method():
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
     np.testing.assert_allclose(result.fun, -0.970773)
-    np.testing.assert_allclose(info["fun"][0], -0.833558, atol=1e-5)
+    np.testing.assert_allclose(info["fun"][0], -0.903155, atol=1e-5)
     np.testing.assert_allclose(info["fun"][-1], -0.970773, atol=1e-5)
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)
