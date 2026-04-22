@@ -94,6 +94,27 @@ def contract_num_op_sum_spin_into_buffer(
     occupations: np.ndarray,
     out: np.ndarray,
 ) -> None: ...
+def contract_fermion_operator_into_buffer(
+    vec: np.ndarray,
+    scalar_coeffs: np.ndarray,
+    alpha_only_src: np.ndarray,
+    alpha_only_dst: np.ndarray,
+    alpha_only_scale: np.ndarray,
+    beta_only_src: np.ndarray,
+    beta_only_dst: np.ndarray,
+    beta_only_scale: np.ndarray,
+    mixed_coeffs: np.ndarray,
+    mixed_alpha_indptr: np.ndarray,
+    mixed_alpha_src: np.ndarray,
+    mixed_alpha_dst: np.ndarray,
+    mixed_alpha_phase: np.ndarray,
+    mixed_beta_indptr: np.ndarray,
+    mixed_beta_src: np.ndarray,
+    mixed_beta_dst: np.ndarray,
+    mixed_beta_phase: np.ndarray,
+    out: np.ndarray,
+    reverse: bool,
+) -> None: ...
 def jordan_wigner_qiskit(
     op: FermionOperator, norb: int, tol: float = ...
 ) -> tuple[list[tuple[str, list[int], complex]], int]: ...
