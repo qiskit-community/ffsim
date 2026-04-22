@@ -45,16 +45,14 @@ class MolecularHamiltonian(
 
     Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called
     the two-body tensor.
-
-    Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor.
-        two_body_tensor (np.ndarray): The two-body tensor.
-        constant (float): The constant.
     """
 
     one_body_tensor: np.ndarray
+    """The one-body tensor."""
     two_body_tensor: np.ndarray
+    """The two-body tensor."""
     constant: float = 0.0
+    """The constant."""
 
     @property
     def norb(self) -> int:
@@ -275,15 +273,14 @@ class MolecularHamiltonianSpinless(
     Here :math:`h_{pq}` is called the one-body tensor and :math:`h_{pqrs}` is called
     the two-body tensor.
 
-    Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor.
-        two_body_tensor (np.ndarray): The two-body tensor.
-        constant (float): The constant.
     """
 
     one_body_tensor: np.ndarray
+    """The one-body tensor."""
     two_body_tensor: np.ndarray
+    """The two-body tensor."""
     constant: float = 0.0
+    """The constant."""
 
     @property
     def norb(self) -> int:

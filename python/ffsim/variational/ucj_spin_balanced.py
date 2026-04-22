@@ -62,18 +62,6 @@ class UCJOpSpinBalanced(
     To support variational optimization of the orbital basis, an optional final
     orbital rotation can be included in the operator, to be performed at the end.
 
-    Attributes:
-        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices, as a Numpy array
-            of shape ``(n_reps, 2, norb, norb)``
-            The last two axes index the rows and columns of
-            the matrices, and the third from last axis, which has 2 dimensions, indexes
-            the spin interaction type of the matrix: alpha-alpha, and then alpha-beta.
-            The first axis indexes the ansatz repetitions.
-        orbital_rotations (np.ndarray): The orbital rotations, as a Numpy array
-            of shape ``(n_reps, norb, norb)``.
-        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape ``(norb, norb)``.
-
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
             skips validation, which is useful if you need to create many instances
@@ -83,8 +71,16 @@ class UCJOpSpinBalanced(
     """
 
     diag_coulomb_mats: np.ndarray  # shape: (n_reps, 2, norb, norb)
+    """The diagonal Coulomb matrices, as a Numpy array of shape
+    ``(n_reps, 2, norb, norb)``. The last two axes index the rows and columns of the
+    matrices, and the third from last axis, which has 2 dimensions, indexes the spin
+    interaction type of the matrix: alpha-alpha, and then alpha-beta. The first axis
+    indexes the ansatz repetitions."""
     orbital_rotations: np.ndarray  # shape: (n_reps, norb, norb)
+    """The orbital rotations, as a Numpy array of shape ``(n_reps, norb, norb)``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(norb, norb)``."""
     validate: InitVar[bool] = True
     rtol: InitVar[float] = 1e-5
     atol: InitVar[float] = 1e-8
