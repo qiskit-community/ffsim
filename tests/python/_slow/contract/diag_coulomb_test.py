@@ -27,22 +27,23 @@ from ffsim._slow.contract.diag_coulomb import (
     contract_diag_coulomb_into_buffer_z_rep_slow,
 )
 
+RNG = np.random.default_rng(284358932940250752909122492609338962885)
+
 
 def test_contract_diag_coulomb_into_buffer_num_rep_slow():
     """Test contracting diag Coulomb operator."""
     norb = 5
-    rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
+        n_alpha = RNG.integers(1, norb + 1)
+        n_beta = RNG.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
         occupations_a = _cistring.gen_occslst(range(norb), n_alpha)
         occupations_b = _cistring.gen_occslst(range(norb), n_beta)
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         out_slow = np.zeros_like(vec)
@@ -73,18 +74,17 @@ def test_contract_diag_coulomb_into_buffer_num_rep_slow():
 def test_contract_diag_coulomb_into_buffer_z_rep_slow():
     """Test contracting diag Coulomb operator."""
     norb = 5
-    rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
+        n_alpha = RNG.integers(1, norb + 1)
+        n_beta = RNG.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
         strings_a = _cistring.make_strings(range(norb), n_alpha)
         strings_b = _cistring.make_strings(range(norb), n_beta)
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        vec = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         out_slow = np.zeros_like(vec)

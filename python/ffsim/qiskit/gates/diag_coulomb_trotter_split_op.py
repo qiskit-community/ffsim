@@ -27,7 +27,6 @@ from qiskit.circuit.library import GlobalPhaseGate
 
 from ffsim.hamiltonians import DiagonalCoulombHamiltonian
 from ffsim.qiskit.gates.diag_coulomb import DiagCoulombEvolutionJW
-from ffsim.qiskit.gates.num_op_sum import NumOpSumEvolutionJW
 from ffsim.qiskit.gates.orbital_rotation import OrbitalRotationJW
 from ffsim.trotter._util import simulate_trotter_step_iterator
 
@@ -47,6 +46,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
         *,
         n_steps: int = 1,
         order: int = 0,
+        tol: float = 1e-12,
         label: str | None = None,
     ):
         r"""Create diagonal Coulomb split-operator Trotter evolution gate.
@@ -57,6 +57,8 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
             time: The evolution time.
             n_steps: The number of Trotter steps.
             order: The order of the Trotter decomposition.
+            tol: Tolerance for the Givens decomposition of the orbital rotations.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
         """
         if order < 0:
@@ -67,6 +69,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
         self.time = time
         self.n_steps = n_steps
         self.order = order
+        self.tol = tol
         super().__init__(
             "dc_trotter_split_op_jw", 2 * self.hamiltonian.norb, [], label=label
         )
@@ -81,6 +84,7 @@ class SimulateTrotterDiagCoulombSplitOpJW(Gate):
                 time=self.time,
                 n_steps=self.n_steps,
                 order=self.order,
+                tol=self.tol,
             ),
             qubits=qubits,
         )
@@ -92,55 +96,52 @@ def _simulate_trotter_diag_coulomb_split_op(
     time: float,
     n_steps: int = 1,
     order: int = 0,
+    tol: float = 1e-12,
 ) -> Iterator[CircuitInstruction]:
     if n_steps == 0:
         return
 
-    one_body_energies, one_body_basis_change = scipy.linalg.eigh(
-        hamiltonian.one_body_tensor
-    )
     step_time = time / n_steps
-
     current_basis = np.eye(hamiltonian.norb, dtype=complex)
     for _ in range(n_steps):
         current_basis = yield from _simulate_trotter_step_diag_coulomb_split_op(
             qubits,
             current_basis,
-            one_body_energies,
-            one_body_basis_change,
+            hamiltonian.one_body_tensor,
             hamiltonian.diag_coulomb_mats,
             step_time,
             norb=hamiltonian.norb,
             order=order,
+            tol=tol,
         )
-    yield CircuitInstruction(OrbitalRotationJW(hamiltonian.norb, current_basis), qubits)
+    if not np.all(np.diagonal(current_basis) == 1):
+        yield CircuitInstruction(
+            OrbitalRotationJW(hamiltonian.norb, current_basis, tol=tol), qubits
+        )
     yield CircuitInstruction(GlobalPhaseGate(-time * hamiltonian.constant), [])
 
 
 def _simulate_trotter_step_diag_coulomb_split_op(
     qubits: Sequence[Qubit],
     current_basis: np.ndarray,
-    one_body_energies: np.ndarray,
-    one_body_basis_change: np.ndarray,
+    one_body_tensor: np.ndarray,
     diag_coulomb_mats: np.ndarray,
     time: float,
     norb: int,
     order: int,
+    tol: float = 1e-12,
 ) -> Generator[CircuitInstruction, None, np.ndarray]:
     diag_coulomb_aa, diag_coulomb_ab = diag_coulomb_mats
     eye = np.eye(norb)
     for term_index, time in simulate_trotter_step_iterator(2, time, order):
         if term_index == 0:
-            yield CircuitInstruction(
-                OrbitalRotationJW(norb, one_body_basis_change.T.conj() @ current_basis),
-                qubits,
+            current_basis = (
+                scipy.linalg.expm(-1j * time * one_body_tensor) @ current_basis
             )
-            yield CircuitInstruction(
-                NumOpSumEvolutionJW(norb, coeffs=one_body_energies, time=time), qubits
-            )
-            current_basis = one_body_basis_change
         else:
-            yield CircuitInstruction(OrbitalRotationJW(norb, current_basis), qubits)
+            yield CircuitInstruction(
+                OrbitalRotationJW(norb, current_basis, tol=tol), qubits
+            )
             yield CircuitInstruction(
                 DiagCoulombEvolutionJW(
                     norb,

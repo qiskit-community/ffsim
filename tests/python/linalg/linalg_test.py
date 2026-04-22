@@ -19,11 +19,12 @@ import scipy.sparse
 
 import ffsim
 
+RNG = np.random.default_rng(21131415246441775736488838123610662270)
+
 
 def test_lup():
     dim = 5
-    rng = np.random.default_rng()
-    mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
+    mat = RNG.standard_normal((dim, dim)) + 1j * RNG.standard_normal((dim, dim))
     ell, u, p = ffsim.linalg.lup(mat)
     np.testing.assert_allclose(ell @ u @ p, mat)
     np.testing.assert_allclose(np.diagonal(ell), np.ones(dim))
@@ -32,10 +33,9 @@ def test_lup():
 def test_reduced_matrix():
     big_dim = 20
     small_dim = 5
-    rng = np.random.default_rng()
-    mat = scipy.sparse.random(big_dim, big_dim, random_state=rng)
+    mat = scipy.sparse.random(big_dim, big_dim, random_state=RNG)
     vecs = [
-        rng.standard_normal(big_dim) + 1j * rng.standard_normal(big_dim)
+        RNG.standard_normal(big_dim) + 1j * RNG.standard_normal(big_dim)
         for _ in range(small_dim)
     ]
     reduced_mat = ffsim.linalg.reduced_matrix(mat, vecs)

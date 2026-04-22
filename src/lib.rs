@@ -41,6 +41,10 @@ fn _lib(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(linalg::givens::givens_decomposition, m)?)?;
     m.add_function(wrap_pyfunction!(
+        linalg::givens::givens_decomposition_slater,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         contract::diag_coulomb::contract_diag_coulomb_into_buffer_num_rep,
         m
     )?)?;

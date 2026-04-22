@@ -18,6 +18,8 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(47209049524507342724926741129799062179)
+
 
 def brickwork(norb: int, n_layers: int):
     for i in range(n_layers):
@@ -30,20 +32,19 @@ def brickwork(norb: int, n_layers: int):
 )
 def test_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test random Givens rotation ansatz gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         interaction_pairs = list(brickwork(norb, norb))
-        thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+        thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
 
         givens_ansatz_op = ffsim.GivensAnsatzOp(
             norb, interaction_pairs, thetas=thetas, phis=phis, phase_angles=phase_angles
         )
         gate = ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op)
 
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -65,13 +66,12 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
 )
 def test_random_spinless(norb: int, nelec: int):
     """Test random spinless Givens rotation ansatz gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
         interaction_pairs = list(brickwork(norb, norb))
-        thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+        thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+        phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
 
         givens_ansatz_op = ffsim.GivensAnsatzOp(
             norb, interaction_pairs, thetas=thetas, phis=phis, phase_angles=phase_angles
@@ -79,7 +79,7 @@ def test_random_spinless(norb: int, nelec: int):
         gate = ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
         assert gate.num_qubits == norb
 
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )

@@ -14,13 +14,13 @@ Documentation is located at the [project website](https://qiskit-community.githu
 
 <!-- start installation -->
 
-We recommend installing ffsim using pip when possible:
+On Linux and macOS, you can install ffsim using pip:
 
 ```bash
 pip install ffsim
 ```
 
-This method won't work natively on Windows, however. Refer to the [installation instructions](https://qiskit-community.github.io/ffsim/install.html) for information about using ffsim on Windows, as well as instructions for installing from source and running ffsim in a container.
+See the [installation instructions](https://qiskit-community.github.io/ffsim/install.html) for information about using ffsim on Windows, as well as instructions for installing from source and running ffsim in a container.
 
 <!-- end installation -->
 

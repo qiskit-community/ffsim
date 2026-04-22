@@ -20,6 +20,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(326051405585540571929556828082477638948)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
@@ -71,11 +73,9 @@ def test_slater_determinant_sign_spinless():
 )
 def test_slater_determinant_spinless(norb: int, nocc: int):
     """Test Slater determinant with same rotation for both spins."""
-    rng = np.random.default_rng()
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nocc, seed=RNG)
 
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nocc, seed=rng)
-
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     eigs, orbital_rotation = np.linalg.eigh(one_body_tensor)
     eig = sum(eigs[occupied_orbitals])
     state = ffsim.slater_determinant(
@@ -93,12 +93,10 @@ def test_slater_determinant_spinless(norb: int, nocc: int):
 )
 def test_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant with same rotation for both spins."""
-    rng = np.random.default_rng()
-
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     occ_a, occ_b = occupied_orbitals
 
-    one_body_tensor = ffsim.random.random_hermitian(norb, seed=rng)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
     eigs, orbital_rotation = np.linalg.eigh(one_body_tensor)
     eig = sum(eigs[occ_a]) + sum(eigs[occ_b])
     state = ffsim.slater_determinant(
@@ -114,13 +112,11 @@ def test_slater_determinant_same_rotation(norb: int, nelec: tuple[int, int]):
 )
 def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
     """Test Slater determinant with different rotations for each spin."""
-    rng = np.random.default_rng()
-
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     occ_a, occ_b = occupied_orbitals
 
-    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
+    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
 
     state = ffsim.slater_determinant(
         norb,
@@ -154,10 +150,8 @@ def test_slater_determinant_rdm2s_same_rotation(
     norb: int, nelec: tuple[int, int], reorder: bool
 ):
     """Test Slater determinant 2-RDM, same rotation for both spins."""
-    rng = np.random.default_rng()
-
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
     rdm1, rdm2 = ffsim.slater_determinant_rdms(
         norb,
@@ -188,11 +182,9 @@ def test_slater_determinant_rdm2s_diff_rotation(
     norb: int, nelec: tuple[int, int], reorder: bool
 ):
     """Test Slater determinant 2-RDM, independent rotations for each spin."""
-    rng = np.random.default_rng()
-
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
-    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
+    orbital_rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
+    orbital_rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
 
     rdm1, rdm2 = ffsim.slater_determinant_rdms(
         norb,
@@ -223,10 +215,8 @@ def test_slater_determinant_rdm2s_diff_rotation(
 )
 def test_slater_determinant_rdm2s_spinless(norb: int, nelec: int, reorder: bool):
     """Test Slater determinant 2-RDM, spinless."""
-    rng = np.random.default_rng()
-
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
     rdm1, rdm2 = ffsim.slater_determinant_rdms(
         norb,
@@ -251,10 +241,8 @@ def test_slater_determinant_rdm2s_spinless(norb: int, nelec: int, reorder: bool)
 )
 def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
     """Test computing Slater determinant amplitudes, spinless."""
-    rng = np.random.default_rng(3725)
-
     dim = ffsim.dim(norb, nelec)
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
     for occupied_orbitals in itertools.combinations(range(norb), nelec):
         bitstrings = ffsim.addresses_to_strings(range(dim), norb=norb, nelec=nelec)
@@ -272,12 +260,10 @@ def test_slater_determinant_amplitudes_spinless(norb: int, nelec: int):
 )
 def test_slater_determinant_amplitudes_spinful(norb: int, nelec: tuple[int, int]):
     """Test computing Slater determinant amplitudes, spinful."""
-    rng = np.random.default_rng(3725)
-
     dim_a, dim_b = ffsim.dims(norb, nelec)
     n_alpha, n_beta = nelec
-    orb_rot_a = ffsim.random.random_unitary(norb, seed=rng)
-    orb_rot_b = ffsim.random.random_unitary(norb, seed=rng)
+    orb_rot_a = ffsim.random.random_unitary(norb, seed=RNG)
+    orb_rot_b = ffsim.random.random_unitary(norb, seed=RNG)
 
     bitstrings_a = ffsim.addresses_to_strings(range(dim_a), norb=norb, nelec=n_alpha)
     bitstrings_b = ffsim.addresses_to_strings(range(dim_b), norb=norb, nelec=n_beta)

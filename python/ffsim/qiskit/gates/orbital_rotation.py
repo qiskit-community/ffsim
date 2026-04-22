@@ -76,6 +76,7 @@ class OrbitalRotationJW(Gate):
         norb: int,
         orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
         *,
+        tol: float = 1e-12,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -92,6 +93,8 @@ class OrbitalRotationJW(Gate):
                 If passing a pair, you can use ``None`` for one of the
                 values in the pair to indicate that no operation should be applied to
                 that spin sector.
+            tol: Tolerance for the Givens decomposition of the orbital rotation.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -117,6 +120,7 @@ class OrbitalRotationJW(Gate):
                 self.orbital_rotation_b = np.eye(self.norb)
             else:
                 self.orbital_rotation_b = orbital_rotation_b
+        self.tol = tol
         super().__init__("orb_rot_jw", 2 * norb, [], label=label)
 
     def _define(self):
@@ -126,9 +130,13 @@ class OrbitalRotationJW(Gate):
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
-        for instruction in _orbital_rotation_jw(alpha_qubits, self.orbital_rotation_a):
+        for instruction in _orbital_rotation_jw(
+            alpha_qubits, self.orbital_rotation_a, tol=self.tol
+        ):
             circuit.append(instruction)
-        for instruction in _orbital_rotation_jw(beta_qubits, self.orbital_rotation_b):
+        for instruction in _orbital_rotation_jw(
+            beta_qubits, self.orbital_rotation_b, tol=self.tol
+        ):
             circuit.append(instruction)
         self.definition = circuit
 
@@ -151,6 +159,7 @@ class OrbitalRotationSpinlessJW(Gate):
         norb: int,
         orbital_rotation: np.ndarray,
         *,
+        tol: float = 1e-12,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -161,6 +170,8 @@ class OrbitalRotationSpinlessJW(Gate):
         Args:
             norb: The number of spatial orbitals.
             orbital_rotation: The orbital rotation.
+            tol: Tolerance for the Givens decomposition of the orbital rotation.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -176,13 +187,16 @@ class OrbitalRotationSpinlessJW(Gate):
 
         self.norb = norb
         self.orbital_rotation = orbital_rotation
+        self.tol = tol
         super().__init__("orb_rot_spinless_jw", norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
-        for instruction in _orbital_rotation_jw(qubits, self.orbital_rotation):
+        for instruction in _orbital_rotation_jw(
+            qubits, self.orbital_rotation, tol=self.tol
+        ):
             circuit.append(instruction)
         self.definition = circuit
 
@@ -192,13 +206,19 @@ class OrbitalRotationSpinlessJW(Gate):
 
 
 def _orbital_rotation_jw(
-    qubits: Sequence[Qubit], orbital_rotation: np.ndarray
+    qubits: Sequence[Qubit], orbital_rotation: np.ndarray, tol: float
 ) -> Iterator[CircuitInstruction]:
-    givens_rotations, phase_shifts = linalg.givens_decomposition(orbital_rotation)
+    givens_rotations, phase_shifts = linalg.givens_decomposition(
+        orbital_rotation, tol=tol
+    )
     for c, s, i, j in givens_rotations:
-        yield CircuitInstruction(
-            XXPlusYYGate(2 * math.acos(c), cmath.phase(s) - 0.5 * math.pi),
-            (qubits[i], qubits[j]),
-        )
+        c_angle = math.acos(c)
+        if c_angle:
+            yield CircuitInstruction(
+                XXPlusYYGate(2 * c_angle, cmath.phase(s) - 0.5 * math.pi),
+                (qubits[i], qubits[j]),
+            )
     for i, phase_shift in enumerate(phase_shifts):
-        yield CircuitInstruction(PhaseGate(cmath.phase(phase_shift)), (qubits[i],))
+        phase = cmath.phase(phase_shift)
+        if phase:
+            yield CircuitInstruction(PhaseGate(phase), (qubits[i],))

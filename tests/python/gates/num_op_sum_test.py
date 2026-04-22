@@ -22,15 +22,16 @@ import scipy.sparse.linalg
 import ffsim
 from ffsim.states.spin import pair_for_spin
 
+RNG = np.random.default_rng(23953771903670759356531587606188530886)
+
 
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
 )
 def test_apply_num_op_sum_evolution_spinless(norb: int, nelec: int):
     """Test applying time evolution of sum of number operators, spinless."""
-    rng = np.random.default_rng()
-    coeffs = rng.standard_normal(norb)
-    time = rng.standard_normal()
+    coeffs = RNG.standard_normal(norb)
+    time = RNG.standard_normal()
     for occupied_orbitals in itertools.combinations(range(norb), nelec):
         state = ffsim.slater_determinant(norb, occupied_orbitals)
         original_state = state.copy()
@@ -48,9 +49,8 @@ def test_apply_num_op_sum_evolution_spinful(
     norb: int, nelec: tuple[int, int], spin: ffsim.Spin
 ):
     """Test applying time evolution of sum of number operators."""
-    rng = np.random.default_rng()
-    coeffs = rng.standard_normal(norb)
-    time = rng.standard_normal()
+    coeffs = RNG.standard_normal(norb)
+    time = RNG.standard_normal()
     n_alpha, n_beta = nelec
     for alpha_orbitals in itertools.combinations(range(norb), n_alpha):
         for beta_orbitals in itertools.combinations(range(norb), n_beta):
@@ -76,12 +76,11 @@ def test_apply_num_op_sum_evolution_spinful(
 )
 def test_apply_quadratic_hamiltonian_evolution(norb: int, nelec: tuple[int, int]):
     """Test applying time evolution of a quadratic Hamiltonian."""
-    rng = np.random.default_rng()
-    mat = ffsim.random.random_hermitian(norb, seed=rng)
+    mat = ffsim.random.random_hermitian(norb, seed=RNG)
     eigs, vecs = scipy.linalg.eigh(mat)
-    time = rng.standard_normal()
+    time = RNG.standard_normal()
     dim = ffsim.dim(norb, nelec)
-    vec = ffsim.random.random_state_vector(dim, seed=rng)
+    vec = ffsim.random.random_state_vector(dim, seed=RNG)
     result = ffsim.apply_num_op_sum_evolution(
         vec, eigs, time, norb, nelec, orbital_rotation=vecs
     )

@@ -14,6 +14,8 @@ import numpy as np
 
 import ffsim
 
+RNG = np.random.default_rng(235867053685162325584905064598944895546)
+
 
 def test_ffsim_to_qiskit_roundtrip():
     """Test converting statevector between ffsim and Qiskit gives consistent results."""
@@ -21,8 +23,7 @@ def test_ffsim_to_qiskit_roundtrip():
     nelec = 3, 2
     big_dim = 2 ** (2 * norb)
     small_dim = ffsim.dim(norb, nelec)
-    rng = np.random.default_rng(9940)
-    ffsim_vec = ffsim.random.random_state_vector(small_dim, seed=rng)
+    ffsim_vec = ffsim.random.random_state_vector(small_dim, seed=RNG)
     qiskit_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(ffsim_vec, norb=norb, nelec=nelec)
     assert qiskit_vec.shape == (big_dim,)
     ffsim_vec_again = ffsim.qiskit.qiskit_vec_to_ffsim_vec(

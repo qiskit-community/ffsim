@@ -21,22 +21,23 @@ from ffsim._lib import (
 from ffsim._slow.gates.orbital_rotation import apply_givens_rotation_in_place_slow
 from ffsim.gates.orbital_rotation import _zero_one_subspace_indices
 
+RNG = np.random.default_rng(195198474930785014673895260425575371540)
+
 
 def test_apply_givens_rotation_in_place_slow():
     """Test applying Givens rotation."""
     norb = 5
-    rng = np.random.default_rng()
     for _ in range(5):
-        n_alpha = rng.integers(1, norb + 1)
-        n_beta = rng.integers(1, norb + 1)
+        n_alpha = RNG.integers(1, norb + 1)
+        n_beta = RNG.integers(1, norb + 1)
         dim_a = math.comb(norb, n_alpha)
         dim_b = math.comb(norb, n_beta)
-        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=rng).reshape(
+        vec_slow = ffsim.random.random_state_vector(dim_a * dim_b, seed=RNG).reshape(
             (dim_a, dim_b)
         )
         vec_fast = vec_slow.copy()
-        c = rng.uniform(0, 1)
-        s = (1j) ** rng.uniform(0, 4) * np.sqrt(1 - c**2)
+        c = RNG.uniform(0, 1)
+        s = (1j) ** RNG.uniform(0, 4) * np.sqrt(1 - c**2)
         indices = _zero_one_subspace_indices(norb, n_alpha, (1, 3))
         slice1 = indices[: len(indices) // 2]
         slice2 = indices[len(indices) // 2 :]

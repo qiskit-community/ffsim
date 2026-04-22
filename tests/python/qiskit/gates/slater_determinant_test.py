@@ -14,10 +14,13 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import scipy.linalg
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
+
+RNG = np.random.default_rng(86887010805322231956738698580997269570)
 
 
 @pytest.mark.parametrize(
@@ -60,10 +63,9 @@ def test_prepare_hartree_fock_spinless_jw(norb: int, nocc: int):
 )
 def test_random_slater_determinant_symmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit gives correct output state."""
-    rng = np.random.default_rng()
     for _ in range(3):
         occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
         gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
             norb, occupied_orbitals, orbital_rotation=orbital_rotation
         )
@@ -85,11 +87,10 @@ def test_random_slater_determinant_symmetric_spin(norb: int, nelec: tuple[int, i
 )
 def test_random_slater_determinant_asymmetric_spin(norb: int, nelec: tuple[int, int]):
     """Test random Slater determinant circuit with independent orbital rotations."""
-    rng = np.random.default_rng()
     for _ in range(3):
         occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec)
-        orbital_rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-        orbital_rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+        orbital_rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
+        orbital_rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
 
         # (mat_a, mat_b)
         gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
@@ -193,11 +194,10 @@ def test_slater_determinant_no_rotation(norb: int, nelec: tuple[int, int]):
 )
 def test_random_slater_determinant_spinless(norb: int, nocc: int):
     """Test random Slater determinant circuit, spinless."""
-    rng = np.random.default_rng()
     nelec = (nocc, 0)
     for _ in range(3):
         occupied_orbitals, _ = ffsim.testing.random_occupied_orbitals(norb, nelec)
-        orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+        orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
         gate = ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
             norb,
@@ -217,3 +217,32 @@ def test_random_slater_determinant_spinless(norb: int, nocc: int):
         )
 
         ffsim.testing.assert_allclose_up_to_global_phase(result, expected)
+
+
+def test_slater_determinant_tol():
+    """Test passing tol."""
+    norb = 6
+    generator = 1e-8j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+
+    # Spinful
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb, (range(norb // 2), range(norb // 2)), orbital_rotation, tol=1e-7
+        ),
+        qubits,
+    )
+    assert circuit.decompose().count_ops() == {"x": norb, "global_phase": 1}
+
+    # Spinless
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb, range(norb // 2), orbital_rotation, tol=1e-7
+        ),
+        qubits,
+    )
+    assert circuit.decompose().count_ops() == {"x": norb // 2, "global_phase": 1}

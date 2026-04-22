@@ -21,6 +21,8 @@ from qiskit.quantum_info import Statevector
 
 import ffsim
 
+RNG = np.random.default_rng(218240125023056172602248433881832620183)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, z_representation",
@@ -35,19 +37,18 @@ def test_random_diag_coulomb_mat_spinful(
     norb: int, nelec: tuple[int, int], z_representation: bool
 ):
     """Test random diag Coulomb gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = rng.standard_normal((norb, norb))
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        time = rng.uniform(-10, 10)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = RNG.standard_normal((norb, norb))
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        time = RNG.uniform(-10, 10)
 
         # mat
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
             norb, mat_aa, time, z_representation=z_representation
         )
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -72,7 +73,7 @@ def test_random_diag_coulomb_mat_spinful(
             time,
             z_representation=z_representation,
         )
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -97,7 +98,7 @@ def test_random_diag_coulomb_mat_spinful(
             time,
             z_representation=z_representation,
         )
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -122,7 +123,7 @@ def test_random_diag_coulomb_mat_spinful(
             time,
             z_representation=z_representation,
         )
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -146,15 +147,14 @@ def test_random_diag_coulomb_mat_spinful(
 )
 def test_random_diag_coulomb_mat_spinless(norb: int, nelec: int):
     """Test random spinless diag Coulomb gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        time = rng.uniform(-10, 10)
+        mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        time = RNG.uniform(-10, 10)
 
         # mat
         gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, time)
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -239,20 +239,19 @@ def test_circuit_depth_spinless_linear():
 )
 def test_inverse_spinful(norb: int, nelec: tuple[int, int], z_representation: bool):
     """Test inverse."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        mat_ab = rng.standard_normal((norb, norb))
-        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=rng)
-        time = rng.uniform(-10, 10)
+        mat_aa = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        mat_ab = RNG.standard_normal((norb, norb))
+        mat_bb = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+        time = RNG.uniform(-10, 10)
 
         # mat
         gate = ffsim.qiskit.DiagCoulombEvolutionJW(
             norb, mat_aa, time, z_representation=z_representation
         )
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
@@ -266,7 +265,7 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int], z_representation: bo
             z_representation=z_representation,
         )
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
@@ -280,7 +279,7 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int], z_representation: bo
             z_representation=z_representation,
         )
         vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
-            ffsim.random.random_state_vector(dim, seed=rng), norb=norb, nelec=nelec
+            ffsim.random.random_state_vector(dim, seed=RNG), norb=norb, nelec=nelec
         )
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())

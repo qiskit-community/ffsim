@@ -20,6 +20,8 @@ import pytest
 import ffsim
 from ffsim.states.bitstring import BitstringType
 
+RNG = np.random.default_rng(84802403388088473552498444996456845651)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, bitstring_type",
@@ -37,13 +39,12 @@ def test_sample_slater_spinful(
     norb: int, nelec: tuple[int, int], bitstring_type: BitstringType
 ):
     """Test sample Slater, spinful."""
-    rng = np.random.default_rng(1234)
     shots = 1000
     for _ in range(min(2, ffsim.dim(norb, nelec))):
-        rotation_a = ffsim.random.random_unitary(norb, seed=rng)
-        rotation_b = ffsim.random.random_unitary(norb, seed=rng)
+        rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
+        rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
         occupied_orbitals = ffsim.testing.random_occupied_orbitals(
-            norb, nelec, seed=rng
+            norb, nelec, seed=RNG
         )
         vec = ffsim.slater_determinant(
             norb, occupied_orbitals, (rotation_a, rotation_b)
@@ -55,7 +56,7 @@ def test_sample_slater_spinful(
             (rotation_a, rotation_b),
             shots=shots,
             bitstring_type=bitstring_type,
-            seed=rng,
+            seed=RNG,
         )
         addresses = ffsim.strings_to_addresses(samples, norb, nelec)
         indices, counts = np.unique(addresses, return_counts=True)
@@ -77,10 +78,9 @@ def test_sample_slater_spinful(
 )
 def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: BitstringType):
     """Test sample Slater, spinless."""
-    rng = np.random.default_rng(1234)
     shots = 1000
 
-    rotation = ffsim.random.random_unitary(norb, seed=rng)
+    rotation = ffsim.random.random_unitary(norb, seed=RNG)
     for occupied_orbitals in itertools.combinations(range(norb), nelec):
         vec = ffsim.slater_determinant(norb, occupied_orbitals, rotation)
         test_distribution = np.abs(vec) ** 2
@@ -90,7 +90,7 @@ def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: Bitstring
             rotation,
             shots=shots,
             bitstring_type=bitstring_type,
-            seed=rng,
+            seed=RNG,
         )
         addresses = ffsim.strings_to_addresses(samples, norb, nelec)
         indices, counts = np.unique(addresses, return_counts=True)
@@ -110,18 +110,17 @@ def test_sample_slater_spinless(norb: int, nelec: int, bitstring_type: Bitstring
 @pytest.mark.parametrize("real", [True, False])
 def test_sample_slater_large(norb: int, nelec: tuple[int, int], real: bool):
     """Test sample Slater for a larger number of orbitals."""
-    rng = np.random.default_rng(1234)
     shots = 5000
     random_unitary = (
         ffsim.random.random_orthogonal if real else ffsim.random.random_unitary
     )
-    rotation_a = random_unitary(norb, seed=rng)
-    rotation_b = random_unitary(norb, seed=rng)
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    rotation_a = random_unitary(norb, seed=RNG)
+    rotation_b = random_unitary(norb, seed=RNG)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     vec = ffsim.slater_determinant(norb, occupied_orbitals, (rotation_a, rotation_b))
     test_distribution = np.abs(vec) ** 2
     samples = ffsim.sample_slater(
-        norb, occupied_orbitals, (rotation_a, rotation_b), shots=shots, seed=rng
+        norb, occupied_orbitals, (rotation_a, rotation_b), shots=shots, seed=RNG
     )
     addresses = ffsim.strings_to_addresses(samples, norb, nelec)
     indices, counts = np.unique(addresses, return_counts=True)
@@ -142,10 +141,9 @@ def test_sample_slater_restrict(
     norb: int, nelec: tuple[int, int], orbs: tuple[list[int], list[int]]
 ):
     """Test sample Slater with subset of orbitals."""
-    rng = np.random.default_rng(1234)
     shots = 10
     orbs_a, orbs_b = orbs
-    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     occ_a, occ_b = occupied_orbitals
     alpha_str = "".join("1" if o in occ_a else "0" for o in reversed(orbs_a))
     beta_str = "".join("1" if o in occ_b else "0" for o in reversed(orbs_b))

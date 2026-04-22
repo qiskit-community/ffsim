@@ -7,7 +7,7 @@ The instructions on this page won't work natively on Windows. For ffsim developm
 To set up ffsim for development, install it from source in editable mode along with the development requirements:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e . --group dev
 ```
 
 To install the git pre-commit hooks, run
@@ -57,10 +57,7 @@ substituting `<environment name>` with the name of the tox environment for the c
 
 ## Run code checks directly
 
-Running the code checks directly using the corresponding software tool can be useful and allows you to:
-
-- Automatically fix lint and formatting errors.
-- Build the documentation without deleting cached files.
+Running the code checks directly using the corresponding software tool gives you more flexibility and allows you to automatically fix lint and formatting errors.
 
 ### Run tests
 
@@ -101,6 +98,4 @@ sphinx-build -b html -W docs/ docs/_build/html
 
 ## View locally built documentation
 
-After building the docs using either the [tox command](#run-code-checks-using-tox) or the [sphinx command](#build-documentation), open the file `docs/_build/html/index.html` in your web browser. For rapid iterations, the sphinx command is preferred because it retains cached files.
-Building the documentation can consume significant CPU because the tutorial notebooks are executed.
-The tox command deletes cached files so it will execute all the notebooks every time, while the sphinx command only executes notebooks if they were modified from the previous run.
+After building the documentation, open the file `docs/_build/html/index.html` in your web browser.

@@ -35,6 +35,8 @@ def pre_init_passes() -> Iterator[BasePass]:
     """
     yield Decompose(
         [
+            "dc_trotter_split_op_jw",
+            "df_trotter_jw",
             "hartree_fock_jw",
             "hartree_fock_spinless_jw",
             "ucj_jw",

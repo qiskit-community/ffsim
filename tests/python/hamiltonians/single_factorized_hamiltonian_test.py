@@ -19,6 +19,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(169273111718651392627598708290856329828)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, cholesky",
@@ -34,10 +36,8 @@ import ffsim
 )
 def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     """Test linear operator."""
-    rng = np.random.default_rng(2474)
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-        norb, seed=rng, dtype=float
+        norb, seed=RNG, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian, cholesky=cholesky
@@ -47,7 +47,7 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
     expected_linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
 
     dim = ffsim.dim(norb, nelec)
-    state = ffsim.random.random_state_vector(dim, seed=rng)
+    state = ffsim.random.random_state_vector(dim, seed=RNG)
 
     actual = actual_linop @ state
     expected = expected_linop @ state
@@ -61,10 +61,8 @@ def test_linear_operator(norb: int, nelec: tuple[int, int], cholesky: bool):
 )
 def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
     """Test computing reduced matrix on product states."""
-    rng = np.random.default_rng(7869)
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-        norb, seed=rng, dtype=float
+        norb, seed=RNG, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian
@@ -73,11 +71,11 @@ def test_reduced_matrix_product_states(norb: int, nelec: tuple[int, int]):
 
     n_vecs = 3
     occupations = [
-        ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+        ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
         for _ in range(n_vecs)
     ]
     orbital_rotations = [
-        ffsim.random.random_unitary(norb, seed=rng) for _ in range(n_vecs)
+        ffsim.random.random_unitary(norb, seed=RNG) for _ in range(n_vecs)
     ]
     vecs = [
         ffsim.slater_determinant(norb, occ, orbital_rotation=orbital_rotation)
@@ -109,19 +107,17 @@ def test_expectation_product_state_slater_determinant(
     norb: int, nelec: tuple[int, int]
 ):
     """Test computing expectation value on Slater determinant product state."""
-    rng = np.random.default_rng(3400)
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-        norb, seed=rng, dtype=float
+        norb, seed=RNG, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian
     )
     linop = ffsim.linear_operator(sf_hamiltonian, norb, nelec)
 
-    orbital_rotation = ffsim.random.random_unitary(norb, seed=rng)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
     for _ in range(5):
-        (occ_a, occ_b) = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=rng)
+        (occ_a, occ_b) = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
         vec = ffsim.slater_determinant(
             norb, (occ_a, occ_b), orbital_rotation=orbital_rotation
         )
@@ -144,10 +140,8 @@ def test_expectation_product_state_slater_determinant(
 )
 def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     """Test computing expectation value on product state."""
-    rng = np.random.default_rng(6775)
-
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(
-        norb, seed=rng, dtype=float
+        norb, seed=RNG, dtype=float
     )
     sf_hamiltonian = ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
         mol_hamiltonian
@@ -155,8 +149,8 @@ def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     linop = ffsim.linear_operator(sf_hamiltonian, norb, nelec)
 
     dim_a, dim_b = ffsim.dims(norb, nelec)
-    vec_a = ffsim.random.random_state_vector(dim_a, seed=rng)
-    vec_b = ffsim.random.random_state_vector(dim_b, seed=rng)
+    vec_a = ffsim.random.random_state_vector(dim_a, seed=RNG)
+    vec_b = ffsim.random.random_state_vector(dim_b, seed=RNG)
     vec = np.kron(vec_a, vec_b)
 
     actual = sf_hamiltonian.expectation_product_state((vec_a, vec_b), norb, nelec)

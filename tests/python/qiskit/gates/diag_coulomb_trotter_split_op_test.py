@@ -14,9 +14,12 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Statevector
 
 import ffsim
+
+RNG = np.random.default_rng(289160092799393331092691474348655151510)
 
 
 @pytest.mark.parametrize(
@@ -36,16 +39,15 @@ def test_random(
     order: int,
 ):
     """Test random gate gives correct output state."""
-    rng = np.random.default_rng()
     dim = ffsim.dim(norb, nelec)
     time = 1.0
     for _ in range(3):
-        hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=rng)
+        hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
         gate = ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
             hamiltonian, time, n_steps=n_steps, order=order
         )
 
-        small_vec = ffsim.random.random_state_vector(dim, seed=rng)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
         big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
             small_vec, norb=norb, nelec=nelec
         )
@@ -66,3 +68,21 @@ def test_random(
         )
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_tol():
+    """Test passing tol."""
+    norb = 4
+    hamiltonian = ffsim.DiagonalCoulombHamiltonian(
+        one_body_tensor=1e-8 * ffsim.random.random_hermitian(norb, seed=RNG),
+        diag_coulomb_mats=np.zeros((2, norb, norb)),
+    )
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+            hamiltonian, time=1.0, tol=1e-7
+        ),
+        qubits,
+    )
+    assert "xx_plus_yy" not in circuit.decompose(reps=2).count_ops()

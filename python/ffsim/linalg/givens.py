@@ -12,35 +12,9 @@
 
 from __future__ import annotations
 
-import cmath
-from typing import NamedTuple
-
 import numpy as np
-from scipy.linalg.blas import zrotg as zrotg_
 
 from ffsim import _lib
-
-
-class GivensRotation(NamedTuple):
-    r"""A Givens rotation.
-
-    A Givens rotation acts on the two-dimensional subspace spanned by the :math:`i`-th
-    and :math:`j`-th basis vectors as
-
-    .. math::
-
-        \begin{pmatrix}
-            c & s \\
-            -s^* & c \\
-        \end{pmatrix}
-
-    where :math:`c` is a real number and :math:`s` is a complex number.
-    """
-
-    c: float
-    s: complex
-    i: int
-    j: int
 
 
 def apply_matrix_to_slices(
@@ -71,24 +45,6 @@ def apply_matrix_to_slices(
             if j != i:
                 out[slice_i] += mat[i, j] * target[slice_j]
     return out
-
-
-def zrotg(a: complex, b: complex, tol=1e-12) -> tuple[float, complex]:
-    r"""Safe version of the zrotg BLAS function.
-
-    The BLAS implementation of zrotg can return NaN values if either a or b is very
-    close to zero. This function detects if either a or b is close to zero up to the
-    specified tolerance, in which case it behaves as if it were exactly zero.
-
-    Note that in contrast to ``scipy.linalg.blas.zrotg``, this function returns c as a
-    float rather than a complex.
-    """
-    if cmath.isclose(a, 0.0, abs_tol=tol):
-        return 0.0, 1 + 0j
-    if cmath.isclose(b, 0.0, abs_tol=tol):
-        return 1.0, 0j
-    c, s = zrotg_(a, b)
-    return c.real, s
 
 
 def givens_decomposition(

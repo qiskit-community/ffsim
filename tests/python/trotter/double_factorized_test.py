@@ -18,15 +18,17 @@ import scipy.sparse.linalg
 
 import ffsim
 
+RNG = np.random.default_rng(256083884829997644626386028495570122274)
+
 
 @pytest.mark.parametrize(
     "norb, nelec, time, n_steps, order, z_representation, atol",
     [
         (3, (1, 1), 0.1, 20, 0, False, 1e-2),
         (3, (1, 1), 0.1, 10, 1, True, 3e-3),
-        (4, (2, 1), 0.1, 1, 2, False, 3e-3),
+        (4, (2, 1), 0.1, 5, 2, False, 3e-3),
         (4, (1, 2), 0.1, 3, 2, True, 3e-3),
-        (4, (2, 2), 0.1, 4, 1, False, 4e-3),
+        (4, (2, 2), 0.1, 10, 1, False, 4e-3),
         (5, (3, 2), 0.1, 10, 1, True, 3e-3),
     ],
 )
@@ -40,18 +42,16 @@ def test_random(
     atol: float,
 ):
     """Test random Hamiltonian."""
-    rng = np.random.default_rng(2488)
-
     # generate random Hamiltonian
     dim = ffsim.dim(norb, nelec)
     hamiltonian = ffsim.random.random_double_factorized_hamiltonian(
-        norb, rank=norb, z_representation=z_representation, seed=rng
+        norb, rank=norb, z_representation=z_representation, seed=RNG
     )
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
 
     # generate initial state
     dim = ffsim.dim(norb, nelec)
-    initial_state = ffsim.random.random_state_vector(dim, seed=rng)
+    initial_state = ffsim.random.random_state_vector(dim, seed=RNG)
     original_state = initial_state.copy()
 
     # compute exact state

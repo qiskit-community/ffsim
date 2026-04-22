@@ -26,6 +26,10 @@
       ~{{ name }}.{{ item }}
    {%- endfor %}
    {% endif %}
+   {%- for item in methods if item not in inherited_members and item != '__init__' %}
+
+   .. automethod:: {{ item }}
+   {%- endfor %}
    {%- for item in ns.protocol_methods %}
 
    .. automethod:: {{ item }}

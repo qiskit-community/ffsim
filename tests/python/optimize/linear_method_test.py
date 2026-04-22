@@ -20,6 +20,8 @@ import pytest
 
 import ffsim
 
+RNG = np.random.default_rng(149339203526204583770548252697422066353)
+
 
 def test_minimize_linear_method():
     # Build an H2 molecule
@@ -34,8 +36,7 @@ def test_minimize_linear_method():
     # Initialize parameters
     n_reps = 2
     n_params = ffsim.UCJOpSpinBalanced.n_params(hartree_fock.mol.nao_nr(), n_reps)
-    rng = np.random.default_rng(1804)
-    x0 = rng.uniform(-10, 10, size=n_params)
+    x0 = RNG.uniform(-10, 10, size=n_params)
 
     # Get molecular data and molecular Hamiltonian (one- and two-body tensors)
     mol_data = ffsim.MolecularData.from_scf(hartree_fock)
@@ -74,7 +75,7 @@ def test_minimize_linear_method():
     )
     np.testing.assert_allclose(energy(result.x), result.fun)
     np.testing.assert_allclose(result.fun, -0.970773)
-    np.testing.assert_allclose(info["fun"][0], -0.833558, atol=1e-5)
+    np.testing.assert_allclose(info["fun"][0], -0.903155, atol=1e-5)
     np.testing.assert_allclose(info["fun"][-1], -0.970773, atol=1e-5)
     for params, fun in zip(info["x"], info["fun"]):
         np.testing.assert_allclose(energy(params), fun)

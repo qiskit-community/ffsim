@@ -16,19 +16,21 @@ use pyo3::prelude::*;
 type GivensRotationTuple = (f64, Complex64, usize, usize);
 type GivensDecompositionResult = (Vec<GivensRotationTuple>, Py<PyArray1<Complex64>>);
 
+/// Safe version of BLAS zrotg.
 fn zrotg_safe(a: Complex64, b: Complex64, tol: f64) -> (f64, Complex64) {
-    if a.norm() <= tol {
-        return (0.0, Complex64::new(1.0, 0.0));
-    }
-    if b.norm() <= tol {
-        return (1.0, Complex64::new(0.0, 0.0));
-    }
     let abs_a = a.norm();
     let abs_b = b.norm();
+    if abs_b <= tol {
+        return (1.0, Complex64::new(0.0, 0.0));
+    }
+    if abs_a <= tol {
+        return (0.0, Complex64::new(1.0, 0.0));
+    }
     let r = abs_a.hypot(abs_b);
     let c = abs_a / r;
     let s = (a / abs_a) * b.conj() / r;
-    (c, s)
+    // clamp c between -1 and 1 to account for floating point error
+    (c.clamp(-1.0, 1.0), s)
 }
 
 fn rotate_columns_in_place(
@@ -86,7 +88,7 @@ pub fn givens_decomposition(
             for j in 0..=i {
                 let target_index = i - j;
                 let row = n - j - 1;
-                if current_matrix[[row, target_index]] != Complex64::new(0.0, 0.0) {
+                if current_matrix[[row, target_index]].norm() > tol {
                     let (c, s) = zrotg_safe(
                         current_matrix[[row, target_index + 1]],
                         current_matrix[[row, target_index]],
@@ -106,7 +108,7 @@ pub fn givens_decomposition(
             for j in 0..=i {
                 let target_index = n - i + j - 1;
                 let col = j;
-                if current_matrix[[target_index, col]] != Complex64::new(0.0, 0.0) {
+                if current_matrix[[target_index, col]].norm() > tol {
                     let (c, s) = zrotg_safe(
                         current_matrix[[target_index - 1, col]],
                         current_matrix[[target_index, col]],
@@ -126,7 +128,7 @@ pub fn givens_decomposition(
             tol,
         );
 
-        right_rotations.push((c.clamp(-1.0, 1.0), -s.conj(), i, j));
+        right_rotations.push((c, -s.conj(), i, j));
 
         let diag_i = current_matrix[[i, i]];
         let diag_j = current_matrix[[j, j]];
@@ -144,4 +146,53 @@ pub fn givens_decomposition(
 
     let diagonal = current_matrix.diag().to_owned();
     Ok((right_rotations, diagonal.into_pyarray(py).unbind()))
+}
+
+/// Givens rotation decomposition for Slater determinant preparation.
+#[pyfunction]
+#[pyo3(signature = (orbital_coeffs, tol=1e-12))]
+pub fn givens_decomposition_slater(
+    orbital_coeffs: PyReadonlyArray2<Complex64>,
+    tol: f64,
+) -> Vec<GivensRotationTuple> {
+    let mat_view = orbital_coeffs.as_array();
+    let shape = mat_view.shape();
+    let m = shape[0];
+    let n = shape[1];
+
+    let mut current_matrix: Array2<Complex64> = mat_view.to_owned();
+
+    // zero out top right corner by rotating rows; this is a no-op
+    if n > m {
+        let n_minus_m = n - m;
+        for j in (n_minus_m + 1..n).rev() {
+            // zero out entries in column j
+            for i in 0..(j - n_minus_m) {
+                // zero out entry in row i if needed
+                if current_matrix[[i, j]].norm() > tol {
+                    let (c, s) =
+                        zrotg_safe(current_matrix[[i + 1, j]], current_matrix[[i, j]], tol);
+                    rotate_rows_in_place(&mut current_matrix, i + 1, i, c, s);
+                }
+            }
+        }
+    }
+
+    // decompose matrix into Givens rotations
+    let mut rotations: Vec<GivensRotationTuple> = Vec::new();
+    for i in 0..m {
+        // zero out the columns in row i
+        let j_max = n - m + i;
+        for j in (i + 1..=j_max).rev() {
+            if current_matrix[[i, j]].norm() > tol {
+                // zero out element j of row i
+                let (c, s) = zrotg_safe(current_matrix[[i, j - 1]], current_matrix[[i, j]], tol);
+                rotations.push((c, s, j, j - 1));
+                rotate_columns_in_place(&mut current_matrix, j - 1, j, c, s);
+            }
+        }
+    }
+
+    rotations.reverse();
+    rotations
 }

@@ -20,10 +20,8 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import CircuitInstruction, Gate, Qubit
 from qiskit.circuit.library import GlobalPhaseGate, XGate, XXPlusYYGate
-from scipy.linalg.lapack import zrot
 
-from ffsim import linalg
-from ffsim.linalg.givens import GivensRotation, zrotg
+from ffsim import _lib, linalg
 from ffsim.qiskit.gates.orbital_rotation import _validate_orbital_rotation
 from ffsim.states.slater import _permutation_sign
 
@@ -136,6 +134,7 @@ class PrepareSlaterDeterminantJW(Gate):
         | tuple[np.ndarray | None, np.ndarray | None]
         | None = None,
         *,
+        tol: float = 1e-12,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -156,6 +155,8 @@ class PrepareSlaterDeterminantJW(Gate):
                 If passing a pair, you can use ``None`` for one of the
                 values in the pair to indicate that no operation should be applied to
                 that spin sector.
+            tol: Tolerance for the Givens decomposition of the orbital rotation.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -185,6 +186,7 @@ class PrepareSlaterDeterminantJW(Gate):
                 self.orbital_rotation_b = np.eye(self.norb)
             else:
                 self.orbital_rotation_b = orbital_rotation_b
+        self.tol = tol
         super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):
@@ -200,7 +202,7 @@ class PrepareSlaterDeterminantJW(Gate):
                 circuit.append(instruction)
         else:
             for instruction in _prepare_slater_determinant_jw(
-                alpha_qubits, self.orbital_rotation_a.T[list(occ_a)]
+                alpha_qubits, self.orbital_rotation_a.T[list(occ_a)], tol=self.tol
             ):
                 circuit.append(instruction)
 
@@ -209,7 +211,7 @@ class PrepareSlaterDeterminantJW(Gate):
                 circuit.append(instruction)
         else:
             for instruction in _prepare_slater_determinant_jw(
-                beta_qubits, self.orbital_rotation_b.T[list(occ_b)]
+                beta_qubits, self.orbital_rotation_b.T[list(occ_b)], tol=self.tol
             ):
                 circuit.append(instruction)
 
@@ -234,6 +236,7 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
         occupied_orbitals: Sequence[int],
         orbital_rotation: np.ndarray | None = None,
         *,
+        tol: float = 1e-12,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -245,6 +248,8 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
             norb: The number of spatial orbitals.
             occupied_orbitals: The occupied orbitals in the electronic configuration.
             orbital_rotation: The optional orbital rotation.
+            tol: Tolerance for the Givens decomposition of the orbital rotation.
+                Matrix entries smaller than this value will be treated as equal to zero.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
@@ -264,6 +269,7 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
             self.orbital_rotation = np.eye(norb)
         else:
             self.orbital_rotation = orbital_rotation
+        self.tol = tol
         super().__init__("slater_spinless_jw", norb, [], label=label)
 
     def _define(self):
@@ -278,7 +284,9 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
                 circuit.append(instruction)
         else:
             for instruction in _prepare_slater_determinant_jw(
-                qubits, self.orbital_rotation.T[list(self.occupied_orbitals)]
+                qubits,
+                self.orbital_rotation.T[list(self.occupied_orbitals)],
+                tol=self.tol,
             ):
                 circuit.append(instruction)
 
@@ -297,7 +305,7 @@ def _prepare_configuration_jw(
 
 
 def _prepare_slater_determinant_jw(
-    qubits: Sequence[Qubit], orbital_coeffs: np.ndarray
+    qubits: Sequence[Qubit], orbital_coeffs: np.ndarray, tol: float
 ) -> Iterator[CircuitInstruction]:
     m, n = orbital_coeffs.shape
 
@@ -309,54 +317,13 @@ def _prepare_slater_determinant_jw(
         return
 
     # yield Givens rotations
-    givens_rotations = _givens_decomposition_slater(orbital_coeffs)
+    givens_rotations = _lib.givens_decomposition_slater(
+        orbital_coeffs.astype(complex, copy=False), tol
+    )
     for c, s, i, j in givens_rotations:
-        yield CircuitInstruction(
-            XXPlusYYGate(2 * math.acos(c), cmath.phase(s) - 0.5 * math.pi),
-            (qubits[i], qubits[j]),
-        )
-
-
-def _givens_decomposition_slater(orbital_coeffs: np.ndarray) -> list[GivensRotation]:
-    m, n = orbital_coeffs.shape
-
-    current_matrix = orbital_coeffs.astype(complex, copy=True)
-
-    # zero out top right corner by rotating rows; this is a no-op
-    for j in reversed(range(n - m + 1, n)):
-        # Zero out entries in column j
-        for i in range(m - n + j):
-            # Zero out entry in row i if needed
-            if not cmath.isclose(current_matrix[i, j], 0):
-                c, s = zrotg(current_matrix[i + 1, j], current_matrix[i, j])
-                (
-                    current_matrix[i + 1],
-                    current_matrix[i],
-                ) = zrot(
-                    current_matrix[i + 1],
-                    current_matrix[i],
-                    c,
-                    s,
-                )
-
-    # decompose matrix into Givens rotations
-    rotations = []
-    for i in range(m):
-        # zero out the columns in row i
-        for j in range(n - m + i, i, -1):
-            if not cmath.isclose(current_matrix[i, j], 0):
-                # zero out element j of row i
-                c, s = zrotg(current_matrix[i, j - 1], current_matrix[i, j])
-                # clamp c between -1 and 1 to account for floating point error
-                rotations.append(GivensRotation(min(1.0, max(-1.0, c)), s, j, j - 1))
-                (
-                    current_matrix[:, j - 1],
-                    current_matrix[:, j],
-                ) = zrot(
-                    current_matrix[:, j - 1],
-                    current_matrix[:, j],
-                    c,
-                    s,
-                )
-
-    return rotations[::-1]
+        c_angle = math.acos(c)
+        if c_angle:
+            yield CircuitInstruction(
+                XXPlusYYGate(2 * c_angle, cmath.phase(s) - 0.5 * math.pi),
+                (qubits[i], qubits[j]),
+            )
