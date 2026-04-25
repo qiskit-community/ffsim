@@ -858,9 +858,9 @@ def random_diagonal_coulomb_hamiltonian(
         one_body_tensor = random_real_symmetric_matrix(norb, seed=rng)
     else:
         one_body_tensor = random_hermitian(norb, seed=rng)
-    diag_coulomb_mat_a = random_real_symmetric_matrix(norb, seed=rng)
-    diag_coulomb_mat_b = random_real_symmetric_matrix(norb, seed=rng)
-    diag_coulomb_mats = np.stack([diag_coulomb_mat_a, diag_coulomb_mat_b])
+    mat_aa = random_real_symmetric_matrix(norb, seed=rng)
+    mat_ab = random_real_symmetric_matrix(norb, seed=rng)
+    diag_coulomb_mats = np.stack([mat_aa, mat_ab])
     constant = rng.standard_normal()
     return hamiltonians.DiagonalCoulombHamiltonian(
         one_body_tensor, diag_coulomb_mats, constant=constant
