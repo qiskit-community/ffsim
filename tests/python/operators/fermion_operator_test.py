@@ -12,11 +12,15 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 import pytest
 
 import ffsim
 from ffsim import FermionOperator
+from ffsim._slow.fermion_operator import FermionOperator as SlowFermionOperator
+from ffsim.operators.fermion_action import FermionAction
 
 RNG = np.random.default_rng(308444818162923832831691142041679886023)
 
@@ -566,6 +570,66 @@ def test_linear_operator_one_body():
         np.testing.assert_allclose(original, vec)
         # check results match
         np.testing.assert_allclose(actual, expected)
+
+
+def test_linear_operator():
+    """Test linear operator."""
+    norb = 5
+    nelec = (2, 2)
+    op = FermionOperator(
+        {
+            (): 0.125 - 0.25j,
+            (ffsim.cre_a(3), ffsim.des_a(0)): 0.75 + 0.125j,
+            (ffsim.cre_b(4), ffsim.des_b(1)): -0.5 + 0.375j,
+            (
+                ffsim.cre_a(2),
+                ffsim.des_a(1),
+                ffsim.cre_b(3),
+                ffsim.des_b(0),
+            ): -0.125 + 0.5j,
+            (ffsim.des_a(2), ffsim.cre_a(4)): 0.25j,
+        }
+    )
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=2468)
+    original = vec.copy()
+    linop = ffsim.linear_operator(op, norb=norb, nelec=nelec)
+    slow_linop = SlowFermionOperator(
+        cast(dict[tuple[FermionAction, ...], complex], dict(op.items()))
+    )._linear_operator_(norb, nelec)
+    slow_adjoint_linop = SlowFermionOperator(
+        cast(dict[tuple[FermionAction, ...], complex], dict(op.adjoint().items()))
+    )._linear_operator_(
+        norb,
+        nelec,
+    )
+
+    np.testing.assert_allclose(linop @ vec, slow_linop @ vec, atol=1e-14)
+    np.testing.assert_allclose(
+        linop.adjoint() @ vec, slow_adjoint_linop @ vec, atol=1e-14
+    )
+    np.testing.assert_allclose(original, vec)
+
+
+def test_linear_operator_out_of_range():
+    """Test linear operator with out-of-range terms."""
+    norb = 4
+    nelec = (2, 1)
+    valid_term = (ffsim.cre_a(2), ffsim.des_a(0))
+    op = FermionOperator(
+        {
+            valid_term: 0.75 - 0.125j,
+            (ffsim.des_b(norb), ffsim.cre_b(norb)): -1.5 + 0.25j,
+            (ffsim.des_a(-1), ffsim.cre_a(-1)): -0.75 + 0.5j,
+        }
+    )
+    expected_op = FermionOperator({valid_term: 0.75 - 0.125j})
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=24680)
+
+    linop = ffsim.linear_operator(op, norb=norb, nelec=nelec)
+    expected_linop = ffsim.linear_operator(expected_op, norb=norb, nelec=nelec)
+
+    np.testing.assert_allclose(linop @ vec, expected_linop @ vec)
+    np.testing.assert_allclose(linop.adjoint() @ vec, expected_linop.adjoint() @ vec)
 
 
 def test_approx_eq():

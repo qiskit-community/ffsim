@@ -56,6 +56,10 @@ fn _lib(m: &Bound<'_, PyModule>) -> PyResult<()> {
         contract::num_op_sum::contract_num_op_sum_spin_into_buffer,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        contract::fermion_operator::contract_fermion_operator_into_buffer,
+        m
+    )?)?;
     m.add_function(pyo3::wrap_pyfunction!(
         jordan_wigner::jordan_wigner_qiskit,
         m
