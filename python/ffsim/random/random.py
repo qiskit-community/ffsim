@@ -956,7 +956,7 @@ def random_fermion_hamiltonian(
 ) -> operators.FermionOperator:
     """Sample a random fermion Hamiltonian.
 
-    A fermion Hamiltonian is hermitian and conserves particle number and spin Z.
+    A fermion Hamiltonian is hermitian and conserves particle number and spin :math:`z`.
 
     Args:
         norb: The number of spatial orbitals.
