@@ -176,10 +176,10 @@ class FermionOperator(MutableMapping):
         if not (self.conserves_particle_number() and self.conserves_spin_z()):
             raise ValueError(
                 "The given FermionOperator could not be converted to a LinearOperator "
-                "because it does not conserve particle number and the Z component "
+                "because it does not conserve particle number and the z component "
                 "of spin. "
                 f"Conserves particle number: {self.conserves_particle_number()} "
-                f"Conserves spin Z: {self.conserves_spin_z()}"
+                f"Conserves spin z: {self.conserves_spin_z()}"
             )
 
         dim_ = dim(norb, nelec)

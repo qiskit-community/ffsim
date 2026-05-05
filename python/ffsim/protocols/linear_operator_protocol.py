@@ -68,9 +68,9 @@ def _fermion_operator_to_linear_operator(
     if not (operator.conserves_particle_number() and operator.conserves_spin_z()):
         raise ValueError(
             "The given FermionOperator could not be converted to a LinearOperator "
-            "because it does not conserve particle number and the Z component of spin. "
+            "because it does not conserve particle number and the z component of spin. "
             f"Conserves particle number: {operator.conserves_particle_number()} "
-            f"Conserves spin Z: {operator.conserves_spin_z()}"
+            f"Conserves spin z: {operator.conserves_spin_z()}"
         )
 
     if isinstance(nelec, int):
@@ -105,9 +105,9 @@ def _apply_fermion_term(
     """Apply a product of ladder operators to a state vector.
 
     Given a state vector and a string of ladder operators that conserves particle number
-    and total spin Z, return the state vector that results from applying the ladder
-    operators to the given state vector. The string of ladder operators is represented
-    as a sequence of (``action``, ``spin``, ``orbital``) tuples, where:
+    and the z component of spin, return the state vector that results from applying the
+    ladder operators to the given state vector. The string of ladder operators is
+    represented as a sequence of (``action``, ``spin``, ``orbital``) tuples, where:
 
     - ``action`` is a bool. False indicates a destruction operator and True indicates
       a creation operator.
