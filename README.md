@@ -8,7 +8,7 @@ ffsim is a software library for simulating fermionic quantum circuits that conse
 
 ## Documentation
 
-Documentation is located at https://qiskit-community.github.io/ffsim/. You might also be interested in the [paper about ffsim](https://arxiv.org/abs/2605.03123).
+Documentation is located at the [project website](https://qiskit-community.github.io/ffsim/). You might also be interested in the [paper about ffsim](https://arxiv.org/abs/2605.03123).
 
 ## Installation
 
