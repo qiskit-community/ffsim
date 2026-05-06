@@ -8,7 +8,7 @@ ffsim is a software library for simulating fermionic quantum circuits that conse
 
 ## Documentation
 
-Documentation is located at the [project website](https://qiskit-community.github.io/ffsim/).
+Documentation is located at https://qiskit-community.github.io/ffsim/. You might also be interested in the [paper about ffsim](https://arxiv.org/abs/2605.03123).
 
 ## Installation
 
@@ -82,10 +82,14 @@ print(energy)  # prints -104.17181289596
 You can cite ffsim using the following BibTeX:
 
 ```bibtex
-@misc{ffsim,
-  author = {{The ffsim developers}},
-  title = {ffsim: Faster simulations of fermionic quantum circuits},
-  howpublished = {\url{https://github.com/qiskit-community/ffsim}},
+@misc{sung2026ffsim,
+      title={ffsim: Faster simulation of fermionic quantum circuits},
+      author={Kevin J. Sung and Inho Choi and Mirko Amico and Bartholomew Andrews and Esra Ayantuna and Yukio Kawashima and Wan-Hsuan Lin and David Omanovic and Samuele Piccinelli and Javier Robledo Moreno and Abdullah Ash Saki and James Shee and Soyoung Shin and Minh C. Tran and Kento Ueda and Haimeng Zhang and Mario Motta},
+      year={2026},
+      eprint={2605.03123},
+      archivePrefix={arXiv},
+      primaryClass={quant-ph},
+      url={https://arxiv.org/abs/2605.03123},
 }
 ```
 
