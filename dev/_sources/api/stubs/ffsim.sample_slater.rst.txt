@@ -1,0 +1,6 @@
+﻿ffsim.sample\_slater
+====================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: sample_slater

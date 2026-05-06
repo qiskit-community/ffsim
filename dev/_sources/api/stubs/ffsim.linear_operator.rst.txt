@@ -1,0 +1,6 @@
+﻿ffsim.linear\_operator
+======================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: linear_operator

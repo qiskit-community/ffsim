@@ -1,0 +1,151 @@
+﻿ffsim.MolecularData
+===================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: MolecularData
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MolecularData.active_space
+      ~MolecularData.atom
+      ~MolecularData.basis
+      ~MolecularData.ccsd_energy
+      ~MolecularData.ccsd_t1
+      ~MolecularData.ccsd_t2
+      ~MolecularData.cisd_energy
+      ~MolecularData.cisd_vec
+      ~MolecularData.dipole_integrals
+      ~MolecularData.dmrg_energy
+      ~MolecularData.fci_energy
+      ~MolecularData.fci_vec
+      ~MolecularData.hamiltonian
+      ~MolecularData.hf_energy
+      ~MolecularData.hf_mo_coeff
+      ~MolecularData.hf_mo_occ
+      ~MolecularData.mo_coeff
+      ~MolecularData.mo_occ
+      ~MolecularData.mole
+      ~MolecularData.mp2_energy
+      ~MolecularData.mp2_t2
+      ~MolecularData.orbital_symmetries
+      ~MolecularData.scf
+      ~MolecularData.sci_energy
+      ~MolecularData.sci_vec
+      ~MolecularData.spin
+      ~MolecularData.symmetry
+      ~MolecularData.core_energy
+      ~MolecularData.one_body_integrals
+      ~MolecularData.two_body_integrals
+      ~MolecularData.norb
+      ~MolecularData.nelec
+
+   .. autoattribute:: active_space
+
+   .. autoattribute:: atom
+
+   .. autoattribute:: basis
+
+   .. autoattribute:: ccsd_energy
+
+   .. autoattribute:: ccsd_t1
+
+   .. autoattribute:: ccsd_t2
+
+   .. autoattribute:: cisd_energy
+
+   .. autoattribute:: cisd_vec
+
+   .. autoattribute:: dipole_integrals
+
+   .. autoattribute:: dmrg_energy
+
+   .. autoattribute:: fci_energy
+
+   .. autoattribute:: fci_vec
+
+   .. autoattribute:: hamiltonian
+
+   .. autoattribute:: hf_energy
+
+   .. autoattribute:: hf_mo_coeff
+
+   .. autoattribute:: hf_mo_occ
+
+   .. autoattribute:: mo_coeff
+
+   .. autoattribute:: mo_occ
+
+   .. autoattribute:: mole
+
+   .. autoattribute:: mp2_energy
+
+   .. autoattribute:: mp2_t2
+
+   .. autoattribute:: orbital_symmetries
+
+   .. autoattribute:: scf
+
+   .. autoattribute:: sci_energy
+
+   .. autoattribute:: sci_vec
+
+   .. autoattribute:: spin
+
+   .. autoattribute:: symmetry
+
+   .. autoattribute:: core_energy
+
+   .. autoattribute:: one_body_integrals
+
+   .. autoattribute:: two_body_integrals
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: nelec
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MolecularData.from_fcidump
+      ~MolecularData.from_json
+      ~MolecularData.from_scf
+      ~MolecularData.run_ccsd
+      ~MolecularData.run_cisd
+      ~MolecularData.run_fci
+      ~MolecularData.run_mp2
+      ~MolecularData.run_sci
+      ~MolecularData.to_fcidump
+      ~MolecularData.to_json
+
+   .. automethod:: from_fcidump
+
+   .. automethod:: from_json
+
+   .. automethod:: from_scf
+
+   .. automethod:: run_ccsd
+
+   .. automethod:: run_cisd
+
+   .. automethod:: run_fci
+
+   .. automethod:: run_mp2
+
+   .. automethod:: run_sci
+
+   .. automethod:: to_fcidump
+
+   .. automethod:: to_json
+   
+   

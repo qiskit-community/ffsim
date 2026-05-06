@@ -1,0 +1,711 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Build Qiskit circuits for the LUCJ ansatz" href="qiskit-lucj.html" /><link rel="prev" title="Simulate entanglement forging" href="entanglement-forging.html" />
+
+    <link rel="shortcut icon" href="../_static/logo.svg"/><!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>Sample from Slater determinants - ffsim 0.0.80</title>
+      <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">ffsim 0.0.80</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/logo.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/logo-dark.svg" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">ffsim 0.0.80</span>
+  
+</a>
+
+<p class="sidebar-ecosystem-link">
+  This project is part of the <a class="reference external" href="https://www.ibm.com/quantum/ecosystem">Qiskit ecosystem</a>
+</p><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/double-factorized-trotter.html">Implement Trotter simulation of the double-factorized Hamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/variational-ansatzes.html">Variational ansatzes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/orbital-rotation.html">Orbital rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/diag-coulomb-hamiltonian.html">Diagonal Coulomb Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/protocols.html">Protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../explanations/qubit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-to guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sample-from-state-vectors.html">Sample from state vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compute-expectation-values.html">Compute expectation values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-vqe.html">Simulate the variational quantum eigensolver (VQE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-mol-ham.html">Simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate-trotter-hubbard.html">Simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entanglement-forging.html">Simulate entanglement forging</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Sample from Slater determinants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-lucj.html">Build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-trotter.html">Build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-circuits-sim.html">Simulate Hamming weight-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qiskit-merge-orbital-rotations.html">Merge orbital rotations in Qiskit circuits</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.html">ffsim</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of ffsim</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_diag_coulomb_evolution.html">ffsim.apply_diag_coulomb_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_fsim_gate.html">ffsim.apply_fsim_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_fswap_gate.html">ffsim.apply_fswap_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_givens_rotation.html">ffsim.apply_givens_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_hop_gate.html">ffsim.apply_hop_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_num_interaction.html">ffsim.apply_num_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_num_num_interaction.html">ffsim.apply_num_num_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_num_op_prod_interaction.html">ffsim.apply_num_op_prod_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_num_op_sum_evolution.html">ffsim.apply_num_op_sum_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_on_site_interaction.html">ffsim.apply_on_site_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_orbital_rotation.html">ffsim.apply_orbital_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_quad_ham_evolution.html">ffsim.apply_quad_ham_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_tunneling_interaction.html">ffsim.apply_tunneling_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.DiagonalCoulombHamiltonian.html">ffsim.DiagonalCoulombHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.DoubleFactorizedHamiltonian.html">ffsim.DoubleFactorizedHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.MolecularHamiltonian.html">ffsim.MolecularHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.MolecularHamiltonianSpinless.html">ffsim.MolecularHamiltonianSpinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SingleFactorizedHamiltonian.html">ffsim.SingleFactorizedHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.init_cache.html">ffsim.init_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.MolecularData.html">ffsim.MolecularData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.FermionAction.html">ffsim.FermionAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.FermionOperator.html">ffsim.FermionOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.ccsd_generator_restricted.html">ffsim.ccsd_generator_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.ccsd_generator_unrestricted.html">ffsim.ccsd_generator_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.cre.html">ffsim.cre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.cre_a.html">ffsim.cre_a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.cre_b.html">ffsim.cre_b</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.des.html">ffsim.des</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.des_a.html">ffsim.des_a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.des_b.html">ffsim.des_b</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.doubles_excitations_restricted.html">ffsim.doubles_excitations_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.doubles_excitations_unrestricted.html">ffsim.doubles_excitations_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.fermi_hubbard_1d.html">ffsim.fermi_hubbard_1d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.fermi_hubbard_2d.html">ffsim.fermi_hubbard_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.number_operator.html">ffsim.number_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_minus_operator.html">ffsim.s_minus_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_plus_operator.html">ffsim.s_plus_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_squared_operator.html">ffsim.s_squared_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_x_operator.html">ffsim.s_x_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_y_operator.html">ffsim.s_y_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.s_z_operator.html">ffsim.s_z_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.singles_excitations_restricted.html">ffsim.singles_excitations_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.singles_excitations_unrestricted.html">ffsim.singles_excitations_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.uccsd_generator_restricted.html">ffsim.uccsd_generator_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.uccsd_generator_unrestricted.html">ffsim.uccsd_generator_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsApplyUnitary.html">ffsim.SupportsApplyUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsApproximateEquality.html">ffsim.SupportsApproximateEquality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsDiagonal.html">ffsim.SupportsDiagonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsFermionOperator.html">ffsim.SupportsFermionOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsLinearOperator.html">ffsim.SupportsLinearOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.SupportsTrace.html">ffsim.SupportsTrace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.apply_unitary.html">ffsim.apply_unitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.approx_eq.html">ffsim.approx_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.diag.html">ffsim.diag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.fermion_operator.html">ffsim.fermion_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linear_operator.html">ffsim.linear_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.trace.html">ffsim.trace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.BitstringType.html">ffsim.BitstringType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.ProductStateSum.html">ffsim.ProductStateSum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.ReducedDensityMatrix.html">ffsim.ReducedDensityMatrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.Spin.html">ffsim.Spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.StateVector.html">ffsim.StateVector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.addresses_to_strings.html">ffsim.addresses_to_strings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.dim.html">ffsim.dim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.dims.html">ffsim.dims</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.expectation_one_body_power.html">ffsim.expectation_one_body_power</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.expectation_one_body_product.html">ffsim.expectation_one_body_product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.hartree_fock_state.html">ffsim.hartree_fock_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.rdms.html">ffsim.rdms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.sample_slater.html">ffsim.sample_slater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.sample_state_vector.html">ffsim.sample_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.slater_determinant.html">ffsim.slater_determinant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.slater_determinant_amplitudes.html">ffsim.slater_determinant_amplitudes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.slater_determinant_rdms.html">ffsim.slater_determinant_rdms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.spin_square.html">ffsim.spin_square</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.spinful_to_spinless_rdm1.html">ffsim.spinful_to_spinless_rdm1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.spinful_to_spinless_rdm2.html">ffsim.spinful_to_spinless_rdm2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.spinful_to_spinless_vec.html">ffsim.spinful_to_spinless_vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.strings_to_addresses.html">ffsim.strings_to_addresses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.simulate_qdrift_double_factorized.html">ffsim.simulate_qdrift_double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.simulate_trotter_diag_coulomb_split_op.html">ffsim.simulate_trotter_diag_coulomb_split_op</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.simulate_trotter_double_factorized.html">ffsim.simulate_trotter_double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.GivensAnsatzOp.html">ffsim.GivensAnsatzOp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.HopGateAnsatzOperator.html">ffsim.HopGateAnsatzOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.NumNumAnsatzOpSpinBalanced.html">ffsim.NumNumAnsatzOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCCSDOpRestricted.html">ffsim.UCCSDOpRestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCCSDOpRestrictedReal.html">ffsim.UCCSDOpRestrictedReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCCSDOpUnrestricted.html">ffsim.UCCSDOpUnrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCCSDOpUnrestrictedReal.html">ffsim.UCCSDOpUnrestrictedReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCJAnglesOpSpinBalanced.html">ffsim.UCJAnglesOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCJOpSpinBalanced.html">ffsim.UCJOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCJOpSpinless.html">ffsim.UCJOpSpinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.UCJOpSpinUnbalanced.html">ffsim.UCJOpSpinUnbalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.multireference_state.html">ffsim.multireference_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.multireference_state_prod.html">ffsim.multireference_state_prod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.optimize_orbitals.html">ffsim.optimize_orbitals</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.contract.html">ffsim.contract</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of ffsim.contract</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.contract_diag_coulomb.html">ffsim.contract.contract_diag_coulomb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.contract_num_op_sum.html">ffsim.contract.contract_num_op_sum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.contract_one_body.html">ffsim.contract.contract_one_body</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.diag_coulomb_linop.html">ffsim.contract.diag_coulomb_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.num_op_sum_linop.html">ffsim.contract.num_op_sum_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.one_body_linop.html">ffsim.contract.one_body_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.contract.two_body_linop.html">ffsim.contract.two_body_linop</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.linalg.html">ffsim.linalg</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of ffsim.linalg</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.apply_matrix_to_slices.html">ffsim.linalg.apply_matrix_to_slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.double_factorized.html">ffsim.linalg.double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.double_factorized_t2.html">ffsim.linalg.double_factorized_t2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.double_factorized_t2_alpha_beta.html">ffsim.linalg.double_factorized_t2_alpha_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.expm_multiply_taylor.html">ffsim.linalg.expm_multiply_taylor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.givens_decomposition.html">ffsim.linalg.givens_decomposition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_antihermitian.html">ffsim.linalg.is_antihermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_hermitian.html">ffsim.linalg.is_hermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_orthogonal.html">ffsim.linalg.is_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_real_symmetric.html">ffsim.linalg.is_real_symmetric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_special_orthogonal.html">ffsim.linalg.is_special_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.is_unitary.html">ffsim.linalg.is_unitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.lup.html">ffsim.linalg.lup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.match_global_phase.html">ffsim.linalg.match_global_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.modified_cholesky.html">ffsim.linalg.modified_cholesky</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.one_hot.html">ffsim.linalg.one_hot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.linalg.reduced_matrix.html">ffsim.linalg.reduced_matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.optimize.html">ffsim.optimize</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of ffsim.optimize</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.optimize.minimize_linear_method.html">ffsim.optimize.minimize_linear_method</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.qiskit.html">ffsim.qiskit</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of ffsim.qiskit</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.PRE_INIT.html">ffsim.qiskit.PRE_INIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.DiagCoulombEvolutionJW.html">ffsim.qiskit.DiagCoulombEvolutionJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.html">ffsim.qiskit.DiagCoulombEvolutionSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.DropNegligible.html">ffsim.qiskit.DropNegligible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.FfsimSampler.html">ffsim.qiskit.FfsimSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.GivensAnsatzOpJW.html">ffsim.qiskit.GivensAnsatzOpJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.GivensAnsatzOpSpinlessJW.html">ffsim.qiskit.GivensAnsatzOpSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.MergeOrbitalRotations.html">ffsim.qiskit.MergeOrbitalRotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.html">ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.NumOpSumEvolutionJW.html">ffsim.qiskit.NumOpSumEvolutionJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.NumOpSumEvolutionSpinlessJW.html">ffsim.qiskit.NumOpSumEvolutionSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.OrbitalRotationJW.html">ffsim.qiskit.OrbitalRotationJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.OrbitalRotationSpinlessJW.html">ffsim.qiskit.OrbitalRotationSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.PrepareHartreeFockJW.html">ffsim.qiskit.PrepareHartreeFockJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.PrepareHartreeFockSpinlessJW.html">ffsim.qiskit.PrepareHartreeFockSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.PrepareSlaterDeterminantJW.html">ffsim.qiskit.PrepareSlaterDeterminantJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.html">ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW.html">ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.html">ffsim.qiskit.SimulateTrotterDoubleFactorizedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.UCJOpSpinBalancedJW.html">ffsim.qiskit.UCJOpSpinBalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.UCJOpSpinUnbalancedJW.html">ffsim.qiskit.UCJOpSpinUnbalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.UCJOpSpinlessJW.html">ffsim.qiskit.UCJOpSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.ffsim_vec_to_qiskit_vec.html">ffsim.qiskit.ffsim_vec_to_qiskit_vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.final_state_vector.html">ffsim.qiskit.final_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.generate_lucj_pass_manager.html">ffsim.qiskit.generate_lucj_pass_manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.jordan_wigner.html">ffsim.qiskit.jordan_wigner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.pre_init_passes.html">ffsim.qiskit.pre_init_passes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.qiskit.qiskit_vec_to_ffsim_vec.html">ffsim.qiskit.qiskit_vec_to_ffsim_vec</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.random.html">ffsim.random</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of ffsim.random</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_antihermitian.html">ffsim.random.random_antihermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_density_matrix.html">ffsim.random.random_density_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_diagonal_coulomb_hamiltonian.html">ffsim.random.random_diagonal_coulomb_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_double_factorized_hamiltonian.html">ffsim.random.random_double_factorized_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_fermion_hamiltonian.html">ffsim.random.random_fermion_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_fermion_operator.html">ffsim.random.random_fermion_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_hermitian.html">ffsim.random.random_hermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_molecular_hamiltonian.html">ffsim.random.random_molecular_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_molecular_hamiltonian_spinless.html">ffsim.random.random_molecular_hamiltonian_spinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_orthogonal.html">ffsim.random.random_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_real_symmetric_matrix.html">ffsim.random.random_real_symmetric_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_special_orthogonal.html">ffsim.random.random_special_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_state_vector.html">ffsim.random.random_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_t2_amplitudes.html">ffsim.random.random_t2_amplitudes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_two_body_tensor.html">ffsim.random.random_two_body_tensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_uccsd_op_restricted.html">ffsim.random.random_uccsd_op_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_uccsd_op_restricted_real.html">ffsim.random.random_uccsd_op_restricted_real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_uccsd_op_unrestricted.html">ffsim.random.random_uccsd_op_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_uccsd_op_unrestricted_real.html">ffsim.random.random_uccsd_op_unrestricted_real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_ucj_op_spin_balanced.html">ffsim.random.random_ucj_op_spin_balanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_ucj_op_spin_unbalanced.html">ffsim.random.random_ucj_op_spin_unbalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_ucj_op_spinless.html">ffsim.random.random_ucj_op_spinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.random.random_unitary.html">ffsim.random.random_unitary</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/ffsim.testing.html">ffsim.testing</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of ffsim.testing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.assert_allclose_up_to_global_phase.html">ffsim.testing.assert_allclose_up_to_global_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.generate_norb_nelec.html">ffsim.testing.generate_norb_nelec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.generate_norb_nelec_spin.html">ffsim.testing.generate_norb_nelec_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.generate_norb_nocc.html">ffsim.testing.generate_norb_nocc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.generate_norb_spin.html">ffsim.testing.generate_norb_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.random_nelec.html">ffsim.testing.random_nelec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/stubs/ffsim.testing.random_occupied_orbitals.html">ffsim.testing.random_occupied_orbitals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/releases">Release notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development branch docs</a></li>
+</ul>
+
+</div></div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/blob/main/docs/how-to-guides/sample-slater.ipynb?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/qiskit-community/ffsim/edit/main/docs/how-to-guides/sample-slater.ipynb" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Sample-from-Slater-determinants">
+<h1>Sample from Slater determinants<a class="headerlink" href="#Sample-from-Slater-determinants" title="Link to this heading">¶</a></h1>
+<p>A Slater determinant is a state obtained by applying an <a class="reference internal" href="../explanations/orbital-rotation.html"><span class="doc">orbital rotation</span></a> to an electronic configuration. The <a class="reference internal" href="../api/stubs/ffsim.sample_slater.html#ffsim.sample_slater"><span class="std std-ref">ffsim.sample_slater</span></a> function draws electronic configuration samples from a Slater determinant specified by an orbital rotation and reference configuration. Unlike <a class="reference internal" href="../api/stubs/ffsim.sample_state_vector.html#ffsim.sample_state_vector"><span class="std std-ref">ffsim.sample_state_vector</span></a>, which requires the
+full state vector as input, <code class="docutils literal notranslate"><span class="pre">sample_slater</span></code> implements an efficient algorithm that works directly with the orbital rotation representation, allowing it to scale to much larger systems. This guide demonstrates the use of <code class="docutils literal notranslate"><span class="pre">sample_slater</span></code> on a few example systems.</p>
+<section id="Hartree-Fock-state">
+<h2>Hartree-Fock state<a class="headerlink" href="#Hartree-Fock-state" title="Link to this heading">¶</a></h2>
+<p>The simplest Slater determinant is the Hartree-Fock state, in which the lowest <span class="math notranslate nohighlight">\(N_\alpha\)</span> spin-up and <span class="math notranslate nohighlight">\(N_\beta\)</span> spin-down orbitals are occupied, and no orbital rotation is applied. Since all probability is concentrated on a single configuration, every shot returns the same bitstring.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">n_alpha</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n_beta</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">samples</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">sample_slater</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">)),</span> <span class="n">shots</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">samples</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;00000001110000011111&#39;,
+ &#39;00000001110000011111&#39;,
+ &#39;00000001110000011111&#39;,
+ &#39;00000001110000011111&#39;,
+ &#39;00000001110000011111&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Random-Slater-determinant">
+<h2>Random Slater determinant<a class="headerlink" href="#Random-Slater-determinant" title="Link to this heading">¶</a></h2>
+<p>The following code cell samples a random Slater determinant with a few hundred orbitals and electrons.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">norb</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_alpha</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">n_beta</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_unitary</span><span class="p">(</span><span class="n">norb</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_alpha</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beta</span><span class="p">))</span>
+
+<span class="n">samples</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">sample_slater</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+<span class="p">)</span>
+<span class="n">samples</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;0000000000110000011000000010000001000011001100000101000100111001011000000000000101000000000001000000000000000000010001000000000010100100000000000001000110001000000100000100001000001001001010000001000000000000110000100100100000111100101001011000010101000000000000100100000001100000100100000110000010100100000000000100100000001000010001000001010000100000101100100000001000000000000000000010101000100000000000000000000001000001000000000000000010000000000000100001000001001111000000000111000010100000100011000010001000000000000010001000000011000000000000010010000000100000000001001001000000000000000100111001000100000010000000001000001010001010000001110000000001000000000001000001000101011000000000001000100000000000100000000100010000000000001000000100000000110000000010000100000010100001100000011000110100000001100000001000000001000100001100100100001000000010010010000001100000000000000000000001000000100100011010001010010000000000010100100110011010100000101011000000000011010100000101000100000000000000&#39;,
+ &#39;0010010000000000000010000000001110000010000010001110000011000010000110000011000100000100010010000000000000001000100000000100001000001001000000000101000010000001000000000000001010000000001010000000010000100000000000000000000100000000001110000000100100000001001010100100000000100000000100001110010101101000011000000000000010101011000000000000000110110011000001000101000101100000000000000100000010000001100000000010000001100000000100000010000100010000000001101000100000000000001100001100000010000000001100100000001011010000001000001000100001000001001100000100000000000000000000000000000001010000000000000101000100000001000000101001001000000010000000000000100001000000000000000000100100010000001001001101110000000000001000000100000000000010001000010000100000010000000000000000100000101100000010100100100010000000000000000010010000000000110100100111011010010010010000000000011101000000000001001000001100100000010000000010000010001101010000100000000100100000001000000101010100000010000000010001001111010100&#39;,
+ &#39;1101000000000000000011000100100101000100100010000010000001000000001000000101000000000000101000000000000000000101101000000000001000000000000110000001110000000000000011000000000000000010100011000000000000001000000000110000011001000000000000100100100101100001000010001000011110110100000000000101001000100010000000010000010000100100100000000010001000100001000011000010000100000101000000000001000000100000000000000000001000100000000101010000001000001100100001010010001000000100111000000001000010001100000000110000000010000000000000000001100000000000000001000011001000100011000000000100000000001000100010001001000000000000000000010100000000000100100001011000111100000001000000000001000010010001000000010000000000100000011100010000001010010010000000001000000011100100000010000100000010000011010100000000000000000010100010010100100010000001000100000000110010010100000000110000000000001010000111000000010101000100100000000000000100010011000010110000000001011001000000100001000000000001001100100000001000000000&#39;,
+ &#39;1100011101100100111000100000000010110000000010000000100000000010000000000100101000001000100100000001000000000000001000010001000000000010010100010000010011110000000001000100000001100100100100000000000000000000100000000000000011010001110010001000000010000011100000010000000100001000011001000001100001000000001000000010011100000000010000000000000000000100001000100000000000000001010000010000000000011100010010000000000000001100010000110001000001000100100000100000001000000000000010000110000000010000100100100111000000001000100010100010000000100000100010100011010000000100001000000000001110000000001000000110101000000000000100110000001000000000000010110000100011001001000000110000000000000000010000010000011000100110000100110001000000000000000001100000000000000000000100000001001000000100100100000001000000100010101100000101000011100000000000000100000010100000000000010000100000000010100000000000001101001000000000001000000000000000100000010011001110000000001001001100000011010000010000100001000000000100&#39;,
+ &#39;1000100100010001101100000100000000000000000000000011000000001000001000000001010010000100000000000100100000110000000000000010000001100100001000001100001010000000000000001100100001000000110100000000100000101000010010000100011110100000000000010001010000000000001000011000101001000101000100100110000000010001000110100000001001000000000100000000110001010011000010000110000000000000010000000000000001010000010001000000000000000001000100101000000000001000001000100010001100000011000001000000100100000000000011001001011000011101100010010000010000010011001000101000000010000110000010000100000000000000000000000000001000101010010001000100000001000110000000001000100000001000000000100000010110000000001000000000100000100000000001000100000000010101010001000100000000000100001110000000000000000100000100000000000000000000111000000000011010000000000101010100100000000000000000010000001000101001000011000000001000000000010000001100001000001001010000000000000100001010100000000001100000100100000001101010001000100100&#39;,
+ &#39;0010000001000100000000010000100010000101000000001000000100000011011000000000010000000110000100000101000010011010000100010010001100000101101000100100000000101000000000000000011011000000000101000010000011000000011000000000001001000000000000000001011000010000000000010011001100101100100000001000000000001000000001000100001000001000100010000000000001100001001000000000010000001010110000001000001000010010000001100010110010001001100000000000000100001010000000000000000000000000000000000000001100011000000001100000011000000000011000000100000000000000000001100110001000000001000110100001000110100010100010001000010000001101100010101010000000000000000100000001000000000001000000000000100000001000000100000000000110000001000001000000100101000010000000000100010001111010010000001000000001000001000101001010110000000010100000000001000000000001001000100000000100100001000000010000000000010111000010010000010000001110010000000010000010000000000000000010000001001000001001000010000010001010100000000000100000001100&#39;,
+ &#39;0000001100100000000000000100000000000000001000000000001010000000000000000001000000000100011010011000000000011000010000110011001001001000001000001001000000000000010000000001000000000000000000000010100000010011010011010000001001100001000010001001010000100100101000101000110000000100000000100110100001000000010000100000000000000000101000000011010001000110100000001000010010000010000000101010110000010010001000000100000000010001110000000010000100101100000001000000001000000010000100000000000000110000001010001000110000000000100000000000000001000001000100111110000000100000000000000101000000000000000100010000010010001010001000001000000010001010000110110000001000100000000110010000010000001000010001000000001100001100100001000000000100000000000000110000010100010000001000100011000000110001010000000000100000001000010000001011000100000000000000000000000000100010010100011010000010010000000110110001000000000000100100000100100110001000000100000000010000100000000000100000010000000000001000001000001011010010&#39;,
+ &#39;0001000000010000010100010100000000010110101000100111000100100100000000100010100100100000101000000010000000100100000001110000000000000001000000000000000000011000100000010010000010000000000001110000000000000100010000010000000000000010000010000010001000001000000000001010000100100000001010010001000000001000000010010001001100010110001100000100000100000001000000000101000000101001000000000000000100000101000100000000011000111100000000000010000000000100010000000000010100101000000010100000000010101110000010000001001000000000010000010010000100111100000001100000000000001100000110000001001100001001100000110000100001011100000100100000000100100001000001000000000000000100001001000000001110000001010000000100000000000000010000001100001000110011000100000010100000001000000011110010000000001011000010000000000000000000000000000010000000100010010110000000000000010000000010000010000101010010000000100000000010010100110000000000100100000000001000010000010000100001000000000001000010110000000001000000001000011000&#39;,
+ &#39;0101100000000000101001001110010000000010001000000100000110101000010000100000101010000010010000000000000001001000001000010000000010100000000000000000000100000010000000010000000000100000001100000101010000000000101010000001000000001000000101100100000100100010100100000000000000000000101000001110000000000000000000011001010000100101000001000000010100000001000000000010000001001000100000010010000000000000101011000111010000000100000000000100000100010010010100000000000100000101000000001010001101001000000101000001001000000001000000001100010100100000000100011001001000000000110000000000000000000000000001010000001000010010000000100010111000000100000010111000000010000110000100000100000001010111000001000001010000001000111000000101000000000000000101101000000000000000000000000000101101000000100101111000000100000000000101010000000000110000100000001000000000000001000000010000010001001000101010000101000000000000000101000000000000000000111010010000101000110000000100000101000000001000000000001100000000100000&#39;,
+ &#39;0000000010000100100000001000001000000011010000000001000000100000001000010010000000000001000011101000001011000110000101000110001100000000000010000100000001000010000000000001000000001000000001000100001000101000100101000010000010100000100100000100000010010000000000100000000000110000000010110000100001001000010000001100000001000001010000000010001000000000001000010110011000101100000100100000100100110001000000010010001001001010000100000000000001000000010100100000100000000100000000001010100000000000000000000000100000000100101000001000000100100110001000100010001100000001110111110101010010100010101000100100000010001001000010100000010000010000000110100100000000000001000100001000100100000010010000000001101010000000100000000000000000100000010001000010010000000000000000010000000001000000000000001101100000000000000000000010000100000000100001000011110101000000110001011000000001001000000000000100100000001000011000000100000000000000000000000100000000000000011000000001000001000000000001010001100000001100&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Tight-binding-model">
+<h2>Tight-binding model<a class="headerlink" href="#Tight-binding-model" title="Link to this heading">¶</a></h2>
+<p>Our last example is the ground state of a tight-binding model of spinless fermions on a one-dimensional chain, at half filling. The Hamiltonian is given by</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[H = -t \sum_{j=0}^{N-2} \left(a_j^\dagger a_{j+1} + a_{j+1}^\dagger a_j\right).\]</div>
+</div>
+<p>The Hamiltonian is diagonal in a basis of single-particle orbitals, and the ground state is constructed by filling the lowest-energy orbitals.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="n">norb</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">nelec</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># half-filling</span>
+
+<span class="c1"># Construct the matrix encoding the Hamiltonian</span>
+<span class="n">tunneling</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="o">-</span><span class="n">tunneling</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span>
+    <span class="o">-</span><span class="n">tunneling</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">norb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+
+<span class="c1"># Columns of orbital_rotation are the single-particle orbitals, sorted by energy</span>
+<span class="n">energies</span><span class="p">,</span> <span class="n">orbital_rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+<span class="c1"># Fill the lowest-energy orbitals</span>
+<span class="n">occupied_orbitals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nelec</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ground state energy: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">energies</span><span class="p">[</span><span class="n">occupied_orbitals</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Sample electronic configurations</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+    <span class="n">ffsim</span><span class="o">.</span><span class="n">sample_slater</span><span class="p">(</span>
+        <span class="n">norb</span><span class="p">,</span> <span class="n">occupied_orbitals</span><span class="p">,</span> <span class="n">orbital_rotation</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">samples</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ground state energy: -12.381489999654752
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[(&#39;10101001010101101010&#39;, 12),
+ (&#39;01010101010101011010&#39;, 11),
+ (&#39;01010101011010101010&#39;, 11),
+ (&#39;10101010101010010101&#39;, 11),
+ (&#39;10101010101010101010&#39;, 10),
+ (&#39;01010101011001010101&#39;, 10),
+ (&#39;01101010101010101001&#39;, 9),
+ (&#39;10101010101010100101&#39;, 9),
+ (&#39;01011010101010101010&#39;, 8),
+ (&#39;10101010100101010110&#39;, 8)]
+</pre></div></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="qiskit-lucj.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Build Qiskit circuits for the LUCJ ansatz</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="entanglement-forging.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Simulate entanglement forging</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, IBM
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Sample from Slater determinants</a><ul>
+<li><a class="reference internal" href="#Hartree-Fock-state">Hartree-Fock state</a></li>
+<li><a class="reference internal" href="#Random-Slater-determinant">Random Slater determinant</a></li>
+<li><a class="reference internal" href="#Tight-binding-model">Tight-binding model</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5c6fbccc"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

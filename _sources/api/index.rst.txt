@@ -1,0 +1,32 @@
+API reference
+=============
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   ffsim
+   ffsim.contract
+   ffsim.linalg
+   ffsim.optimize
+   ffsim.qiskit
+   ffsim.random
+   ffsim.testing
+
+.. list-table::
+   :widths: auto
+
+   * - :doc:`ffsim`
+     - Top-level module where ffsim's main functions and classes are exposed
+   * - :doc:`ffsim.contract`
+     - Functions for contracting tensors and constructing linear operators
+   * - :doc:`ffsim.linalg`
+     - Linear algebra utilities
+   * - :doc:`ffsim.optimize`
+     - Optimization algorithms
+   * - :doc:`ffsim.qiskit`
+     - Code that uses `Qiskit <https://github.com/Qiskit/qiskit>`_
+   * - :doc:`ffsim.random`
+     - Random sampling utilities
+   * - :doc:`ffsim.testing`
+     - Testing utilities

@@ -1,0 +1,6 @@
+﻿ffsim.doubles\_excitations\_restricted
+======================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: doubles_excitations_restricted

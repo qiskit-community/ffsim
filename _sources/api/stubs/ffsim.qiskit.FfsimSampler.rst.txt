@@ -1,0 +1,23 @@
+﻿ffsim.qiskit.FfsimSampler
+=========================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: FfsimSampler
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FfsimSampler.run
+
+   .. automethod:: run
+   
+   

@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_unitary
+============================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_unitary

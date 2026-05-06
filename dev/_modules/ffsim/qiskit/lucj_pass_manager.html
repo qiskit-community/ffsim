@@ -1,0 +1,1036 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <link rel="shortcut icon" href="../../../_static/logo.svg"/><!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>ffsim.qiskit.lucj_pass_manager - ffsim 0.0.81.dev0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">ffsim 0.0.81.dev0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../../_static/logo.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../../_static/logo-dark.svg" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">ffsim 0.0.81.dev0</span>
+  
+</a>
+
+<p class="sidebar-ecosystem-link">
+  This project is part of the <a class="reference external" href="https://www.ibm.com/quantum/ecosystem">Qiskit ecosystem</a>
+</p><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/double-factorized-trotter.html">Implement Trotter simulation of the double-factorized Hamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../explanations/index.html">Explanations</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Explanations</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/state-vectors-and-gates.html">State vectors and gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/hamiltonians.html">Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/variational-ansatzes.html">Variational ansatzes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/orbital-rotation.html">Orbital rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/double-factorized.html">Double-factorized representation of the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/diag-coulomb-hamiltonian.html">Diagonal Coulomb Hamiltonians</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/lucj.html">The local unitary cluster Jastrow (LUCJ) ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/fermion-operator.html">The FermionOperator class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/protocols.html">Protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../explanations/qubit-gate-decompositions.html">Qubit gate decompositions of fermionic gates</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../how-to-guides/index.html">How-to guides</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-to guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/sample-from-state-vectors.html">Sample from state vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/compute-expectation-values.html">Compute expectation values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/simulate-vqe.html">Simulate the variational quantum eigensolver (VQE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/simulate-trotter-mol-ham.html">Simulate Trotterized time evolution for the molecular Hamiltonian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/simulate-trotter-hubbard.html">Simulate Trotterized time evolution for the Fermi-Hubbard model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/entanglement-forging.html">Simulate entanglement forging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/sample-slater.html">Sample from Slater determinants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-lucj.html">Build Qiskit circuits for the LUCJ ansatz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-trotter.html">Build Qiskit circuits for Trotterized Hamiltonian simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-circuits-sim.html">Simulate Hamming weight-preserving Qiskit circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how-to-guides/qiskit-merge-orbital-rotations.html">Merge orbital rotations in Qiskit circuits</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.html">ffsim</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of ffsim</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_diag_coulomb_evolution.html">ffsim.apply_diag_coulomb_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_fsim_gate.html">ffsim.apply_fsim_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_fswap_gate.html">ffsim.apply_fswap_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_givens_rotation.html">ffsim.apply_givens_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_hop_gate.html">ffsim.apply_hop_gate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_num_interaction.html">ffsim.apply_num_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_num_num_interaction.html">ffsim.apply_num_num_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_num_op_prod_interaction.html">ffsim.apply_num_op_prod_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_num_op_sum_evolution.html">ffsim.apply_num_op_sum_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_on_site_interaction.html">ffsim.apply_on_site_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_orbital_rotation.html">ffsim.apply_orbital_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_quad_ham_evolution.html">ffsim.apply_quad_ham_evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_tunneling_interaction.html">ffsim.apply_tunneling_interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.DiagonalCoulombHamiltonian.html">ffsim.DiagonalCoulombHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.DoubleFactorizedHamiltonian.html">ffsim.DoubleFactorizedHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.MolecularHamiltonian.html">ffsim.MolecularHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.MolecularHamiltonianSpinless.html">ffsim.MolecularHamiltonianSpinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SingleFactorizedHamiltonian.html">ffsim.SingleFactorizedHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.init_cache.html">ffsim.init_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.MolecularData.html">ffsim.MolecularData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.FermionAction.html">ffsim.FermionAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.FermionOperator.html">ffsim.FermionOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.ccsd_generator_restricted.html">ffsim.ccsd_generator_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.ccsd_generator_unrestricted.html">ffsim.ccsd_generator_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.cre.html">ffsim.cre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.cre_a.html">ffsim.cre_a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.cre_b.html">ffsim.cre_b</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.des.html">ffsim.des</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.des_a.html">ffsim.des_a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.des_b.html">ffsim.des_b</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.doubles_excitations_restricted.html">ffsim.doubles_excitations_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.doubles_excitations_unrestricted.html">ffsim.doubles_excitations_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.fermi_hubbard_1d.html">ffsim.fermi_hubbard_1d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.fermi_hubbard_2d.html">ffsim.fermi_hubbard_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.number_operator.html">ffsim.number_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_minus_operator.html">ffsim.s_minus_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_plus_operator.html">ffsim.s_plus_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_squared_operator.html">ffsim.s_squared_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_x_operator.html">ffsim.s_x_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_y_operator.html">ffsim.s_y_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.s_z_operator.html">ffsim.s_z_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.singles_excitations_restricted.html">ffsim.singles_excitations_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.singles_excitations_unrestricted.html">ffsim.singles_excitations_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.uccsd_generator_restricted.html">ffsim.uccsd_generator_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.uccsd_generator_unrestricted.html">ffsim.uccsd_generator_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsApplyUnitary.html">ffsim.SupportsApplyUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsApproximateEquality.html">ffsim.SupportsApproximateEquality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsDiagonal.html">ffsim.SupportsDiagonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsFermionOperator.html">ffsim.SupportsFermionOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsLinearOperator.html">ffsim.SupportsLinearOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.SupportsTrace.html">ffsim.SupportsTrace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.apply_unitary.html">ffsim.apply_unitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.approx_eq.html">ffsim.approx_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.diag.html">ffsim.diag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.fermion_operator.html">ffsim.fermion_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linear_operator.html">ffsim.linear_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.trace.html">ffsim.trace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.BitstringType.html">ffsim.BitstringType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.ProductStateSum.html">ffsim.ProductStateSum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.ReducedDensityMatrix.html">ffsim.ReducedDensityMatrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.Spin.html">ffsim.Spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.StateVector.html">ffsim.StateVector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.addresses_to_strings.html">ffsim.addresses_to_strings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.dim.html">ffsim.dim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.dims.html">ffsim.dims</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.expectation_one_body_power.html">ffsim.expectation_one_body_power</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.expectation_one_body_product.html">ffsim.expectation_one_body_product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.hartree_fock_state.html">ffsim.hartree_fock_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.rdms.html">ffsim.rdms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.sample_slater.html">ffsim.sample_slater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.sample_state_vector.html">ffsim.sample_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.slater_determinant.html">ffsim.slater_determinant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.slater_determinant_amplitudes.html">ffsim.slater_determinant_amplitudes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.slater_determinant_rdms.html">ffsim.slater_determinant_rdms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.spin_square.html">ffsim.spin_square</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.spinful_to_spinless_rdm1.html">ffsim.spinful_to_spinless_rdm1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.spinful_to_spinless_rdm2.html">ffsim.spinful_to_spinless_rdm2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.spinful_to_spinless_vec.html">ffsim.spinful_to_spinless_vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.strings_to_addresses.html">ffsim.strings_to_addresses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.simulate_qdrift_double_factorized.html">ffsim.simulate_qdrift_double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.simulate_trotter_diag_coulomb_split_op.html">ffsim.simulate_trotter_diag_coulomb_split_op</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.simulate_trotter_double_factorized.html">ffsim.simulate_trotter_double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.GivensAnsatzOp.html">ffsim.GivensAnsatzOp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.HopGateAnsatzOperator.html">ffsim.HopGateAnsatzOperator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.NumNumAnsatzOpSpinBalanced.html">ffsim.NumNumAnsatzOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCCSDOpRestricted.html">ffsim.UCCSDOpRestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCCSDOpRestrictedReal.html">ffsim.UCCSDOpRestrictedReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCCSDOpUnrestricted.html">ffsim.UCCSDOpUnrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCCSDOpUnrestrictedReal.html">ffsim.UCCSDOpUnrestrictedReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCJAnglesOpSpinBalanced.html">ffsim.UCJAnglesOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCJOpSpinBalanced.html">ffsim.UCJOpSpinBalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCJOpSpinless.html">ffsim.UCJOpSpinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.UCJOpSpinUnbalanced.html">ffsim.UCJOpSpinUnbalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.multireference_state.html">ffsim.multireference_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.multireference_state_prod.html">ffsim.multireference_state_prod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.optimize_orbitals.html">ffsim.optimize_orbitals</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.contract.html">ffsim.contract</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of ffsim.contract</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.contract_diag_coulomb.html">ffsim.contract.contract_diag_coulomb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.contract_num_op_sum.html">ffsim.contract.contract_num_op_sum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.contract_one_body.html">ffsim.contract.contract_one_body</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.diag_coulomb_linop.html">ffsim.contract.diag_coulomb_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.num_op_sum_linop.html">ffsim.contract.num_op_sum_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.one_body_linop.html">ffsim.contract.one_body_linop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.contract.two_body_linop.html">ffsim.contract.two_body_linop</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.linalg.html">ffsim.linalg</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of ffsim.linalg</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.apply_matrix_to_slices.html">ffsim.linalg.apply_matrix_to_slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.double_factorized.html">ffsim.linalg.double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.double_factorized_t2.html">ffsim.linalg.double_factorized_t2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.double_factorized_t2_alpha_beta.html">ffsim.linalg.double_factorized_t2_alpha_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.expm_multiply_taylor.html">ffsim.linalg.expm_multiply_taylor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.givens_decomposition.html">ffsim.linalg.givens_decomposition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_antihermitian.html">ffsim.linalg.is_antihermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_hermitian.html">ffsim.linalg.is_hermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_orthogonal.html">ffsim.linalg.is_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_real_symmetric.html">ffsim.linalg.is_real_symmetric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_special_orthogonal.html">ffsim.linalg.is_special_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.is_unitary.html">ffsim.linalg.is_unitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.lup.html">ffsim.linalg.lup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.match_global_phase.html">ffsim.linalg.match_global_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.modified_cholesky.html">ffsim.linalg.modified_cholesky</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.one_hot.html">ffsim.linalg.one_hot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.linalg.reduced_matrix.html">ffsim.linalg.reduced_matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.optimize.html">ffsim.optimize</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of ffsim.optimize</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.optimize.minimize_linear_method.html">ffsim.optimize.minimize_linear_method</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.qiskit.html">ffsim.qiskit</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of ffsim.qiskit</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.PRE_INIT.html">ffsim.qiskit.PRE_INIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.DiagCoulombEvolutionJW.html">ffsim.qiskit.DiagCoulombEvolutionJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.DiagCoulombEvolutionSpinlessJW.html">ffsim.qiskit.DiagCoulombEvolutionSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.DropNegligible.html">ffsim.qiskit.DropNegligible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.FfsimSampler.html">ffsim.qiskit.FfsimSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.GivensAnsatzOpJW.html">ffsim.qiskit.GivensAnsatzOpJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.GivensAnsatzOpSpinlessJW.html">ffsim.qiskit.GivensAnsatzOpSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.MergeOrbitalRotations.html">ffsim.qiskit.MergeOrbitalRotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW.html">ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.NumOpSumEvolutionJW.html">ffsim.qiskit.NumOpSumEvolutionJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.NumOpSumEvolutionSpinlessJW.html">ffsim.qiskit.NumOpSumEvolutionSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.OrbitalRotationJW.html">ffsim.qiskit.OrbitalRotationJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.OrbitalRotationSpinlessJW.html">ffsim.qiskit.OrbitalRotationSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.PrepareHartreeFockJW.html">ffsim.qiskit.PrepareHartreeFockJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.PrepareHartreeFockSpinlessJW.html">ffsim.qiskit.PrepareHartreeFockSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.PrepareSlaterDeterminantJW.html">ffsim.qiskit.PrepareSlaterDeterminantJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW.html">ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW.html">ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.SimulateTrotterDoubleFactorizedJW.html">ffsim.qiskit.SimulateTrotterDoubleFactorizedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.UCJOpSpinBalancedJW.html">ffsim.qiskit.UCJOpSpinBalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.UCJOpSpinUnbalancedJW.html">ffsim.qiskit.UCJOpSpinUnbalancedJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.UCJOpSpinlessJW.html">ffsim.qiskit.UCJOpSpinlessJW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.ffsim_vec_to_qiskit_vec.html">ffsim.qiskit.ffsim_vec_to_qiskit_vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.final_state_vector.html">ffsim.qiskit.final_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.generate_lucj_pass_manager.html">ffsim.qiskit.generate_lucj_pass_manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.jordan_wigner.html">ffsim.qiskit.jordan_wigner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.pre_init_passes.html">ffsim.qiskit.pre_init_passes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.qiskit.qiskit_vec_to_ffsim_vec.html">ffsim.qiskit.qiskit_vec_to_ffsim_vec</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.random.html">ffsim.random</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of ffsim.random</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_antihermitian.html">ffsim.random.random_antihermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_density_matrix.html">ffsim.random.random_density_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_diagonal_coulomb_hamiltonian.html">ffsim.random.random_diagonal_coulomb_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_double_factorized_hamiltonian.html">ffsim.random.random_double_factorized_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_fermion_hamiltonian.html">ffsim.random.random_fermion_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_fermion_operator.html">ffsim.random.random_fermion_operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_hermitian.html">ffsim.random.random_hermitian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_molecular_hamiltonian.html">ffsim.random.random_molecular_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_molecular_hamiltonian_spinless.html">ffsim.random.random_molecular_hamiltonian_spinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_orthogonal.html">ffsim.random.random_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_real_symmetric_matrix.html">ffsim.random.random_real_symmetric_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_special_orthogonal.html">ffsim.random.random_special_orthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_state_vector.html">ffsim.random.random_state_vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_t2_amplitudes.html">ffsim.random.random_t2_amplitudes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_two_body_tensor.html">ffsim.random.random_two_body_tensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_uccsd_op_restricted.html">ffsim.random.random_uccsd_op_restricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_uccsd_op_restricted_real.html">ffsim.random.random_uccsd_op_restricted_real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_uccsd_op_unrestricted.html">ffsim.random.random_uccsd_op_unrestricted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_uccsd_op_unrestricted_real.html">ffsim.random.random_uccsd_op_unrestricted_real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_ucj_op_spin_balanced.html">ffsim.random.random_ucj_op_spin_balanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_ucj_op_spin_unbalanced.html">ffsim.random.random_ucj_op_spin_unbalanced</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_ucj_op_spinless.html">ffsim.random.random_ucj_op_spinless</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.random.random_unitary.html">ffsim.random.random_unitary</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/ffsim.testing.html">ffsim.testing</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of ffsim.testing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.assert_allclose_up_to_global_phase.html">ffsim.testing.assert_allclose_up_to_global_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.generate_norb_nelec.html">ffsim.testing.generate_norb_nelec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.generate_norb_nelec_spin.html">ffsim.testing.generate_norb_nelec_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.generate_norb_nocc.html">ffsim.testing.generate_norb_nocc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.generate_norb_spin.html">ffsim.testing.generate_norb_spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.random_nelec.html">ffsim.testing.random_nelec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/stubs/ffsim.testing.random_occupied_orbitals.html">ffsim.testing.random_occupied_orbitals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/blob/main/CONTRIBUTING.md">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/ffsim/releases">Release notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/ffsim/dev/">Development branch docs</a></li>
+</ul>
+
+</div></div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for ffsim.qiskit.lucj_pass_manager</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) Copyright IBM 2026.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Pass manager for LUCJ ansatz with backend compliant layout.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">rustworkx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Instruction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.passmanager.flow_controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConditionalController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">StagedPassManager</span><span class="p">,</span>
+    <span class="n">generate_preset_pass_manager</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.passes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplyLayout</span><span class="p">,</span> <span class="n">VF2PostLayout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rustworkx</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoEdgeBetweenNodes</span><span class="p">,</span> <span class="n">PyGraph</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ffsim</span>
+
+<span class="n">VF2_CALL_LIMIT</span> <span class="o">=</span> <span class="mi">30_000_000</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_two_linear_chains</span><span class="p">(</span>
+    <span class="n">pairs_aa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">pairs_bb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create two disconnected linear qubit chains for the LUCJ ansatz.</span>
+
+<span class="sd">    Construct a ``rustworkx.PyGraph`` with two disconnected linear chains</span>
+<span class="sd">    representing the alpha (nodes ``0`` to ``num alpha orb - 1``) and beta</span>
+<span class="sd">    (nodes ``num alpha orb`` to ``num alpha orb + num beta orb - 1``) qubits.</span>
+<span class="sd">    This graph serves as the base structure for the LUCJ layout; alpha-beta</span>
+<span class="sd">    connections between chains are added separately by</span>
+<span class="sd">    ``_get_layout_graph_and_allowed_pairs_ab``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pairs_aa: Alpha-alpha orbital interaction pairs.</span>
+<span class="sd">        pairs_bb: Beta-beta orbital interaction pairs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A ``rustworkx.PyGraph`` containing two disconnected linear chains.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">rustworkx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_bb</span><span class="p">]:</span>
+        <span class="n">uniq</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">q0</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">q0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniq</span><span class="p">:</span>
+                <span class="n">uniq</span><span class="p">[</span><span class="n">q0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">q1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniq</span><span class="p">:</span>
+                <span class="n">uniq</span><span class="p">[</span><span class="n">q1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># add nodes</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">uniq</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">node_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+            <span class="n">uniq</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_idx</span>
+
+        <span class="c1"># add edges</span>
+        <span class="k">for</span> <span class="n">q0</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">node_idx0</span><span class="p">,</span> <span class="n">node_idx1</span> <span class="o">=</span> <span class="n">uniq</span><span class="p">[</span><span class="n">q0</span><span class="p">],</span> <span class="n">uniq</span><span class="p">[</span><span class="n">q1</span><span class="p">]</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">node_idx0</span><span class="p">,</span> <span class="n">node_idx1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_layout_graph_and_allowed_pairs_ab</span><span class="p">(</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">backend_coupling_graph</span><span class="p">:</span> <span class="n">PyGraph</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;heavy-hex&quot;</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">],</span>
+    <span class="n">pairs_aa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">pairs_ab</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">pairs_bb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">PyGraph</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a LUCJ layout graph and determine accommodated alpha-beta interactions.</span>
+
+<span class="sd">    This routine constructs a candidate layout graph representing the LUCJ ansatz</span>
+<span class="sd">    - two linear qubit chains (alpha and beta) connected by alpha-beta interactions</span>
+<span class="sd">    - and verifies that it can be embedded as an isomorphic subgraph on the target</span>
+<span class="sd">    backend. If the full set of requested alpha-beta pairs cannot be accommodated,</span>
+<span class="sd">    pairs are dropped one-by-one from the end of ``pairs_ab`` until a</span>
+<span class="sd">    valid embedding is found.</span>
+
+<span class="sd">    The construction strategy differs by topology:</span>
+
+<span class="sd">    - **heavy-hex**: Ancilla qubits are inserted as intermediate nodes between</span>
+<span class="sd">      each alpha-beta pair, reflecting the limited connectivity of heavy-hex</span>
+<span class="sd">      devices. The number of ancilla nodes equals ``len(pairs_ab)``.</span>
+<span class="sd">    - **square**: Alpha and beta nodes are connected directly with no ancilla qubits,</span>
+<span class="sd">      exploiting the denser connectivity of square devices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        norb: Number of spatial orbitals, i.e., the number of nodes</span>
+<span class="sd">            in each linear chain (alpha-alpha and beta-beta).</span>
+<span class="sd">        backend_coupling_graph: Undirected ``rustworkx.PyGraph`` of the</span>
+<span class="sd">            target backend with at most one edge between any two nodes. Directed</span>
+<span class="sd">            backends (e.g., Eagle devices such as ``ibm_brisbane``) and backends</span>
+<span class="sd">            with duplicate edges (e.g., Heron devices such as ``ibm_torino``) must</span>
+<span class="sd">            be preprocessed into this form before being passed in. See</span>
+<span class="sd">            ``_make_backend_cmap_pygraph``.</span>
+<span class="sd">        connectivity: Connectivity topology of the</span>
+<span class="sd">            backend. Determines whether ancilla nodes are inserted between</span>
+<span class="sd">            alpha-beta pairs.</span>
+<span class="sd">        pairs_aa: Alpha-alpha orbital interaction pairs.</span>
+<span class="sd">        pairs_ab: Requested alpha-beta orbital</span>
+<span class="sd">            interaction pairs. Modified in-place by dropping pairs from the end</span>
+<span class="sd">            if they cannot be accommodated. List pairs in descending order of</span>
+<span class="sd">            priority to control which are dropped first.</span>
+<span class="sd">        pairs_bb: Beta-beta orbital interaction pairs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        - The LUCJ layout graph - two linear chains with</span>
+<span class="sd">          alpha-beta connections (and ancilla nodes for heavy-hex topologies)</span>
+<span class="sd">          - that is a valid isomorphic subgraph of ``backend_coupling_graph``.</span>
+<span class="sd">        - The subset of ``pairs_ab`` that can</span>
+<span class="sd">          be accommodated given the backend&#39;s connectivity constraints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">isomorphic</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">_create_two_linear_chains</span><span class="p">(</span><span class="n">pairs_aa</span><span class="o">=</span><span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_bb</span><span class="o">=</span><span class="n">pairs_bb</span><span class="p">)</span>
+
+    <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">()</span>
+    <span class="n">graph_new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>  <span class="c1"># to avoid not bound warning</span>
+    <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">isomorphic</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pairs_ab</span><span class="p">:</span>
+        <span class="n">graph_new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="c1"># add new nodes and edges</span>
+        <span class="k">if</span> <span class="n">connectivity</span> <span class="o">==</span> <span class="s2">&quot;heavy-hex&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                <span class="n">new_node</span> <span class="o">=</span> <span class="n">num_nodes</span> <span class="o">+</span> <span class="n">i</span>
+                <span class="n">graph_new</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">new_node</span><span class="p">)</span>
+                <span class="n">graph_new</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">new_node</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">graph_new</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">new_node</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="n">norb</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">connectivity</span> <span class="o">==</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                <span class="n">graph_new</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="n">norb</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;connectivity=</span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
+
+        <span class="n">isomorphic</span> <span class="o">=</span> <span class="n">rustworkx</span><span class="o">.</span><span class="n">is_subgraph_isomorphic</span><span class="p">(</span>
+            <span class="n">backend_coupling_graph</span><span class="p">,</span>
+            <span class="n">graph_new</span><span class="p">,</span>
+            <span class="n">call_limit</span><span class="o">=</span><span class="n">VF2_CALL_LIMIT</span><span class="p">,</span>
+            <span class="n">id_order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">induced</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isomorphic</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Backend cannot accommodate pairs_ab=</span><span class="si">{</span><span class="n">pairs_ab</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Removing interaction </span><span class="si">{</span><span class="n">pairs_ab</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> from the end.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">del</span> <span class="n">pairs_ab</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">graph_new</span><span class="p">,</span> <span class="n">pairs_ab</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_two_q_quantum_gates</span><span class="p">(</span><span class="n">operations_in_target</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Instruction</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect two-qubit gate names from operations in a backend Target object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        operations_in_target: Operations supported by the target.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of two-qubit operation names as ``str``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">excluded_insts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;barrier&quot;</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">,</span> <span class="s2">&quot;measurement&quot;</span><span class="p">]</span>
+    <span class="n">two_q_gate_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">operations_in_target</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded_insts</span><span class="p">:</span>
+            <span class="n">two_q_gate_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">two_q_gate_names</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_backend_cmap_pygraph</span><span class="p">(</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">BackendV2</span><span class="p">,</span>
+    <span class="n">two_qubit_error_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">readout_error_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a backend coupling map to a filtered ``rustworkx.PyGraph``.</span>
+
+<span class="sd">    This function constructs an undirected graph from the backend&#39;s coupling map,</span>
+<span class="sd">    removes duplicate edges so that at most one edge exists between any two nodes,</span>
+<span class="sd">    then prunes nodes and edges that exceed the specified error thresholds. Nodes</span>
+<span class="sd">    and edges with missing instruction properties (``None``) are skipped from</span>
+<span class="sd">    pruning.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        backend: The target Qiskit backend.</span>
+<span class="sd">        two_qubit_error_threshold: Two-qubit gate error threshold. Edges with error</span>
+<span class="sd">            rate ``&gt;= two_qubit_error_threshold`` are removed.</span>
+<span class="sd">        readout_error_threshold: Readout error threshold. Nodes with readout</span>
+<span class="sd">            error ``&gt;= readout_error_threshold`` are removed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An undirected ``rustworkx.PyGraph`` with at most one edge</span>
+<span class="sd">        between any two nodes, with high-error nodes and edges removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">target</span>
+    <span class="n">two_q_gate_names</span> <span class="o">=</span> <span class="n">_collect_two_q_quantum_gates</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">operations</span><span class="p">)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">coupling_map</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">make_symmetric</span><span class="p">()</span>
+    <span class="n">backend_coupling_graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">edge_list</span><span class="p">()</span>
+    <span class="n">removed_edge</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="n">removed_edge</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">removed_edge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">edge</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">NoEdgeBetweenNodes</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># remove bad nodes</span>
+    <span class="n">node_indices</span> <span class="o">=</span> <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">node_indices</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">node_indices</span><span class="p">:</span>
+        <span class="n">meas_prop</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;measure&quot;</span><span class="p">][(</span><span class="n">node_id</span><span class="p">,)]</span>
+        <span class="k">if</span> <span class="n">meas_prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">meas_prop</span><span class="o">.</span><span class="n">error</span> <span class="o">&gt;=</span> <span class="n">readout_error_threshold</span><span class="p">:</span>
+            <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span>
+
+    <span class="c1"># remove bad edges</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">edge_list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">two_q_gate_names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">target</span><span class="p">[</span><span class="n">gate</span><span class="p">]:</span>
+                <span class="n">found_edge</span> <span class="o">=</span> <span class="n">edge</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">found_edge</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">gate_prop</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="n">gate</span><span class="p">][</span><span class="n">found_edge</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">gate_prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">gate_prop</span><span class="o">.</span><span class="n">error</span> <span class="o">&gt;=</span> <span class="n">two_qubit_error_threshold</span><span class="p">:</span>
+                <span class="n">backend_coupling_graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">backend_coupling_graph</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_placeholder_layout_and_allowed_interactions</span><span class="p">(</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">BackendV2</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;heavy-hex&quot;</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">],</span>
+    <span class="n">pairs_aa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">pairs_ab</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">pairs_bb</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">two_qubit_error_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">readout_error_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a placeholder layout and the accommodated alpha-beta interactions.</span>
+
+<span class="sd">    Build a filtered backend coupling graph, find a subgraph isomorphic to the</span>
+<span class="sd">    LUCJ layout graph, and return the corresponding physical qubit indices</span>
+<span class="sd">    as an ``initial_layout`` for use in a Qiskit preset pass manager.</span>
+<span class="sd">    If the backend cannot accommodate all requested alpha-beta pairs, pairs are</span>
+<span class="sd">    dropped from the end of the list until a valid isomorphic subgraph is found.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        backend: The target Qiskit backend.</span>
+<span class="sd">        norb: Number of spatial orbitals. The ansatz uses</span>
+<span class="sd">            ``2 * norb`` qubits, and transpilation may add ancilla qubits.</span>
+<span class="sd">        connectivity: Connectivity topology of the</span>
+<span class="sd">            backend. Must be one of ``&quot;heavy-hex&quot;`` or ``&quot;square&quot;``.</span>
+<span class="sd">        pairs_aa: Alpha-alpha orbital interaction pairs.</span>
+<span class="sd">        pairs_ab: Alpha-beta orbital</span>
+<span class="sd">            interaction pairs to include in the ansatz. Pairs are dropped from the</span>
+<span class="sd">            end of the list if they cannot be accommodated by the backend. List</span>
+<span class="sd">            pairs in descending order of priority to control which are dropped first.</span>
+<span class="sd">        pairs_bb: Beta-beta orbital interaction pairs.</span>
+<span class="sd">        two_qubit_error_threshold: Two-qubit gate error threshold. Edges in the backend</span>
+<span class="sd">            coupling graph with error rate ``&gt;= two_qubit_error_threshold`` are removed.</span>
+<span class="sd">        readout_error_threshold: Readout error threshold. Nodes in the backend</span>
+<span class="sd">            coupling graph with readout error ``&gt;= readout_error_threshold``</span>
+<span class="sd">            are removed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        - Physical qubit indices forming a heavy-hex or square topology</span>
+<span class="sd">          compliant layout, suitable for use as ``initial_layout`` in</span>
+<span class="sd">          a Qiskit preset pass manager.</span>
+<span class="sd">        - The subset of requested alpha-beta pairs that</span>
+<span class="sd">          could be accommodated given the backend&#39;s connectivity and error</span>
+<span class="sd">          constraints.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If no alpha-beta interactions can be accommodated on the</span>
+<span class="sd">            backend after pruning.</span>
+<span class="sd">        RuntimeError: If no layout is found.</span>
+<span class="sd">        ValueError: If the resulting ``initial_layout`` contains unset (negative)</span>
+<span class="sd">            qubit indices, indicating an incomplete subgraph mapping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend_coupling_graph</span> <span class="o">=</span> <span class="n">_make_backend_cmap_pygraph</span><span class="p">(</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+        <span class="n">two_qubit_error_threshold</span><span class="o">=</span><span class="n">two_qubit_error_threshold</span><span class="p">,</span>
+        <span class="n">readout_error_threshold</span><span class="o">=</span><span class="n">readout_error_threshold</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="p">(</span><span class="n">layout_graph</span><span class="p">,</span> <span class="n">allowed_pairs_ab</span><span class="p">)</span> <span class="o">=</span> <span class="n">_get_layout_graph_and_allowed_pairs_ab</span><span class="p">(</span>
+        <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+        <span class="n">backend_coupling_graph</span><span class="o">=</span><span class="n">backend_coupling_graph</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
+        <span class="n">pairs_aa</span><span class="o">=</span><span class="n">pairs_aa</span><span class="p">,</span>
+        <span class="n">pairs_ab</span><span class="o">=</span><span class="n">pairs_ab</span><span class="p">,</span>
+        <span class="n">pairs_bb</span><span class="o">=</span><span class="n">pairs_bb</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">num_allowed_pairs_ab</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">allowed_pairs_ab</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_allowed_pairs_ab</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;No alpha-beta interaction can be accommodated. Terminating.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">isomorphic_mappings</span> <span class="o">=</span> <span class="n">rustworkx</span><span class="o">.</span><span class="n">vf2_mapping</span><span class="p">(</span>
+        <span class="n">backend_coupling_graph</span><span class="p">,</span>
+        <span class="n">layout_graph</span><span class="p">,</span>
+        <span class="n">subgraph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">id_order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">induced</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">call_limit</span><span class="o">=</span><span class="n">VF2_CALL_LIMIT</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">isomorphic_mappings</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No layout is found.&quot;</span><span class="p">)</span>
+
+    <span class="n">initial_layout</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norb</span> <span class="o">+</span> <span class="n">num_allowed_pairs_ab</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">initial_layout</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+
+    <span class="c1"># as squares do not have ancilla qubits, the trailing items</span>
+    <span class="c1"># in the ``initial_layout`` will remain as ``-1``. Therefore,</span>
+    <span class="c1"># we are ignoring last several qubits in this check.</span>
+    <span class="k">if</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">initial_layout</span><span class="p">[:</span><span class="o">-</span><span class="n">num_allowed_pairs_ab</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Not all qubits in the placeholder ``initial_layout`` is properly set.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Negative qubit index in ``initial_layout``. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;initial_layout=</span><span class="si">{</span><span class="n">initial_layout</span><span class="p">[:</span><span class="o">-</span><span class="n">num_allowed_pairs_ab</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">initial_layout</span><span class="p">[:</span><span class="o">-</span><span class="n">num_allowed_pairs_ab</span><span class="p">],</span> <span class="n">allowed_pairs_ab</span>
+
+
+<div class="viewcode-block" id="generate_lucj_pass_manager">
+<a class="viewcode-back" href="../../../api/stubs/ffsim.qiskit.generate_lucj_pass_manager.html#ffsim.qiskit.generate_lucj_pass_manager">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_lucj_pass_manager</span><span class="p">(</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">BackendV2</span><span class="p">,</span>
+    <span class="n">norb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;heavy-hex&quot;</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">],</span>
+    <span class="n">interaction_pairs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">two_qubit_error_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">readout_error_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">qiskit_pm_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">StagedPassManager</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a Qiskit preset pass manager for the LUCJ ansatz.</span>
+
+<span class="sd">    Construct a pass manager that maps a local unitary cluster Jastrow (LUCJ)</span>
+<span class="sd">    ansatz circuit onto a target backend using layout strategies, as described</span>
+<span class="sd">    in the reference below. The layout is optimized for heavy-hex or square</span>
+<span class="sd">    backend topologies, subject to hardware connectivity and error constraints.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - `Motta, Sung, Whaley, Head-Gordon, and Shee, &quot;Bridging physical intuition and hardware efficiency for correlated electronic states: the local unitary cluster Jastrow ansatz for electronic structure.&quot; (2023)`_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        backend: The target Qiskit backend.</span>
+<span class="sd">        norb: Number of spatial orbitals. The ansatz uses</span>
+<span class="sd">            ``2 * norb`` qubits, and transpilation may add ancilla qubits.</span>
+<span class="sd">        connectivity: Connectivity topology of the</span>
+<span class="sd">            backend. Must be one of ``&quot;heavy-hex&quot;`` or ``&quot;square&quot;``.</span>
+<span class="sd">        interaction_pairs:</span>
+<span class="sd">            Either a length-2 or length-3 tuple describing alpha-alpha, alpha-beta,</span>
+<span class="sd">            and optional beta-beta interaction pairs.</span>
+
+<span class="sd">            The first item in the tuple is the alpha-alpha interaction pairs (``pairs_aa``).</span>
+<span class="sd">            The second item is the alpha-beta interaction pairs (``pairs_ab``).</span>
+<span class="sd">            And, the optional third item is the beta-beta interaction pairs (``pairs_bb``).</span>
+
+<span class="sd">            Each entry ``(orb1, orb2)`` in above three lists of interaction  pairs</span>
+<span class="sd">            must satisfy ``0 &lt;= orb1, orb2 &lt; norb``.</span>
+
+<span class="sd">            ``pairs_ab`` interaction pairs are *requested* by a user to be include</span>
+<span class="sd">            in the ansatz. If hardware connectivity cannot accommodate all requested</span>
+<span class="sd">            pairs, pairs are dropped from the end of the list until a valid layout</span>
+<span class="sd">            is found. List pairs in descending order of priority to control which</span>
+<span class="sd">            are dropped first.</span>
+
+<span class="sd">            If ``None``, defaults to pairs as follows:</span>
+
+<span class="sd">            - **heavy-hex**: ``[(p, p) for p in range(norb) if p % 4 == 0]``</span>
+<span class="sd">            - **square**: ``[(p, p) for p in range(norb)]``</span>
+
+<span class="sd">        two_qubit_error_threshold: Two-qubit gate error threshold. Edges in the backend</span>
+<span class="sd">            coupling graph with error rate ``&gt;= two_qubit_error_threshold`` are removed.</span>
+<span class="sd">            The default value, ``1.0``, results in only completely faulty</span>
+<span class="sd">            edges being removed.</span>
+<span class="sd">        readout_error_threshold: Readout error threshold. Nodes in the backend</span>
+<span class="sd">            coupling graph with readout error ``&gt;= readout_error_threshold`` are removed.</span>
+<span class="sd">        **qiskit_pm_kwargs: Additional keyword arguments forwarded to</span>
+<span class="sd">            :func:`qiskit.transpiler.generate_preset_pass_manager`. The arguments</span>
+<span class="sd">            ``initial_layout`` and ``layout_method`` are not supported and will be</span>
+<span class="sd">            ignored with a warning if provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        - A configured Qiskit preset pass manager with the</span>
+<span class="sd">          LUCJ layout and a ``VF2PostLayout`` pass enabled.</span>
+<span class="sd">        - The subset of requested alpha-beta pairs that</span>
+<span class="sd">          can be accommodated given the backend&#39;s connectivity and error</span>
+<span class="sd">          constraints.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If any entry in ``interaction_pairs`` references</span>
+<span class="sd">            an orbital index ``&gt;= norb``.</span>
+<span class="sd">        ValueError: If ``connectivity`` is not ``&quot;heavy-hex&quot;`` or ``&quot;square&quot;``.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Providing ``initial_layout`` to</span>
+<span class="sd">        :func:`~qiskit.transpiler.generate_preset_pass_manager` normally disables</span>
+<span class="sd">        the ``VF2PostLayout`` pass. This function re-enables it explicitly so that</span>
+<span class="sd">        the transpiler can search for a better noise-aware isomorphic subgraph mapping</span>
+<span class="sd">        after routing.</span>
+
+<span class="sd">    .. _`Motta, Sung, Whaley, Head-Gordon, and Shee, &quot;Bridging physical intuition and hardware efficiency for correlated electronic states: the local unitary cluster Jastrow ansatz for electronic structure.&quot; (2023)`: https://pubs.rsc.org/en/content/articlehtml/2023/sc/d3sc02516k</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="k">if</span> <span class="s2">&quot;initial_layout&quot;</span> <span class="ow">in</span> <span class="n">qiskit_pm_kwargs</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Argument ``initial_layout`` is ignored.&quot;</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">qiskit_pm_kwargs</span><span class="p">[</span><span class="s2">&quot;initial_layout&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s2">&quot;layout_method&quot;</span> <span class="ow">in</span> <span class="n">qiskit_pm_kwargs</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Argument ``layout_method`` is ignored.&quot;</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">qiskit_pm_kwargs</span><span class="p">[</span><span class="s2">&quot;layout_method&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+        <span class="n">pairs_bb</span> <span class="o">=</span> <span class="n">pairs_aa</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">interaction_pairs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">pairs_aa</span><span class="p">,</span> <span class="n">pairs_ab</span><span class="p">,</span> <span class="n">pairs_bb</span> <span class="o">=</span> <span class="n">interaction_pairs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;``interaction_pairs`` must be either length-2 or length-3 tuple.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="n">interaction_pairs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p0</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p1</span> <span class="o">&lt;</span> <span class="n">norb</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Interaction pair </span><span class="si">{</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">p1</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not in range &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;norb[0, norb) = [0, </span><span class="si">{</span><span class="n">norb</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">connectivity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;heavy-hex&quot;</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;connectivity=</span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2"> is not supported. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Only supported topologies are either &#39;heavy-hex&#39; or &#39;square&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pairs_ab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">connectivity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;heavy-hex&quot;</span><span class="p">:</span>
+            <span class="n">resolved_pairs_ab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">connectivity</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span>
+            <span class="n">resolved_pairs_ab</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norb</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resolved_pairs_ab</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">pairs_ab</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="n">placeholder_initial_layout</span><span class="p">,</span> <span class="n">allowed_pairs_ab</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_get_placeholder_layout_and_allowed_interactions</span><span class="p">(</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+            <span class="n">norb</span><span class="o">=</span><span class="n">norb</span><span class="p">,</span>
+            <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
+            <span class="n">pairs_ab</span><span class="o">=</span><span class="n">resolved_pairs_ab</span><span class="p">,</span>
+            <span class="n">two_qubit_error_threshold</span><span class="o">=</span><span class="n">two_qubit_error_threshold</span><span class="p">,</span>
+            <span class="n">readout_error_threshold</span><span class="o">=</span><span class="n">readout_error_threshold</span><span class="p">,</span>
+            <span class="n">pairs_aa</span><span class="o">=</span><span class="n">pairs_aa</span><span class="p">,</span>
+            <span class="n">pairs_bb</span><span class="o">=</span><span class="n">pairs_bb</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">pm</span> <span class="o">=</span> <span class="n">generate_preset_pass_manager</span><span class="p">(</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">initial_layout</span><span class="o">=</span><span class="n">placeholder_initial_layout</span><span class="p">,</span> <span class="o">**</span><span class="n">qiskit_pm_kwargs</span>
+    <span class="p">)</span>
+    <span class="n">pm</span><span class="o">.</span><span class="n">pre_init</span> <span class="o">=</span> <span class="n">ffsim</span><span class="o">.</span><span class="n">qiskit</span><span class="o">.</span><span class="n">PRE_INIT</span>
+
+    <span class="c1"># generating a preset pass manager with ``initial_layout``</span>
+    <span class="c1"># (``=placeholder_initial_layout``) disables the ``VF2PostLayout`` pass.</span>
+    <span class="c1"># Therefore, we manually turn on the pass here so that it can search</span>
+    <span class="c1"># (better) isomorphic subgraph layouts to the initial layout and apply it</span>
+    <span class="c1"># to the circuit.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_custom_apply_post_layout_condition</span><span class="p">(</span><span class="n">property_set</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">property_set</span><span class="p">[</span><span class="s2">&quot;post_layout&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">pm</span><span class="o">.</span><span class="n">routing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">VF2PostLayout</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">strict_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">call_limit</span><span class="o">=</span><span class="n">VF2_CALL_LIMIT</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pm</span><span class="o">.</span><span class="n">routing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">ConditionalController</span><span class="p">(</span>
+            <span class="n">ApplyLayout</span><span class="p">(),</span> <span class="n">condition</span><span class="o">=</span><span class="n">_custom_apply_post_layout_condition</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pm</span><span class="p">,</span> <span class="n">allowed_pairs_ab</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, IBM
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=cbbccd7d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

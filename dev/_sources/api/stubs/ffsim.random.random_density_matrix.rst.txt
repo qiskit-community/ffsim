@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_density\_matrix
+====================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_density_matrix

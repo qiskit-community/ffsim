@@ -1,0 +1,28 @@
+﻿ffsim.qiskit.OrbitalRotationSpinlessJW
+======================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: OrbitalRotationSpinlessJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OrbitalRotationSpinlessJW.inverse
+
+   .. automethod:: inverse
+   
+   

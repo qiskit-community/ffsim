@@ -1,0 +1,6 @@
+﻿ffsim.linalg.expm\_multiply\_taylor
+===================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: expm_multiply_taylor

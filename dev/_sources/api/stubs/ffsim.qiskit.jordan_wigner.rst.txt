@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.jordan\_wigner
+===========================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autofunction:: jordan_wigner

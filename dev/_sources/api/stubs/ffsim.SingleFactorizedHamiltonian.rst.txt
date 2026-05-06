@@ -1,0 +1,46 @@
+﻿ffsim.SingleFactorizedHamiltonian
+=================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SingleFactorizedHamiltonian
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SingleFactorizedHamiltonian.constant
+      ~SingleFactorizedHamiltonian.norb
+      ~SingleFactorizedHamiltonian.one_body_tensor
+      ~SingleFactorizedHamiltonian.one_body_squares
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: one_body_tensor
+
+   .. autoattribute:: one_body_squares
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SingleFactorizedHamiltonian.expectation_product_state
+      ~SingleFactorizedHamiltonian.from_molecular_hamiltonian
+      ~SingleFactorizedHamiltonian.reduced_matrix_product_states
+
+   .. automethod:: expectation_product_state
+
+   .. automethod:: from_molecular_hamiltonian
+
+   .. automethod:: reduced_matrix_product_states
+   
+   

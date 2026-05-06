@@ -1,0 +1,6 @@
+﻿ffsim.cre\_b
+============
+
+.. currentmodule:: ffsim
+
+.. autofunction:: cre_b

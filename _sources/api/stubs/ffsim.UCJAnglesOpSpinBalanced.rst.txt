@@ -1,0 +1,55 @@
+﻿ffsim.UCJAnglesOpSpinBalanced
+=============================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCJAnglesOpSpinBalanced
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCJAnglesOpSpinBalanced.final_givens_ansatz_op
+      ~UCJAnglesOpSpinBalanced.n_reps
+      ~UCJAnglesOpSpinBalanced.norb
+      ~UCJAnglesOpSpinBalanced.num_num_ansatz_ops
+      ~UCJAnglesOpSpinBalanced.givens_ansatz_ops
+
+   .. autoattribute:: final_givens_ansatz_op
+
+   .. autoattribute:: n_reps
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: num_num_ansatz_ops
+
+   .. autoattribute:: givens_ansatz_ops
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCJAnglesOpSpinBalanced.from_parameters
+      ~UCJAnglesOpSpinBalanced.from_t_amplitudes
+      ~UCJAnglesOpSpinBalanced.from_ucj_op
+      ~UCJAnglesOpSpinBalanced.n_params
+      ~UCJAnglesOpSpinBalanced.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: from_t_amplitudes
+
+   .. automethod:: from_ucj_op
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

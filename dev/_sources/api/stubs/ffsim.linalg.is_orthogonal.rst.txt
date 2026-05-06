@@ -1,0 +1,6 @@
+﻿ffsim.linalg.is\_orthogonal
+===========================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: is_orthogonal

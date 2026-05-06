@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.GivensAnsatzOpJW
+=============================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: GivensAnsatzOpJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
