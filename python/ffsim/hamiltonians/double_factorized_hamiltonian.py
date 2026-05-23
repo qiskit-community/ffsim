@@ -82,24 +82,22 @@ class DoubleFactorizedHamiltonian(
         - `Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021)`_
         - `Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021)`_
 
-    Attributes:
-        one_body_tensor (np.ndarray): The one-body tensor :math:`\kappa`.
-        diag_coulomb_mats (np.ndarray): The diagonal Coulomb matrices.
-        orbital_rotations (np.ndarray): The orbital rotations.
-        constant (float): The constant.
-        z_representation (bool): Whether the Hamiltonian is in the "Z" representation
-            rather than the "number" representation.
-
     .. _Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021): https://arxiv.org/abs/1808.02625
     .. _Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021): https://arxiv.org/abs/2104.08957
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """  # noqa: E501
 
     one_body_tensor: np.ndarray
+    r"""The one-body tensor :math:`\kappa`."""
     diag_coulomb_mats: np.ndarray
+    """The diagonal Coulomb matrices."""
     orbital_rotations: np.ndarray
+    """The orbital rotations."""
     constant: float = 0.0
+    """The constant."""
     z_representation: bool = False
+    """Whether the Hamiltonian is in the "Z" representation rather than the "number"
+    representation."""
 
     @property
     def norb(self) -> int:

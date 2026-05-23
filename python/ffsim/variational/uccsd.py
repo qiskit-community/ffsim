@@ -82,13 +82,6 @@ class UCCSDOpRestrictedReal(
     UCCSD operator with real-valued t-amplitudes. Note that the final orbital rotation,
     if included, is allowed to be complex-valued.
 
-    Attributes:
-        t1 (np.ndarray): The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``.
-        t2 (np.ndarray): The t2 amplitudes, as a Numpy array of shape
-            ``(nocc, nocc, nvrt, nvrt)``.
-        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape ``(norb, norb)``.
-
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
             skips validation, which is useful if you need to create many instances
@@ -98,8 +91,12 @@ class UCCSDOpRestrictedReal(
     """
 
     t1: np.ndarray  # shape: (nocc, nvrt)
+    """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(norb, norb)``."""
     validate: InitVar[bool] = True
     rtol: InitVar[float] = 1e-5
     atol: InitVar[float] = 1e-8
@@ -302,13 +299,6 @@ class UCCSDOpRestricted(
 
     UCCSD operator with complex-valued t-amplitudes.
 
-    Attributes:
-        t1 (np.ndarray): The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``.
-        t2 (np.ndarray): The t2 amplitudes, as a Numpy array of shape
-            ``(nocc, nocc, nvrt, nvrt)``.
-        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape ``(norb, norb)``.
-
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
             skips validation, which is useful if you need to create many instances
@@ -318,8 +308,12 @@ class UCCSDOpRestricted(
     """
 
     t1: np.ndarray  # shape: (nocc, nvrt)
+    """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(norb, norb)``."""
     validate: InitVar[bool] = True
     rtol: InitVar[float] = 1e-5
     atol: InitVar[float] = 1e-8
@@ -512,17 +506,6 @@ class UCCSDOpUnrestrictedReal(
 ):
     """Real unrestricted unitary coupled cluster, singles and doubles operator.
 
-    Attributes:
-        t1 (tuple[np.ndarray, np.ndarray]): The t1 amplitudes, as a pair of Numpy
-            arrays ``(t1_a, t1_b)`` with shapes ``(nocc_a, nvrt_a)`` and
-            ``(nocc_b, nvrt_b)``.
-        t2 (tuple[np.ndarray, np.ndarray, np.ndarray]): The t2 amplitudes, as a tuple
-            of Numpy arrays ``(t2_aa, t2_ab, t2_bb)`` with shapes
-            ``(nocc_a, nocc_a, nvrt_a, nvrt_a)``, ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``,
-            and ``(nocc_b, nocc_b, nvrt_b, nvrt_b)``.
-        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape ``(2, norb, norb)``.
-
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
             skips validation, which is useful if you need to create many instances
@@ -534,11 +517,18 @@ class UCCSDOpUnrestrictedReal(
     t1: tuple[np.ndarray, np.ndarray]  # (t1_a, t1_b)
     # t1_a shape: (nocc_a, nvrt_a)
     # t1_b shape: (nocc_b, nvrt_b)
+    """The t1 amplitudes, as a pair of Numpy arrays ``(t1_a, t1_b)`` with shapes
+    ``(nocc_a, nvrt_a)`` and ``(nocc_b, nvrt_b)``."""
     t2: tuple[np.ndarray, np.ndarray, np.ndarray]  # (t1_aa, t1_ab, t1_bb)
     # t2_aa shape: (nocc_a, nocc_a, nvrt_a, nvrt_a)
     # t2_ab shape: (nocc_a, nocc_b, nvrt_a, nvrt_b)
     # t2_bb shape: (nocc_b, nocc_b, nvrt_b, nvrt_b)
+    """The t2 amplitudes, as a tuple of Numpy arrays ``(t2_aa, t2_ab, t2_bb)`` with
+    shapes ``(nocc_a, nocc_a, nvrt_a, nvrt_a)``, ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``,
+    and ``(nocc_b, nocc_b, nvrt_b, nvrt_b)``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (2, norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(2, norb, norb)``."""
     validate: InitVar[bool] = True
     rtol: InitVar[float] = 1e-5
     atol: InitVar[float] = 1e-8
@@ -830,17 +820,6 @@ class UCCSDOpUnrestricted(
 
     UCCSD operator with complex-valued t-amplitudes.
 
-    Attributes:
-        t1 (tuple[np.ndarray, np.ndarray]): The t1 amplitudes, as a pair of Numpy
-            arrays ``(t1_a, t1_b)`` with shapes ``(nocc_a, nvrt_a)`` and
-            ``(nocc_b, nvrt_b)``.
-        t2 (tuple[np.ndarray, np.ndarray, np.ndarray]): The t2 amplitudes, as a tuple
-            of Numpy arrays ``(t2_aa, t2_ab, t2_bb)`` with shapes
-            ``(nocc_a, nocc_a, nvrt_a, nvrt_a)``, ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``,
-            and ``(nocc_b, nocc_b, nvrt_b, nvrt_b)``.
-        final_orbital_rotation (np.ndarray | None): The optional final orbital rotation,
-            as a Numpy array of shape ``(2, norb, norb)``.
-
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
             skips validation, which is useful if you need to create many instances
@@ -852,11 +831,18 @@ class UCCSDOpUnrestricted(
     t1: tuple[np.ndarray, np.ndarray]  # (t1_a, t1_b)
     # t1_a shape: (nocc_a, nvrt_a)
     # t1_b shape: (nocc_b, nvrt_b)
+    """The t1 amplitudes, as a pair of Numpy arrays ``(t1_a, t1_b)`` with shapes
+    ``(nocc_a, nvrt_a)`` and ``(nocc_b, nvrt_b)``."""
     t2: tuple[np.ndarray, np.ndarray, np.ndarray]  # (t2_aa, t2_ab, t2_bb)
     # t2_aa shape: (nocc_a, nocc_a, nvrt_a, nvrt_a)
     # t2_ab shape: (nocc_a, nocc_b, nvrt_a, nvrt_b)
     # t2_bb shape: (nocc_b, nocc_b, nvrt_b, nvrt_b)
+    """The t2 amplitudes, as a tuple of Numpy arrays ``(t2_aa, t2_ab, t2_bb)`` with
+    shapes ``(nocc_a, nocc_a, nvrt_a, nvrt_a)``, ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``,
+    and ``(nocc_b, nocc_b, nvrt_b, nvrt_b)``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (2, norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(2, norb, norb)``."""
     validate: InitVar[bool] = True
     rtol: InitVar[float] = 1e-5
     atol: InitVar[float] = 1e-8

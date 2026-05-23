@@ -62,9 +62,9 @@ def s_minus_operator(norb: int) -> FermionOperator:
 
 
 def s_x_operator(norb: int) -> FermionOperator:
-    r"""Spin X operator.
+    r"""Spin :math:`x` operator.
 
-    The spin X operator is defined as
+    The spin :math:`x` operator is defined as
 
     .. math::
 
@@ -79,7 +79,7 @@ def s_x_operator(norb: int) -> FermionOperator:
         norb: The number of spatial orbitals.
 
     Returns:
-        The spin X operator.
+        The spin :math:`x` operator.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
@@ -89,9 +89,9 @@ def s_x_operator(norb: int) -> FermionOperator:
 
 
 def s_y_operator(norb: int) -> FermionOperator:
-    r"""Spin Y operator.
+    r"""Spin :math:`y` operator.
 
-    The spin Y operator is defined as
+    The spin :math:`y` operator is defined as
 
     .. math::
 
@@ -106,7 +106,7 @@ def s_y_operator(norb: int) -> FermionOperator:
         norb: The number of spatial orbitals.
 
     Returns:
-        The spin Y operator.
+        The spin :math:`y` operator.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):
@@ -116,9 +116,9 @@ def s_y_operator(norb: int) -> FermionOperator:
 
 
 def s_z_operator(norb: int) -> FermionOperator:
-    r"""Spin Z operator.
+    r"""Spin :math:`z` operator.
 
-    The spin Z operator is defined as
+    The spin :math:`z` operator is defined as
 
     .. math::
 
@@ -132,7 +132,7 @@ def s_z_operator(norb: int) -> FermionOperator:
         norb: The number of spatial orbitals.
 
     Returns:
-        The spin Z operator.
+        The spin :math:`z` operator.
     """
     coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {}
     for i in range(norb):

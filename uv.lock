@@ -709,7 +709,7 @@ wheels = [
 
 [[package]]
 name = "ffsim"
-version = "0.0.80.dev0"
+version = "0.0.81.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "jax", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },

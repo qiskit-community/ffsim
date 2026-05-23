@@ -32,19 +32,16 @@ from ffsim.states.dimensions import dim
 
 @dataclass
 class StateVector:
-    """A state vector in the FCI representation.
-
-    Attributes:
-        vec: Array of state vector coefficients.
-        norb: The number of spatial orbitals.
-        nelec: Either a single integer representing the number of fermions for a
-            spinless system, or a pair of integers storing the numbers of spin alpha
-            and spin beta fermions.
-    """
+    """A state vector in the FCI representation."""
 
     vec: np.ndarray
+    """Array of state vector coefficients."""
     norb: int
+    """The number of spatial orbitals."""
     nelec: int | tuple[int, int]
+    """Either a single integer representing the number of fermions for a spinless
+    system, or a pair of integers storing the numbers of spin alpha and spin beta
+    fermions."""
 
     def __array__(self, dtype=None, copy=None):
         # TODO in Numpy 2.0 this can be simplified to

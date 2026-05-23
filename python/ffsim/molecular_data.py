@@ -41,87 +41,78 @@ from ffsim.hamiltonians import MolecularHamiltonian
 
 @dataclasses.dataclass(kw_only=True)
 class MolecularData:
-    """Class for storing molecular data.
-
-    Attributes:
-        core_energy (float): The core energy.
-        one_body_integrals (np.ndarray): The one-body integrals.
-        two_body_integrals (np.ndarray): The two-body integrals in compressed format.
-        norb (int): The number of spatial orbitals.
-        nelec (tuple[int, int]): The number of alpha and beta electrons.
-        atom (list[tuple[str, list[float]]] | None): The coordinates of the atoms in
-            the molecule.
-        basis (str | None): The basis set, e.g. "sto-6g".
-        spin (int | None): The spin of the molecule.
-        symmetry (str | None): The symmetry of the molecule.
-        mo_coeff (np.ndarray | None): Molecular orbital coefficients in the AO basis.
-        mo_occ (np.ndarray | None): Molecular orbital occupancies.
-        active_space (list[int] | None): The molecular orbitals included in the active
-            space.
-        hf_energy (float | None): The Hartree-Fock energy.
-        hf_mo_coeff (np.ndarray | None): Hartree-Fock canonical orbital coefficients in
-            the AO basis.
-        hf_mo_occ (np.ndarray | None): Hartree-Fock canonical orbital occupancies.
-        mp2_energy (float | None): The MP2 energy.
-        mp2_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
-            MP2 t2 amplitudes.
-        ccsd_energy (float | None): The CCSD energy.
-        ccsd_t1 (np.ndarray | tuple[np.ndarray, np.ndarray] | None): The CCSD t1
-            amplitudes.
-        ccsd_t2 (np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None): The
-            CCSD t2 amplitudes.
-        cisd_energy (float | None): The CISD energy.
-        cisd_vec (np.ndarray | None): The CISD state vector.
-        sci_energy (float | None): The SCI energy.
-        sci_vec (tuple[np.ndarray, np.ndarray, np.ndarray] | None): The SCI state
-            vector coefficients, spin alpha strings, and spin beta strings.
-        fci_energy (float | None): The FCI energy.
-        fci_vec (np.ndarray | None): The FCI state vector.
-        dipole_integrals (np.ndarray | None): The dipole integrals.
-        orbital_symmetries (list[str] | None): The orbital symmetries.
-    """
+    """Class for storing molecular data."""
 
     # Molecular integrals
     core_energy: float
+    """The core energy."""
     one_body_integrals: np.ndarray
+    """The one-body integrals."""
     two_body_integrals: np.ndarray
+    """The two-body integrals in compressed format."""
     # Number of orbitals and numbers of alpha and beta electrons
     norb: int
+    """The number of spatial orbitals."""
     nelec: tuple[int, int]
+    """The numbers of alpha and beta electrons."""
     # Molecule information corresponding to attributes of pyscf.gto.Mole
     atom: list[tuple[str, list[float]]] | None = None
+    """The coordinates of the atoms in the molecule."""
     basis: str | None = None
+    """The basis set, e.g. ``"sto-6g"``."""
     spin: int | None = None
+    """The spin of the molecule."""
     symmetry: str | None = None
+    """The symmetry of the molecule."""
     # active space information
     mo_coeff: np.ndarray | None = None
+    """Molecular orbital coefficients in the AO basis."""
     mo_occ: np.ndarray | None = None
+    """Molecular orbital occupancies."""
     active_space: list[int] | None = None
+    """The molecular orbitals included in the active space."""
     # Hartree-Fock data
     hf_energy: float | None = None
+    """The Hartree-Fock energy."""
     hf_mo_coeff: np.ndarray | None = None
+    """Hartree-Fock canonical orbital coefficients in the AO basis."""
     hf_mo_occ: np.ndarray | None = None
+    """Hartree-Fock canonical orbital occupancies."""
     # MP2 data
     mp2_energy: float | None = None
+    """The MP2 energy."""
     mp2_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+    """The MP2 t2 amplitudes."""
     # CCSD data
     ccsd_energy: float | None = None
+    """The CCSD energy."""
     ccsd_t1: np.ndarray | tuple[np.ndarray, np.ndarray] | None = None
+    """The CCSD t1 amplitudes."""
     ccsd_t2: np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+    """The CCSD t2 amplitudes."""
     # CISD data
     cisd_energy: float | None = None
+    """The CISD energy."""
     cisd_vec: np.ndarray | None = None
+    """The CISD state vector."""
     # SCI data
     sci_energy: float | None = None
+    """The SCI energy."""
     sci_vec: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+    """The SCI state vector coefficients, spin alpha strings, and spin beta strings."""
     # FCI data
     fci_energy: float | None = None
+    """The FCI energy."""
     fci_vec: np.ndarray | None = None
+    """The FCI state vector."""
     # DMRG data
     dmrg_energy: float | None = None
+    """The DMRG energy."""
     # other information
     dipole_integrals: np.ndarray | None = None
+    """The dipole integrals."""
     orbital_symmetries: list[str] | None = None
+    """The orbital symmetries."""
 
     @cached_property
     def hamiltonian(self) -> MolecularHamiltonian:

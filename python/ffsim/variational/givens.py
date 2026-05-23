@@ -37,23 +37,19 @@ class GivensAnsatzOp(
     Note that this ansatz does not implement any interactions between spin alpha and
     spin beta orbitals.
 
-    Attributes:
-        norb (int): The number of spatial orbitals.
-        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the Givens
-            rotations to.
-        thetas (np.ndarray): The angles for the Givens rotations.
-        phis (np.ndarray | None): The optional phase angles for the Givens rotations.
-        phase_angles (np.ndarray | None): The optional phase angles for the layer of
-            single-orbital phase gates.
-
     .. _Givens rotations: ffsim.html#ffsim.apply_givens_rotation
     """
 
     norb: int
+    """The number of spatial orbitals."""
     interaction_pairs: list[tuple[int, int]]
+    """The orbital pairs to apply the Givens rotations to."""
     thetas: np.ndarray
+    """The angles for the Givens rotations."""
     phis: np.ndarray | None
+    """The optional phase angles for the Givens rotations."""
     phase_angles: np.ndarray | None
+    """The optional phase angles for the layer of single-orbital phase gates."""
 
     def __post_init__(self):
         if len(self.thetas) != len(self.interaction_pairs):

@@ -373,10 +373,10 @@ impl FermionOperator {
         true
     }
 
-    /// Return whether the operator conserves the Z component of spin.
+    /// Return whether the operator conserves the z component of spin.
     ///
     /// Returns:
-    ///     bool: True if the operator conserves the Z component of spin, False otherwise.
+    ///     bool: True if the operator conserves the z component of spin, False otherwise.
     fn conserves_spin_z(&self) -> bool {
         for term in self.coeffs.keys() {
             let (create_count_a, destroy_count_a, create_count_b, destroy_count_b) =

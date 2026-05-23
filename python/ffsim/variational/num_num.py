@@ -47,18 +47,15 @@ class NumNumAnsatzOpSpinBalanced(
     The number-number interaction ansatz consists of a sequence of
     `number-number interactions`_.
 
-    Attributes:
-        norb (int): The number of spatial orbitals.
-        interaction_pairs (list[tuple[int, int]]): The orbital pairs to apply the
-            number-number interactions to.
-        thetas (np.ndarray): The angles for the number-number interactions.
-
     .. _number-number interactions: ffsim.html#ffsim.apply_num_num_interaction
     """
 
     norb: int
+    """The number of spatial orbitals."""
     interaction_pairs: tuple[list[tuple[int, int]], list[tuple[int, int]]]
+    """The orbital pairs to apply the number-number interactions to."""
     thetas: tuple[np.ndarray, np.ndarray]
+    """The angles for the number-number interactions."""
 
     def __post_init__(self):
         for pairs, angles in zip(self.interaction_pairs, self.thetas):

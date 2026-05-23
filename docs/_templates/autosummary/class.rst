@@ -5,6 +5,22 @@
 .. autoclass:: {{ objname }}
    :show-inheritance:
 
+   {% block attributes %}
+   {% if attributes %}
+   .. rubric:: {{ _('Attributes') }}
+
+   .. autosummary::
+   {% for item in attributes if item not in inherited_members %}
+      ~{{ name }}.{{ item }}
+   {%- endfor %}
+
+   {%- for item in attributes if item not in inherited_members %}
+
+   .. autoattribute:: {{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
    {% block methods %}
    {%- set is_protocol = '__protocol_attrs__' in members and '__protocol_attrs__' not in inherited_members %}
    {%- set ns = namespace(protocol_methods=[]) %}
@@ -25,7 +41,7 @@
    {%- for item in ns.protocol_methods if item not in inherited_members %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
-   {% endif %}
+
    {%- for item in methods if item not in inherited_members and item != '__init__' %}
 
    .. automethod:: {{ item }}
@@ -34,15 +50,6 @@
 
    .. automethod:: {{ item }}
    {%- endfor %}
-   {% endblock %}
-
-   {% block attributes %}
-   {% if attributes %}
-   .. rubric:: {{ _('Attributes') }}
-
-   .. autosummary::
-   {% for item in attributes if item not in inherited_members %}
-      ~{{ name }}.{{ item }}
-   {%- endfor %}
    {% endif %}
    {% endblock %}
+

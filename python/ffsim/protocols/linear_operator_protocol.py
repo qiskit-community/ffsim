@@ -119,9 +119,9 @@ def _fermion_operator_to_linear_operator(
     if not (operator.conserves_particle_number() and operator.conserves_spin_z()):
         raise ValueError(
             "The given FermionOperator could not be converted to a LinearOperator "
-            "because it does not conserve particle number and the Z component of spin. "
+            "because it does not conserve particle number and the z component of spin. "
             f"Conserves particle number: {operator.conserves_particle_number()} "
-            f"Conserves spin Z: {operator.conserves_spin_z()}"
+            f"Conserves spin z: {operator.conserves_spin_z()}"
         )
 
     if isinstance(nelec, int):

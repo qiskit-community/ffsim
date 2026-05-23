@@ -36,15 +36,12 @@ if TYPE_CHECKING:
 
 @dataclasses.dataclass
 class ReducedDensityMatrix:
-    r"""Class to store one- and two-body reduced density matrices.
-
-    Attributes:
-        one_rdm (np.ndarray): The one-body reduced density matrix.
-        two_rdm (np.ndarray): The two-body reduced density matrix.
-    """
+    """Class to store one- and two-body reduced density matrices."""
 
     one_rdm: np.ndarray
+    """The one-body reduced density matrix."""
     two_rdm: np.ndarray
+    """The two-body reduced density matrix."""
 
     def rotated(self, orbital_rotation: np.ndarray) -> ReducedDensityMatrix:
         r"""Apply an orbital rotation to the reduced density matrices.

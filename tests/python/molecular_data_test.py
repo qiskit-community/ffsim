@@ -65,7 +65,7 @@ def test_molecular_data_no_sym():
     assert mol_data.orbital_symmetries is None
 
 
-def test_molecular_data_run_methods():
+def test_molecular_data_run_methods_closed_shell():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
@@ -78,7 +78,7 @@ def test_molecular_data_run_methods():
     n_frozen = pyscf.data.elements.chemcore(mol)
     active_space = range(n_frozen, mol.nao_nr())
 
-    # Get molecular data and Hamiltonian
+    # Get molecular data
     scf = pyscf.scf.RHF(mol).run()
     mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)
 
@@ -89,6 +89,7 @@ def test_molecular_data_run_methods():
     mol_data.run_sci()
     mol_data.run_fci()
 
+    # Check values
     assert isinstance(mol_data.mp2_energy, float)
     np.testing.assert_allclose(mol_data.mp2_energy, -108.58852784026)
     assert isinstance(mol_data.ccsd_energy, float)
@@ -99,6 +100,42 @@ def test_molecular_data_run_methods():
     np.testing.assert_allclose(mol_data.sci_energy, -108.59598682615388)
     assert isinstance(mol_data.fci_energy, float)
     np.testing.assert_allclose(mol_data.fci_energy, -108.595987350986)
+
+
+def test_molecular_data_run_methods_open_shell():
+    # Build hydrogen chain
+    length = 5
+    bond_distance = 1.0
+    mol = pyscf.gto.Mole()
+    mol.build(
+        atom=[("H", (i * bond_distance, 0, 0)) for i in range(length)],
+        basis="sto-6g",
+        symmetry="Dooh",
+        spin=length % 2,
+    )
+
+    # Get molecular data
+    scf = pyscf.scf.ROHF(mol).run()
+    mol_data = ffsim.MolecularData.from_scf(scf)
+
+    # Run calculations
+    mol_data.run_mp2()
+    mol_data.run_ccsd()
+    mol_data.run_cisd()
+    mol_data.run_sci()
+    mol_data.run_fci()
+
+    # Check values
+    assert isinstance(mol_data.mp2_energy, float)
+    np.testing.assert_allclose(mol_data.mp2_energy, -2.6324626466721246)
+    assert isinstance(mol_data.ccsd_energy, float)
+    np.testing.assert_allclose(mol_data.ccsd_energy, -2.672451550833221)
+    assert isinstance(mol_data.cisd_energy, float)
+    np.testing.assert_allclose(mol_data.cisd_energy, -2.670338179099809)
+    assert isinstance(mol_data.sci_energy, float)
+    np.testing.assert_allclose(mol_data.sci_energy, -2.6729872478960024)
+    assert isinstance(mol_data.fci_energy, float)
+    np.testing.assert_allclose(mol_data.fci_energy, -2.6729872479199814)
 
 
 def test_json_closed_shell(tmp_path: pathlib.Path):
