@@ -135,10 +135,10 @@ class FermionOperator(MutableMapping):
             return result
         return NotImplemented
 
-    def normal_ordered(self) -> "FermionOperator":
+    def normal_ordered(self, group_by_spin: bool = False) -> "FermionOperator":
         result = FermionOperator({})
         for term, coeff in self.coeffs.items():
-            result += _normal_ordered_term(term, coeff)
+            result += _normal_ordered_term(term, coeff, group_by_spin)
         return result
 
     def conserves_particle_number(self) -> bool:
@@ -220,8 +220,23 @@ class FermionOperator(MutableMapping):
         )
 
 
+def _order_key(op: FermionAction, group_by_spin: bool) -> tuple[bool, bool, int]:
+    """The sort key used to normal order a term.
+
+    Terms are reordered into descending order of this key. By default the key is
+    ``(action, spin, orb)`` (creations before annihilations). When ``group_by_spin``
+    is True the key is ``(spin, action, orb)`` (spin beta before spin alpha). In
+    both cases, a creation operator precedes the annihilation operator on the same
+    spin-orbital.
+    """
+    action, spin, orb = op
+    if group_by_spin:
+        return (spin, action, orb)
+    return (action, spin, orb)
+
+
 def _normal_ordered_term(
-    term: Iterable[FermionAction], coeff: complex
+    term: Iterable[FermionAction], coeff: complex, group_by_spin: bool = False
 ) -> FermionOperator:
     coeffs: dict[tuple[FermionAction, ...], complex] = {}
     stack = [(list(term), coeff)]
@@ -232,22 +247,20 @@ def _normal_ordered_term(
         for i in range(1, len(term)):
             # shift operator at index i to the left until it's in the correct location
             for j in range(i, 0, -1):
-                action_right, spin_right, index_right = term[j]
-                action_left, spin_left, index_left = term[j - 1]
-                if action_right == action_left:
-                    # both create or both destroy
+                right = term[j]
+                left = term[j - 1]
+                if right == left:
+                    # operators are the same, so product is zero
+                    zero = True
+                    break
+                if _order_key(right, group_by_spin) > _order_key(left, group_by_spin):
+                    _, spin_right, index_right = right
+                    _, spin_left, index_left = left
+                    # the operator on the right belongs to the left, so swap them
                     if (spin_right, index_right) == (spin_left, index_left):
-                        # operators are the same, so product is zero
-                        zero = True
-                        break
-                    elif (spin_right, index_right) > (spin_left, index_left):
-                        # swap operators and update sign
-                        term[j - 1], term[j] = term[j], term[j - 1]
-                        parity = not parity
-                elif action_right and not action_left:
-                    # create on right and destroy on left
-                    if (spin_right, index_right) == (spin_left, index_left):
-                        # add new term
+                        # conjugate pair on the same spin-orbital: the creation operator
+                        # is moving to the left past its annihilation operator, which
+                        # produces an additional term from the anticommutation relation
                         new_term = term[: j - 1] + term[j + 1 :]
                         sign = -1 if parity else 1
                         stack.append((new_term, sign * coeff))
