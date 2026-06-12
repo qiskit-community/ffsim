@@ -14,7 +14,6 @@ use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
@@ -332,21 +331,40 @@ impl FermionOperator {
     ///
     /// The normal ordered form of an operator is an equivalent operator in which
     /// each term has been reordered into a canonical ordering.
-    /// In each term of a normal-ordered fermion operator, the operators comprising
-    /// the term appear from left to right in descending lexicographic order by
-    /// (action, spin, orb). That is, all creation operators appear before all
-    /// annihilation operators; within creation/annihilation operators, spin beta
-    /// operators appear before spin alpha operators, and larger orbital indices
-    /// appear before smaller orbital indices.
+    ///
+    /// By default, the operators comprising each term appear from left to right in
+    /// descending lexicographic order by ``(action, spin, orb)``. That is, all
+    /// creation operators appear before all annihilation operators; within
+    /// creation/annihilation operators, spin beta operators appear before spin alpha
+    /// operators, and larger orbital indices appear before smaller orbital indices.
+    ///
+    /// If ``group_by_spin`` is set to ``True``, then the term is instead reordered so
+    /// that all spin beta operators appear before all spin alpha operators, regardless
+    /// of whether they are creation or annihilation operators. Within each spin sector,
+    /// creation operators appear before annihilation operators, and larger orbital
+    /// indices appear before smaller orbital indices. This corresponds to descending
+    /// lexicographic order by ``(spin, action, orb)``.
+    ///
+    /// Args:
+    ///     group_by_spin (bool): Whether to group all spin beta operators before all
+    ///         spin alpha operators. Defaults to ``False``.
     ///
     /// Returns:
     ///     FermionOperator: The normal-ordered fermion operator.
-    fn normal_ordered(&self) -> Self {
+    #[pyo3(signature = (group_by_spin=false))]
+    fn normal_ordered(&self, group_by_spin: bool) -> Self {
         let mut result = Self {
             coeffs: HashMap::new(),
         };
+        // Dispatch on `group_by_spin` once, outside the per-term loop, so that the
+        // inner reordering loop is monomorphized.
         for (term, coeff) in &self.coeffs {
-            result.__iadd__(&_normal_ordered_term(term, coeff))
+            let ordered = if group_by_spin {
+                normal_ordered_term::<true>(term, coeff)
+            } else {
+                normal_ordered_term::<false>(term, coeff)
+            };
+            result.__iadd__(&ordered)
         }
         result
     }
@@ -556,7 +574,29 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
         * binomial(norb - norb_beta, n_beta - nelec_beta) as i32
 }
 
-fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> FermionOperator {
+/// The sort key used to normal order a term.
+///
+/// Terms are reordered into descending order of this key. By default the key is
+/// ``(action, spin, orb)`` (creations before annihilations). When ``GROUP_BY_SPIN``
+/// is true the key is ``(spin, action, orb)`` (spin beta before spin alpha). In both
+/// cases, a creation operator precedes the annihilation operator on the same
+/// spin-orbital.
+///
+/// `GROUP_BY_SPIN` is a const generic so that the branch is resolved at compile time
+/// and the inner loop of [`normal_ordered_term`] is monomorphized for each convention.
+fn order_key<const GROUP_BY_SPIN: bool>(op: (bool, bool, i32)) -> (bool, bool, i32) {
+    let (action, spin, orb) = op;
+    if GROUP_BY_SPIN {
+        (spin, action, orb)
+    } else {
+        (action, spin, orb)
+    }
+}
+
+fn normal_ordered_term<const GROUP_BY_SPIN: bool>(
+    term: &[(bool, bool, i32)],
+    coeff: &Complex64,
+) -> FermionOperator {
     let mut coeffs = HashMap::new();
     let mut stack = vec![(term.to_vec(), *coeff)];
     while let Some((mut term, coeff)) = stack.pop() {
@@ -565,27 +605,21 @@ fn _normal_ordered_term(term: &[(bool, bool, i32)], coeff: &Complex64) -> Fermio
         'outer: for i in 1..term.len() {
             // shift the operator at index i to the left until it's in the correct location
             for j in (1..=i).rev() {
-                let (action_right, spin_right, index_right) = term[j];
-                let (action_left, spin_left, index_left) = term[j - 1];
-                if action_right == action_left {
-                    // both create or both destroy
-                    match (spin_right, index_right).cmp(&(spin_left, index_left)) {
-                        Ordering::Equal => {
-                            // operators are the same, so product is zero
-                            zero = true;
-                            break 'outer;
-                        }
-                        Ordering::Greater => {
-                            // swap operators and update sign
-                            term.swap(j - 1, j);
-                            parity = !parity;
-                        }
-                        Ordering::Less => {}
-                    }
-                } else if action_right && !action_left {
-                    // create on right and destroy on left
+                let right = term[j];
+                let left = term[j - 1];
+                if right == left {
+                    // operators are the same, so product is zero
+                    zero = true;
+                    break 'outer;
+                }
+                if order_key::<GROUP_BY_SPIN>(right) > order_key::<GROUP_BY_SPIN>(left) {
+                    // the operator on the right belongs to the left, so swap them
+                    let (_, spin_right, index_right) = right;
+                    let (_, spin_left, index_left) = left;
                     if (spin_right, index_right) == (spin_left, index_left) {
-                        // add new term
+                        // conjugate pair on the same spin-orbital: the creation operator
+                        // is moving to the left past its annihilation operator, which
+                        // produces an additional term from the anticommutation relation
                         let mut new_term: Vec<(bool, bool, i32)> = Vec::new();
                         new_term.extend(&term[..j - 1]);
                         new_term.extend(&term[j + 1..]);
