@@ -916,7 +916,11 @@ def random_double_factorized_hamiltonian(
 
 
 def random_fermion_operator(
-    norb: int, n_terms: int | None = None, max_term_length: int | None = None, seed=None
+    norb: int,
+    n_terms: int | None = None,
+    max_term_length: int | None = None,
+    num_and_spin_conserving: bool = False,
+    seed=None,
 ) -> operators.FermionOperator:
     """Sample a random fermion operator.
 
@@ -924,19 +928,33 @@ def random_fermion_operator(
         norb: The number of spatial orbitals.
         n_terms: The number of terms to include in the operator. If not specified,
             ``norb`` is used.
-        max_term_length: The maximum length of a term. If not specified, ``norb`` is
-            used.
+        max_term_length: The maximum length of a term. If not specified, ``2 * norb``
+            is used.
+        num_and_spin_conserving: Whether to sample an operator that conserves particle
+            number and the z component of spin.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
 
     Returns:
         The sampled fermion operator.
     """
+    if num_and_spin_conserving:
+        return _random_fermion_operator_num_and_spin_z_conserving(
+            norb, n_terms=n_terms, max_term_length=max_term_length, seed=seed
+        )
+    return _random_fermion_operator_generic(
+        norb, n_terms=n_terms, max_term_length=max_term_length, seed=seed
+    )
+
+
+def _random_fermion_operator_generic(
+    norb: int, n_terms: int | None = None, max_term_length: int | None = None, seed=None
+) -> operators.FermionOperator:
     rng = np.random.default_rng(seed)
     if n_terms is None:
         n_terms = norb
     if max_term_length is None:
-        max_term_length = norb
+        max_term_length = 2 * norb
     coeffs: defaultdict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(
         complex
     )
@@ -947,6 +965,26 @@ def random_fermion_operator(
         indices = [int(i) for i in rng.integers(norb, size=term_length)]
         coeff = rng.standard_normal() + 1j * rng.standard_normal()
         term = tuple(zip(actions, spins, indices))
+        coeffs[term] += coeff
+    return operators.FermionOperator(coeffs)
+
+
+def _random_fermion_operator_num_and_spin_z_conserving(
+    norb: int, n_terms: int | None = None, max_term_length: int | None = None, seed=None
+) -> operators.FermionOperator:
+    rng = np.random.default_rng(seed)
+    if n_terms is None:
+        n_terms = norb
+    if max_term_length is None:
+        max_term_length = 2 * norb
+    coeffs: defaultdict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(
+        complex
+    )
+    max_excitations = max(1, max_term_length // 2)
+    for _ in range(n_terms):
+        n_excitations = int(rng.integers(1, max_excitations + 1))
+        term = _random_num_and_spin_z_conserving_term(norb, n_excitations, seed=rng)
+        coeff = rng.standard_normal() + 1j * rng.standard_normal()
         coeffs[term] += coeff
     return operators.FermionOperator(coeffs)
 
@@ -968,20 +1006,10 @@ def random_fermion_hamiltonian(
     Returns:
         The sampled fermion Hamiltonian.
     """
-    rng = np.random.default_rng(seed)
-    if n_terms is None:
-        n_terms = norb
-    coeffs: defaultdict[tuple[tuple[bool, bool, int], ...], complex] = defaultdict(
-        complex
+    op = random_fermion_operator(
+        norb, n_terms=n_terms, num_and_spin_conserving=True, seed=seed
     )
-    for _ in range(n_terms):
-        n_excitations = int(rng.integers(1, norb + 1))
-        term = _random_num_and_spin_z_conserving_term(norb, n_excitations, seed=rng)
-        term_adjoint = _adjoint_term(term)
-        coeff = rng.standard_normal() + 1j * rng.standard_normal()
-        coeffs[term] += coeff
-        coeffs[term_adjoint] += coeff.conjugate()
-    return operators.FermionOperator(coeffs)
+    return op + op.adjoint()
 
 
 def _random_num_and_spin_z_conserving_term(
@@ -997,13 +1025,5 @@ def _random_num_and_spin_z_conserving_term(
         ]
         term.append(operators.FermionAction(action_1, spin, orb_1))
         term.append(operators.FermionAction(action_2, spin, orb_2))
+    rng.shuffle(term)
     return tuple(term)
-
-
-def _adjoint_term(
-    term: tuple[tuple[bool, bool, int], ...],
-) -> tuple[tuple[bool, bool, int], ...]:
-    return tuple(
-        operators.FermionAction(bool(1 - action), spin, orb)
-        for action, spin, orb in reversed(term)
-    )
