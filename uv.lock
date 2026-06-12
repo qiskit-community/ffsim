@@ -751,7 +751,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "jax" },
-    { name = "numpy", specifier = "<=2.3" },
+    { name = "numpy" },
     { name = "opt-einsum" },
     { name = "orjson" },
     { name = "pyscf", specifier = ">=2.9" },
