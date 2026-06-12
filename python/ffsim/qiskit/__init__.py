@@ -33,6 +33,11 @@ from ffsim.qiskit.gates import (
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.qiskit.jordan_wigner import jordan_wigner
+from ffsim.qiskit.lucj import (
+    lucj_spin_balanced_ansatz,
+    lucj_spin_balanced_parameters,
+    lucj_spin_balanced_parameters_from_t2,
+)
 from ffsim.qiskit.lucj_pass_manager import generate_lucj_pass_manager
 from ffsim.qiskit.sampler import FfsimSampler
 from ffsim.qiskit.sim import final_state_vector
@@ -73,6 +78,9 @@ __all__ = [
     "final_state_vector",
     "generate_lucj_pass_manager",
     "jordan_wigner",
+    "lucj_spin_balanced_ansatz",
+    "lucj_spin_balanced_parameters",
+    "lucj_spin_balanced_parameters_from_t2",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
 ]
