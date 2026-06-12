@@ -356,8 +356,15 @@ impl FermionOperator {
         let mut result = Self {
             coeffs: HashMap::new(),
         };
+        // Dispatch on `group_by_spin` once, outside the per-term loop, so that the
+        // inner reordering loop is monomorphized.
         for (term, coeff) in &self.coeffs {
-            result.__iadd__(&normal_ordered_term(term, coeff, group_by_spin))
+            let ordered = if group_by_spin {
+                normal_ordered_term::<true>(term, coeff)
+            } else {
+                normal_ordered_term::<false>(term, coeff)
+            };
+            result.__iadd__(&ordered)
         }
         result
     }
@@ -570,23 +577,25 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
 /// The sort key used to normal order a term.
 ///
 /// Terms are reordered into descending order of this key. By default the key is
-/// ``(action, spin, orb)`` (creations before annihilations). When ``group_by_spin``
+/// ``(action, spin, orb)`` (creations before annihilations). When ``GROUP_BY_SPIN``
 /// is true the key is ``(spin, action, orb)`` (spin beta before spin alpha). In both
 /// cases, a creation operator precedes the annihilation operator on the same
 /// spin-orbital.
-fn order_key(op: (bool, bool, i32), group_by_spin: bool) -> (bool, bool, i32) {
+///
+/// `GROUP_BY_SPIN` is a const generic so that the branch is resolved at compile time
+/// and the inner loop of [`normal_ordered_term`] is monomorphized for each convention.
+fn order_key<const GROUP_BY_SPIN: bool>(op: (bool, bool, i32)) -> (bool, bool, i32) {
     let (action, spin, orb) = op;
-    if group_by_spin {
+    if GROUP_BY_SPIN {
         (spin, action, orb)
     } else {
         (action, spin, orb)
     }
 }
 
-fn normal_ordered_term(
+fn normal_ordered_term<const GROUP_BY_SPIN: bool>(
     term: &[(bool, bool, i32)],
     coeff: &Complex64,
-    group_by_spin: bool,
 ) -> FermionOperator {
     let mut coeffs = HashMap::new();
     let mut stack = vec![(term.to_vec(), *coeff)];
@@ -603,7 +612,7 @@ fn normal_ordered_term(
                     zero = true;
                     break 'outer;
                 }
-                if order_key(right, group_by_spin) > order_key(left, group_by_spin) {
+                if order_key::<GROUP_BY_SPIN>(right) > order_key::<GROUP_BY_SPIN>(left) {
                     // the operator on the right belongs to the left, so swap them
                     let (_, spin_right, index_right) = right;
                     let (_, spin_left, index_left) = left;
