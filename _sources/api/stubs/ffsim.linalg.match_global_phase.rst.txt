@@ -1,0 +1,6 @@
+﻿ffsim.linalg.match\_global\_phase
+=================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: match_global_phase

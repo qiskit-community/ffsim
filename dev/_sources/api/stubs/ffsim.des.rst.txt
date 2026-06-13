@@ -1,0 +1,6 @@
+﻿ffsim.des
+=========
+
+.. currentmodule:: ffsim
+
+.. autofunction:: des

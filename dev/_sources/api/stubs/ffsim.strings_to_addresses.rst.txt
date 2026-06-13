@@ -1,0 +1,6 @@
+﻿ffsim.strings\_to\_addresses
+============================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: strings_to_addresses

@@ -1,0 +1,55 @@
+﻿ffsim.GivensAnsatzOp
+====================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: GivensAnsatzOp
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GivensAnsatzOp.norb
+      ~GivensAnsatzOp.interaction_pairs
+      ~GivensAnsatzOp.thetas
+      ~GivensAnsatzOp.phis
+      ~GivensAnsatzOp.phase_angles
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: interaction_pairs
+
+   .. autoattribute:: thetas
+
+   .. autoattribute:: phis
+
+   .. autoattribute:: phase_angles
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GivensAnsatzOp.from_orbital_rotation
+      ~GivensAnsatzOp.from_parameters
+      ~GivensAnsatzOp.n_params
+      ~GivensAnsatzOp.to_orbital_rotation
+      ~GivensAnsatzOp.to_parameters
+
+   .. automethod:: from_orbital_rotation
+
+   .. automethod:: from_parameters
+
+   .. automethod:: n_params
+
+   .. automethod:: to_orbital_rotation
+
+   .. automethod:: to_parameters
+   
+   

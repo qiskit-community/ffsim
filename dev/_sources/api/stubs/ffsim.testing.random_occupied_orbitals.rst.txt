@@ -1,0 +1,6 @@
+﻿ffsim.testing.random\_occupied\_orbitals
+========================================
+
+.. currentmodule:: ffsim.testing
+
+.. autofunction:: random_occupied_orbitals

@@ -1,0 +1,28 @@
+﻿ffsim.qiskit.DiagCoulombEvolutionJW
+===================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: DiagCoulombEvolutionJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DiagCoulombEvolutionJW.inverse
+
+   .. automethod:: inverse
+   
+   

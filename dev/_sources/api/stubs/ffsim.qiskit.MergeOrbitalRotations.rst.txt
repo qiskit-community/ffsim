@@ -1,0 +1,28 @@
+﻿ffsim.qiskit.MergeOrbitalRotations
+==================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: MergeOrbitalRotations
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MergeOrbitalRotations.run
+
+   .. automethod:: run
+   
+   

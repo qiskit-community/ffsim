@@ -1,0 +1,43 @@
+﻿ffsim.HopGateAnsatzOperator
+===========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: HopGateAnsatzOperator
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HopGateAnsatzOperator.final_orbital_rotation
+      ~HopGateAnsatzOperator.norb
+      ~HopGateAnsatzOperator.interaction_pairs
+      ~HopGateAnsatzOperator.thetas
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: interaction_pairs
+
+   .. autoattribute:: thetas
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HopGateAnsatzOperator.from_parameters
+      ~HopGateAnsatzOperator.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: to_parameters
+   
+   

@@ -1,0 +1,17 @@
+ffsim.contract
+==============
+
+Functions for contracting tensors and constructing linear operators
+
+.. currentmodule:: ffsim.contract
+
+.. autosummary::
+   :toctree: stubs/
+
+   contract_diag_coulomb
+   contract_num_op_sum
+   contract_one_body
+   diag_coulomb_linop
+   num_op_sum_linop
+   one_body_linop
+   two_body_linop

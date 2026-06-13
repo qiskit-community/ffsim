@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_uccsd\_op\_unrestricted\_real
+==================================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_uccsd_op_unrestricted_real

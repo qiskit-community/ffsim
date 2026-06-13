@@ -1,0 +1,6 @@
+﻿ffsim.apply\_tunneling\_interaction
+===================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_tunneling_interaction

@@ -1,0 +1,6 @@
+﻿ffsim.contract.two\_body\_linop
+===============================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: two_body_linop

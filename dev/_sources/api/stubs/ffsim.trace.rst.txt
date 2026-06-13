@@ -1,0 +1,6 @@
+﻿ffsim.trace
+===========
+
+.. currentmodule:: ffsim
+
+.. autofunction:: trace

@@ -1,0 +1,26 @@
+﻿ffsim.SupportsDiagonal
+======================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsDiagonal
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsDiagonal._diag_
+      ~SupportsDiagonal._trace_
+
+   .. automethod:: _diag_
+
+   .. automethod:: _trace_
+   
+   

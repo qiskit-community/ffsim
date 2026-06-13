@@ -1,0 +1,28 @@
+﻿ffsim.qiskit.DropNegligible
+===========================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: DropNegligible
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DropNegligible.run
+
+   .. automethod:: run
+   
+   

@@ -1,0 +1,29 @@
+﻿ffsim.BitstringType
+===================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: BitstringType
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BitstringType.STRING
+      ~BitstringType.INT
+      ~BitstringType.BIT_ARRAY
+
+   .. autoattribute:: STRING
+
+   .. autoattribute:: INT
+
+   .. autoattribute:: BIT_ARRAY
+   
+   
+
+   
+   
+   

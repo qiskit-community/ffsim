@@ -1,0 +1,6 @@
+﻿ffsim.testing.generate\_norb\_nocc
+==================================
+
+.. currentmodule:: ffsim.testing
+
+.. autofunction:: generate_norb_nocc

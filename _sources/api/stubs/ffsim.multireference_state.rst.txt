@@ -1,0 +1,6 @@
+﻿ffsim.multireference\_state
+===========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: multireference_state

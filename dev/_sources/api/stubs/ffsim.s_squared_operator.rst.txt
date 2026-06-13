@@ -1,0 +1,6 @@
+﻿ffsim.s\_squared\_operator
+==========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: s_squared_operator

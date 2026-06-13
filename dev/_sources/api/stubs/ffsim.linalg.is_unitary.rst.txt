@@ -1,0 +1,6 @@
+﻿ffsim.linalg.is\_unitary
+========================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: is_unitary

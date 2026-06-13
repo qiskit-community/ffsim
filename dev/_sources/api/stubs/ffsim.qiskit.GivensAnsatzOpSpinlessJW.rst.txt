@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.GivensAnsatzOpSpinlessJW
+=====================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: GivensAnsatzOpSpinlessJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

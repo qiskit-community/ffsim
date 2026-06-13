@@ -1,0 +1,6 @@
+﻿ffsim.singles\_excitations\_unrestricted
+========================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: singles_excitations_unrestricted
