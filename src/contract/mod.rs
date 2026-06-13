@@ -9,4 +9,5 @@
 // that they have been altered from the originals.
 
 pub mod diag_coulomb;
+pub mod fermion_operator;
 pub mod num_op_sum;
