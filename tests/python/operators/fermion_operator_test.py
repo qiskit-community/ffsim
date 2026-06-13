@@ -360,6 +360,58 @@ def test_normal_order_number_number():
     assert op1.normal_ordered() == op2.normal_ordered()
 
 
+def test_normal_ordered_group_by_spin():
+    """Test normal ordering with group_by_spin=True."""
+    # Pure reorder: all distinct spin-orbitals, so no contraction terms arise.
+    actual = FermionOperator(
+        {(ffsim.cre_b(1), ffsim.des_a(2), ffsim.cre_a(0), ffsim.des_b(3)): 1.5}
+    ).normal_ordered(group_by_spin=True)
+    expected = FermionOperator(
+        {(ffsim.cre_b(1), ffsim.des_b(3), ffsim.cre_a(0), ffsim.des_a(2)): -1.5}
+    )
+    assert actual == expected
+
+    # Contraction within each spin block.
+    actual = FermionOperator(
+        {(ffsim.des_a(1), ffsim.cre_b(0), ffsim.des_b(0), ffsim.cre_a(1)): 1.0}
+    ).normal_ordered(group_by_spin=True)
+    expected = FermionOperator(
+        {
+            (ffsim.cre_b(0), ffsim.des_b(0), ffsim.cre_a(1), ffsim.des_a(1)): -1.0,
+            (ffsim.cre_b(0), ffsim.des_b(0)): 1.0,
+        }
+    )
+    assert actual == expected
+
+    # Every term lists all spin beta operators before all spin alpha operators, with
+    # creations before annihilations and larger orbital indices first within each spin.
+    for op in (actual, expected):
+        for term in op:
+            spins = [spin for _, spin, _ in term]
+            # all beta (True) before all alpha (False)
+            assert spins == sorted(spins, reverse=True)
+            keys = [(spin, action, orb) for action, spin, orb in term]
+            assert keys == sorted(keys, reverse=True)
+
+
+def test_normal_ordered_group_by_spin_preserves_operator():
+    """Both conventions reorder a term into an equivalent operator."""
+    op = FermionOperator(
+        {
+            (ffsim.cre_b(1), ffsim.des_a(2), ffsim.cre_a(0), ffsim.des_b(3)): 1.5,
+            (ffsim.des_a(1), ffsim.cre_b(0), ffsim.des_b(0), ffsim.cre_a(1)): 0.5j,
+        }
+    )
+    norb = 4
+    nelec = (2, 2)
+    expected = ffsim.linear_operator(op, norb=norb, nelec=nelec)
+    for group_by_spin in (False, True):
+        reordered = op.normal_ordered(group_by_spin=group_by_spin)
+        actual = ffsim.linear_operator(reordered, norb=norb, nelec=nelec)
+        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=1234)
+        np.testing.assert_allclose(actual @ vec, expected @ vec)
+
+
 def test_conserves_particle_number():
     op = FermionOperator(
         {

@@ -178,6 +178,49 @@ def test_random_diagonal_coulomb_hamiltonian():
     assert dc_ham.one_body_tensor.dtype == float
 
 
+def test_random_fermion_operator():
+    """Test random fermion operator."""
+    norb = 5
+
+    # Generic operator
+    op = ffsim.random.random_fermion_operator(
+        norb, n_terms=10, max_term_length=3, seed=RNG
+    )
+    assert len(op) <= 10
+    assert all(len(term) <= 3 for term in op)
+
+
+def test_random_fermion_operator_num_and_spin_conserving():
+    """Test random number- and spin-z-conserving fermion operator."""
+    norb = 5
+
+    op = ffsim.random.random_fermion_operator(
+        norb, n_terms=20, num_and_spin_conserving=True, seed=RNG
+    )
+    assert op.conserves_particle_number()
+    assert op.conserves_spin_z()
+    # The default max_term_length is 2 * norb.
+    assert all(len(term) <= 2 * norb for term in op)
+
+    op = ffsim.random.random_fermion_operator(
+        norb, n_terms=20, max_term_length=6, num_and_spin_conserving=True, seed=RNG
+    )
+    assert op.conserves_particle_number()
+    assert op.conserves_spin_z()
+    assert all(len(term) <= 6 for term in op)
+
+
+def test_random_fermion_hamiltonian():
+    """Test random fermion Hamiltonian."""
+    norb = 5
+
+    op = ffsim.random.random_fermion_hamiltonian(norb, n_terms=10, seed=RNG)
+    assert op.conserves_particle_number()
+    assert op.conserves_spin_z()
+    # A Hamiltonian is Hermitian.
+    assert op == op.adjoint()
+
+
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
