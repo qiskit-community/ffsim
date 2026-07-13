@@ -190,39 +190,69 @@ def _diag_coulomb_evo_num_rep_jw(
     else:
         mat_aa, mat_ab, mat_bb = mat
 
-    # gates that involve a single spin sector
+    z_coeffs = np.zeros(2 * norb)
+
+    # Accumulate coefficients for gates that involve a single spin sector
     for sigma, this_mat in enumerate([mat_aa, mat_bb]):
         if this_mat is not None:
             for i in range(norb):
                 if this_mat[i, i]:
-                    yield CircuitInstruction(
-                        PhaseGate(-0.5 * this_mat[i, i] * time),
-                        (qubits[i + sigma * norb],),
-                    )
+                    z_coeffs[i + sigma * norb] += 0.5 * time * this_mat[i, i] * 0.5
+            for i, j in _iter_pairs(norb):
+                if this_mat[i, j]:
+                    coef = time * this_mat[i, j] / 4.0
+                    z_coeffs[i + sigma * norb] += coef
+                    z_coeffs[j + sigma * norb] += coef
+
+    # Accumulate coefficients for gates that involve both spin sectors
+    if mat_ab is not None:
+        for i in range(norb):
+            if mat_ab[i, i]:
+                coef = time * mat_ab[i, i] / 4.0
+                z_coeffs[i] += coef
+                z_coeffs[i + norb] += coef
+        for i, j in _iter_pairs(norb):
+            if mat_ab[i, j]:
+                coef = time * mat_ab[i, j] / 4.0
+                z_coeffs[i] += coef
+                z_coeffs[j + norb] += coef
+            if mat_ab[j, i]:
+                coef = time * mat_ab[j, i] / 4.0
+                z_coeffs[j] += coef
+                z_coeffs[i + norb] += coef
+
+    # Yield all aggregated PhaseGates first
+    for i in range(2 * norb):
+        if z_coeffs[i] != 0:
+            yield CircuitInstruction(PhaseGate(-2 * z_coeffs[i]), (qubits[i],))
+
+    # Yield all RZZGates for a single spin sector
+    for sigma, this_mat in enumerate([mat_aa, mat_bb]):
+        if this_mat is not None:
             for i, j in _iter_pairs(norb):
                 if this_mat[i, j]:
                     yield CircuitInstruction(
-                        CPhaseGate(-this_mat[i, j] * time),
+                        RZZGate(0.5 * time * this_mat[i, j]),
                         (qubits[i + sigma * norb], qubits[j + sigma * norb]),
                     )
 
-    # gates that involve both spin sectors
+    # Yield all RZZGates that involve both spin sectors
     if mat_ab is not None:
         for i in range(norb):
             if mat_ab[i, i]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[i, i] * time),
+                    RZZGate(0.5 * time * mat_ab[i, i]),
                     (qubits[i], qubits[i + norb]),
                 )
         for i, j in _iter_pairs(norb):
             if mat_ab[i, j]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[i, j] * time),
+                    RZZGate(0.5 * time * mat_ab[i, j]),
                     (qubits[i], qubits[j + norb]),
                 )
             if mat_ab[j, i]:
                 yield CircuitInstruction(
-                    CPhaseGate(-mat_ab[j, i] * time),
+                    RZZGate(0.5 * time * mat_ab[j, i]),
                     (qubits[j], qubits[i + norb]),
                 )
 
