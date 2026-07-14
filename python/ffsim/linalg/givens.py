@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import cmath
+import functools
 import itertools
 import math
 
@@ -258,6 +259,31 @@ def _reconstruct_orbital_rotation_jax(
     return mat
 
 
+@functools.lru_cache(maxsize=None)
+def _make_compressed_value_and_grad(
+    norb: int, pairs_kept: tuple[tuple[int, int], ...], n_keep: int
+):
+    """Build a jitted value-and-gradient function for the compression objective.
+
+    The result is cached and reused across optimizer iterations and across calls
+    with the same static structure ``(norb, pairs_kept, n_keep)``, so the loss is
+    traced and compiled only once per structure. The target unitary is passed as a
+    runtime argument (it changes every call), and the gradient is taken with respect
+    to the flat variable vector ``x`` only.
+    """
+
+    def loss(x: jax.Array, target: jax.Array) -> jax.Array:
+        thetas_x = x[:n_keep]
+        phis_x = x[n_keep : 2 * n_keep]
+        phase_angles_x = x[2 * n_keep :]
+        reconstructed = _reconstruct_orbital_rotation_jax(
+            thetas_x, phis_x, phase_angles_x, list(pairs_kept), norb
+        )
+        return jnp.sum(jnp.abs(target - reconstructed) ** 2)
+
+    return jax.jit(jax.value_and_grad(loss, argnums=0))
+
+
 def _givens_decomposition_compressed(
     mat: np.ndarray,
     tol: float = 1e-12,
@@ -328,26 +354,20 @@ def _givens_decomposition_compressed(
     if n_keep >= max_full:
         return _lib.givens_decomposition(mat, tol=tol)
 
-    pairs_kept = interaction_pairs[:n_keep]
+    pairs_kept = tuple(interaction_pairs[:n_keep])
     thetas0 = np.array(thetas[:n_keep])
     phis0 = np.array(phis[:n_keep])
     phase_angles0 = np.angle(phases)
 
     target = jnp.asarray(mat)
 
-    def loss(x: jax.Array) -> jax.Array:
-        thetas_x = x[:n_keep]
-        phis_x = x[n_keep : 2 * n_keep]
-        phase_angles_x = x[2 * n_keep :]
-        reconstructed = _reconstruct_orbital_rotation_jax(
-            thetas_x, phis_x, phase_angles_x, pairs_kept, norb
-        )
-        return jnp.sum(jnp.abs(target - reconstructed) ** 2)
-
-    value_and_grad = jax.value_and_grad(loss)
+    # Reuse a jitted value-and-gradient function cached by static structure, so the
+    # loss is compiled once and reused across all optimizer iterations (and across
+    # calls with the same structure) instead of being re-traced eagerly each step.
+    value_and_grad = _make_compressed_value_and_grad(norb, pairs_kept, n_keep)
 
     def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
-        value, grad = value_and_grad(jnp.asarray(x))
+        value, grad = value_and_grad(jnp.asarray(x), target)
         return float(value), np.asarray(grad)
 
     x0 = np.concatenate([thetas0, phis0, phase_angles0])
