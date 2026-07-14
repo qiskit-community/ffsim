@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import functools
 import itertools
 import math
 from typing import Literal, cast, overload
@@ -32,6 +33,8 @@ from ffsim.linalg.util import (
     df_tensors_from_params_jax,
     df_tensors_to_params,
 )
+
+jax.config.update("jax_enable_x64", True)
 
 
 def _truncated_eigh(
@@ -683,6 +686,53 @@ def _double_factorized_t2_explicit(
     return diag_coulomb_mats, orbital_rotations
 
 
+@functools.cache
+def _make_t2_compressed_value_and_grad(
+    n_tensors: int,
+    norb: int,
+    nocc: int,
+    diag_coulomb_indices: tuple[tuple[int, int], ...] | None,
+):
+    """Build a jitted value-and-gradient function for the t2 compression objective.
+
+    The result is cached and reused across optimizer iterations and across calls with
+    the same static structure ``(n_tensors, norb, nocc, diag_coulomb_indices)``, so the
+    loss is traced and compiled only once per structure. The target amplitudes,
+    regularization coefficient, and reference diagonal Coulomb norm are passed as
+    runtime arguments (they do not affect the traced graph), and the gradient is taken
+    with respect to the flat variable vector ``x`` only.
+    """
+    indices = None if diag_coulomb_indices is None else list(diag_coulomb_indices)
+
+    def loss(
+        x: jax.Array,
+        t2_amplitudes: jax.Array,
+        regularization: jax.Array,
+        init_diag_coulomb_norm: jax.Array,
+    ) -> jax.Array:
+        diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
+            x, n_tensors, norb, indices
+        )
+        reconstructed = (
+            1j
+            * jnp.einsum(
+                "mpq,map,mip,mbq,mjq->ijab",
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations.conj(),
+                orbital_rotations,
+                orbital_rotations.conj(),
+                optimize=True,
+            )[:nocc, :nocc, nocc:, nocc:]
+        )
+        loss_val = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
+        diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
+        loss_val += regularization * jnp.abs(diag_coulomb_norm - init_diag_coulomb_norm)
+        return loss_val
+
+    return jax.jit(jax.value_and_grad(loss, argnums=0))
+
+
 def _double_factorized_t2_compressed(
     t2_amplitudes: np.ndarray,
     *,
@@ -720,41 +770,39 @@ def _double_factorized_t2_compressed(
         list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
         list_reps.append(max_terms)
 
+    # Structure key for the cached jitted objective. Convert to a hashable tuple so it
+    # can be used as a cache key, and back to a list inside the builder.
+    indices_key = None if diag_coulomb_indices is None else tuple(diag_coulomb_indices)
+    t2_jax = jnp.asarray(t2_amplitudes)
+    regularization_jax = jnp.asarray(regularization)
+    init_diag_coulomb_norm_jax = jnp.asarray(init_diag_coulomb_norm)
+
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
         orbital_rotations = orbital_rotations[:n_tensors]
 
-        def fun(x: np.ndarray):
-            diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
-                x, n_tensors, norb, diag_coulomb_indices
-            )
-            reconstructed = (
-                1j
-                * contract(
-                    "mpq,map,mip,mbq,mjq->ijab",
-                    diag_coulomb_mats,
-                    orbital_rotations,
-                    orbital_rotations.conj(),
-                    orbital_rotations,
-                    orbital_rotations.conj(),
-                    optimize="greedy",
-                )[:nocc, :nocc, nocc:, nocc:]
-            )
-            loss = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
-            if regularization:
-                diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
-                loss += regularization * jnp.abs(
-                    diag_coulomb_norm - init_diag_coulomb_norm
-                )
-            return loss
+        # Reuse a jitted value-and-gradient function cached by static structure, so the
+        # loss is compiled once and reused across all optimizer iterations (and across
+        # calls/stages with the same structure) instead of being re-traced eagerly each
+        # step.
+        value_and_grad = _make_t2_compressed_value_and_grad(
+            n_tensors, norb, nocc, indices_key
+        )
 
-        value_and_grad_func = jax.value_and_grad(fun)
+        def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+            value, grad = value_and_grad(
+                jnp.asarray(x),
+                t2_jax,
+                regularization_jax,
+                init_diag_coulomb_norm_jax,
+            )
+            return float(value), np.asarray(grad)
 
         x0 = df_tensors_to_params(
             diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
         )
         result = scipy.optimize.minimize(
-            value_and_grad_func,
+            scipy_func,
             x0,
             method=method,
             jac=True,
@@ -972,6 +1020,85 @@ def double_factorized_t2_alpha_beta(
     )
 
 
+@functools.cache
+def _make_t2_alpha_beta_compressed_value_and_grad(
+    n_tensors: int,
+    norb: int,
+    nocc_a: int,
+    nocc_b: int,
+    diag_coulomb_indices_key: tuple[
+        tuple[tuple[int, int], ...] | None,
+        tuple[tuple[int, int], ...] | None,
+        tuple[tuple[int, int], ...] | None,
+    ]
+    | None,
+):
+    """Build a jitted value-and-grad for the alpha-beta t2 compression objective.
+
+    The result is cached and reused across optimizer iterations and across calls with
+    the same static structure, so the loss is traced and compiled only once per
+    structure. The target amplitudes, regularization coefficient, and reference
+    diagonal Coulomb norm are passed as runtime arguments (they do not affect the
+    traced graph), and the gradient is taken with respect to the flat variable vector
+    ``x`` only.
+    """
+    if diag_coulomb_indices_key is None:
+        diag_coulomb_indices: (
+            tuple[
+                list[tuple[int, int]] | None,
+                list[tuple[int, int]] | None,
+                list[tuple[int, int]] | None,
+            ]
+            | None
+        ) = None
+    else:
+        diag_coulomb_indices = tuple(  # type: ignore[assignment]
+            None if pairs is None else list(pairs) for pairs in diag_coulomb_indices_key
+        )
+
+    def loss(
+        x: jax.Array,
+        t2_amplitudes: jax.Array,
+        regularization: jax.Array,
+        init_diag_coulomb_norm: jax.Array,
+    ) -> jax.Array:
+        diag_coulomb_mats, orbital_rotations = df_tensors_alpha_beta_from_params_jax(
+            x, n_tensors, norb, diag_coulomb_indices
+        )
+        mats_aa = diag_coulomb_mats[:, 0]
+        mats_ab = diag_coulomb_mats[:, 1]
+        mats_bb = diag_coulomb_mats[:, 2]
+        top = jnp.concatenate([mats_aa, mats_ab], axis=-1)
+        bottom = jnp.concatenate([mats_ab.transpose(0, 2, 1), mats_bb], axis=-1)
+        expanded_diag_coulomb_mats = jnp.concatenate([top, bottom], axis=-2)
+
+        rot_a = orbital_rotations[:, 0]
+        rot_b = orbital_rotations[:, 1]
+        zeros = jnp.zeros((n_tensors, norb, norb), dtype=orbital_rotations.dtype)
+        rot_top = jnp.concatenate([rot_a, zeros], axis=-1)
+        rot_bottom = jnp.concatenate([zeros, rot_b], axis=-1)
+        expanded_orbital_rotations = jnp.concatenate([rot_top, rot_bottom], axis=-2)
+
+        reconstructed = (
+            1j
+            * jnp.einsum(
+                "kpq,kap,kip,kbq,kjq->ijab",
+                expanded_diag_coulomb_mats,
+                expanded_orbital_rotations,
+                expanded_orbital_rotations.conj(),
+                expanded_orbital_rotations,
+                expanded_orbital_rotations.conj(),
+                optimize=True,
+            )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
+        )
+        loss_val = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
+        diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
+        loss_val += regularization * jnp.abs(diag_coulomb_norm - init_diag_coulomb_norm)
+        return loss_val
+
+    return jax.jit(jax.value_and_grad(loss, argnums=0))
+
+
 def _double_factorized_t2_alpha_beta_compressed(
     t2_amplitudes: np.ndarray,
     *,
@@ -1014,58 +1141,45 @@ def _double_factorized_t2_alpha_beta_compressed(
         list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
         list_reps.append(max_terms)
 
+    # Hashable structure key for the cached jitted objective. Convert the (possibly
+    # nested) index lists to tuples so they can serve as a cache key, and back to
+    # lists inside the builder.
+    if diag_coulomb_indices is None:
+        indices_key: tuple | None = None
+    else:
+        indices_key = tuple(
+            None if pairs is None else tuple(pairs) for pairs in diag_coulomb_indices
+        )
+    t2_jax = jnp.asarray(t2_amplitudes)
+    regularization_jax = jnp.asarray(regularization)
+    init_diag_coulomb_norm_jax = jnp.asarray(init_diag_coulomb_norm)
+
     for n_tensors in list_reps:
         diag_coulomb_mats = diag_coulomb_mats[:n_tensors]
         orbital_rotations = orbital_rotations[:n_tensors]
 
-        def fun(x: np.ndarray):
-            diag_coulomb_mats, orbital_rotations = (
-                df_tensors_alpha_beta_from_params_jax(
-                    x, n_tensors, norb, diag_coulomb_indices
-                )
-            )
-            n_terms = diag_coulomb_mats.shape[0]
-            expanded_diag_coulomb_mats = jnp.zeros(
-                (n_terms, 2 * norb, 2 * norb), dtype=complex
-            )
-            expanded_orbital_rotations = jnp.zeros(
-                (n_terms, 2 * norb, 2 * norb), dtype=complex
-            )
-            for k in range(n_terms):
-                (mat_aa, mat_ab, mat_bb) = diag_coulomb_mats[k]
-                expanded_diag_coulomb_mats = expanded_diag_coulomb_mats.at[k].set(
-                    jnp.block([[mat_aa, mat_ab], [mat_ab.T, mat_bb]])
-                )
-                orbital_rotation_a, orbital_rotation_b = orbital_rotations[k]
-                expanded_orbital_rotations = expanded_orbital_rotations.at[k].set(
-                    jax.scipy.linalg.block_diag(orbital_rotation_a, orbital_rotation_b)
-                )
-            reconstructed = (
-                1j
-                * contract(
-                    "kpq,kap,kip,kbq,kjq->ijab",
-                    expanded_diag_coulomb_mats,
-                    expanded_orbital_rotations,
-                    expanded_orbital_rotations.conj(),
-                    expanded_orbital_rotations,
-                    expanded_orbital_rotations.conj(),
-                )[:nocc_a, norb : norb + nocc_b, nocc_a:norb, norb + nocc_b :]
-            )
-            loss = 0.5 * jnp.sum(jnp.abs(reconstructed - t2_amplitudes) ** 2)
-            if regularization:
-                diag_coulomb_norm = jnp.sum(jnp.abs(diag_coulomb_mats) ** 2)
-                loss += regularization * jnp.abs(
-                    diag_coulomb_norm - init_diag_coulomb_norm
-                )
-            return loss
+        # Reuse a jitted value-and-gradient function cached by static structure, so the
+        # loss is compiled once and reused across all optimizer iterations (and across
+        # calls/stages with the same structure) instead of being re-traced eagerly each
+        # step.
+        value_and_grad = _make_t2_alpha_beta_compressed_value_and_grad(
+            n_tensors, norb, nocc_a, nocc_b, indices_key
+        )
 
-        value_and_grad_func = jax.value_and_grad(fun)
+        def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+            value, grad = value_and_grad(
+                jnp.asarray(x),
+                t2_jax,
+                regularization_jax,
+                init_diag_coulomb_norm_jax,
+            )
+            return float(value), np.asarray(grad)
 
         x0 = df_tensors_alpha_beta_to_params(
             diag_coulomb_mats, orbital_rotations, diag_coulomb_indices
         )
         result = scipy.optimize.minimize(
-            value_and_grad_func,
+            scipy_func,
             x0,
             method=method,
             jac=True,

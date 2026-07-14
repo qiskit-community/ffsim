@@ -55,7 +55,7 @@ def antihermitian_from_parameters(
 
 
 def antihermitian_from_parameters_jax(
-    params: np.ndarray, dim: int, real: bool = False
+    params: jax.Array | np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of antihermitian_from_parameters."""
     return antihermitians_from_parameters_jax(params, dim, 1, real=real)[0]
@@ -123,7 +123,7 @@ def antihermitians_from_parameters(
 
 
 def antihermitians_from_parameters_jax(
-    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+    params: jax.Array | np.ndarray, dim: int, n_mats: int, real: bool = False
 ) -> jax.Array:
     """JAX version of antihermitians_from_parameters."""
     n_params_per_mat = dim * (dim - 1) // 2 if real else dim**2
@@ -183,7 +183,7 @@ def unitary_from_parameters(
 
 
 def unitary_from_parameters_jax(
-    params: np.ndarray, dim: int, real: bool = False
+    params: jax.Array | np.ndarray, dim: int, real: bool = False
 ) -> jax.Array:
     """JAX version of unitary_from_parameters."""
     return unitaries_from_parameters_jax(params, dim, 1, real=real)[0]
@@ -235,7 +235,7 @@ def unitaries_from_parameters(
 
 
 def unitaries_from_parameters_jax(
-    params: np.ndarray, dim: int, n_mats: int, real: bool = False
+    params: jax.Array | np.ndarray, dim: int, n_mats: int, real: bool = False
 ) -> jax.Array:
     """JAX version of unitaries_from_parameters."""
     return jax.scipy.linalg.expm(
@@ -277,7 +277,9 @@ def real_symmetric_from_parameters(
 
 
 def real_symmetric_from_parameters_jax(
-    params: np.ndarray, dim: int, triu_indices: list[tuple[int, int]] | None = None
+    params: jax.Array | np.ndarray,
+    dim: int,
+    triu_indices: list[tuple[int, int]] | None = None,
 ) -> jax.Array:
     """JAX version of real_symmetric_from_parameters."""
     return real_symmetrics_from_parameters_jax(params, dim, 1, triu_indices)[0]
@@ -343,7 +345,7 @@ def real_symmetrics_from_parameters(
 
 
 def real_symmetrics_from_parameters_jax(
-    params: np.ndarray,
+    params: jax.Array | np.ndarray,
     dim: int,
     n_mats: int,
     triu_indices: list[tuple[int, int]] | None = None,
@@ -420,7 +422,7 @@ def real_matrices_from_parameters(
 
 
 def real_matrices_from_parameters_jax(
-    params: np.ndarray,
+    params: jax.Array | np.ndarray,
     dim: int,
     n_mats: int,
     indices: list[tuple[int, int]] | None = None,
@@ -510,7 +512,7 @@ def df_tensors_from_params(
 
 
 def df_tensors_from_params_jax(
-    params: np.ndarray,
+    params: jax.Array | np.ndarray,
     n_tensors: int,
     norb: int,
     diag_coulomb_indices: list[tuple[int, int]] | None = None,
@@ -673,7 +675,7 @@ def df_tensors_alpha_beta_from_params(
 
 
 def df_tensors_alpha_beta_from_params_jax(
-    params: np.ndarray,
+    params: jax.Array | np.ndarray,
     n_tensors: int,
     norb: int,
     diag_coulomb_indices: tuple[
