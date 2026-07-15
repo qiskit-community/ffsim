@@ -25,7 +25,6 @@ import scipy.optimize
 from opt_einsum import contract
 
 from ffsim.linalg.util import (
-    antihermitians_from_parameters,
     df_tensors_alpha_beta_from_params,
     df_tensors_alpha_beta_from_params_jax,
     df_tensors_alpha_beta_to_params,
@@ -346,6 +345,40 @@ def optimal_diag_coulomb_mats(
     return np.reshape(solution, (n_tensors, norb, norb))
 
 
+@functools.cache
+def _make_compressed_value_and_grad(
+    n_tensors: int,
+    norb: int,
+    diag_coulomb_indices: tuple[tuple[int, int], ...] | None,
+):
+    """Build a jitted value-and-gradient function for the compression objective.
+
+    The result is cached and reused across optimizer iterations and across calls with
+    the same static structure ``(n_tensors, norb, diag_coulomb_indices)``, so the loss
+    is traced and compiled only once per structure. The target two-body tensor is passed
+    as a runtime argument (it does not affect the traced graph), and the gradient is
+    taken with respect to the flat variable vector ``x`` only.
+    """
+    indices = None if diag_coulomb_indices is None else list(diag_coulomb_indices)
+
+    def loss(x: jax.Array, two_body_tensor: jax.Array) -> jax.Array:
+        diag_coulomb_mats, orbital_rotations = df_tensors_from_params_jax(
+            x, n_tensors, norb, indices, real=True
+        )
+        reconstructed = jnp.einsum(
+            "kpi,kqi,kij,krj,ksj->pqrs",
+            orbital_rotations,
+            orbital_rotations,
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations,
+            optimize=True,
+        )
+        return 0.5 * jnp.sum((two_body_tensor - reconstructed) ** 2)
+
+    return jax.jit(jax.value_and_grad(loss, argnums=0))
+
+
 def _double_factorized_compressed(
     two_body_tensor: np.ndarray,
     *,
@@ -365,78 +398,30 @@ def _double_factorized_compressed(
     )
     n_tensors, norb, _ = orbital_rotations.shape
 
-    if diag_coulomb_indices is None:
-        rows, cols = np.triu_indices(norb)
-    else:
-        rows, cols = zip(*diag_coulomb_indices)  # type: ignore
+    # Structure key for the cached jitted objective. Convert to a hashable tuple so it
+    # can be used as a cache key, and back to a list inside the builder.
+    indices_key = None if diag_coulomb_indices is None else tuple(diag_coulomb_indices)
+    two_body_tensor_jax = jnp.asarray(two_body_tensor)
 
-    n_triu = norb * (norb - 1) // 2
+    # Reuse a jitted value-and-gradient function cached by static structure, so the loss
+    # is compiled once and reused across all optimizer iterations (and across calls with
+    # the same structure) instead of being re-traced eagerly each step.
+    value_and_grad = _make_compressed_value_and_grad(n_tensors, norb, indices_key)
 
-    def fun(x):
-        diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
-            x, n_tensors, norb, diag_coulomb_indices, real=True
-        )
-        diff = two_body_tensor - contract(
-            "kpi,kqi,kij,krj,ksj->pqrs",
-            orbital_rotations,
-            orbital_rotations,
-            diag_coulomb_mats,
-            orbital_rotations,
-            orbital_rotations,
-            optimize="greedy",
-        )
-        return 0.5 * np.sum(diff**2)
-
-    def jac(x):
-        diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
-            x, n_tensors, norb, diag_coulomb_indices, real=True
-        )
-        diff = two_body_tensor - contract(
-            "kpi,kqi,kij,krj,ksj->pqrs",
-            orbital_rotations,
-            orbital_rotations,
-            diag_coulomb_mats,
-            orbital_rotations,
-            orbital_rotations,
-            optimize="greedy",
-        )
-        grad_orbital_rotations = -4 * contract(
-            "pqrs,tqk,tkl,trl,tsl->tpk",
-            diff,
-            orbital_rotations,
-            diag_coulomb_mats,
-            orbital_rotations,
-            orbital_rotations,
-            optimize="greedy",
-        )
-        # TODO this computation is redundant
-        generators = antihermitians_from_parameters(
-            x[: n_tensors * n_triu], norb, n_tensors, real=True
-        )
-        grad_generator = np.ravel(
-            [
-                _grad_generator(log, grad)
-                for log, grad in zip(generators, grad_orbital_rotations)
-            ]
-        )
-        grad_diag_coulomb = -2 * contract(
-            "pqrs,tpk,tqk,trl,tsl->tkl",
-            diff,
-            orbital_rotations,
-            orbital_rotations,
-            orbital_rotations,
-            orbital_rotations,
-            optimize="greedy",
-        )
-        grad_diag_coulomb[:, range(norb), range(norb)] /= 2
-        grad_diag_coulomb = np.ravel([mat[rows, cols] for mat in grad_diag_coulomb])
-        return np.concatenate([grad_generator, grad_diag_coulomb])
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(jnp.asarray(x), two_body_tensor_jax)
+        return float(value), np.asarray(grad)
 
     x0 = df_tensors_to_params(
         diag_coulomb_mats, orbital_rotations, diag_coulomb_indices, real=True
     )
     result = scipy.optimize.minimize(
-        fun, x0, method=method, jac=jac, callback=callback, options=options
+        scipy_func,
+        x0,
+        method=method,
+        jac=True,
+        callback=callback,
+        options=options,
     )
     diag_coulomb_mats, orbital_rotations = df_tensors_from_params(
         result.x, n_tensors, norb, diag_coulomb_indices, real=True
@@ -445,21 +430,6 @@ def _double_factorized_compressed(
     if return_optimize_result:
         return diag_coulomb_mats, orbital_rotations, result
     return diag_coulomb_mats, orbital_rotations
-
-
-def _grad_generator(mat: np.ndarray, grad_orbital_rotation: np.ndarray) -> np.ndarray:
-    eigs, vecs = scipy.linalg.eigh(-1j * mat)
-    eig_i, eig_j = np.meshgrid(eigs, eigs, indexing="ij")
-    with np.errstate(divide="ignore", invalid="ignore"):
-        coeffs = -1j * (np.exp(1j * eig_i) - np.exp(1j * eig_j)) / (eig_i - eig_j)
-    coeffs[eig_i == eig_j] = np.exp(1j * eig_i[eig_i == eig_j])
-    grad = (
-        vecs.conj() @ (vecs.T @ grad_orbital_rotation @ vecs.conj() * coeffs) @ vecs.T
-    )
-    grad -= grad.T
-    norb, _ = mat.shape
-    triu_indices = np.triu_indices(norb, k=1)
-    return np.real(grad[triu_indices])
 
 
 @overload
