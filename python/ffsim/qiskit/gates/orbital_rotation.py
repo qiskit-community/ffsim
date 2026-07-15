@@ -77,10 +77,13 @@ class OrbitalRotationJW(Gate):
         orbital_rotation: np.ndarray | tuple[np.ndarray | None, np.ndarray | None],
         *,
         tol: float = 1e-12,
+        max_givens: int | None = None,
+        max_layers: int | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
+        **optimize_kwargs,
     ):
         """Create new orbital rotation gate.
 
@@ -95,11 +98,22 @@ class OrbitalRotationJW(Gate):
                 that spin sector.
             tol: Tolerance for the Givens decomposition of the orbital rotation.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            max_givens: The maximum number of Givens rotations to use. If specified, the
+                decomposition is compressed to use at most this many Givens rotations,
+                and the resulting gate only approximates the orbital rotation. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
+            max_layers: The maximum number of brickwork layers to use. If specified, the
+                decomposition is compressed to use at most this many layers, and the
+                resulting gate only approximates the orbital rotation. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the decomposition is compressed.
 
         Raises:
             ValueError: The input matrix is not unitary.
@@ -121,6 +135,9 @@ class OrbitalRotationJW(Gate):
             else:
                 self.orbital_rotation_b = orbital_rotation_b
         self.tol = tol
+        self.max_givens = max_givens
+        self.max_layers = max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("orb_rot_jw", 2 * norb, [], label=label)
 
     def _define(self):
@@ -131,11 +148,21 @@ class OrbitalRotationJW(Gate):
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
         for instruction in _orbital_rotation_jw(
-            alpha_qubits, self.orbital_rotation_a, tol=self.tol
+            alpha_qubits,
+            self.orbital_rotation_a,
+            tol=self.tol,
+            max_givens=self.max_givens,
+            max_layers=self.max_layers,
+            **self.optimize_kwargs,
         ):
             circuit.append(instruction)
         for instruction in _orbital_rotation_jw(
-            beta_qubits, self.orbital_rotation_b, tol=self.tol
+            beta_qubits,
+            self.orbital_rotation_b,
+            tol=self.tol,
+            max_givens=self.max_givens,
+            max_layers=self.max_layers,
+            **self.optimize_kwargs,
         ):
             circuit.append(instruction)
         self.definition = circuit
@@ -160,10 +187,13 @@ class OrbitalRotationSpinlessJW(Gate):
         orbital_rotation: np.ndarray,
         *,
         tol: float = 1e-12,
+        max_givens: int | None = None,
+        max_layers: int | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
+        **optimize_kwargs,
     ):
         """Create new orbital rotation gate.
 
@@ -172,11 +202,22 @@ class OrbitalRotationSpinlessJW(Gate):
             orbital_rotation: The orbital rotation.
             tol: Tolerance for the Givens decomposition of the orbital rotation.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            max_givens: The maximum number of Givens rotations to use. If specified, the
+                decomposition is compressed to use at most this many Givens rotations,
+                and the resulting gate only approximates the orbital rotation. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
+            max_layers: The maximum number of brickwork layers to use. If specified, the
+                decomposition is compressed to use at most this many layers, and the
+                resulting gate only approximates the orbital rotation. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the decomposition is compressed.
 
         Raises:
             ValueError: The input matrix is not unitary.
@@ -188,6 +229,9 @@ class OrbitalRotationSpinlessJW(Gate):
         self.norb = norb
         self.orbital_rotation = orbital_rotation
         self.tol = tol
+        self.max_givens = max_givens
+        self.max_layers = max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("orb_rot_spinless_jw", norb, [], label=label)
 
     def _define(self):
@@ -195,7 +239,12 @@ class OrbitalRotationSpinlessJW(Gate):
         qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
         for instruction in _orbital_rotation_jw(
-            qubits, self.orbital_rotation, tol=self.tol
+            qubits,
+            self.orbital_rotation,
+            tol=self.tol,
+            max_givens=self.max_givens,
+            max_layers=self.max_layers,
+            **self.optimize_kwargs,
         ):
             circuit.append(instruction)
         self.definition = circuit
@@ -206,10 +255,19 @@ class OrbitalRotationSpinlessJW(Gate):
 
 
 def _orbital_rotation_jw(
-    qubits: Sequence[Qubit], orbital_rotation: np.ndarray, tol: float
+    qubits: Sequence[Qubit],
+    orbital_rotation: np.ndarray,
+    tol: float,
+    max_givens: int | None = None,
+    max_layers: int | None = None,
+    **optimize_kwargs,
 ) -> Iterator[CircuitInstruction]:
     givens_rotations, phase_shifts = linalg.givens_decomposition(
-        orbital_rotation, tol=tol
+        orbital_rotation,
+        tol=tol,
+        max_givens=max_givens,
+        max_layers=max_layers,
+        **optimize_kwargs,
     )
     for c, s, i, j in givens_rotations:
         r, phi = cmath.polar(s)
