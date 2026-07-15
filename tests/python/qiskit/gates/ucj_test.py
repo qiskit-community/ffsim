@@ -120,6 +120,112 @@ def test_ucj_op_tol():
     assert "xx_plus_yy" not in circuit.decompose(reps=2).count_ops()
 
 
+@pytest.mark.parametrize("norb", [4, 5])
+def test_compressed_max_givens(norb: int):
+    """Test that orb_rot_max_givens caps the number of XXPlusYY gates."""
+    n_reps = 2
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    max_givens = norb * (norb - 1) // 4
+
+    # Two orbital rotations per repetition, plus one final orbital rotation.
+    n_orb_rots = 2 * n_reps + 1
+
+    # Spin-balanced: each orbital rotation is applied to both spin sectors.
+    ucj_op = ffsim.UCJOpSpinBalanced(
+        diag_coulomb_mats=np.zeros((n_reps, 2, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 1, 1)),
+        final_orbital_rotation=orbital_rotation,
+    )
+    gate = ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op, orb_rot_max_givens=max_givens)
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == 2 * n_orb_rots * max_givens
+    )
+
+    # Spin-unbalanced: independent alpha/beta rotations, each applied to both sectors.
+    ucj_op_unbalanced = ffsim.UCJOpSpinUnbalanced(
+        diag_coulomb_mats=np.zeros((n_reps, 3, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 2, 1, 1)),
+        final_orbital_rotation=np.tile(orbital_rotation, (2, 1, 1)),
+    )
+    gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(
+        ucj_op_unbalanced, orb_rot_max_givens=max_givens
+    )
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == 2 * n_orb_rots * max_givens
+    )
+
+    # Spinless: one XXPlusYY gate per retained Givens rotation.
+    ucj_op_spinless = ffsim.UCJOpSpinless(
+        diag_coulomb_mats=np.zeros((n_reps, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 1, 1)),
+        final_orbital_rotation=orbital_rotation,
+    )
+    gate = ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless, orb_rot_max_givens=max_givens)
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == n_orb_rots * max_givens
+    )
+
+
+@pytest.mark.parametrize("norb", [4, 5])
+def test_compressed_max_layers(norb: int):
+    """Test that orb_rot_max_layers caps the number of XXPlusYY gates."""
+    n_reps = 2
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    max_layers = norb // 2
+
+    # Two orbital rotations per repetition, plus one final orbital rotation.
+    n_orb_rots = 2 * n_reps + 1
+
+    # The number of retained Givens rotations matches the compressed decomposition.
+    givens_rotations, _ = ffsim.linalg.givens_decomposition(
+        orbital_rotation, max_layers=max_layers
+    )
+    n_expected = len(givens_rotations)
+
+    # Spin-balanced: each orbital rotation is applied to both spin sectors.
+    ucj_op = ffsim.UCJOpSpinBalanced(
+        diag_coulomb_mats=np.zeros((n_reps, 2, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 1, 1)),
+        final_orbital_rotation=orbital_rotation,
+    )
+    gate = ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op, orb_rot_max_layers=max_layers)
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == 2 * n_orb_rots * n_expected
+    )
+
+    # Spin-unbalanced: independent alpha/beta rotations, each applied to both sectors.
+    ucj_op_unbalanced = ffsim.UCJOpSpinUnbalanced(
+        diag_coulomb_mats=np.zeros((n_reps, 3, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 2, 1, 1)),
+        final_orbital_rotation=np.tile(orbital_rotation, (2, 1, 1)),
+    )
+    gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(
+        ucj_op_unbalanced, orb_rot_max_layers=max_layers
+    )
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == 2 * n_orb_rots * n_expected
+    )
+
+    # Spinless: one XXPlusYY gate per retained Givens rotation.
+    ucj_op_spinless = ffsim.UCJOpSpinless(
+        diag_coulomb_mats=np.zeros((n_reps, norb, norb)),
+        orbital_rotations=np.tile(orbital_rotation, (n_reps, 1, 1)),
+        final_orbital_rotation=orbital_rotation,
+    )
+    gate = ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless, orb_rot_max_layers=max_layers)
+    assert (
+        gate.definition.decompose(reps=1).count_ops()["xx_plus_yy"]
+        == n_orb_rots * n_expected
+    )
+
+
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nocc(exhaustive=False)
 )
