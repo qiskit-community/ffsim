@@ -516,3 +516,60 @@ def test_compression_preserved_spinless():
     merged_op = next(iter(transpiled.data)).operation
     assert merged_op.max_givens is None
     assert merged_op.max_layers == max_layers
+
+
+def test_compression_preserved_slater_spinful():
+    """Test that compression settings survive Slater merging, spinful."""
+    norb = 6
+    max_layers = 2
+    occ = (range(3), range(2))
+
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb,
+            occ,
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=max_layers,
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(
+            norb, ffsim.random.random_unitary(norb, seed=RNG)
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_jw": 1}
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_layers == max_layers
+
+
+def test_compression_preserved_slater_spinless():
+    """Test that compression settings survive Slater merging, spinless."""
+    norb = 6
+    max_layers = 2
+
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb,
+            range(3),
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=max_layers,
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(
+            norb, ffsim.random.random_unitary(norb, seed=RNG)
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_spinless_jw": 1}
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_layers == max_layers

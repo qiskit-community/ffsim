@@ -246,3 +246,91 @@ def test_slater_determinant_tol():
         qubits,
     )
     assert circuit.decompose().count_ops() == {"x": norb // 2, "global_phase": 1}
+
+
+@pytest.mark.parametrize("norb", [6, 7])
+def test_compressed_max_givens(norb: int):
+    """Test that max_givens caps the number of XXPlusYY gates."""
+    n_a, n_b = 3, 2
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    occ = (range(n_a), range(n_b))
+    max_givens = 2
+
+    # Spinful: each spin sector contributes up to max_givens Givens rotations.
+    gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, occ, orbital_rotation, max_givens=max_givens
+    )
+    assert gate.definition.count_ops()["xx_plus_yy"] == 2 * max_givens
+
+    # Spinless: a single sector.
+    gate = ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, range(n_a), orbital_rotation, max_givens=max_givens
+    )
+    assert gate.definition.count_ops()["xx_plus_yy"] == max_givens
+
+
+@pytest.mark.parametrize("norb", [6, 7])
+def test_compressed_max_layers(norb: int):
+    """Test that max_layers caps the number of XXPlusYY gates."""
+    n_a, n_b = 3, 2
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    max_layers = 2
+
+    # The number of retained Givens rotations per sector matches the compressed
+    # decomposition.
+    coeffs_a = orbital_rotation.T[list(range(n_a))]
+    coeffs_b = orbital_rotation.T[list(range(n_b))]
+    n_a_expected = len(
+        ffsim.linalg.givens_decomposition_slater(coeffs_a, max_layers=max_layers)
+    )
+    n_b_expected = len(
+        ffsim.linalg.givens_decomposition_slater(coeffs_b, max_layers=max_layers)
+    )
+
+    gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, (range(n_a), range(n_b)), orbital_rotation, max_layers=max_layers
+    )
+    assert gate.definition.count_ops()["xx_plus_yy"] == n_a_expected + n_b_expected
+    assert (
+        gate.definition.depth(lambda instruction: instruction.operation.num_qubits == 2)
+        <= max_layers
+    )
+
+    gate = ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, range(n_a), orbital_rotation, max_layers=max_layers
+    )
+    assert gate.definition.count_ops()["xx_plus_yy"] == n_a_expected
+    assert (
+        gate.definition.depth(lambda instruction: instruction.operation.num_qubits == 2)
+        <= max_layers
+    )
+
+
+@pytest.mark.parametrize("norb, nelec", [(6, (3, 2)), (7, (2, 4))])
+def test_compressed_state_fidelity(norb: int, nelec: tuple[int, int]):
+    """Test that compression approximates the exact Slater determinant."""
+    n_a, n_b = nelec
+    occ = (range(n_a), range(n_b))
+    # Near-identity rotation so even aggressive compression approximates it well.
+    generator = 0.02j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+
+    expected = ffsim.slater_determinant(norb, occ, orbital_rotation=orbital_rotation)
+
+    prev_fidelity = 0.0
+    for max_layers in [1, 2, norb]:
+        gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb, occ, orbital_rotation, max_layers=max_layers
+        )
+        statevec = Statevector.from_int(0, 2 ** (2 * norb)).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+        fidelity = abs(np.vdot(expected, result)) ** 2
+        # Fidelity improves (or saturates) as more layers are retained.
+        assert fidelity >= prev_fidelity - 1e-9
+        prev_fidelity = fidelity
+    # The full decomposition reproduces the exact Slater determinant.
+    assert prev_fidelity == pytest.approx(1.0)

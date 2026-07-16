@@ -83,6 +83,12 @@ class MergeOrbitalRotations(TransformationPass):
                     successor_node.op.orbital_rotation_b @ node.op.orbital_rotation_b
                 )
                 tol = max(node.op.tol, successor_node.op.tol)
+                max_givens = _min_or_none(
+                    [node.op.max_givens, successor_node.op.max_givens]
+                )
+                max_layers = _min_or_none(
+                    [node.op.max_layers, successor_node.op.max_layers]
+                )
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantJW(
@@ -90,6 +96,9 @@ class MergeOrbitalRotations(TransformationPass):
                         node.op.occupied_orbitals,
                         orbital_rotation=(combined_mat_a, combined_mat_b),
                         tol=tol,
+                        max_givens=max_givens,
+                        max_layers=max_layers,
+                        **node.op.optimize_kwargs,
                     ),
                     inplace=True,
                 )
@@ -131,6 +140,12 @@ class MergeOrbitalRotations(TransformationPass):
                     successor_node.op.orbital_rotation @ node.op.orbital_rotation
                 )
                 tol = max(node.op.tol, successor_node.op.tol)
+                max_givens = _min_or_none(
+                    [node.op.max_givens, successor_node.op.max_givens]
+                )
+                max_layers = _min_or_none(
+                    [node.op.max_layers, successor_node.op.max_layers]
+                )
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantSpinlessJW(
@@ -138,6 +153,9 @@ class MergeOrbitalRotations(TransformationPass):
                         node.op.occupied_orbitals,
                         orbital_rotation=combined_mat,
                         tol=tol,
+                        max_givens=max_givens,
+                        max_layers=max_layers,
+                        **node.op.optimize_kwargs,
                     ),
                     inplace=True,
                 )

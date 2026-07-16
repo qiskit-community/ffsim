@@ -21,7 +21,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import CircuitInstruction, Gate, Qubit
 from qiskit.circuit.library import GlobalPhaseGate, XGate, XXPlusYYGate
 
-from ffsim import _lib, linalg
+from ffsim import linalg
 from ffsim.qiskit.gates.orbital_rotation import _validate_orbital_rotation
 from ffsim.states.slater import _permutation_sign
 
@@ -135,10 +135,13 @@ class PrepareSlaterDeterminantJW(Gate):
         | None = None,
         *,
         tol: float = 1e-12,
+        max_givens: int | None = None,
+        max_layers: int | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
+        **optimize_kwargs,
     ) -> None:
         """Create new Slater determinant preparation gate.
 
@@ -157,11 +160,23 @@ class PrepareSlaterDeterminantJW(Gate):
                 that spin sector.
             tol: Tolerance for the Givens decomposition of the orbital rotation.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            max_givens: The maximum number of Givens rotations to use. If specified, the
+                state preparation is compressed to use at most this many Givens
+                rotations, and the resulting gate only approximates the Slater
+                determinant. See :func:`~ffsim.linalg.givens_decomposition_slater` for
+                details.
+            max_layers: The maximum number of layers to use. If specified, the state
+                preparation is compressed to use at most this many layers, and the
+                resulting gate only approximates the Slater determinant. See
+                :func:`~ffsim.linalg.givens_decomposition_slater` for details.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the state preparation is compressed.
 
         Raises:
             ValueError: The input orbital rotation matrix is not unitary.
@@ -187,6 +202,9 @@ class PrepareSlaterDeterminantJW(Gate):
             else:
                 self.orbital_rotation_b = orbital_rotation_b
         self.tol = tol
+        self.max_givens = max_givens
+        self.max_layers = max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("slater_jw", 2 * norb, [], label=label)
 
     def _define(self):
@@ -202,7 +220,12 @@ class PrepareSlaterDeterminantJW(Gate):
                 circuit.append(instruction)
         else:
             for instruction in _prepare_slater_determinant_jw(
-                alpha_qubits, self.orbital_rotation_a.T[list(occ_a)], tol=self.tol
+                alpha_qubits,
+                self.orbital_rotation_a.T[list(occ_a)],
+                tol=self.tol,
+                max_givens=self.max_givens,
+                max_layers=self.max_layers,
+                **self.optimize_kwargs,
             ):
                 circuit.append(instruction)
 
@@ -211,7 +234,12 @@ class PrepareSlaterDeterminantJW(Gate):
                 circuit.append(instruction)
         else:
             for instruction in _prepare_slater_determinant_jw(
-                beta_qubits, self.orbital_rotation_b.T[list(occ_b)], tol=self.tol
+                beta_qubits,
+                self.orbital_rotation_b.T[list(occ_b)],
+                tol=self.tol,
+                max_givens=self.max_givens,
+                max_layers=self.max_layers,
+                **self.optimize_kwargs,
             ):
                 circuit.append(instruction)
 
@@ -237,10 +265,13 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
         orbital_rotation: np.ndarray | None = None,
         *,
         tol: float = 1e-12,
+        max_givens: int | None = None,
+        max_layers: int | None = None,
         label: str | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
+        **optimize_kwargs,
     ) -> None:
         """Create new Slater determinant preparation gate.
 
@@ -250,11 +281,23 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
             orbital_rotation: The optional orbital rotation.
             tol: Tolerance for the Givens decomposition of the orbital rotation.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            max_givens: The maximum number of Givens rotations to use. If specified, the
+                state preparation is compressed to use at most this many Givens
+                rotations, and the resulting gate only approximates the Slater
+                determinant. See :func:`~ffsim.linalg.givens_decomposition_slater` for
+                details.
+            max_layers: The maximum number of layers to use. If specified, the state
+                preparation is compressed to use at most this many layers, and the
+                resulting gate only approximates the Slater determinant. See
+                :func:`~ffsim.linalg.givens_decomposition_slater` for details.
             label: The label of the gate.
             validate: Whether to check that the input orbital rotation(s) is unitary
                 and raise an error if it isn't.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the state preparation is compressed.
 
         Raises:
             ValueError: The input orbital rotation matrix is not unitary.
@@ -270,6 +313,9 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
         else:
             self.orbital_rotation = orbital_rotation
         self.tol = tol
+        self.max_givens = max_givens
+        self.max_layers = max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("slater_spinless_jw", norb, [], label=label)
 
     def _define(self):
@@ -287,6 +333,9 @@ class PrepareSlaterDeterminantSpinlessJW(Gate):
                 qubits,
                 self.orbital_rotation.T[list(self.occupied_orbitals)],
                 tol=self.tol,
+                max_givens=self.max_givens,
+                max_layers=self.max_layers,
+                **self.optimize_kwargs,
             ):
                 circuit.append(instruction)
 
@@ -305,7 +354,12 @@ def _prepare_configuration_jw(
 
 
 def _prepare_slater_determinant_jw(
-    qubits: Sequence[Qubit], orbital_coeffs: np.ndarray, tol: float
+    qubits: Sequence[Qubit],
+    orbital_coeffs: np.ndarray,
+    tol: float,
+    max_givens: int | None = None,
+    max_layers: int | None = None,
+    **optimize_kwargs,
 ) -> Iterator[CircuitInstruction]:
     m, n = orbital_coeffs.shape
 
@@ -317,8 +371,12 @@ def _prepare_slater_determinant_jw(
         return
 
     # yield Givens rotations
-    givens_rotations = _lib.givens_decomposition_slater(
-        orbital_coeffs.astype(complex, copy=False), tol
+    givens_rotations = linalg.givens_decomposition_slater(
+        orbital_coeffs.astype(complex, copy=False),
+        tol,
+        max_givens=max_givens,
+        max_layers=max_layers,
+        **optimize_kwargs,
     )
     for c, s, i, j in givens_rotations:
         r, phi = cmath.polar(s)
