@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 import numpy as np
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import TransformationPass
@@ -22,6 +24,18 @@ from ffsim.qiskit.gates import (
     PrepareSlaterDeterminantJW,
     PrepareSlaterDeterminantSpinlessJW,
 )
+
+
+def _min_or_none(values: Iterable[int | None]) -> int | None:
+    """Minimum of the non-``None`` values, or ``None`` if they are all ``None``.
+
+    Compression budgets (``max_givens``, ``max_layers``) are combined with this
+    reduction when merging orbital rotations: the merged gate adopts the tightest
+    (most approximate) budget among the gates being merged, mirroring how ``tol`` is
+    combined with ``max``. ``None`` means "no constraint" and is ignored.
+    """
+    present = [value for value in values if value is not None]
+    return min(present) if present else None
 
 
 class MergeOrbitalRotations(TransformationPass):
@@ -36,12 +50,22 @@ class MergeOrbitalRotations(TransformationPass):
             combined_mat_a = np.eye(norb)
             combined_mat_b = np.eye(norb)
             tol = max(node.op.tol for node in run)
+            max_givens = _min_or_none(node.op.max_givens for node in run)
+            max_layers = _min_or_none(node.op.max_layers for node in run)
+            optimize_kwargs = run[0].op.optimize_kwargs
             for node in run:
                 combined_mat_a = node.op.orbital_rotation_a @ combined_mat_a
                 combined_mat_b = node.op.orbital_rotation_b @ combined_mat_b
             dag.replace_block_with_op(
                 run,
-                OrbitalRotationJW(norb, (combined_mat_a, combined_mat_b), tol=tol),
+                OrbitalRotationJW(
+                    norb,
+                    (combined_mat_a, combined_mat_b),
+                    tol=tol,
+                    max_givens=max_givens,
+                    max_layers=max_layers,
+                    **optimize_kwargs,
+                ),
                 {q: i for i, q in enumerate(qubits)},
                 cycle_check=False,
             )
@@ -78,11 +102,21 @@ class MergeOrbitalRotations(TransformationPass):
             norb = node.op.norb
             combined_mat = np.eye(norb)
             tol = max(node.op.tol for node in run)
+            max_givens = _min_or_none(node.op.max_givens for node in run)
+            max_layers = _min_or_none(node.op.max_layers for node in run)
+            optimize_kwargs = run[0].op.optimize_kwargs
             for node in run:
                 combined_mat = node.op.orbital_rotation @ combined_mat
             dag.replace_block_with_op(
                 run,
-                OrbitalRotationSpinlessJW(norb, combined_mat, tol=tol),
+                OrbitalRotationSpinlessJW(
+                    norb,
+                    combined_mat,
+                    tol=tol,
+                    max_givens=max_givens,
+                    max_layers=max_layers,
+                    **optimize_kwargs,
+                ),
                 {q: i for i, q in enumerate(qubits)},
                 cycle_check=False,
             )

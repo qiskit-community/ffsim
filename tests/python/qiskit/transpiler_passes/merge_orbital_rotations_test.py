@@ -426,3 +426,93 @@ def test_tol_hartree_fock_spinless():
     assert transpiled.count_ops() == {"slater_spinless_jw": 1}
     assert next(iter(transpiled.data)).operation.tol == tol
     assert "xx_plus_yy" not in transpiled.decompose().count_ops()
+
+
+def test_compression_preserved_spinful():
+    """Test that compression settings survive merging, spinful."""
+    norb = 6
+    max_givens = 4
+    max_layers = 2
+
+    # A single orbital rotation forms a run of length one; the merged gate must still
+    # carry the compression settings through the pass.
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(
+            norb, orbital_rotation, max_givens=max_givens, max_layers=max_layers
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_givens == max_givens
+    assert merged_op.max_layers == max_layers
+    # The compressed decomposition uses at most max_givens Givens rotations per sector.
+    assert transpiled.decompose().count_ops()["xx_plus_yy"] <= 2 * max_givens
+
+    # When merging gates with different budgets, the tightest one wins (min, ignoring
+    # None), mirroring how tol is combined with max.
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation, max_layers=max_layers),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(
+            norb, orbital_rotation, max_layers=max_layers + 3
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_givens is None
+    assert merged_op.max_layers == max_layers
+
+
+def test_compression_preserved_spinless():
+    """Test that compression settings survive merging, spinless."""
+    norb = 6
+    max_givens = 4
+    max_layers = 2
+
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    generator = 0.1j * ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = scipy.linalg.expm(generator)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(
+            norb, orbital_rotation, max_givens=max_givens, max_layers=max_layers
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_givens == max_givens
+    assert merged_op.max_layers == max_layers
+    assert transpiled.decompose().count_ops()["xx_plus_yy"] <= max_givens
+
+    # When merging gates with different budgets, the tightest one wins.
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), qubits
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(
+            norb, orbital_rotation, max_layers=max_layers
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(
+            norb, orbital_rotation, max_layers=max_layers + 3
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    merged_op = next(iter(transpiled.data)).operation
+    assert merged_op.max_givens is None
+    assert merged_op.max_layers == max_layers
