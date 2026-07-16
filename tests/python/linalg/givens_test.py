@@ -227,6 +227,49 @@ def test_givens_decomposition_compressed_both_caps():
     assert len(rotations) == min(max_givens, gates_in_layers)
 
 
+def test_givens_decomposition_compressed_near_identity_returns_fewer():
+    """A near-identity rotation must not be padded up to max_givens."""
+    dim = 5
+    max_full = dim * (dim - 1) // 2
+    scale = 1e-9
+    tol = 10 * scale
+    generator = 1j * scale * ffsim.random.random_hermitian(dim, seed=RNG)
+    mat = expm(generator)
+
+    # Exact tol-respecting decomposition uses far fewer than max_full rotations.
+    exact_rotations, _ = givens_decomposition(mat, tol=tol)
+    n_existing = len(exact_rotations)
+    assert n_existing < max_full
+
+    # A budget larger than n_existing must NOT be padded up to the budget.
+    givens_rotations, phase_shifts = givens_decomposition(
+        mat, tol=tol, max_givens=max_full
+    )
+    assert len(givens_rotations) == n_existing
+    reconstructed = reconstruct_orbital_rotation(
+        dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
+    )
+    np.testing.assert_allclose(reconstructed, mat, atol=tol)
+
+
+def test_givens_decomposition_compressed_near_identity_trims_when_binding():
+    """When the budget is below the exact count, trim to exactly the budget."""
+    dim = 5
+    scale = 1e-3
+    tol = 10 * scale
+    generator = 1j * scale * ffsim.random.random_hermitian(dim, seed=RNG)
+    mat = expm(generator)
+
+    exact_rotations, _ = givens_decomposition(mat, tol=tol)
+    n_existing = len(exact_rotations)
+    if n_existing:
+        max_givens = n_existing - 1
+        givens_rotations, _ = givens_decomposition(mat, tol=tol, max_givens=max_givens)
+        assert len(givens_rotations) == max_givens
+        # Every rotation acts on adjacent indices
+        assert all(abs(i - j) == 1 for _, _, i, j in givens_rotations)
+
+
 def test_givens_decomposition_compressed_negative_cap():
     """Test that negative caps raise an error."""
     mat = unitary_from_antihermitian(4, 1.0, seed=RNG)

@@ -102,22 +102,25 @@ def givens_decomposition(
     operations. The decomposition algorithm is described in the reference below.
 
     **Compression.** By default this function returns an exact decomposition. If
-    ``max_givens`` or ``max_layers`` is specified, the decomposition is *compressed*
-    to use at most that many Givens rotations or brickwork layers, respectively. In
-    this case, the Givens rotations at the beginning of the brickwork pattern are
-    retained, and their angles (together with the diagonal phases) are numerically
-    optimized to minimize the Frobenius distance :math:`\lVert U - V \rVert_F`
-    between the original matrix :math:`U` and the reconstructed matrix :math:`V`.
-    The returned decomposition is then only approximate. When both ``max_givens`` and
-    ``max_layers`` are given, the tighter of the two constraints is applied.
+    ``max_givens`` or ``max_layers`` is specified, the exact decomposition is
+    *trimmed* to use at most that many Givens rotations or brickwork layers,
+    respectively (never more than the exact decomposition already contains, so a
+    near-identity matrix may use fewer rotations than the budget). The retained
+    rotations lie at the beginning of the brickwork pattern, and their angles
+    (together with the diagonal phases) are numerically optimized to minimize the
+    Frobenius distance :math:`\lVert U - V \rVert_F` between the original matrix
+    :math:`U` and the reconstructed matrix :math:`V`. The returned decomposition is
+    then only approximate. When both ``max_givens`` and ``max_layers`` are given, the
+    tighter of the two constraints is applied.
 
     References:
         - `Clements et al., "Optimal design for universal multiport interferometers" (2016)`_
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
-        tol: Matrix entries smaller than this value will be treated as equal to zero.
-            Only used for the exact (uncompressed) decomposition.
+        tol: Matrix entries smaller than this value will be treated as equal to zero
+            when computing the exact decomposition (which the compressed path also
+            starts from).
         max_givens: The maximum number of Givens rotations to use. If specified, the
             decomposition is compressed to use at most this many Givens rotations.
         max_layers: The maximum number of brickwork layers to use. If specified, the
@@ -298,17 +301,20 @@ def _givens_decomposition_compressed(
     See :func:`givens_decomposition` for a description of the decomposition and the
     brickwork pattern.
 
-    The exact decomposition uses up to :math:`\frac{n(n-1)}{2}` Givens rotations
-    arranged in :math:`n` brickwork layers. This function keeps only the Givens
-    rotations at the beginning of the brickwork pattern, subject to the ``max_givens``
-    and ``max_layers`` constraints, and optimizes the angles of the retained rotations
-    (together with the diagonal phases) to minimize the Frobenius distance to the
-    original unitary matrix.
+    This function starts from the exact decomposition (respecting ``tol``) and never
+    adds Givens rotations beyond those already present. The ``max_givens`` and
+    ``max_layers`` constraints only *trim* rotations from the end of the brickwork
+    pattern: at most ``max_givens`` rotations are retained, or only those lying in the
+    first ``max_layers`` brickwork layers. If neither constraint trims anything, the
+    exact decomposition is returned unchanged (so a near-identity matrix may use fewer
+    rotations than the budget). Otherwise the angles of the retained rotations
+    (together with the diagonal phases) are numerically optimized to minimize the
+    Frobenius distance to the original unitary matrix.
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
         tol: Matrix entries smaller than this value will be treated as equal to zero
-            when nothing is dropped and the exact decomposition is returned.
+            when computing the exact decomposition that this function trims.
         max_givens: The maximum number of Givens rotations to use. If ``None``, no
             limit is imposed on the number of Givens rotations.
         max_layers: The maximum number of brickwork layers to use. If ``None``, no
@@ -327,10 +333,11 @@ def _givens_decomposition_compressed(
 
     mat = mat.astype(complex, copy=False)
     norb, _ = mat.shape
-    max_full = norb * (norb - 1) // 2
 
-    # Compute the full brickwork layout from the exact decomposition.
-    givens_rotations, phases = _lib.givens_decomposition(mat, tol=0.0)
+    # Compute the exact decomposition, respecting tol. This is the starting point:
+    # we never add rotations beyond the ones already present here, we only trim.
+    givens_rotations, phases = _lib.givens_decomposition(mat, tol=tol)
+    n_existing = len(givens_rotations)
     interaction_pairs: list[tuple[int, int]] = []
     thetas: list[float] = []
     phis: list[float] = []
@@ -343,16 +350,17 @@ def _givens_decomposition_compressed(
         interaction_pairs, thetas, phis, norb=norb
     )
 
-    # Determine the number of Givens rotations to keep.
-    n_keep = max_full
+    # Determine the number of Givens rotations to keep. We start from the existing
+    # exact decomposition and only trim from the end; the ceiling is n_existing.
+    n_keep = n_existing
     if max_layers is not None:
         n_keep = sum(1 for layer_id in layer_ids if layer_id < max_layers)
     if max_givens is not None:
         n_keep = min(n_keep, max_givens)
 
-    # If nothing is dropped, return the exact decomposition.
-    if n_keep >= max_full:
-        return _lib.givens_decomposition(mat, tol=tol)
+    # If nothing is dropped, return the exact (tol-respecting) decomposition as-is.
+    if n_keep >= n_existing:
+        return givens_rotations, phases
 
     pairs_kept = tuple(interaction_pairs[:n_keep])
     thetas0 = np.array(thetas[:n_keep])
