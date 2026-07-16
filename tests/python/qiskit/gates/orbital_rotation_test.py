@@ -213,10 +213,18 @@ def test_compressed_max_layers(norb: int):
     # Spinless: one XXPlusYY gate per retained Givens rotation.
     gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat, max_layers=max_layers)
     assert gate.definition.count_ops()["xx_plus_yy"] == n_expected
+    assert (
+        gate.definition.depth(lambda instruction: instruction.operation.num_qubits == 2)
+        <= max_layers
+    )
 
     # Spinful: the rotation is applied to both spin sectors.
     gate = ffsim.qiskit.OrbitalRotationJW(norb, mat, max_layers=max_layers)
     assert gate.definition.count_ops()["xx_plus_yy"] == 2 * n_expected
+    assert (
+        gate.definition.depth(lambda instruction: instruction.operation.num_qubits == 2)
+        <= max_layers
+    )
 
 
 @pytest.mark.parametrize(
