@@ -225,21 +225,24 @@ def _brickwork_givens_rotations(
     phis: list[float],
     norb: int,
 ) -> tuple[list[tuple[int, int]], list[float], list[float], list[int]]:
-    """Expand a sparse Givens rotation decomposition to a full brickwork pattern.
+    """Reorder a Givens rotation decomposition into a brickwork pattern.
 
-    Returns the interaction pairs, thetas, and phis reordered into a brickwork
+    Places each Givens rotation in the earliest brickwork layer (alternating even
+    and odd) in which both of its orbitals are free, respecting the order of the
+    rotations. Returns the interaction pairs, thetas, and phis reordered into this
     pattern, along with a parallel list giving the brickwork layer index of each
-    Givens rotation. Layers are indexed in the order they are applied, starting
-    from zero. The full brickwork pattern has ``norb`` layers.
+    Givens rotation. Layers are indexed in the order they are applied, starting from
+    zero, and only layers that actually contain a rotation are counted (so a sparse
+    decomposition maps to a shallow pattern rather than the full ``norb`` layers).
     """
-    # Construct a brickwork pattern of Givens rotations with angles set to zero
+    # Slots for the brickwork grid. Each slot starts empty (None) and is filled only
+    # if a real rotation is placed there; empty slots are dropped on output, so a
+    # sparse decomposition does not get padded with zero-angle placeholders.
     q, r = divmod(norb, 2)
-    even_layers = [
-        [((i, i + 1), 0.0, 0.0) for i in range(0, norb - 1, 2)] for _ in range(q + r)
+    even_layers: list[list] = [
+        [None for _ in range(0, norb - 1, 2)] for _ in range(q + r)
     ]
-    odd_layers = [
-        [((i, i + 1), 0.0, 0.0) for i in range(1, norb - 1, 2)] for _ in range(q)
-    ]
+    odd_layers: list[list] = [[None for _ in range(1, norb - 1, 2)] for _ in range(q)]
     # even_layer_index[i] is the index of the last even layer acting on orbital i
     even_layer_index = [-1] * norb
     # odd_layer_index[i] is the index of the last odd layer acting on orbital i
@@ -287,15 +290,17 @@ def _brickwork_givens_rotations(
     new_phis = []
     layer_ids = []
     # The applied layers alternate even, odd, even, odd, ...; assign each nonempty
-    # layer the next brickwork layer index.
+    # layer the next brickwork layer index. Empty slots (placeholders) are skipped,
+    # and layers containing no rotation do not advance the layer index.
     layer_id = 0
     for even_layer, odd_layer in itertools.zip_longest(
         even_layers, odd_layers, fillvalue=()
     ):
         for layer in [even_layer, odd_layer]:
-            if not layer:
+            rotations = [entry for entry in layer if entry is not None]
+            if not rotations:
                 continue
-            for pair, theta, phi in layer:
+            for pair, theta, phi in rotations:
                 new_interaction_pairs.append(pair)
                 new_thetas.append(theta)
                 new_phis.append(phi)
@@ -418,6 +423,17 @@ def _givens_decomposition_compressed(
         interaction_pairs, thetas, phis, norb=norb
     )
 
+    # Reorder the rotations into layer order so that a prefix of the list corresponds
+    # to whole brickwork layers. The stable (layer, original position) sort preserves
+    # a valid application order (rotations within a layer act on disjoint orbitals, and
+    # each rotation still follows the ones it depends on). Without this, the returned
+    # decomposition could schedule to more layers than intended.
+    order = sorted(range(n_existing), key=lambda k: (layer_ids[k], k))
+    interaction_pairs = [interaction_pairs[k] for k in order]
+    thetas = [thetas[k] for k in order]
+    phis = [phis[k] for k in order]
+    layer_ids = [layer_ids[k] for k in order]
+
     # Determine the number of Givens rotations to keep. We start from the existing
     # exact decomposition and only trim from the end; the ceiling is n_existing.
     n_keep = n_existing
@@ -426,9 +442,20 @@ def _givens_decomposition_compressed(
     if max_givens is not None:
         n_keep = min(n_keep, max_givens)
 
-    # If nothing is dropped, return the exact (tol-respecting) decomposition as-is.
+    # If nothing is dropped, return the exact decomposition. It is returned in
+    # brickwork/layer order (not the raw _lib order) so that its scheduled circuit
+    # depth respects the brickwork layout, matching what the layer budget promises.
     if n_keep >= n_existing:
-        return givens_rotations, phases
+        rotations = [
+            (
+                math.cos(theta),
+                cmath.rect(math.sin(theta), phi),
+                i,
+                j,
+            )
+            for (i, j), theta, phi in zip(interaction_pairs, thetas, phis)
+        ]
+        return rotations, phases
 
     pairs_kept = tuple(interaction_pairs[:n_keep])
     thetas0 = np.array(thetas[:n_keep])
