@@ -28,11 +28,7 @@ def _reference_linear_operator(
     norb: int,
     nelec: tuple[int, int],
 ) -> LinearOperator:
-    """Reference FermionOperator linear operator built from PySCF ladder actions.
-
-    This is a copy of the original ``FermionOperator._linear_operator_``
-    implementation, kept here to validate the optimized version.
-    """
+    """Reference FermionOperator linear operator built from PySCF ladder actions."""
     dim = ffsim.dim(norb, nelec)
     dim_a = pyscf.fci.cistring.num_strings(norb, nelec[0])
     dim_b = pyscf.fci.cistring.num_strings(norb, nelec[1])
