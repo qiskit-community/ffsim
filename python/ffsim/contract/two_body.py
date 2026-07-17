@@ -98,21 +98,8 @@ def _two_body_linop_real(
     )
 
     def matvec(vec: np.ndarray):
-        # TODO don't need to manually handle real and imaginary parts with
-        # next PySCF release
         result = contract_2e_spin1(
-            two_body_tensor,
-            vec.real,
-            norb,
-            nelec,
-            link_index=link_index,
-        ).astype(complex, copy=False)
-        result += 1j * contract_2e_spin1(
-            two_body_tensor,
-            vec.imag,
-            norb,
-            nelec,
-            link_index=link_index,
+            two_body_tensor, vec, norb, nelec, link_index=link_index
         )
         if constant:
             result += constant * vec
@@ -144,11 +131,7 @@ def _two_body_linop_complex(
 
     def matvec(vec: np.ndarray):
         result = contract_2e_nosym(
-            two_body_tensor,
-            vec,
-            norb,
-            nelec,
-            link_index=link_index,
+            two_body_tensor, vec, norb, nelec, link_index=link_index
         )
         if constant:
             result += constant * vec
