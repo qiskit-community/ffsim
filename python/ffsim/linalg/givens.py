@@ -110,7 +110,10 @@ def givens_decomposition(
     Frobenius distance :math:`\lVert U - V \rVert_F` between the original matrix
     :math:`U` and the reconstructed matrix :math:`V`. The returned decomposition is
     then only approximate. When both ``max_givens`` and ``max_layers`` are given, the
-    tighter of the two constraints is applied.
+    tighter of the two constraints is applied. Note that when the decomposition is
+    compressed, ``tol`` is not respected: the optimized angles are chosen to best
+    approximate :math:`U`, so the reconstructed matrix may differ from :math:`U` by
+    more than ``tol``.
 
     References:
         - `Clements et al., "Optimal design for universal multiport interferometers" (2016)`_
@@ -188,7 +191,10 @@ def givens_decomposition_slater(
     :math:`\lvert \det(A B^\dagger) \rvert^2` between the prepared Slater determinant
     (occupied orbitals :math:`A`) and the target (occupied orbitals :math:`B`). The
     returned decomposition is then only approximate. When both ``max_givens`` and
-    ``max_layers`` are given, the tighter of the two constraints is applied.
+    ``max_layers`` are given, the tighter of the two constraints is applied. Note that
+    when the decomposition is compressed, ``tol`` is not respected: the optimized
+    angles are chosen to best approximate the target Slater determinant, so the
+    prepared state may differ from the target by more than ``tol``.
 
     Args:
         orbital_coeffs: The :math:`m \times n` matrix of occupied orbital coefficients.
@@ -397,7 +403,9 @@ def _givens_decomposition_compressed(
     exact decomposition is returned unchanged (so a near-identity matrix may use fewer
     rotations than the budget). Otherwise the angles of the retained rotations
     (together with the diagonal phases) are numerically optimized to minimize the
-    Frobenius distance to the original unitary matrix.
+    Frobenius distance to the original unitary matrix; in this case ``tol`` is not
+    respected, and the reconstructed matrix may differ from ``mat`` by more than
+    ``tol``.
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
@@ -542,7 +550,8 @@ def _givens_decomposition_slater_compressed(
     decomposition is returned unchanged (so a near-identity matrix may use fewer
     rotations than the budget). Otherwise the angles of the retained rotations are
     numerically optimized to maximize the fidelity of the prepared Slater determinant
-    with the target.
+    with the target; in this case ``tol`` is not respected, and the prepared state may
+    differ from the target by more than ``tol``.
 
     Args:
         orbital_coeffs: The :math:`m \times n` matrix of occupied orbital coefficients.
