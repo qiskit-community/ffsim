@@ -351,7 +351,7 @@ def _reconstruct_orbital_rotation_jax(
     return mat
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _make_compressed_value_and_grad(
     norb: int, pairs_kept: tuple[tuple[int, int], ...], n_keep: int
 ):
@@ -499,7 +499,7 @@ def _reconstruct_slater_isometry_jax(
     return mat
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _make_compressed_slater_value_and_grad(
     m: int, n: int, pairs_kept: tuple[tuple[int, int], ...], n_keep: int
 ):
