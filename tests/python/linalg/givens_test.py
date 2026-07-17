@@ -215,7 +215,7 @@ def test_givens_decomposition_compressed_max_layers():
 
 def test_givens_decomposition_compressed_both_caps():
     """Test that both caps combine to the tighter (intersection) constraint."""
-    from ffsim.linalg.givens import _brickwork_givens_rotations
+    from ffsim.linalg.givens import _greedy_layer_ids
 
     dim = 5
     mat = unitary_from_antihermitian(dim, 1.0, seed=RNG)
@@ -223,9 +223,7 @@ def test_givens_decomposition_compressed_both_caps():
     # Determine how many gates lie in the first max_layers layers.
     givens_rotations, _ = givens_decomposition(mat, tol=0.0)
     pairs = [(i, j) for _, _, i, j in givens_rotations]
-    thetas = [0.0] * len(pairs)
-    phis = [0.0] * len(pairs)
-    _, _, _, layer_ids = _brickwork_givens_rotations(pairs, thetas, phis, norb=dim)
+    layer_ids = _greedy_layer_ids(pairs)
 
     max_layers = 3
     gates_in_layers = sum(1 for layer_id in layer_ids if layer_id < max_layers)
@@ -342,7 +340,7 @@ def test_givens_decomposition_slater_compressed_max_givens():
 
 def test_givens_decomposition_slater_compressed_max_layers():
     """Test compressing Slater prep to a maximum number of layers."""
-    from ffsim.linalg.givens import _slater_layers
+    from ffsim.linalg.givens import _greedy_layer_ids
 
     norb, nocc = 8, 4
     # A fixed seed keeps the truncation fidelities (which are seed-sensitive) stable
@@ -352,7 +350,7 @@ def test_givens_decomposition_slater_compressed_max_layers():
     ]
     exact = ffsim.linalg.givens_decomposition_slater(coeffs)
     pairs = [(i, j) for _, _, i, j in exact]
-    layer_ids = _slater_layers(pairs)
+    layer_ids = _greedy_layer_ids(pairs)
     for max_layers, tol in [
         (norb // 2, 7e-2),
         (norb - 2, 2e-3),
@@ -369,13 +367,13 @@ def test_givens_decomposition_slater_compressed_max_layers():
 
 def test_givens_decomposition_slater_compressed_both_caps():
     """Test that both caps combine to the tighter constraint for Slater prep."""
-    from ffsim.linalg.givens import _slater_layers
+    from ffsim.linalg.givens import _greedy_layer_ids
 
     norb, nocc = 8, 4
     coeffs = random_slater_coeffs(norb, nocc, seed=RNG)
     exact = ffsim.linalg.givens_decomposition_slater(coeffs)
     pairs = [(i, j) for _, _, i, j in exact]
-    layer_ids = _slater_layers(pairs)
+    layer_ids = _greedy_layer_ids(pairs)
 
     max_layers = 2
     gates_in_layers = sum(1 for layer_id in layer_ids if layer_id < max_layers)

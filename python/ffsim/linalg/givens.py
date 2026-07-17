@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import cmath
 import functools
-import itertools
 import math
 
 import jax
@@ -219,94 +218,111 @@ def givens_decomposition_slater(
     )
 
 
-def _brickwork_givens_rotations(
-    interaction_pairs: list[tuple[int, int]],
-    thetas: list[float],
-    phis: list[float],
-    norb: int,
-) -> tuple[list[tuple[int, int]], list[float], list[float], list[int]]:
-    """Reorder a Givens rotation decomposition into a brickwork pattern.
+def _greedy_layer_ids(interaction_pairs: list[tuple[int, int]]) -> list[int]:
+    """Assign each Givens rotation to a parallel layer by greedy ASAP scheduling.
 
-    Places each Givens rotation in the earliest brickwork layer (alternating even
-    and odd) in which both of its orbitals are free, respecting the order of the
-    rotations. Returns the interaction pairs, thetas, and phis reordered into this
-    pattern, along with a parallel list giving the brickwork layer index of each
-    Givens rotation. Layers are indexed in the order they are applied, starting from
-    zero, and only layers that actually contain a rotation are counted (so a sparse
-    decomposition maps to a shallow pattern rather than the full ``norb`` layers).
+    The exact decomposition returns rotations in a valid application order. Each
+    rotation is greedily placed in the earliest layer in which both of its orbitals
+    are free, respecting the order of the rotations. Returns a parallel list giving
+    the layer index of each rotation. Because ``_lib.givens_decomposition`` already
+    returns rotations in a valid dependency order, this greedy schedule achieves the
+    minimum number of layers, so a sparse decomposition maps to a shallow pattern.
+
+    The rotation pairs are treated symmetrically (their order within a pair does not
+    matter), so this works for both the orbital-rotation decomposition (where a pair
+    may have ``i > j``) and the Slater decomposition.
     """
-    # Slots for the brickwork grid. Each slot starts empty (None) and is filled only
-    # if a real rotation is placed there; empty slots are dropped on output, so a
-    # sparse decomposition does not get padded with zero-angle placeholders.
-    q, r = divmod(norb, 2)
-    even_layers: list[list] = [
-        [None for _ in range(0, norb - 1, 2)] for _ in range(q + r)
-    ]
-    odd_layers: list[list] = [[None for _ in range(1, norb - 1, 2)] for _ in range(q)]
-    # even_layer_index[i] is the index of the last even layer acting on orbital i
-    even_layer_index = [-1] * norb
-    # odd_layer_index[i] is the index of the last odd layer acting on orbital i
-    odd_layer_index = [-1] * norb
-    for (i, j), theta, phi in zip(interaction_pairs, thetas, phis):
-        if i > j:
-            # Enforce i < j
-            i, j = j, i
-            theta = -theta
-            phi = -phi
-        if i % 2 == 0:
-            # Even layer
-            # Get the index of the even layer this Givens rotation should go in
-            index = (
-                max(
-                    even_layer_index[i],
-                    even_layer_index[j],
-                    odd_layer_index[i],
-                    odd_layer_index[j],
-                )
-                + 1
-            )
-            # Add the Givens rotation in the appropriate place
-            even_layers[index][i // 2] = ((i, j), theta, phi)
-            # Update the even layer index
-            even_layer_index[i] = index
-            even_layer_index[j] = index
-        else:
-            # Odd layer
-            # Get the index of the odd layer this Givens rotation should go in
-            index = max(
-                odd_layer_index[i] + 1,
-                odd_layer_index[j] + 1,
-                even_layer_index[i],
-                even_layer_index[j],
-            )
-            # Add the Givens rotation in the appropriate place
-            odd_layers[index][i // 2] = ((i, j), theta, phi)
-            # Update the odd layer index
-            odd_layer_index[i] = index
-            odd_layer_index[j] = index
-    # Construct the new Givens rotation decomposition and return
-    new_interaction_pairs = []
-    new_thetas = []
-    new_phis = []
+    last_layer: dict[int, int] = {}
     layer_ids = []
-    # The applied layers alternate even, odd, even, odd, ...; assign each nonempty
-    # layer the next brickwork layer index. Empty slots (placeholders) are skipped,
-    # and layers containing no rotation do not advance the layer index.
-    layer_id = 0
-    for even_layer, odd_layer in itertools.zip_longest(
-        even_layers, odd_layers, fillvalue=()
-    ):
-        for layer in [even_layer, odd_layer]:
-            rotations = [entry for entry in layer if entry is not None]
-            if not rotations:
-                continue
-            for pair, theta, phi in rotations:
-                new_interaction_pairs.append(pair)
-                new_thetas.append(theta)
-                new_phis.append(phi)
-                layer_ids.append(layer_id)
-            layer_id += 1
-    return new_interaction_pairs, new_thetas, new_phis, layer_ids
+    for i, j in interaction_pairs:
+        layer_id = max(last_layer.get(i, -1), last_layer.get(j, -1)) + 1
+        layer_ids.append(layer_id)
+        last_layer[i] = layer_id
+        last_layer[j] = layer_id
+    return layer_ids
+
+
+def _validate_caps(max_givens: int | None, max_layers: int | None) -> None:
+    """Validate that the compression caps are non-negative."""
+    if max_givens is not None and max_givens < 0:
+        raise ValueError(f"max_givens must be non-negative. Got {max_givens}.")
+    if max_layers is not None and max_layers < 0:
+        raise ValueError(f"max_layers must be non-negative. Got {max_layers}.")
+
+
+def _rotations_to_angles(
+    givens_rotations: list[tuple[float, complex, int, int]],
+) -> tuple[list[tuple[int, int]], list[float], list[float]]:
+    """Convert ``(c, s, i, j)`` rotations to ``(pairs, thetas, phis)``.
+
+    Inverts the ``c = cos(theta)``, ``s = sin(theta) * exp(1j * phi)`` parametrization
+    used by :func:`_angles_to_rotations`.
+    """
+    interaction_pairs: list[tuple[int, int]] = []
+    thetas: list[float] = []
+    phis: list[float] = []
+    for c, s, i, j in givens_rotations:
+        interaction_pairs.append((i, j))
+        r, phi = cmath.polar(s)
+        thetas.append(math.atan2(r, c))
+        phis.append(phi)
+    return interaction_pairs, thetas, phis
+
+
+def _angles_to_rotations(
+    interaction_pairs: list[tuple[int, int]],
+    thetas,
+    phis,
+) -> list[tuple[float, complex, int, int]]:
+    """Convert ``(pairs, thetas, phis)`` to ``(c, s, i, j)`` rotations.
+
+    Uses ``c = cos(theta)``, ``s = sin(theta) * exp(1j * phi)``.
+    """
+    return [
+        (math.cos(theta), cmath.rect(math.sin(theta), phi), i, j)
+        for (i, j), theta, phi in zip(interaction_pairs, thetas, phis)
+    ]
+
+
+def _compute_n_keep(
+    layer_ids: list[int],
+    n_existing: int,
+    max_givens: int | None,
+    max_layers: int | None,
+) -> int:
+    """Determine how many rotations to keep given the compression caps.
+
+    We start from the existing exact decomposition and only trim from the end, so the
+    ceiling is ``n_existing``. Assumes ``layer_ids`` is in layer order.
+    """
+    n_keep = n_existing
+    if max_layers is not None:
+        n_keep = sum(1 for layer_id in layer_ids if layer_id < max_layers)
+    if max_givens is not None:
+        n_keep = min(n_keep, max_givens)
+    return n_keep
+
+
+def _run_optimizer(
+    value_and_grad,
+    target: jax.Array,
+    x0: np.ndarray,
+    optimize_kwargs: dict,
+) -> np.ndarray:
+    """Minimize the compression objective and return the optimal variable vector.
+
+    Wraps the jitted ``value_and_grad`` (which takes ``(x, target)``) in the
+    float/ndarray interface :func:`scipy.optimize.minimize` expects, defaulting to
+    L-BFGS-B.
+    """
+
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(jnp.asarray(x), target)
+        return float(value), np.asarray(grad)
+
+    optimize_kwargs.setdefault("method", "L-BFGS-B")
+    result = scipy.optimize.minimize(scipy_func, x0, jac=True, **optimize_kwargs)
+    return result.x
 
 
 def _reconstruct_orbital_rotation_jax(
@@ -399,10 +415,7 @@ def _givens_decomposition_compressed(
           :math:`(c, s, i, j)`.
         - A Numpy array containing the diagonal elements of the matrix :math:`D`.
     """
-    if max_givens is not None and max_givens < 0:
-        raise ValueError(f"max_givens must be non-negative. Got {max_givens}.")
-    if max_layers is not None and max_layers < 0:
-        raise ValueError(f"max_layers must be non-negative. Got {max_layers}.")
+    _validate_caps(max_givens, max_layers)
 
     mat = mat.astype(complex, copy=False)
     norb, _ = mat.shape
@@ -411,17 +424,8 @@ def _givens_decomposition_compressed(
     # we never add rotations beyond the ones already present here, we only trim.
     givens_rotations, phases = _lib.givens_decomposition(mat, tol=tol)
     n_existing = len(givens_rotations)
-    interaction_pairs: list[tuple[int, int]] = []
-    thetas: list[float] = []
-    phis: list[float] = []
-    for c, s, i, j in givens_rotations:
-        interaction_pairs.append((i, j))
-        r, phi = cmath.polar(s)
-        thetas.append(math.atan2(r, c))
-        phis.append(phi)
-    interaction_pairs, thetas, phis, layer_ids = _brickwork_givens_rotations(
-        interaction_pairs, thetas, phis, norb=norb
-    )
+    interaction_pairs, thetas, phis = _rotations_to_angles(givens_rotations)
+    layer_ids = _greedy_layer_ids(interaction_pairs)
 
     # Reorder the rotations into layer order so that a prefix of the list corresponds
     # to whole brickwork layers. The stable (layer, original position) sort preserves
@@ -434,27 +438,13 @@ def _givens_decomposition_compressed(
     phis = [phis[k] for k in order]
     layer_ids = [layer_ids[k] for k in order]
 
-    # Determine the number of Givens rotations to keep. We start from the existing
-    # exact decomposition and only trim from the end; the ceiling is n_existing.
-    n_keep = n_existing
-    if max_layers is not None:
-        n_keep = sum(1 for layer_id in layer_ids if layer_id < max_layers)
-    if max_givens is not None:
-        n_keep = min(n_keep, max_givens)
+    n_keep = _compute_n_keep(layer_ids, n_existing, max_givens, max_layers)
 
     # If nothing is dropped, return the exact decomposition. It is returned in
     # brickwork/layer order (not the raw _lib order) so that its scheduled circuit
     # depth respects the brickwork layout, matching what the layer budget promises.
     if n_keep >= n_existing:
-        rotations = [
-            (
-                math.cos(theta),
-                cmath.rect(math.sin(theta), phi),
-                i,
-                j,
-            )
-            for (i, j), theta, phi in zip(interaction_pairs, thetas, phis)
-        ]
+        rotations = _angles_to_rotations(interaction_pairs, thetas, phis)
         return rotations, phases
 
     pairs_kept = tuple(interaction_pairs[:n_keep])
@@ -469,48 +459,16 @@ def _givens_decomposition_compressed(
     # calls with the same structure) instead of being re-traced eagerly each step.
     value_and_grad = _make_compressed_value_and_grad(norb, pairs_kept, n_keep)
 
-    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
-        value, grad = value_and_grad(jnp.asarray(x), target)
-        return float(value), np.asarray(grad)
-
     x0 = np.concatenate([thetas0, phis0, phase_angles0])
-    optimize_kwargs.setdefault("method", "L-BFGS-B")
-    result = scipy.optimize.minimize(scipy_func, x0, jac=True, **optimize_kwargs)
+    x_opt = _run_optimizer(value_and_grad, target, x0, optimize_kwargs)
 
-    thetas_opt = result.x[:n_keep]
-    phis_opt = result.x[n_keep : 2 * n_keep]
-    phase_angles_opt = result.x[2 * n_keep :]
+    thetas_opt = x_opt[:n_keep]
+    phis_opt = x_opt[n_keep : 2 * n_keep]
+    phase_angles_opt = x_opt[2 * n_keep :]
 
-    rotations = [
-        (
-            math.cos(theta),
-            cmath.rect(math.sin(theta), phi),
-            i,
-            j,
-        )
-        for (i, j), theta, phi in zip(pairs_kept, thetas_opt, phis_opt)
-    ]
+    rotations = _angles_to_rotations(list(pairs_kept), thetas_opt, phis_opt)
     diagonal = np.exp(1j * phase_angles_opt)
     return rotations, diagonal
-
-
-def _slater_layers(interaction_pairs: list[tuple[int, int]]) -> list[int]:
-    """Assign each Slater-prep Givens rotation to a parallel layer.
-
-    The Slater determinant decomposition returns rotations in a valid application order
-    forming a diamond-shaped pattern (not the dense brickwork of a full orbital
-    rotation). Each rotation is greedily placed in the earliest layer in which both of
-    its orbitals are free, respecting the order of the rotations. Returns a parallel
-    list giving the layer index of each rotation.
-    """
-    last_layer: dict[int, int] = {}
-    layer_ids = []
-    for i, j in interaction_pairs:
-        layer_id = max(last_layer.get(i, -1), last_layer.get(j, -1)) + 1
-        layer_ids.append(layer_id)
-        last_layer[i] = layer_id
-        last_layer[j] = layer_id
-    return layer_ids
 
 
 def _reconstruct_slater_isometry_jax(
@@ -602,10 +560,7 @@ def _givens_decomposition_slater_compressed(
         A list containing the Givens rotations, each represented as a 4-tuple
         :math:`(c, s, i, j)`.
     """
-    if max_givens is not None and max_givens < 0:
-        raise ValueError(f"max_givens must be non-negative. Got {max_givens}.")
-    if max_layers is not None and max_layers < 0:
-        raise ValueError(f"max_layers must be non-negative. Got {max_layers}.")
+    _validate_caps(max_givens, max_layers)
 
     orbital_coeffs = orbital_coeffs.astype(complex, copy=False)
     m, n = orbital_coeffs.shape
@@ -614,15 +569,8 @@ def _givens_decomposition_slater_compressed(
     # is the starting point: we never add rotations beyond the ones already present
     # here, we only trim.
     givens_rotations = _lib.givens_decomposition_slater(orbital_coeffs, tol)
-    interaction_pairs: list[tuple[int, int]] = []
-    thetas: list[float] = []
-    phis: list[float] = []
-    for c, s, i, j in givens_rotations:
-        interaction_pairs.append((i, j))
-        r, phi = cmath.polar(s)
-        thetas.append(math.atan2(r, c))
-        phis.append(phi)
-    layer_ids = _slater_layers(interaction_pairs)
+    interaction_pairs, thetas, phis = _rotations_to_angles(givens_rotations)
+    layer_ids = _greedy_layer_ids(interaction_pairs)
     n_existing = len(interaction_pairs)
 
     # Reorder the rotations into layer order so that a prefix of the list corresponds
@@ -638,13 +586,7 @@ def _givens_decomposition_slater_compressed(
     phis = [phis[k] for k in order]
     layer_ids = [layer_ids[k] for k in order]
 
-    # Determine the number of Givens rotations to keep. We start from the existing
-    # exact decomposition and only trim from the end; the ceiling is n_existing.
-    n_keep = n_existing
-    if max_layers is not None:
-        n_keep = sum(1 for layer_id in layer_ids if layer_id < max_layers)
-    if max_givens is not None:
-        n_keep = min(n_keep, max_givens)
+    n_keep = _compute_n_keep(layer_ids, n_existing, max_givens, max_layers)
 
     # If nothing is dropped, return the exact (tol-respecting) decomposition as-is.
     if n_keep >= n_existing:
@@ -658,23 +600,10 @@ def _givens_decomposition_slater_compressed(
 
     value_and_grad = _make_compressed_slater_value_and_grad(m, n, pairs_kept, n_keep)
 
-    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
-        value, grad = value_and_grad(jnp.asarray(x), target)
-        return float(value), np.asarray(grad)
-
     x0 = np.concatenate([thetas0, phis0])
-    optimize_kwargs.setdefault("method", "L-BFGS-B")
-    result = scipy.optimize.minimize(scipy_func, x0, jac=True, **optimize_kwargs)
+    x_opt = _run_optimizer(value_and_grad, target, x0, optimize_kwargs)
 
-    thetas_opt = result.x[:n_keep]
-    phis_opt = result.x[n_keep:]
+    thetas_opt = x_opt[:n_keep]
+    phis_opt = x_opt[n_keep:]
 
-    return [
-        (
-            math.cos(theta),
-            cmath.rect(math.sin(theta), phi),
-            i,
-            j,
-        )
-        for (i, j), theta, phi in zip(pairs_kept, thetas_opt, phis_opt)
-    ]
+    return _angles_to_rotations(list(pairs_kept), thetas_opt, phis_opt)
