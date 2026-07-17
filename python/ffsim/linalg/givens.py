@@ -107,9 +107,12 @@ def givens_decomposition(
     near-identity matrix may use fewer rotations than the budget). The retained
     rotations lie at the beginning of the brickwork pattern, and their angles
     (together with the diagonal phases) are numerically optimized to minimize the
-    Frobenius distance :math:`\lVert U - V \rVert_F` between the original matrix
-    :math:`U` and the reconstructed matrix :math:`V`. The returned decomposition is
-    then only approximate. When both ``max_givens`` and ``max_layers`` are given, the
+    Hilbert-Schmidt infidelity
+    :math:`1 - \lvert \operatorname{Tr}(U^\dagger V) \rvert^2 / n^2` between the
+    original matrix :math:`U` and the reconstructed matrix :math:`V`. Because this
+    objective is invariant to a global phase, the global phase of the reconstructed
+    matrix is ignored when the decomposition is compressed. The returned decomposition
+    is then only approximate. When both ``max_givens`` and ``max_layers`` are given, the
     tighter of the two constraints is applied. Note that when the decomposition is
     compressed, ``tol`` is not respected: the optimized angles are chosen to best
     approximate :math:`U`, so the reconstructed matrix may differ from :math:`U` by
@@ -358,15 +361,21 @@ def _reconstruct_orbital_rotation_jax(
 
 @functools.cache
 def _make_compressed_value_and_grad(
-    pairs_kept: tuple[tuple[int, int], ...], n_keep: int
+    n: int, pairs_kept: tuple[tuple[int, int], ...], n_keep: int
 ):
     """Build a jitted value-and-gradient function for the compression objective.
 
     The result is cached and reused across optimizer iterations and across calls
-    with the same static structure ``(pairs_kept, n_keep)``, so the loss is traced
+    with the same static structure ``(n, pairs_kept, n_keep)``, so the loss is traced
     and compiled only once per structure. The target unitary is passed as a runtime
     argument (it changes every call), and the gradient is taken with respect to the
     flat variable vector ``x`` only.
+
+    The loss is the Hilbert-Schmidt infidelity
+    :math:`1 - \\lvert \\mathrm{Tr}(U^\\dagger V) \\rvert^2 / n^2`, where :math:`U`
+    (``target``) is the exact :math:`n \\times n` unitary and :math:`V` is the
+    reconstructed one. Unlike the Frobenius distance, this objective is invariant to a
+    global phase between :math:`U` and :math:`V`.
     """
 
     def loss(x: jax.Array, target: jax.Array) -> jax.Array:
@@ -376,7 +385,8 @@ def _make_compressed_value_and_grad(
         reconstructed = _reconstruct_orbital_rotation_jax(
             thetas_x, phis_x, phase_angles_x, list(pairs_kept)
         )
-        return jnp.sum(jnp.abs(target - reconstructed) ** 2)
+        overlap = jnp.sum(jnp.conj(target) * reconstructed)
+        return 1.0 - jnp.abs(overlap / n) ** 2
 
     return jax.jit(jax.value_and_grad(loss, argnums=0))
 
@@ -403,9 +413,9 @@ def _givens_decomposition_compressed(
     exact decomposition is returned unchanged (so a near-identity matrix may use fewer
     rotations than the budget). Otherwise the angles of the retained rotations
     (together with the diagonal phases) are numerically optimized to minimize the
-    Frobenius distance to the original unitary matrix; in this case ``tol`` is not
-    respected, and the reconstructed matrix may differ from ``mat`` by more than
-    ``tol``.
+    Hilbert-Schmidt infidelity to the original unitary matrix, which ignores the global
+    phase of the reconstructed matrix; in this case ``tol`` is not respected, and the
+    reconstructed matrix may differ from ``mat`` by more than ``tol``.
 
     Args:
         mat: The unitary matrix to decompose into Givens rotations.
@@ -463,7 +473,7 @@ def _givens_decomposition_compressed(
     # Reuse a jitted value-and-gradient function cached by static structure, so the
     # loss is compiled once and reused across all optimizer iterations (and across
     # calls with the same structure) instead of being re-traced eagerly each step.
-    value_and_grad = _make_compressed_value_and_grad(pairs_kept, n_keep)
+    value_and_grad = _make_compressed_value_and_grad(mat.shape[0], pairs_kept, n_keep)
 
     x0 = np.concatenate([thetas0, phis0, phase_angles0])
     x_opt = _run_optimizer(value_and_grad, target, x0, optimize_kwargs)

@@ -47,6 +47,12 @@ def unitary_from_antihermitian(dim: int, scale: float, seed) -> np.ndarray:
     return expm(generator)
 
 
+def hs_infidelity(target: np.ndarray, reconstructed: np.ndarray) -> float:
+    """Hilbert-Schmidt infidelity between two unitaries, ignoring global phase."""
+    n = target.shape[0]
+    return 1 - abs(np.trace(target.conj().T @ reconstructed) / n) ** 2
+
+
 def slater_fidelity(target: np.ndarray, rotations, n: int) -> float:
     """Squared overlap between the prepared and target Slater determinants."""
     m = target.shape[0]
@@ -173,10 +179,12 @@ def test_givens_decomposition_compressed_max_givens():
     dim = 5
     max_full = dim * (dim - 1) // 2
     scale = 0.1
-    mat = unitary_from_antihermitian(dim, scale, seed=RNG)
+    # A fixed seed keeps the truncation infidelities (which are seed-sensitive) stable
+    # regardless of test ordering.
+    mat = unitary_from_antihermitian(dim, scale, seed=999)
     for max_givens, tol in [
-        (max_full // 2, 7e-1),
-        (max_full - 1, 2e-1),
+        (max_full // 2, 1e-1),
+        (max_full - 1, 1e-2),
         (max_full, 1e-8),
     ]:
         givens_rotations, phase_shifts = givens_decomposition(
@@ -188,18 +196,20 @@ def test_givens_decomposition_compressed_max_givens():
         reconstructed = reconstruct_orbital_rotation(
             dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
         )
-        error = np.linalg.norm(mat - reconstructed)
-        assert error <= tol
+        # Compare up to global phase, matching the compression objective.
+        assert hs_infidelity(mat, reconstructed) <= tol
 
 
 def test_givens_decomposition_compressed_max_layers():
     """Test compressing to a maximum number of brickwork layers."""
     dim = 5
     scale = 0.1
-    mat = unitary_from_antihermitian(dim, scale, seed=RNG)
+    # A fixed seed keeps the truncation infidelities (which are seed-sensitive) stable
+    # regardless of test ordering.
+    mat = unitary_from_antihermitian(dim, scale, seed=999)
     for max_layers, tol in [
-        (dim // 2, 8e-1),
-        (dim - 1, 5e-1),
+        (dim // 2, 2e-1),
+        (dim - 1, 1e-2),
         (dim, 1e-8),
     ]:
         givens_rotations, phase_shifts = givens_decomposition(
@@ -209,8 +219,8 @@ def test_givens_decomposition_compressed_max_layers():
         reconstructed = reconstruct_orbital_rotation(
             dim=dim, givens_rotations=givens_rotations, phase_shifts=phase_shifts
         )
-        error = np.linalg.norm(mat - reconstructed)
-        assert error <= tol
+        # Compare up to global phase, matching the compression objective.
+        assert hs_infidelity(mat, reconstructed) <= tol
 
 
 def test_givens_decomposition_compressed_both_caps():
