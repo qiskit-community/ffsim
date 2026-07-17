@@ -30,9 +30,12 @@ def _min_or_none(values: Iterable[int | None]) -> int | None:
     """Minimum of the non-``None`` values, or ``None`` if they are all ``None``.
 
     Compression budgets (``max_givens``, ``max_layers``) are combined with this
-    reduction when merging orbital rotations: the merged gate adopts the tightest
-    (most approximate) budget among the gates being merged, mirroring how ``tol`` is
-    combined with ``max``. ``None`` means "no constraint" and is ignored.
+    reduction when merging consecutive orbital rotations into a single orbital rotation:
+    the merged gate adopts the tightest (most approximate) budget among the gates being
+    merged, mirroring how ``tol`` is combined with ``max``. ``None`` means "no
+    constraint" and is ignored. (When an orbital rotation is instead absorbed into a
+    Slater determinant preparation, the merged gate keeps the Slater gate's own budget
+    rather than combining it, because the two decompositions use different scales.)
     """
     present = [value for value in values if value is not None]
     return min(present) if present else None
@@ -82,13 +85,14 @@ class MergeOrbitalRotations(TransformationPass):
                 combined_mat_b = (
                     successor_node.op.orbital_rotation_b @ node.op.orbital_rotation_b
                 )
+                # The merged gate retains the Slater determinant preparation's own
+                # compression budget: max_givens/max_layers count Givens rotations in
+                # the diamond-shaped Slater decomposition, a different scale from the
+                # absorbed orbital rotation's brickwork decomposition, so the orbital
+                # rotation's budget is discarded.
                 tol = max(node.op.tol, successor_node.op.tol)
-                max_givens = _min_or_none(
-                    [node.op.max_givens, successor_node.op.max_givens]
-                )
-                max_layers = _min_or_none(
-                    [node.op.max_layers, successor_node.op.max_layers]
-                )
+                max_givens = node.op.max_givens
+                max_layers = node.op.max_layers
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantJW(
@@ -139,13 +143,12 @@ class MergeOrbitalRotations(TransformationPass):
                 combined_mat = (
                     successor_node.op.orbital_rotation @ node.op.orbital_rotation
                 )
+                # See the spinful case above: the merged gate retains the Slater
+                # determinant preparation's own compression budget and discards the
+                # absorbed orbital rotation's differently-scaled budget.
                 tol = max(node.op.tol, successor_node.op.tol)
-                max_givens = _min_or_none(
-                    [node.op.max_givens, successor_node.op.max_givens]
-                )
-                max_layers = _min_or_none(
-                    [node.op.max_layers, successor_node.op.max_layers]
-                )
+                max_givens = node.op.max_givens
+                max_layers = node.op.max_layers
                 dag.substitute_node(
                     node,
                     PrepareSlaterDeterminantSpinlessJW(

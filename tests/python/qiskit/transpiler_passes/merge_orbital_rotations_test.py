@@ -573,3 +573,70 @@ def test_compression_preserved_slater_spinless():
     assert transpiled.count_ops() == {"slater_spinless_jw": 1}
     merged_op = next(iter(transpiled.data)).operation
     assert merged_op.max_layers == max_layers
+
+
+def test_slater_merge_ignores_orbital_rotation_budget_spinful():
+    """Test that Slater merging keeps the Slater budget and ignores the rotation's."""
+    norb = 6
+    slater_max_layers = 2
+    orb_rot_max_layers = 4
+    occ = (range(3), range(2))
+
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantJW(
+            norb,
+            occ,
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=slater_max_layers,
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationJW(
+            norb,
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=orb_rot_max_layers,
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_jw": 1}
+    merged_op = next(iter(transpiled.data)).operation
+    # The absorbed orbital rotation's (brickwork-scale) budget is discarded; the
+    # Slater determinant preparation's own (diamond-scale) budget is retained.
+    assert merged_op.max_layers == slater_max_layers
+
+
+def test_slater_merge_ignores_orbital_rotation_budget_spinless():
+    """Test that Slater merging keeps the Slater budget and ignores the rotation's."""
+    norb = 6
+    slater_max_layers = 2
+    orb_rot_max_layers = 4
+
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(
+        ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+            norb,
+            range(3),
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=slater_max_layers,
+        ),
+        qubits,
+    )
+    circuit.append(
+        ffsim.qiskit.OrbitalRotationSpinlessJW(
+            norb,
+            ffsim.random.random_unitary(norb, seed=RNG),
+            max_layers=orb_rot_max_layers,
+        ),
+        qubits,
+    )
+    transpiled = ffsim.qiskit.MergeOrbitalRotations()(circuit)
+    assert transpiled.count_ops() == {"slater_spinless_jw": 1}
+    merged_op = next(iter(transpiled.data)).operation
+    # The absorbed orbital rotation's (brickwork-scale) budget is discarded; the
+    # Slater determinant preparation's own (diamond-scale) budget is retained.
+    assert merged_op.max_layers == slater_max_layers
