@@ -321,9 +321,10 @@ def _prepare_slater_determinant_jw(
         orbital_coeffs.astype(complex, copy=False), tol
     )
     for c, s, i, j in givens_rotations:
-        c_angle = math.acos(c)
-        if c_angle:
+        r, phi = cmath.polar(s)
+        theta = math.atan2(r, c)
+        if theta:
             yield CircuitInstruction(
-                XXPlusYYGate(2 * c_angle, cmath.phase(s) - 0.5 * math.pi),
+                XXPlusYYGate(2 * theta, phi - 0.5 * math.pi),
                 (qubits[i], qubits[j]),
             )
