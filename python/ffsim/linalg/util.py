@@ -204,11 +204,7 @@ def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
     Returns:
         The list of real numbers parameterizing the unitaries.
     """
-    # TODO in Python 3.11 this becomes
-    # return antihermitians_to_parameters(scipy.linalg.logm(mats), real=real)
-    return antihermitians_to_parameters(
-        np.stack([scipy.linalg.logm(mat) for mat in mats]), real=real
-    )
+    return antihermitians_to_parameters(scipy.linalg.logm(mats), real=real)
 
 
 def unitaries_from_parameters(
