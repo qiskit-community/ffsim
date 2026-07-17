@@ -330,7 +330,6 @@ def _reconstruct_orbital_rotation_jax(
     phis: jax.Array,
     phase_angles: jax.Array,
     interaction_pairs: list[tuple[int, int]],
-    norb: int,
 ) -> jax.Array:
     """Reconstruct an orbital rotation from Givens angles (JAX, differentiable).
 
@@ -353,15 +352,15 @@ def _reconstruct_orbital_rotation_jax(
 
 @functools.cache
 def _make_compressed_value_and_grad(
-    norb: int, pairs_kept: tuple[tuple[int, int], ...], n_keep: int
+    pairs_kept: tuple[tuple[int, int], ...], n_keep: int
 ):
     """Build a jitted value-and-gradient function for the compression objective.
 
     The result is cached and reused across optimizer iterations and across calls
-    with the same static structure ``(norb, pairs_kept, n_keep)``, so the loss is
-    traced and compiled only once per structure. The target unitary is passed as a
-    runtime argument (it changes every call), and the gradient is taken with respect
-    to the flat variable vector ``x`` only.
+    with the same static structure ``(pairs_kept, n_keep)``, so the loss is traced
+    and compiled only once per structure. The target unitary is passed as a runtime
+    argument (it changes every call), and the gradient is taken with respect to the
+    flat variable vector ``x`` only.
     """
 
     def loss(x: jax.Array, target: jax.Array) -> jax.Array:
@@ -369,7 +368,7 @@ def _make_compressed_value_and_grad(
         phis_x = x[n_keep : 2 * n_keep]
         phase_angles_x = x[2 * n_keep :]
         reconstructed = _reconstruct_orbital_rotation_jax(
-            thetas_x, phis_x, phase_angles_x, list(pairs_kept), norb
+            thetas_x, phis_x, phase_angles_x, list(pairs_kept)
         )
         return jnp.sum(jnp.abs(target - reconstructed) ** 2)
 
@@ -418,7 +417,6 @@ def _givens_decomposition_compressed(
     _validate_caps(max_givens, max_layers)
 
     mat = mat.astype(complex, copy=False)
-    norb, _ = mat.shape
 
     # Compute the exact decomposition, respecting tol. This is the starting point:
     # we never add rotations beyond the ones already present here, we only trim.
@@ -457,7 +455,7 @@ def _givens_decomposition_compressed(
     # Reuse a jitted value-and-gradient function cached by static structure, so the
     # loss is compiled once and reused across all optimizer iterations (and across
     # calls with the same structure) instead of being re-traced eagerly each step.
-    value_and_grad = _make_compressed_value_and_grad(norb, pairs_kept, n_keep)
+    value_and_grad = _make_compressed_value_and_grad(pairs_kept, n_keep)
 
     x0 = np.concatenate([thetas0, phis0, phase_angles0])
     x_opt = _run_optimizer(value_and_grad, target, x0, optimize_kwargs)
