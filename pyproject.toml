@@ -4,8 +4,8 @@ build-backend = "maturin"
 
 [project]
 name = "ffsim"
-requires-python = ">=3.10"
-version = "0.0.81.dev"
+requires-python = ">=3.11"
+version = "0.0.82.dev"
 description = "Faster simulation of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -13,7 +13,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -28,7 +27,7 @@ dependencies = [
     "numpy",
     "opt_einsum",
     "orjson",
-    "pyscf >= 2.9",
+    "pyscf >= 2.12",
     "qiskit >= 2.0",
     "scipy",
     "typing-extensions",
@@ -64,7 +63,7 @@ python-source = "python"
 module-name = "ffsim._lib"
 
 [tool.cibuildwheel]
-build = "cp310-macosx* cp310-manylinux_x86_64 cp310-manylinux_aarch64"
+build = "cp311-macosx* cp311-manylinux_x86_64 cp311-manylinux_aarch64"
 test-requires = "pytest"
 test-command = "pytest {project}/tests"
 
@@ -110,7 +109,6 @@ ket = "ket"
 [tool.tox]
 requires = ["tox>=4.50"]
 env_list = [
-    "test-3.10",
     "test-3.11",
     "test-3.12",
     "test-3.13",
@@ -134,7 +132,7 @@ pass_env = [
 
 [tool.tox.env_base.test]
 description = "run tests"
-factors = [["3.10", "3.11", "3.12", "3.13", "3.14"]]
+factors = [["3.11", "3.12", "3.13", "3.14"]]
 deps = ["pytest"]
 commands = [["pytest"]]
 

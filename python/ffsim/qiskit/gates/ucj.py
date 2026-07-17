@@ -48,7 +48,10 @@ class UCJOpSpinBalancedJW(Gate):
         ucj_op: variational.UCJOpSpinBalanced,
         *,
         tol: float = 1e-12,
+        orb_rot_max_givens: int | None = None,
+        orb_rot_max_layers: int | None = None,
         label: str | None = None,
+        **optimize_kwargs,
     ):
         """Create a new spin-balanced unitary cluster Jastrow (UCJ) gate.
 
@@ -56,30 +59,65 @@ class UCJOpSpinBalancedJW(Gate):
             ucj_op: The UCJ operator.
             tol: Tolerance for the Givens decomposition of the orbital rotations.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            orb_rot_max_givens: The maximum number of Givens rotations to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many Givens rotations, and the resulting
+                gate only approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
+            orb_rot_max_layers: The maximum number of brickwork layers to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many layers, and the resulting gate only
+                approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
             label: The label of the gate.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the orbital rotation decompositions are compressed.
         """
         self.ucj_op = ucj_op
         self.tol = tol
+        self.orb_rot_max_givens = orb_rot_max_givens
+        self.orb_rot_max_layers = orb_rot_max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("ucj_balanced_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_op_spin_balanced_jw(qubits, self.ucj_op, tol=self.tol),
+            _ucj_op_spin_balanced_jw(
+                qubits,
+                self.ucj_op,
+                tol=self.tol,
+                max_givens=self.orb_rot_max_givens,
+                max_layers=self.orb_rot_max_layers,
+                **self.optimize_kwargs,
+            ),
             qubits=qubits,
             name=self.name,
         )
 
 
 def _ucj_op_spin_balanced_jw(
-    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinBalanced, tol: float = 1e-12
+    qubits: Sequence[Qubit],
+    ucj_op: variational.UCJOpSpinBalanced,
+    tol: float = 1e-12,
+    max_givens: int | None = None,
+    max_layers: int | None = None,
+    **optimize_kwargs,
 ) -> Iterator[CircuitInstruction]:
     for (diag_coulomb_mat_aa, diag_coulomb_mat_ab), orbital_rotation in zip(
         ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
     ):
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation.T.conj(), tol=tol),
+            OrbitalRotationJW(
+                ucj_op.norb,
+                orbital_rotation.T.conj(),
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
             qubits,
         )
         yield CircuitInstruction(
@@ -91,11 +129,26 @@ def _ucj_op_spin_balanced_jw(
             qubits,
         )
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation, tol=tol), qubits
+            OrbitalRotationJW(
+                ucj_op.norb,
+                orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
+            qubits,
         )
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation, tol=tol),
+            OrbitalRotationJW(
+                ucj_op.norb,
+                ucj_op.final_orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
             qubits,
         )
 
@@ -115,7 +168,10 @@ class UCJOpSpinUnbalancedJW(Gate):
         ucj_op: variational.UCJOpSpinUnbalanced,
         *,
         tol: float = 1e-12,
+        orb_rot_max_givens: int | None = None,
+        orb_rot_max_layers: int | None = None,
         label: str | None = None,
+        **optimize_kwargs,
     ):
         """Create a new spin-unbalanced unitary cluster Jastrow (UCJ) gate.
 
@@ -123,31 +179,64 @@ class UCJOpSpinUnbalancedJW(Gate):
             ucj_op: The UCJ operator.
             tol: Tolerance for the Givens decomposition of the orbital rotations.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            orb_rot_max_givens: The maximum number of Givens rotations to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many Givens rotations, and the resulting
+                gate only approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
+            orb_rot_max_layers: The maximum number of brickwork layers to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many layers, and the resulting gate only
+                approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
             label: The label of the gate.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the orbital rotation decompositions are compressed.
         """
         self.ucj_op = ucj_op
         self.tol = tol
+        self.orb_rot_max_givens = orb_rot_max_givens
+        self.orb_rot_max_layers = orb_rot_max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("ucj_unbalanced_jw", 2 * ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_op_spin_unbalanced_jw(qubits, self.ucj_op, tol=self.tol),
+            _ucj_op_spin_unbalanced_jw(
+                qubits,
+                self.ucj_op,
+                tol=self.tol,
+                max_givens=self.orb_rot_max_givens,
+                max_layers=self.orb_rot_max_layers,
+                **self.optimize_kwargs,
+            ),
             qubits=qubits,
             name=self.name,
         )
 
 
 def _ucj_op_spin_unbalanced_jw(
-    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinUnbalanced, tol: float = 1e-12
+    qubits: Sequence[Qubit],
+    ucj_op: variational.UCJOpSpinUnbalanced,
+    tol: float = 1e-12,
+    max_givens: int | None = None,
+    max_layers: int | None = None,
+    **optimize_kwargs,
 ) -> Iterator[CircuitInstruction]:
     for diag_colomb_mat, orbital_rotation in zip(
         ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
     ):
         yield CircuitInstruction(
             OrbitalRotationJW(
-                ucj_op.norb, orbital_rotation.transpose(0, 2, 1).conj(), tol=tol
+                ucj_op.norb,
+                orbital_rotation.transpose(0, 2, 1).conj(),
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
             ),
             qubits,
         )
@@ -156,11 +245,26 @@ def _ucj_op_spin_unbalanced_jw(
             qubits,
         )
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, orbital_rotation, tol=tol), qubits
+            OrbitalRotationJW(
+                ucj_op.norb,
+                orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
+            qubits,
         )
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
-            OrbitalRotationJW(ucj_op.norb, ucj_op.final_orbital_rotation, tol=tol),
+            OrbitalRotationJW(
+                ucj_op.norb,
+                ucj_op.final_orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
             qubits,
         )
 
@@ -176,7 +280,10 @@ class UCJOpSpinlessJW(Gate):
         ucj_op: variational.UCJOpSpinless,
         *,
         tol: float = 1e-12,
+        orb_rot_max_givens: int | None = None,
+        orb_rot_max_layers: int | None = None,
         label: str | None = None,
+        **optimize_kwargs,
     ):
         """Create a new spinless unitary cluster Jastrow (UCJ) gate.
 
@@ -184,30 +291,65 @@ class UCJOpSpinlessJW(Gate):
             ucj_op: The UCJ operator.
             tol: Tolerance for the Givens decomposition of the orbital rotations.
                 Matrix entries smaller than this value will be treated as equal to zero.
+            orb_rot_max_givens: The maximum number of Givens rotations to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many Givens rotations, and the resulting
+                gate only approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
+            orb_rot_max_layers: The maximum number of brickwork layers to use for each
+                orbital rotation. If specified, the orbital rotation decompositions are
+                compressed to use at most this many layers, and the resulting gate only
+                approximates the UCJ operator. See
+                :func:`~ffsim.linalg.givens_decomposition` for details.
             label: The label of the gate.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`, which performs the optimization when
+                the orbital rotation decompositions are compressed.
         """
         self.ucj_op = ucj_op
         self.tol = tol
+        self.orb_rot_max_givens = orb_rot_max_givens
+        self.orb_rot_max_layers = orb_rot_max_layers
+        self.optimize_kwargs = optimize_kwargs
         super().__init__("ucj_spinless_jw", ucj_op.norb, [], label=label)
 
     def _define(self):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         self.definition = QuantumCircuit.from_instructions(
-            _ucj_op_spinless_jw(qubits, self.ucj_op, tol=self.tol),
+            _ucj_op_spinless_jw(
+                qubits,
+                self.ucj_op,
+                tol=self.tol,
+                max_givens=self.orb_rot_max_givens,
+                max_layers=self.orb_rot_max_layers,
+                **self.optimize_kwargs,
+            ),
             qubits=qubits,
             name=self.name,
         )
 
 
 def _ucj_op_spinless_jw(
-    qubits: Sequence[Qubit], ucj_op: variational.UCJOpSpinless, tol: float = 1e-12
+    qubits: Sequence[Qubit],
+    ucj_op: variational.UCJOpSpinless,
+    tol: float = 1e-12,
+    max_givens: int | None = None,
+    max_layers: int | None = None,
+    **optimize_kwargs,
 ) -> Iterator[CircuitInstruction]:
     for diag_coulomb_mat, orbital_rotation in zip(
         ucj_op.diag_coulomb_mats, ucj_op.orbital_rotations
     ):
         yield CircuitInstruction(
-            OrbitalRotationSpinlessJW(ucj_op.norb, orbital_rotation.T.conj(), tol=tol),
+            OrbitalRotationSpinlessJW(
+                ucj_op.norb,
+                orbital_rotation.T.conj(),
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
             qubits,
         )
         yield CircuitInstruction(
@@ -215,12 +357,25 @@ def _ucj_op_spinless_jw(
             qubits,
         )
         yield CircuitInstruction(
-            OrbitalRotationSpinlessJW(ucj_op.norb, orbital_rotation, tol=tol), qubits
+            OrbitalRotationSpinlessJW(
+                ucj_op.norb,
+                orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
+            ),
+            qubits,
         )
     if ucj_op.final_orbital_rotation is not None:
         yield CircuitInstruction(
             OrbitalRotationSpinlessJW(
-                ucj_op.norb, ucj_op.final_orbital_rotation, tol=tol
+                ucj_op.norb,
+                ucj_op.final_orbital_rotation,
+                tol=tol,
+                max_givens=max_givens,
+                max_layers=max_layers,
+                **optimize_kwargs,
             ),
             qubits,
         )

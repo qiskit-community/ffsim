@@ -10,11 +10,12 @@
 
 from __future__ import annotations
 
+import functools
+
 import jax
 import jax.numpy as jnp
 import numpy as np
 import scipy.optimize
-from opt_einsum import contract
 
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.linalg.util import (
@@ -25,6 +26,51 @@ from ffsim.linalg.util import (
 from ffsim.states.rdm import ReducedDensityMatrix
 
 jax.config.update("jax_enable_x64", True)
+
+
+@functools.cache
+def _make_optimize_orbitals_value_and_grad(norb: int, real: bool):
+    """Build a jitted value-and-gradient function for the orbital energy objective.
+
+    The result is cached and reused across optimizer iterations and across calls with
+    the same static structure ``(norb, real)``, so the loss is traced and compiled only
+    once per structure. The reduced density matrices, one- and two-body tensors, and
+    constant are passed as runtime arguments (they do not affect the traced graph), and
+    the gradient is taken with respect to the flat variable vector ``x`` only.
+    """
+
+    def loss(
+        x: jax.Array,
+        one_rdm: jax.Array,
+        two_rdm: jax.Array,
+        one_body_tensor: jax.Array,
+        two_body_tensor: jax.Array,
+        constant: jax.Array,
+    ) -> jax.Array:
+        orbital_rotation = unitary_from_parameters_jax(x, dim=norb, real=real)
+        one_rdm_rotated = jnp.einsum(
+            "ab,Aa,Bb->AB",
+            one_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize=True,
+        )
+        two_rdm_rotated = jnp.einsum(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            two_rdm,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            orbital_rotation.conj(),
+            orbital_rotation,
+            optimize=True,
+        )
+        return (
+            constant
+            + jnp.einsum("ab,ab->", one_body_tensor, one_rdm_rotated)
+            + 0.5 * jnp.einsum("abcd,abcd->", two_body_tensor, two_rdm_rotated)
+        ).real
+
+    return jax.jit(jax.value_and_grad(loss, argnums=0))
 
 
 def optimize_orbitals(
@@ -97,42 +143,33 @@ def optimize_orbitals(
         )
 
     norb = hamiltonian.norb
-    one_rdm = jnp.array(rdm.one_rdm)
-    two_rdm = jnp.array(rdm.two_rdm)
-    one_body_tensor = jnp.array(hamiltonian.one_body_tensor)
-    two_body_tensor = jnp.array(hamiltonian.two_body_tensor)
+    one_rdm = jnp.asarray(rdm.one_rdm)
+    two_rdm = jnp.asarray(rdm.two_rdm)
+    one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
+    two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
+    constant = jnp.asarray(hamiltonian.constant)
 
-    def fun(x: np.ndarray):
-        orbital_rotation = unitary_from_parameters_jax(x, dim=norb, real=real)
-        one_rdm_rotated = contract(
-            "ab,Aa,Bb->AB",
+    # Reuse a jitted value-and-gradient function cached by static structure, so the loss
+    # is compiled once and reused across all optimizer iterations (and across calls with
+    # the same structure) instead of being re-traced eagerly each step.
+    value_and_grad = _make_optimize_orbitals_value_and_grad(norb, real)
+
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(
+            jnp.asarray(x),
             one_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize="greedy",
-        )
-        two_rdm_rotated = contract(
-            "abcd,Aa,Bb,Cc,Dd->ABCD",
             two_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize="greedy",
+            one_body_tensor,
+            two_body_tensor,
+            constant,
         )
-        return (
-            hamiltonian.constant
-            + contract("ab,ab->", one_body_tensor, one_rdm_rotated)
-            + 0.5 * contract("abcd,abcd->", two_body_tensor, two_rdm_rotated)
-        ).real
-
-    value_and_grad = jax.value_and_grad(fun)
+        return float(value), np.asarray(grad)
 
     if initial_orbital_rotation is None:
         initial_orbital_rotation = np.eye(norb)
 
     result = scipy.optimize.minimize(
-        value_and_grad,
+        scipy_func,
         unitary_to_parameters(initial_orbital_rotation, real=real),
         method=method,
         jac=True,
