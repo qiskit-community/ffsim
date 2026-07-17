@@ -227,6 +227,27 @@ def test_compressed_max_layers(norb: int):
     )
 
 
+def test_near_identity_compressed_max_layers():
+    """Test max_layers for a near-identity rotation."""
+    norb = 8
+    scale = 4e-13
+    generator = 1j * scale * ffsim.random.random_hermitian(norb, seed=12345)
+    mat = scipy.linalg.expm(generator)
+    max_layers = 2
+
+    # The number of retained Givens rotations matches the compressed decomposition.
+    givens_rotations, _ = ffsim.linalg.givens_decomposition(mat, max_layers=max_layers)
+    n_expected = len(givens_rotations)
+
+    # Spinless: one XXPlusYY gate per retained Givens rotation.
+    gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, mat, max_layers=max_layers)
+    assert gate.definition.count_ops()["xx_plus_yy"] == n_expected
+    assert (
+        gate.definition.depth(lambda instruction: instruction.operation.num_qubits == 2)
+        <= max_layers
+    )
+
+
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
