@@ -102,6 +102,7 @@ def _fermion_operator_to_linear_operator(
 
     if isinstance(nelec, int):
         nelec = (nelec, 0)
+    n_alpha, n_beta = nelec
 
     dim_ = dim(norb, nelec)
     dims_ = dims(norb, nelec)
@@ -115,28 +116,17 @@ def _fermion_operator_to_linear_operator(
     )
     fermion_term_data: list[_FermionTermData] = []
     # Split each term into alpha and beta transition data.
-    for term, coeff in bounded_operator.normal_ordered().items():
+    for term, coeff in bounded_operator.normal_ordered(group_by_spin=True).items():
         if not coeff:
             continue
 
-        alpha_term = []
-        beta_term = []
-        beta_count = 0
-        inversions = 0
-        for action, spin, orb in term:
-            if spin:
-                beta_term.append((action, spin, orb))
-                beta_count += 1
-            else:
-                alpha_term.append((action, spin, orb))
-                inversions += beta_count
-        if inversions & 1:
-            coeff = -coeff
+        alpha_term = [(action, spin, orb) for action, spin, orb in term if not spin]
+        beta_term = [(action, spin, orb) for action, spin, orb in term if spin]
         fermion_term_data.append(
             _FermionTermData(
                 coeff=coeff,
-                alpha=_make_spin_term_data(tuple(alpha_term), norb=norb, nocc=nelec[0]),
-                beta=_make_spin_term_data(tuple(beta_term), norb=norb, nocc=nelec[1]),
+                alpha=_make_spin_term_data(tuple(alpha_term), norb=norb, nocc=n_alpha),
+                beta=_make_spin_term_data(tuple(beta_term), norb=norb, nocc=n_beta),
             )
         )
     scalar_coeff = 0j
