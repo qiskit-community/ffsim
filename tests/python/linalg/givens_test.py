@@ -421,15 +421,14 @@ def test_givens_decomposition_slater_compressed_near_identity_trims_when_binding
     """When the budget is below the exact count, trim to exactly the budget."""
     norb, nocc = 8, 4
     scale = 1e-3
-    tol = 10 * scale
+    tol = 1e-12
     coeffs = expm(1j * scale * ffsim.random.random_hermitian(norb, seed=RNG)).T[
         list(range(nocc))
     ]
 
     exact = ffsim.linalg.givens_decomposition_slater(coeffs, tol=tol)
     n_existing = len(exact)
-    if n_existing == 0:
-        pytest.skip("decomposition already empty")
+    assert n_existing > 0
 
     max_givens = n_existing - 1
     rotations = ffsim.linalg.givens_decomposition_slater(
