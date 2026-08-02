@@ -121,6 +121,12 @@ from ffsim.variational import (
     multireference_state,
     multireference_state_prod,
     optimize_orbitals,
+    optimize_ucj_energy,
+    optimize_ucj_energy_spin_balanced,
+    ucj_energy,
+    ucj_energy_spin_balanced,
+    ucj_energy_spin_unbalanced,
+    ucj_energy_spinless,
 )
 
 __all__ = [
@@ -199,6 +205,8 @@ __all__ = [
     "number_operator",
     "optimize",
     "optimize_orbitals",
+    "optimize_ucj_energy",
+    "optimize_ucj_energy_spin_balanced",
     "qiskit",
     "random",
     "rdms",
@@ -227,4 +235,8 @@ __all__ = [
     "trace",
     "uccsd_generator_restricted",
     "uccsd_generator_unrestricted",
+    "ucj_energy",
+    "ucj_energy_spin_balanced",
+    "ucj_energy_spin_unbalanced",
+    "ucj_energy_spinless",
 ]
