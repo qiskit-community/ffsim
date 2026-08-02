@@ -558,7 +558,7 @@ def _make_ucj_energy_and_grad_spin_balanced(
 def _propagate_through_orbital_rotations(h_pq, g_pqrs, u):
     r"""
     Propagate one- and two-body tensors through an orbital rotation
-    (this is Lemma 1 in the paper).
+    using Lemma 1.
 
     .. math::
         H
@@ -687,7 +687,7 @@ def _compute_energy_spin_balanced(
         e^{ic} = \exp[-i(\delta^T A \delta + \delta^T \ell)].
 
     Finally, the overlaps are evaluated using Lowdin's formula 
-    (which is Lemma 3 in the paper).
+    using Lemma 3.
 
     Args:
         q_alpha: Alpha block of :math:`Q`, shape ``(norb, nalpha)``.
