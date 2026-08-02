@@ -32,6 +32,8 @@ from ffsim.variational.ucj_angles_spin_balanced import UCJAnglesOpSpinBalanced
 from ffsim.variational.ucj_energy import (
     optimize_ucj_energy,
     optimize_ucj_energy_spin_balanced,
+    optimize_ucj_energy_spin_unbalanced,
+    optimize_ucj_energy_spinless,
     ucj_energy,
     ucj_energy_spin_balanced,
     ucj_energy_spin_unbalanced,
@@ -58,6 +60,8 @@ __all__ = [
     "optimize_orbitals",
     "optimize_ucj_energy",
     "optimize_ucj_energy_spin_balanced",
+    "optimize_ucj_energy_spin_unbalanced",
+    "optimize_ucj_energy_spinless",
     "ucj_energy",
     "ucj_energy_spin_balanced",
     "ucj_energy_spin_unbalanced",
