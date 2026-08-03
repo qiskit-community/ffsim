@@ -341,6 +341,58 @@ def random_molecular_hamiltonian_spinless(
     )
 
 
+def random_molecular_hamiltonian_unrestricted(
+    norb: int, seed=None, dtype=complex
+) -> hamiltonians.MolecularHamiltonianUnrestricted:
+    """Sample a random spin-unrestricted molecular Hamiltonian.
+
+    The one- and two-body tensors of each spin sector are sampled independently, so the
+    resulting Hamiltonian is not invariant under exchanging the spin alpha and spin beta
+    orbitals.
+
+    The alpha-beta two-body tensor is sampled without imposing the symmetry under
+    exchanging its two index pairs that the same-spin tensors possess. This symmetry is
+    not required of the alpha-beta tensor, because the beta-alpha term of the
+    Hamiltonian supplies the transposed contribution. See
+    :class:`~ffsim.MolecularHamiltonianUnrestricted`.
+
+    Args:
+        norb: The number of spatial orbitals.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the one- and two-body tensors. The constant
+            term will always be of type ``float``.
+
+    Returns:
+        The sampled spin-unrestricted molecular Hamiltonian.
+    """
+    rng = np.random.default_rng(seed)
+    ham_a, ham_b, ham_ab = (
+        random_molecular_hamiltonian(norb, seed=rng, dtype=dtype) for _ in range(3)
+    )
+    # Break the symmetry of the alpha-beta tensor under exchanging its two index pairs
+    # by rotating only its first pair of indices. This preserves the symmetry within
+    # each index pair, which is what the Hamiltonian requires in order to be Hermitian.
+    if np.issubdtype(dtype, np.complexfloating):
+        orbital_rotation = random_unitary(norb, seed=rng)
+    else:
+        orbital_rotation = random_orthogonal(norb, seed=rng, dtype=dtype)
+    two_body_tensor_ab = np.einsum(
+        "abcd,aA,bB->ABcd",
+        ham_ab.two_body_tensor,
+        orbital_rotation,
+        orbital_rotation.conj(),
+        optimize=True,
+    )
+    return hamiltonians.MolecularHamiltonianUnrestricted(
+        one_body_tensors=np.stack([ham_a.one_body_tensor, ham_b.one_body_tensor]),
+        two_body_tensors=np.stack(
+            [ham_a.two_body_tensor, two_body_tensor_ab, ham_b.two_body_tensor]
+        ),
+        constant=ham_a.constant,
+    )
+
+
 def random_uccsd_op_restricted_real(
     norb: int,
     nocc: int,
