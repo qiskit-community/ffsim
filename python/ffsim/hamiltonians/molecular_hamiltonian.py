@@ -367,7 +367,7 @@ class MolecularHamiltonianSpinless(
         return op
 
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
-        if isinstance(other, MolecularHamiltonian):
+        if isinstance(other, MolecularHamiltonianSpinless):
             if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
                 return False
             if not np.allclose(

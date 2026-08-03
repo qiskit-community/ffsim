@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import numpy as np
 import pyscf
 import pyscf.mcscf
@@ -167,6 +169,18 @@ def test_rotated(norb: int, nelec: tuple[int, int]):
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+def test_approx_eq():
+    """Test approximate equality."""
+    norb = 4
+    mol_ham_1 = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
+    mol_ham_2 = dataclasses.replace(
+        mol_ham_1,
+        one_body_tensor=mol_ham_1.one_body_tensor + 1e-7,
+        two_body_tensor=mol_ham_1.two_body_tensor + 1e-7,
+    )
+    assert ffsim.approx_eq(mol_ham_1, mol_ham_2, rtol=0, atol=1e-6)
 
 
 @pytest.mark.parametrize(
@@ -332,6 +346,18 @@ def test_molecular_hamiltonian_spinless_rotated(norb: int, nelec: int):
     original_expectation = np.vdot(vec, linop @ vec)
     rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
     np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+def test_molecular_hamiltonian_spinless_approx_eq():
+    """Test approximate equality."""
+    norb = 4
+    mol_ham_1 = ffsim.random.random_molecular_hamiltonian_spinless(norb=norb, seed=RNG)
+    mol_ham_2 = dataclasses.replace(
+        mol_ham_1,
+        one_body_tensor=mol_ham_1.one_body_tensor + 1e-7,
+        two_body_tensor=mol_ham_1.two_body_tensor + 1e-7,
+    )
+    assert ffsim.approx_eq(mol_ham_1, mol_ham_2, rtol=0, atol=1e-6)
 
 
 @pytest.mark.parametrize("norb", range(1, 5))
