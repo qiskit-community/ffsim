@@ -213,7 +213,7 @@ def ucj_energy_spin_balanced(
         jnp.asarray(u),
     )
 
-    jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spin_balanced(
+    jastrow_mat, jastrow_vec = _spin_balanced_jastrow_phase(
         jnp.asarray(diag_coulomb_mats[0][0]),
         jnp.asarray(diag_coulomb_mats[0][1]),
         norb,
@@ -295,7 +295,7 @@ def optimize_ucj_energy_spin_balanced(
     )
     occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
 
-    value_and_grad = _make_ucj_energy_and_grad_spin_balanced(
+    value_and_grad = _make_spin_balanced_objective(
         norb,
         interaction_pairs_key,
         with_final_orbital_rotation,
@@ -396,14 +396,14 @@ def ucj_energy_spin_unbalanced(
     h_beta, g_bb = _propagate_through_orbital_rotations(
         one_body_tensor, two_body_tensor, jnp.asarray(u_beta)
     )
-    g_ab = _propagate_two_body_tensor_spin_sectors(
+    g_ab = _propagate_spin_sector_tensor(
         two_body_tensor, jnp.asarray(u_alpha), jnp.asarray(u_beta)
     )
-    g_ba = _propagate_two_body_tensor_spin_sectors(
+    g_ba = _propagate_spin_sector_tensor(
         two_body_tensor, jnp.asarray(u_beta), jnp.asarray(u_alpha)
     )
 
-    jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spin_unbalanced(
+    jastrow_mat, jastrow_vec = _spin_unbalanced_jastrow_phase(
         jnp.asarray(diag_coulomb_mats[0][0]),
         jnp.asarray(diag_coulomb_mats[0][1]),
         jnp.asarray(diag_coulomb_mats[0][2]),
@@ -498,7 +498,7 @@ def optimize_ucj_energy_spin_unbalanced(
     )
     occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
 
-    value_and_grad = _make_ucj_energy_and_grad_spin_unbalanced(
+    value_and_grad = _make_spin_unbalanced_objective(
         norb,
         interaction_pairs_key,
         with_final_orbital_rotation,
@@ -571,7 +571,7 @@ def ucj_energy_spinless(
         jnp.asarray(hamiltonian.two_body_tensor),
         jnp.asarray(u),
     )
-    jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spinless(
+    jastrow_mat, jastrow_vec = _spinless_jastrow_phase(
         jnp.asarray(ucj_op.diag_coulomb_mats[0])
     )
     return float(
@@ -646,7 +646,7 @@ def optimize_ucj_energy_spinless(
         norb, nelec, occupied_orbitals
     )
 
-    value_and_grad = _make_ucj_energy_and_grad_spinless(
+    value_and_grad = _make_spinless_objective(
         norb,
         interaction_pairs_key,
         with_final_orbital_rotation,
@@ -774,7 +774,7 @@ def _occupied_orbitals_key_spinless(
 
 
 @functools.cache
-def _make_ucj_energy_and_grad_spin_balanced(
+def _make_spin_balanced_objective(
     norb: int,
     interaction_pairs_key: tuple[
         tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]
@@ -828,7 +828,7 @@ def _make_ucj_energy_and_grad_spin_balanced(
         h_bp, g_bp = _propagate_through_orbital_rotations(
             one_body_tensor, two_body_tensor, u
         )
-        jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spin_balanced(
+        jastrow_mat, jastrow_vec = _spin_balanced_jastrow_phase(
             diag_coulomb_mats[0], diag_coulomb_mats[1], norb
         )
         rotated_reference = orbital_rotation.conj().T
@@ -850,7 +850,7 @@ def _make_ucj_energy_and_grad_spin_balanced(
 
 
 @functools.cache
-def _make_ucj_energy_and_grad_spin_unbalanced(
+def _make_spin_unbalanced_objective(
     norb: int,
     interaction_pairs_key: tuple[
         tuple[tuple[int, int], ...],
@@ -938,10 +938,10 @@ def _make_ucj_energy_and_grad_spin_unbalanced(
         h_beta, g_bb = _propagate_through_orbital_rotations(
             one_body_tensor, two_body_tensor, u_beta
         )
-        g_ab = _propagate_two_body_tensor_spin_sectors(two_body_tensor, u_alpha, u_beta)
-        g_ba = _propagate_two_body_tensor_spin_sectors(two_body_tensor, u_beta, u_alpha)
+        g_ab = _propagate_spin_sector_tensor(two_body_tensor, u_alpha, u_beta)
+        g_ba = _propagate_spin_sector_tensor(two_body_tensor, u_beta, u_alpha)
 
-        jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spin_unbalanced(
+        jastrow_mat, jastrow_vec = _spin_unbalanced_jastrow_phase(
             diag_coulomb_mats[0], diag_coulomb_mats[1], diag_coulomb_mats[2], norb
         )
         rotated_reference_alpha = orbital_rotation_alpha.conj().T
@@ -968,7 +968,7 @@ def _make_ucj_energy_and_grad_spin_unbalanced(
 
 
 @functools.cache
-def _make_ucj_energy_and_grad_spinless(
+def _make_spinless_objective(
     norb: int,
     interaction_pairs_key: tuple[tuple[int, int], ...],
     with_final_orbital_rotation: bool,
@@ -1014,7 +1014,7 @@ def _make_ucj_energy_and_grad_spinless(
         h_bp, g_bp = _propagate_through_orbital_rotations(
             one_body_tensor, two_body_tensor, u
         )
-        jastrow_mat, jastrow_vec = _jastrow_phase_parameters_spinless(diag_coulomb_mat)
+        jastrow_mat, jastrow_vec = _spinless_jastrow_phase(diag_coulomb_mat)
         q = orbital_rotation.conj().T[:, occupied]
         return _compute_energy_spinless(
             q,
@@ -1075,7 +1075,7 @@ def _propagate_through_orbital_rotations(h_pq, g_pqrs, u):
     return h_tilde, g_tilde
 
 
-def _propagate_two_body_tensor_spin_sectors(g_pqrs, u_left, u_right):
+def _propagate_spin_sector_tensor(g_pqrs, u_left, u_right):
     """Propagate two-body terms whose two one-body factors use different rotations."""
     return jnp.einsum(
         "pi,qj,pqrs,rk,sl->ijkl",
@@ -1088,7 +1088,7 @@ def _propagate_two_body_tensor_spin_sectors(g_pqrs, u_left, u_right):
     )
 
 
-def _jastrow_phase_parameters_spin_balanced(same, diff, norb):
+def _spin_balanced_jastrow_phase(same, diff, norb):
     r"""
     Convert spin-balanced Jastrow matrices to spin-orbital phase parameters.
 
@@ -1130,7 +1130,7 @@ def _jastrow_phase_parameters_spin_balanced(same, diff, norb):
     return jastrow_mat, jastrow_vec
 
 
-def _jastrow_phase_parameters_spin_unbalanced(same_aa, diff_ab, same_bb, norb):
+def _spin_unbalanced_jastrow_phase(same_aa, diff_ab, same_bb, norb):
     """Convert spin-unbalanced Jastrow matrices to spin-orbital phase parameters."""
     n_spin_orbitals = 2 * norb
 
@@ -1147,7 +1147,7 @@ def _jastrow_phase_parameters_spin_unbalanced(same_aa, diff_ab, same_bb, norb):
     return jastrow_mat, jastrow_vec
 
 
-def _jastrow_phase_parameters_spinless(mat):
+def _spinless_jastrow_phase(mat):
     """Convert a spinless Jastrow matrix to phase parameters."""
     mat_offdiag = mat - jnp.diag(jnp.diag(mat))
     return mat_offdiag / 2, jnp.diag(mat) / 2
