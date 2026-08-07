@@ -194,3 +194,45 @@ def test_optimize_ucj_energy_spinless():
 
     np.testing.assert_allclose(optimized_backprop_energy, result.fun)
     np.testing.assert_allclose(optimized_backprop_energy, optimized_statevector_energy)
+
+
+def test_ucj_energy_chunk_size_nondivisor():
+    """Test two-body chunking with chunk sizes that do not divide term counts."""
+    norb = 4
+
+    nelec = (2, 1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    unchunked = ffsim.ucj_energy_spin_unbalanced(ucj_op, mol_hamiltonian, nelec)
+    chunked = ffsim.ucj_energy_spin_unbalanced(
+        ucj_op, mol_hamiltonian, nelec, chunk_size=7
+    )
+    np.testing.assert_allclose(chunked, unchunked)
+
+    nelec_spinless = 2
+    mol_hamiltonian_spinless = ffsim.random.random_molecular_hamiltonian_spinless(
+        norb, seed=RNG
+    )
+    ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    unchunked = ffsim.ucj_energy_spinless(
+        ucj_op_spinless, mol_hamiltonian_spinless, nelec_spinless
+    )
+    chunked = ffsim.ucj_energy_spinless(
+        ucj_op_spinless,
+        mol_hamiltonian_spinless,
+        nelec_spinless,
+        chunk_size=7,
+    )
+    np.testing.assert_allclose(chunked, unchunked)
