@@ -79,6 +79,59 @@ def ucj_energy(
     raise TypeError(f"Unsupported UCJ operator type: {type(ucj_op)}")
 
 
+def ucj_energy_and_grad(
+    ucj_op: UCJOpSpinBalanced | UCJOpSpinUnbalanced | UCJOpSpinless,
+    hamiltonian: MolecularHamiltonian | MolecularHamiltonianSpinless,
+    nelec: int | tuple[int, int],
+    interaction_pairs=None,
+    *,
+    occupied_orbitals=None,
+    chunk_size: int | None = None,
+) -> tuple[float, np.ndarray]:
+    """Convenience dispatcher for UCJ energy and gradient calculation."""
+
+    if isinstance(ucj_op, UCJOpSpinBalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
+        if not isinstance(nelec, tuple):
+            raise TypeError("nelec must be a tuple for a spin-balanced UCJ operator.")
+        return ucj_energy_and_grad_spin_balanced(
+            ucj_op,
+            hamiltonian,
+            nelec,
+            interaction_pairs,
+            occupied_orbitals=occupied_orbitals,
+            chunk_size=chunk_size,
+        )
+    if isinstance(ucj_op, UCJOpSpinUnbalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
+        if not isinstance(nelec, tuple):
+            raise TypeError("nelec must be a tuple for a spin-unbalanced UCJ operator.")
+        return ucj_energy_and_grad_spin_unbalanced(
+            ucj_op,
+            hamiltonian,
+            nelec,
+            interaction_pairs,
+            occupied_orbitals=occupied_orbitals,
+            chunk_size=chunk_size,
+        )
+    if isinstance(ucj_op, UCJOpSpinless) and isinstance(
+        hamiltonian, MolecularHamiltonianSpinless
+    ):
+        if not isinstance(nelec, int):
+            raise TypeError("nelec must be an int for a spinless UCJ operator.")
+        return ucj_energy_and_grad_spinless(
+            ucj_op,
+            hamiltonian,
+            nelec,
+            interaction_pairs,
+            occupied_orbitals=occupied_orbitals,
+            chunk_size=chunk_size,
+        )
+    raise TypeError(f"Unsupported UCJ operator type: {type(ucj_op)}")
+
+
 def optimize_ucj_energy(
     initial_ucj_op: UCJOpSpinBalanced | UCJOpSpinUnbalanced | UCJOpSpinless,
     hamiltonian: MolecularHamiltonian | MolecularHamiltonianSpinless,
@@ -242,6 +295,69 @@ def ucj_energy_spin_balanced(
             norb,
             chunk_size=chunk_size,
         )
+    )
+
+
+def ucj_energy_and_grad_spin_balanced(
+    ucj_op: UCJOpSpinBalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
+    | None = None,
+    *,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+) -> tuple[float, np.ndarray]:
+    """Compute the UCJ energy and parameter gradient for a spin-balanced system.
+
+    The gradient is with respect to the flattened parameter vector returned by
+    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+
+    Args:
+        hamiltonian: The Hamiltonian.
+        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
+            orbital rotation.
+        nelec: The number of alpha and beta electrons.
+        interaction_pairs: The interaction pairs used to parameterize the Jastrow
+            matrices. If None, all pairs are considered.
+        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
+            the Hartree-Fock state.
+        chunk_size: The number of two-body Hamiltonian terms to process at a time.
+            If ``None``, all two-body terms are processed in one batch.
+
+    Returns:
+        The energy and its gradient with respect to the UCJ parameter vector.
+    """
+    _validate_ucj_op(ucj_op)
+    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+
+    norb = ucj_op.norb
+    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    pairs_aa, pairs_ab = (
+        interaction_pairs if interaction_pairs is not None else (None, None)
+    )
+    validate_interaction_pairs(pairs_aa, ordered=False)
+    validate_interaction_pairs(pairs_ab, ordered=False)
+    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
+    pairs_ab = triu_indices if pairs_ab is None else pairs_ab
+    interaction_pairs_key = (
+        _interaction_pairs_key(pairs_aa),
+        _interaction_pairs_key(pairs_ab),
+    )
+    occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
+
+    value_and_grad = _make_spin_balanced_objective(
+        norb,
+        interaction_pairs_key,
+        with_final_orbital_rotation,
+        occupied_orbitals_key,
+        chunk_size,
+    )
+    return _evaluate_ucj_value_and_grad(
+        value_and_grad,
+        ucj_op.to_parameters(interaction_pairs=interaction_pairs),
+        hamiltonian,
     )
 
 
@@ -440,6 +556,77 @@ def ucj_energy_spin_unbalanced(
     )
 
 
+def ucj_energy_and_grad_spin_unbalanced(
+    ucj_op: UCJOpSpinUnbalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    interaction_pairs: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    *,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+) -> tuple[float, np.ndarray]:
+    """Compute the UCJ energy and parameter gradient for a spin-unbalanced system.
+
+    The gradient is with respect to the flattened parameter vector returned by
+    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+
+    Args:
+        hamiltonian: The Hamiltonian.
+        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
+            orbital rotation.
+        nelec: The number of alpha and beta electrons.
+        interaction_pairs: The interaction pairs used to parameterize the Jastrow
+            matrices. If None, all pairs are considered.
+        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
+            the Hartree-Fock state.
+        chunk_size: The number of two-body Hamiltonian terms to process at a time.
+            If ``None``, all two-body terms are processed in one batch.
+
+    Returns:
+        The energy and its gradient with respect to the UCJ parameter vector.
+    """
+    _validate_ucj_op(ucj_op)
+    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+
+    norb = ucj_op.norb
+    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    mat_indices = list(itertools.product(range(norb), repeat=2))
+    pairs_aa, pairs_ab, pairs_bb = (
+        interaction_pairs if interaction_pairs is not None else (None, None, None)
+    )
+    validate_interaction_pairs(pairs_aa, ordered=False)
+    validate_interaction_pairs(pairs_ab, ordered=True)
+    validate_interaction_pairs(pairs_bb, ordered=False)
+    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
+    pairs_ab = mat_indices if pairs_ab is None else pairs_ab
+    pairs_bb = triu_indices if pairs_bb is None else pairs_bb
+    interaction_pairs_key = (
+        _interaction_pairs_key(pairs_aa),
+        _interaction_pairs_key(pairs_ab),
+        _interaction_pairs_key(pairs_bb),
+    )
+    occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
+
+    value_and_grad = _make_spin_unbalanced_objective(
+        norb,
+        interaction_pairs_key,
+        with_final_orbital_rotation,
+        occupied_orbitals_key,
+        chunk_size,
+    )
+    return _evaluate_ucj_value_and_grad(
+        value_and_grad,
+        ucj_op.to_parameters(interaction_pairs),
+        hamiltonian,
+    )
+
+
 def optimize_ucj_energy_spin_unbalanced(
     initial_ucj_op: UCJOpSpinUnbalanced,
     hamiltonian: MolecularHamiltonian,
@@ -600,6 +787,65 @@ def ucj_energy_spinless(
     )
 
 
+def ucj_energy_and_grad_spinless(
+    ucj_op: UCJOpSpinless,
+    hamiltonian: MolecularHamiltonianSpinless,
+    nelec: int,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    *,
+    occupied_orbitals: Sequence[int] | None = None,
+    chunk_size: int | None = None,
+) -> tuple[float, np.ndarray]:
+    """Compute the UCJ energy and parameter gradient for a spinless system.
+
+    The gradient is with respect to the flattened parameter vector returned by
+    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+
+    Args:
+        hamiltonian: The Hamiltonian.
+        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
+            orbital rotation.
+        nelec: The number of electrons.
+        interaction_pairs: The interaction pairs used to parameterize the Jastrow
+            matrix. If None, all pairs are considered.
+        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
+            the Hartree-Fock state.
+        chunk_size: The number of two-body Hamiltonian terms to process at a time.
+            If ``None``, all two-body terms are processed in one batch.
+
+    Returns:
+        The energy and its gradient with respect to the UCJ parameter vector.
+    """
+    _validate_ucj_op(ucj_op)
+    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+
+    norb = ucj_op.norb
+    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    validate_interaction_pairs(interaction_pairs, ordered=False)
+    interaction_pairs_resolved = (
+        list(itertools.combinations_with_replacement(range(norb), 2))
+        if interaction_pairs is None
+        else interaction_pairs
+    )
+    interaction_pairs_key = _interaction_pairs_key(interaction_pairs_resolved)
+    occupied_orbitals_key = _occupied_orbitals_key_spinless(
+        norb, nelec, occupied_orbitals
+    )
+
+    value_and_grad = _make_spinless_objective(
+        norb,
+        interaction_pairs_key,
+        with_final_orbital_rotation,
+        occupied_orbitals_key,
+        chunk_size,
+    )
+    return _evaluate_ucj_value_and_grad(
+        value_and_grad,
+        ucj_op.to_parameters(interaction_pairs=interaction_pairs),
+        hamiltonian,
+    )
+
+
 def optimize_ucj_energy_spinless(
     initial_ucj_op: UCJOpSpinless,
     hamiltonian: MolecularHamiltonianSpinless,
@@ -704,6 +950,21 @@ def _validate_molecular_hamiltonian(
             "The Hamiltonian and UCJ operator should have the same number of "
             f"orbitals. Got {hamiltonian.norb} and {norb}."
         )
+
+
+def _evaluate_ucj_value_and_grad(
+    value_and_grad,
+    params: np.ndarray,
+    hamiltonian: MolecularHamiltonian | MolecularHamiltonianSpinless,
+) -> tuple[float, np.ndarray]:
+    """Evaluate a JAX UCJ objective and return NumPy-compatible outputs."""
+    value, grad = value_and_grad(
+        jnp.asarray(params),
+        jnp.asarray(hamiltonian.one_body_tensor),
+        jnp.asarray(hamiltonian.two_body_tensor),
+        jnp.asarray(hamiltonian.constant),
+    )
+    return float(value), np.asarray(grad)
 
 
 def _minimize_ucj_parameters(
@@ -1272,184 +1533,6 @@ def _one_body_spin_sector_energy(
     )
 
 
-def _same_spin_two_body_terms(
-    q_sector,
-    q_other,
-    g_flat,
-    jastrow_mat,
-    jastrow_vec,
-    norb: int,
-    spin: int,
-    indices,
-):
-    """Evaluate same-spin two-body terms for a batch of tensor indices."""
-    n_spin_orbitals = 2 * norb
-    p, q, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
-    rows = jnp.arange(indices.shape[0])
-    offset = spin * norb
-
-    delta = (
-        jnp.zeros((indices.shape[0], n_spin_orbitals))
-        .at[rows, offset + p]
-        .add(1)
-        .at[rows, offset + r]
-        .add(1)
-        .at[rows, offset + s]
-        .add(-1)
-        .at[rows, offset + q]
-        .add(-1)
-    )
-    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-    sector_slice = _spin_slice(spin, norb)
-    other_slice = _spin_slice(1 - spin, norb)
-    det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
-    det_other, _ = _transition_batch(phi[:, other_slice], q_other)
-    wick = (
-        rho_sector[rows, q, p] * rho_sector[rows, s, r]
-        - rho_sector[rows, s, p] * rho_sector[rows, q, r]
-    )
-    return 0.5 * g_flat[indices] * const * det_sector * det_other * wick
-
-
-def _same_spin_two_body_canonical_terms(
-    q_sector,
-    q_other,
-    g,
-    jastrow_mat,
-    jastrow_vec,
-    norb: int,
-    spin: int,
-    indices,
-):
-    """Evaluate canonical same-spin two-body terms for a batch of indices."""
-    p_all, q_all, r_all, s_all = (
-        jnp.asarray(array)
-        for array in _canonical_same_spin_two_body_indices(norb)
-    )
-    p = p_all[indices]
-    q = q_all[indices]
-    r = r_all[indices]
-    s = s_all[indices]
-    rows = jnp.arange(indices.shape[0])
-    n_spin_orbitals = 2 * norb
-    offset = spin * norb
-
-    delta = (
-        jnp.zeros((indices.shape[0], n_spin_orbitals))
-        .at[rows, offset + p]
-        .add(1)
-        .at[rows, offset + r]
-        .add(1)
-        .at[rows, offset + s]
-        .add(-1)
-        .at[rows, offset + q]
-        .add(-1)
-    )
-    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-    sector_slice = _spin_slice(spin, norb)
-    other_slice = _spin_slice(1 - spin, norb)
-    det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
-    det_other, _ = _transition_batch(phi[:, other_slice], q_other)
-    wick = (
-        rho_sector[rows, q, p] * rho_sector[rows, s, r]
-        - rho_sector[rows, s, p] * rho_sector[rows, q, r]
-    )
-    coeff = (
-        g[p, q, r, s]
-        - g[r, q, p, s]
-        - g[p, s, r, q]
-        + g[r, s, p, q]
-    )
-    return 0.5 * coeff * const * det_sector * det_other * wick
-
-
-def _spinless_two_body_canonical_terms(
-    q_state,
-    g,
-    jastrow_mat,
-    jastrow_vec,
-    norb: int,
-    indices,
-):
-    """Evaluate canonical spinless two-body terms for a batch of indices."""
-    p_all, q_all, r_all, s_all = (
-        jnp.asarray(array)
-        for array in _canonical_same_spin_two_body_indices(norb)
-    )
-    p = p_all[indices]
-    q = q_all[indices]
-    r = r_all[indices]
-    s = s_all[indices]
-    rows = jnp.arange(indices.shape[0])
-
-    delta = (
-        jnp.zeros((indices.shape[0], norb))
-        .at[rows, p]
-        .add(1)
-        .at[rows, r]
-        .add(1)
-        .at[rows, s]
-        .add(-1)
-        .at[rows, q]
-        .add(-1)
-    )
-    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-    det, rho = _transition_batch(phi, q_state)
-    wick = rho[rows, q, p] * rho[rows, s, r] - rho[rows, s, p] * rho[rows, q, r]
-    coeff = (
-        g[p, q, r, s]
-        - g[r, q, p, s]
-        - g[p, s, r, q]
-        + g[r, s, p, q]
-    )
-    return 0.5 * coeff * const * det * wick
-
-
-def _opposite_spin_two_body_terms(
-    q_left,
-    q_right,
-    g_flat,
-    jastrow_mat,
-    jastrow_vec,
-    norb: int,
-    left_spin: int,
-    indices,
-):
-    """Evaluate opposite-spin two-body terms for a batch of tensor indices."""
-    n_spin_orbitals = 2 * norb
-    p, q, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
-    rows = jnp.arange(indices.shape[0])
-    left_offset = left_spin * norb
-    right_spin = 1 - left_spin
-    right_offset = right_spin * norb
-
-    delta = (
-        jnp.zeros((indices.shape[0], n_spin_orbitals))
-        .at[rows, left_offset + p]
-        .add(1)
-        .at[rows, left_offset + q]
-        .add(-1)
-        .at[rows, right_offset + r]
-        .add(1)
-        .at[rows, right_offset + s]
-        .add(-1)
-    )
-    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-    det_left, rho_left = _transition_batch(phi[:, _spin_slice(left_spin, norb)], q_left)
-    det_right, rho_right = _transition_batch(
-        phi[:, _spin_slice(right_spin, norb)], q_right
-    )
-    return (
-        0.5
-        * g_flat[indices]
-        * const
-        * det_left
-        * det_right
-        * rho_left[rows, q, p]
-        * rho_right[rows, s, r]
-    )
-
-
 def _same_spin_two_body_energy(
     q_sector,
     q_other,
@@ -1464,11 +1547,47 @@ def _same_spin_two_body_energy(
     n_terms = (norb * (norb - 1) // 2) ** 2
     if n_terms == 0:
         return 0.0
+    p_all, q_all, r_all, s_all = (
+        jnp.asarray(array)
+        for array in _canonical_same_spin_two_body_indices(norb)
+    )
+    n_spin_orbitals = 2 * norb
+    offset = spin * norb
 
     def term_chunk(indices):
-        return _same_spin_two_body_canonical_terms(
-            q_sector, q_other, g, jastrow_mat, jastrow_vec, norb, spin, indices
+        p = p_all[indices]
+        q = q_all[indices]
+        r = r_all[indices]
+        s = s_all[indices]
+        rows = jnp.arange(indices.shape[0])
+
+        delta = (
+            jnp.zeros((indices.shape[0], n_spin_orbitals))
+            .at[rows, offset + p]
+            .add(1)
+            .at[rows, offset + r]
+            .add(1)
+            .at[rows, offset + s]
+            .add(-1)
+            .at[rows, offset + q]
+            .add(-1)
         )
+        phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
+        sector_slice = _spin_slice(spin, norb)
+        other_slice = _spin_slice(1 - spin, norb)
+        det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
+        det_other, _ = _transition_batch(phi[:, other_slice], q_other)
+        wick = (
+            rho_sector[rows, q, p] * rho_sector[rows, s, r]
+            - rho_sector[rows, s, p] * rho_sector[rows, q, r]
+        )
+        coeff = (
+            g[p, q, r, s]
+            - g[r, q, p, s]
+            - g[p, s, r, q]
+            + g[r, s, p, q]
+        )
+        return 0.5 * coeff * const * det_sector * det_other * wick
 
     return _chunked_term_sum(n_terms, chunk_size, term_chunk)
 
@@ -1486,10 +1605,41 @@ def _opposite_spin_two_body_energy(
     """Evaluate all opposite-spin two-body terms."""
     n_terms = norb**4
     g_flat = g.reshape(-1)
+    n_spin_orbitals = 2 * norb
+    left_offset = left_spin * norb
+    right_spin = 1 - left_spin
+    right_offset = right_spin * norb
 
     def term_chunk(indices):
-        return _opposite_spin_two_body_terms(
-            q_left, q_right, g_flat, jastrow_mat, jastrow_vec, norb, left_spin, indices
+        p, q, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
+        rows = jnp.arange(indices.shape[0])
+
+        delta = (
+            jnp.zeros((indices.shape[0], n_spin_orbitals))
+            .at[rows, left_offset + p]
+            .add(1)
+            .at[rows, left_offset + q]
+            .add(-1)
+            .at[rows, right_offset + r]
+            .add(1)
+            .at[rows, right_offset + s]
+            .add(-1)
+        )
+        phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
+        det_left, rho_left = _transition_batch(
+            phi[:, _spin_slice(left_spin, norb)], q_left
+        )
+        det_right, rho_right = _transition_batch(
+            phi[:, _spin_slice(right_spin, norb)], q_right
+        )
+        return (
+            0.5
+            * g_flat[indices]
+            * const
+            * det_left
+            * det_right
+            * rho_left[rows, q, p]
+            * rho_right[rows, s, r]
         )
 
     return _chunked_term_sum(n_terms, chunk_size, term_chunk)
@@ -1716,11 +1866,42 @@ def _compute_energy_spinless(
     energy_1 = jnp.sum(h_bp[p, q_] * const * det * rho[rows, q_, p])
 
     n_terms = (norb * (norb - 1) // 2) ** 2
+    p_all, q_all, r_all, s_all = (
+        jnp.asarray(array)
+        for array in _canonical_same_spin_two_body_indices(norb)
+    )
 
     def two_body_chunk(indices):
-        return _spinless_two_body_canonical_terms(
-            q, g_bp, jastrow_mat, jastrow_vec, norb, indices
+        p = p_all[indices]
+        q_ = q_all[indices]
+        r = r_all[indices]
+        s = s_all[indices]
+        rows = jnp.arange(indices.shape[0])
+
+        delta = (
+            jnp.zeros((indices.shape[0], norb))
+            .at[rows, p]
+            .add(1)
+            .at[rows, r]
+            .add(1)
+            .at[rows, s]
+            .add(-1)
+            .at[rows, q_]
+            .add(-1)
         )
+        phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
+        det, rho = _transition_batch(phi, q)
+        wick = (
+            rho[rows, q_, p] * rho[rows, s, r]
+            - rho[rows, s, p] * rho[rows, q_, r]
+        )
+        coeff = (
+            g_bp[p, q_, r, s]
+            - g_bp[r, q_, p, s]
+            - g_bp[p, s, r, q_]
+            + g_bp[r, s, p, q_]
+        )
+        return 0.5 * coeff * const * det * wick
 
     energy_2 = (
         0.0 if n_terms == 0 else _chunked_term_sum(n_terms, chunk_size, two_body_chunk)
