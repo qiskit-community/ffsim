@@ -38,7 +38,9 @@ def ucj_energy(
 ) -> float:
     """Convenience dispatcher for UCJ energy calculation."""
 
-    if isinstance(ucj_op, UCJOpSpinBalanced):
+    if isinstance(ucj_op, UCJOpSpinBalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
         if not isinstance(nelec, tuple):
             raise TypeError("nelec must be a tuple for a spin-balanced UCJ operator.")
         return ucj_energy_spin_balanced(
@@ -49,7 +51,9 @@ def ucj_energy(
             occupied_orbitals=occupied_orbitals,
             chunk_size=chunk_size,
         )
-    if isinstance(ucj_op, UCJOpSpinUnbalanced):
+    if isinstance(ucj_op, UCJOpSpinUnbalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
         if not isinstance(nelec, tuple):
             raise TypeError("nelec must be a tuple for a spin-unbalanced UCJ operator.")
         return ucj_energy_spin_unbalanced(
@@ -60,7 +64,9 @@ def ucj_energy(
             occupied_orbitals=occupied_orbitals,
             chunk_size=chunk_size,
         )
-    if isinstance(ucj_op, UCJOpSpinless):
+    if isinstance(ucj_op, UCJOpSpinless) and isinstance(
+        hamiltonian, MolecularHamiltonianSpinless
+    ):
         if not isinstance(nelec, int):
             raise TypeError("nelec must be an int for a spinless UCJ operator.")
         return ucj_energy_spinless(
@@ -96,7 +102,9 @@ def optimize_ucj_energy(
 ):
     """Convenience dispatcher for UCJ energy optimization."""
 
-    if isinstance(initial_ucj_op, UCJOpSpinBalanced):
+    if isinstance(initial_ucj_op, UCJOpSpinBalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
         if not isinstance(nelec, tuple):
             raise TypeError("nelec must be a tuple for a spin-balanced UCJ operator.")
         return optimize_ucj_energy_spin_balanced(
@@ -112,7 +120,9 @@ def optimize_ucj_energy(
             return_optimize_result=return_optimize_result,
         )
 
-    if isinstance(initial_ucj_op, UCJOpSpinUnbalanced):
+    if isinstance(initial_ucj_op, UCJOpSpinUnbalanced) and isinstance(
+        hamiltonian, MolecularHamiltonian
+    ):
         if not isinstance(nelec, tuple):
             raise TypeError("nelec must be a tuple for a spin-unbalanced UCJ operator.")
         return optimize_ucj_energy_spin_unbalanced(
@@ -128,7 +138,9 @@ def optimize_ucj_energy(
             return_optimize_result=return_optimize_result,
         )
 
-    if isinstance(initial_ucj_op, UCJOpSpinless):
+    if isinstance(initial_ucj_op, UCJOpSpinless) and isinstance(
+        hamiltonian, MolecularHamiltonianSpinless
+    ):
         if not isinstance(nelec, int):
             raise TypeError("nelec must be an int for a spinless UCJ operator.")
         return optimize_ucj_energy_spinless(
@@ -1183,18 +1195,46 @@ def _spin_slice(spin: int, norb: int) -> slice:
     return slice(offset, offset + norb)
 
 
-def _chunked_sum(n_terms: int, chunk_size: int | None, func):
-    """Evaluate ``func`` over term indices, optionally in fixed-size chunks."""
+@functools.cache
+def _canonical_same_spin_two_body_indices(
+    norb: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Return canonical same-spin two-body index arrays.
+    """
+    pairs = list(itertools.combinations(range(norb), 2))
+    n_terms = len(pairs) ** 2
+    p = np.empty(n_terms, dtype=np.int64)
+    q = np.empty(n_terms, dtype=np.int64)
+    r = np.empty(n_terms, dtype=np.int64)
+    s = np.empty(n_terms, dtype=np.int64)
+    for index, ((p_, r_), (q_, s_)) in enumerate(itertools.product(pairs, repeat=2)):
+        p[index] = p_
+        q[index] = q_
+        r[index] = r_
+        s[index] = s_
+    return p, q, r, s
+
+
+def _chunked_term_sum(n_terms: int, chunk_size: int | None, func):
+    """Sum per-term values over indices, optionally in fixed-size chunks."""
     if chunk_size is None or chunk_size >= n_terms:
-        return func(jnp.arange(n_terms))
+        return jnp.sum(func(jnp.arange(n_terms)))
     if chunk_size <= 0:
         raise ValueError("chunk_size must be positive.")
-    if n_terms % chunk_size:
-        raise ValueError(
-            f"chunk_size ({chunk_size}) must evenly divide norb**4 ({n_terms})."
-        )
-    index_chunks = jnp.arange(n_terms).reshape(-1, chunk_size)
-    return jnp.sum(jax.lax.map(jax.checkpoint(func), index_chunks))
+    n_chunks = (n_terms + chunk_size - 1) // chunk_size
+    padded_n_terms = n_chunks * chunk_size
+    indices = jnp.arange(padded_n_terms)
+    mask = indices < n_terms
+    safe_indices = jnp.where(mask, indices, 0)
+    index_chunks = safe_indices.reshape(n_chunks, chunk_size)
+    mask_chunks = mask.reshape(n_chunks, chunk_size)
+
+    def chunk_sum(args):
+        chunk_indices, chunk_mask = args
+        return jnp.sum(jnp.where(chunk_mask, func(chunk_indices), 0))
+
+    return jnp.sum(jax.lax.map(jax.checkpoint(chunk_sum), (index_chunks, mask_chunks)))
 
 
 def _one_body_spin_sector_energy(
@@ -1271,6 +1311,100 @@ def _same_spin_two_body_terms(
     return 0.5 * g_flat[indices] * const * det_sector * det_other * wick
 
 
+def _same_spin_two_body_canonical_terms(
+    q_sector,
+    q_other,
+    g,
+    jastrow_mat,
+    jastrow_vec,
+    norb: int,
+    spin: int,
+    indices,
+):
+    """Evaluate canonical same-spin two-body terms for a batch of indices."""
+    p_all, q_all, r_all, s_all = (
+        jnp.asarray(array)
+        for array in _canonical_same_spin_two_body_indices(norb)
+    )
+    p = p_all[indices]
+    q = q_all[indices]
+    r = r_all[indices]
+    s = s_all[indices]
+    rows = jnp.arange(indices.shape[0])
+    n_spin_orbitals = 2 * norb
+    offset = spin * norb
+
+    delta = (
+        jnp.zeros((indices.shape[0], n_spin_orbitals))
+        .at[rows, offset + p]
+        .add(1)
+        .at[rows, offset + r]
+        .add(1)
+        .at[rows, offset + s]
+        .add(-1)
+        .at[rows, offset + q]
+        .add(-1)
+    )
+    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
+    sector_slice = _spin_slice(spin, norb)
+    other_slice = _spin_slice(1 - spin, norb)
+    det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
+    det_other, _ = _transition_batch(phi[:, other_slice], q_other)
+    wick = (
+        rho_sector[rows, q, p] * rho_sector[rows, s, r]
+        - rho_sector[rows, s, p] * rho_sector[rows, q, r]
+    )
+    coeff = (
+        g[p, q, r, s]
+        - g[r, q, p, s]
+        - g[p, s, r, q]
+        + g[r, s, p, q]
+    )
+    return 0.5 * coeff * const * det_sector * det_other * wick
+
+
+def _spinless_two_body_canonical_terms(
+    q_state,
+    g,
+    jastrow_mat,
+    jastrow_vec,
+    norb: int,
+    indices,
+):
+    """Evaluate canonical spinless two-body terms for a batch of indices."""
+    p_all, q_all, r_all, s_all = (
+        jnp.asarray(array)
+        for array in _canonical_same_spin_two_body_indices(norb)
+    )
+    p = p_all[indices]
+    q = q_all[indices]
+    r = r_all[indices]
+    s = s_all[indices]
+    rows = jnp.arange(indices.shape[0])
+
+    delta = (
+        jnp.zeros((indices.shape[0], norb))
+        .at[rows, p]
+        .add(1)
+        .at[rows, r]
+        .add(1)
+        .at[rows, s]
+        .add(-1)
+        .at[rows, q]
+        .add(-1)
+    )
+    phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
+    det, rho = _transition_batch(phi, q_state)
+    wick = rho[rows, q, p] * rho[rows, s, r] - rho[rows, s, p] * rho[rows, q, r]
+    coeff = (
+        g[p, q, r, s]
+        - g[r, q, p, s]
+        - g[p, s, r, q]
+        + g[r, s, p, q]
+    )
+    return 0.5 * coeff * const * det * wick
+
+
 def _opposite_spin_two_body_terms(
     q_left,
     q_right,
@@ -1316,6 +1450,51 @@ def _opposite_spin_two_body_terms(
     )
 
 
+def _same_spin_two_body_energy(
+    q_sector,
+    q_other,
+    g,
+    jastrow_mat,
+    jastrow_vec,
+    norb: int,
+    spin: int,
+    chunk_size: int | None,
+):
+    """Evaluate all canonical same-spin two-body terms."""
+    n_terms = (norb * (norb - 1) // 2) ** 2
+    if n_terms == 0:
+        return 0.0
+
+    def term_chunk(indices):
+        return _same_spin_two_body_canonical_terms(
+            q_sector, q_other, g, jastrow_mat, jastrow_vec, norb, spin, indices
+        )
+
+    return _chunked_term_sum(n_terms, chunk_size, term_chunk)
+
+
+def _opposite_spin_two_body_energy(
+    q_left,
+    q_right,
+    g,
+    jastrow_mat,
+    jastrow_vec,
+    norb: int,
+    left_spin: int,
+    chunk_size: int | None,
+):
+    """Evaluate all opposite-spin two-body terms."""
+    n_terms = norb**4
+    g_flat = g.reshape(-1)
+
+    def term_chunk(indices):
+        return _opposite_spin_two_body_terms(
+            q_left, q_right, g_flat, jastrow_mat, jastrow_vec, norb, left_spin, indices
+        )
+
+    return _chunked_term_sum(n_terms, chunk_size, term_chunk)
+
+
 def _spinful_two_body_energy(
     q_alpha,
     q_beta,
@@ -1329,28 +1508,19 @@ def _spinful_two_body_energy(
     chunk_size: int | None,
 ):
     """Evaluate all spin cases of the two-body Hamiltonian terms."""
-    n_terms = norb**4
-    g_aa_flat = g_aa.reshape(-1)
-    g_ab_flat = g_ab.reshape(-1)
-    g_ba_flat = g_ba.reshape(-1)
-    g_bb_flat = g_bb.reshape(-1)
-
-    def two_body_chunk(indices):
-        term_aa = _same_spin_two_body_terms(
-            q_alpha, q_beta, g_aa_flat, jastrow_mat, jastrow_vec, norb, 0, indices
-        )
-        term_bb = _same_spin_two_body_terms(
-            q_beta, q_alpha, g_bb_flat, jastrow_mat, jastrow_vec, norb, 1, indices
-        )
-        term_ab = _opposite_spin_two_body_terms(
-            q_alpha, q_beta, g_ab_flat, jastrow_mat, jastrow_vec, norb, 0, indices
-        )
-        term_ba = _opposite_spin_two_body_terms(
-            q_beta, q_alpha, g_ba_flat, jastrow_mat, jastrow_vec, norb, 1, indices
-        )
-        return jnp.sum(term_aa + term_bb + term_ab + term_ba)
-
-    return _chunked_sum(n_terms, chunk_size, two_body_chunk)
+    term_aa = _same_spin_two_body_energy(
+        q_alpha, q_beta, g_aa, jastrow_mat, jastrow_vec, norb, 0, chunk_size
+    )
+    term_bb = _same_spin_two_body_energy(
+        q_beta, q_alpha, g_bb, jastrow_mat, jastrow_vec, norb, 1, chunk_size
+    )
+    term_ab = _opposite_spin_two_body_energy(
+        q_alpha, q_beta, g_ab, jastrow_mat, jastrow_vec, norb, 0, chunk_size
+    )
+    term_ba = _opposite_spin_two_body_energy(
+        q_beta, q_alpha, g_ba, jastrow_mat, jastrow_vec, norb, 1, chunk_size
+    )
+    return term_aa + term_bb + term_ab + term_ba
 
 
 def _compute_energy_spin_balanced(
@@ -1545,28 +1715,15 @@ def _compute_energy_spinless(
     det, rho = _transition_batch(phi, q)
     energy_1 = jnp.sum(h_bp[p, q_] * const * det * rho[rows, q_, p])
 
-    n_terms = norb**4
-    g_flat = g_bp.reshape(-1)
+    n_terms = (norb * (norb - 1) // 2) ** 2
 
     def two_body_chunk(indices):
-        p, q_, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
-        rows = jnp.arange(indices.shape[0])
-        delta = (
-            jnp.zeros((indices.shape[0], norb))
-            .at[rows, p]
-            .add(1)
-            .at[rows, r]
-            .add(1)
-            .at[rows, s]
-            .add(-1)
-            .at[rows, q_]
-            .add(-1)
+        return _spinless_two_body_canonical_terms(
+            q, g_bp, jastrow_mat, jastrow_vec, norb, indices
         )
-        phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-        det, rho = _transition_batch(phi, q)
-        wick = rho[rows, q_, p] * rho[rows, s, r] - rho[rows, s, p] * rho[rows, q_, r]
-        return jnp.sum(0.5 * g_flat[indices] * const * det * wick)
 
-    energy_2 = _chunked_sum(n_terms, chunk_size, two_body_chunk)
+    energy_2 = (
+        0.0 if n_terms == 0 else _chunked_term_sum(n_terms, chunk_size, two_body_chunk)
+    )
 
     return jnp.real(constant + energy_1 + energy_2)
