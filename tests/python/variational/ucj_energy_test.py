@@ -236,3 +236,97 @@ def test_ucj_energy_chunk_size_nondivisor():
         chunk_size=7,
     )
     np.testing.assert_allclose(chunked, unchunked)
+
+
+def test_ucj_energy_and_grad():
+    """Test UCJ energy-and-gradient wrappers."""
+    norb = 3
+
+    nelec = (1, 1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    value, grad = ffsim.ucj_energy_and_grad_spin_balanced(
+        ucj_op, mol_hamiltonian, nelec, chunk_size=5
+    )
+    np.testing.assert_allclose(
+        value, ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
+    )
+    assert grad.shape == ucj_op.to_parameters().shape
+
+    ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    value, grad = ffsim.ucj_energy_and_grad(ucj_op, mol_hamiltonian, nelec)
+    np.testing.assert_allclose(
+        value, ffsim.ucj_energy_spin_unbalanced(ucj_op, mol_hamiltonian, nelec)
+    )
+    assert grad.shape == ucj_op.to_parameters().shape
+
+    nelec_spinless = 2
+    mol_hamiltonian_spinless = ffsim.random.random_molecular_hamiltonian_spinless(
+        norb, seed=RNG
+    )
+    ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    interaction_pairs = [(0, 0), (0, 1), (1, 2)]
+    value, grad = ffsim.ucj_energy_and_grad_spinless(
+        ucj_op_spinless,
+        mol_hamiltonian_spinless,
+        nelec_spinless,
+        interaction_pairs=interaction_pairs,
+    )
+    params = ucj_op_spinless.to_parameters(interaction_pairs=interaction_pairs)
+    restricted_ucj_op_spinless = ffsim.UCJOpSpinless.from_parameters(
+        params,
+        norb=norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=True,
+    )
+    np.testing.assert_allclose(
+        value,
+        ffsim.ucj_energy_spinless(
+            restricted_ucj_op_spinless, mol_hamiltonian_spinless, nelec_spinless
+        ),
+    )
+    assert grad.shape == params.shape
+
+    eps = 1e-6
+    index = 0
+    step = np.zeros_like(params)
+    step[index] = eps
+    plus_op = ffsim.UCJOpSpinless.from_parameters(
+        params + step,
+        norb=norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=True,
+    )
+    minus_op = ffsim.UCJOpSpinless.from_parameters(
+        params - step,
+        norb=norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=True,
+    )
+    finite_diff = (
+        ffsim.ucj_energy_spinless(plus_op, mol_hamiltonian_spinless, nelec_spinless)
+        - ffsim.ucj_energy_spinless(minus_op, mol_hamiltonian_spinless, nelec_spinless)
+    ) / (2 * eps)
+    np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
