@@ -5,6 +5,7 @@ from __future__ import annotations
 import functools
 import itertools
 from collections.abc import Sequence
+from typing import Literal, cast, overload
 
 import jax
 import jax.numpy as jnp
@@ -36,7 +37,7 @@ def ucj_energy(
     occupied_orbitals=None,
     chunk_size: int | None = None,
 ) -> float:
-    """Convenience dispatcher for UCJ energy calculation."""
+    """Dispatcher for UCJ energy calculation."""
 
     if isinstance(ucj_op, UCJOpSpinBalanced) and isinstance(
         hamiltonian, MolecularHamiltonian
@@ -88,7 +89,7 @@ def ucj_energy_and_grad(
     occupied_orbitals=None,
     chunk_size: int | None = None,
 ) -> tuple[float, np.ndarray]:
-    """Convenience dispatcher for UCJ energy and gradient calculation."""
+    """Dispatcher for UCJ energy and gradient calculation."""
 
     if isinstance(ucj_op, UCJOpSpinBalanced) and isinstance(
         hamiltonian, MolecularHamiltonian
@@ -153,7 +154,7 @@ def optimize_ucj_energy(
         scipy.optimize.OptimizeResult,
     ]
 ):
-    """Convenience dispatcher for UCJ energy optimization."""
+    """Dispatcher for UCJ energy optimization."""
 
     if isinstance(initial_ucj_op, UCJOpSpinBalanced) and isinstance(
         hamiltonian, MolecularHamiltonian
@@ -333,14 +334,19 @@ def ucj_energy_and_grad_spin_balanced(
 
     norb = ucj_op.norb
     with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    triu_indices = cast(
+        list[tuple[int, int]],
+        list(itertools.combinations_with_replacement(range(norb), 2)),
+    )
     pairs_aa, pairs_ab = (
         interaction_pairs if interaction_pairs is not None else (None, None)
     )
     validate_interaction_pairs(pairs_aa, ordered=False)
     validate_interaction_pairs(pairs_ab, ordered=False)
-    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
-    pairs_ab = triu_indices if pairs_ab is None else pairs_ab
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = triu_indices
     interaction_pairs_key = (
         _interaction_pairs_key(pairs_aa),
         _interaction_pairs_key(pairs_ab),
@@ -359,6 +365,57 @@ def ucj_energy_and_grad_spin_balanced(
         ucj_op.to_parameters(interaction_pairs=interaction_pairs),
         hamiltonian,
     )
+
+
+@overload
+def optimize_ucj_energy_spin_balanced(
+    initial_ucj_op: UCJOpSpinBalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[False] = False,
+) -> UCJOpSpinBalanced: ...
+
+
+@overload
+def optimize_ucj_energy_spin_balanced(
+    initial_ucj_op: UCJOpSpinBalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[True] = True,
+) -> tuple[UCJOpSpinBalanced, scipy.optimize.OptimizeResult]: ...
+
+
+@overload
+def optimize_ucj_energy_spin_balanced(
+    initial_ucj_op: UCJOpSpinBalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: bool = False,
+) -> UCJOpSpinBalanced | tuple[UCJOpSpinBalanced, scipy.optimize.OptimizeResult]: ...
 
 
 def optimize_ucj_energy_spin_balanced(
@@ -409,14 +466,19 @@ def optimize_ucj_energy_spin_balanced(
 
     norb = initial_ucj_op.norb
     with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    triu_indices = cast(
+        list[tuple[int, int]],
+        list(itertools.combinations_with_replacement(range(norb), 2)),
+    )
     pairs_aa, pairs_ab = (
         interaction_pairs if interaction_pairs is not None else (None, None)
     )
     validate_interaction_pairs(pairs_aa, ordered=False)
     validate_interaction_pairs(pairs_ab, ordered=False)
-    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
-    pairs_ab = triu_indices if pairs_ab is None else pairs_ab
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = triu_indices
     interaction_pairs_key = (
         _interaction_pairs_key(pairs_aa),
         _interaction_pairs_key(pairs_ab),
@@ -518,16 +580,16 @@ def ucj_energy_spin_unbalanced(
 
     one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
     two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
-    h_alpha, g_aa = _propagate_through_orbital_rotations(
+    h_alpha, g_alpha_alpha = _propagate_through_orbital_rotations(
         one_body_tensor, two_body_tensor, jnp.asarray(u_alpha)
     )
-    h_beta, g_bb = _propagate_through_orbital_rotations(
+    h_beta, g_beta_beta = _propagate_through_orbital_rotations(
         one_body_tensor, two_body_tensor, jnp.asarray(u_beta)
     )
-    g_ab = _propagate_spin_sector_tensor(
+    g_alpha_beta = _propagate_spin_sector_tensor(
         two_body_tensor, jnp.asarray(u_alpha), jnp.asarray(u_beta)
     )
-    g_ba = _propagate_spin_sector_tensor(
+    g_beta_alpha = _propagate_spin_sector_tensor(
         two_body_tensor, jnp.asarray(u_beta), jnp.asarray(u_alpha)
     )
 
@@ -544,10 +606,10 @@ def ucj_energy_spin_unbalanced(
             jnp.asarray(hamiltonian.constant),
             h_alpha,
             h_beta,
-            g_aa,
-            g_ab,
-            g_ba,
-            g_bb,
+            g_alpha_alpha,
+            g_alpha_beta,
+            g_beta_alpha,
+            g_beta_beta,
             jastrow_mat,
             jastrow_vec,
             norb,
@@ -595,17 +657,25 @@ def ucj_energy_and_grad_spin_unbalanced(
 
     norb = ucj_op.norb
     with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
-    mat_indices = list(itertools.product(range(norb), repeat=2))
+    triu_indices = cast(
+        list[tuple[int, int]],
+        list(itertools.combinations_with_replacement(range(norb), 2)),
+    )
+    mat_indices = cast(
+        list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
+    )
     pairs_aa, pairs_ab, pairs_bb = (
         interaction_pairs if interaction_pairs is not None else (None, None, None)
     )
     validate_interaction_pairs(pairs_aa, ordered=False)
     validate_interaction_pairs(pairs_ab, ordered=True)
     validate_interaction_pairs(pairs_bb, ordered=False)
-    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
-    pairs_ab = mat_indices if pairs_ab is None else pairs_ab
-    pairs_bb = triu_indices if pairs_bb is None else pairs_bb
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = mat_indices
+    if pairs_bb is None:
+        pairs_bb = triu_indices
     interaction_pairs_key = (
         _interaction_pairs_key(pairs_aa),
         _interaction_pairs_key(pairs_ab),
@@ -625,6 +695,71 @@ def ucj_energy_and_grad_spin_unbalanced(
         ucj_op.to_parameters(interaction_pairs),
         hamiltonian,
     )
+
+
+@overload
+def optimize_ucj_energy_spin_unbalanced(
+    initial_ucj_op: UCJOpSpinUnbalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[False] = False,
+) -> UCJOpSpinUnbalanced: ...
+
+
+@overload
+def optimize_ucj_energy_spin_unbalanced(
+    initial_ucj_op: UCJOpSpinUnbalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[True] = True,
+) -> tuple[UCJOpSpinUnbalanced, scipy.optimize.OptimizeResult]: ...
+
+
+@overload
+def optimize_ucj_energy_spin_unbalanced(
+    initial_ucj_op: UCJOpSpinUnbalanced,
+    hamiltonian: MolecularHamiltonian,
+    nelec: tuple[int, int],
+    *,
+    interaction_pairs: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: bool = False,
+) -> (
+    UCJOpSpinUnbalanced | tuple[UCJOpSpinUnbalanced, scipy.optimize.OptimizeResult]
+): ...
 
 
 def optimize_ucj_energy_spin_unbalanced(
@@ -679,17 +814,25 @@ def optimize_ucj_energy_spin_unbalanced(
 
     norb = initial_ucj_op.norb
     with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
-    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
-    mat_indices = list(itertools.product(range(norb), repeat=2))
+    triu_indices = cast(
+        list[tuple[int, int]],
+        list(itertools.combinations_with_replacement(range(norb), 2)),
+    )
+    mat_indices = cast(
+        list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
+    )
     pairs_aa, pairs_ab, pairs_bb = (
         interaction_pairs if interaction_pairs is not None else (None, None, None)
     )
     validate_interaction_pairs(pairs_aa, ordered=False)
     validate_interaction_pairs(pairs_ab, ordered=True)
     validate_interaction_pairs(pairs_bb, ordered=False)
-    pairs_aa = triu_indices if pairs_aa is None else pairs_aa
-    pairs_ab = mat_indices if pairs_ab is None else pairs_ab
-    pairs_bb = triu_indices if pairs_bb is None else pairs_bb
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = mat_indices
+    if pairs_bb is None:
+        pairs_bb = triu_indices
     interaction_pairs_key = (
         _interaction_pairs_key(pairs_aa),
         _interaction_pairs_key(pairs_ab),
@@ -823,7 +966,10 @@ def ucj_energy_and_grad_spinless(
     with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
     validate_interaction_pairs(interaction_pairs, ordered=False)
     interaction_pairs_resolved = (
-        list(itertools.combinations_with_replacement(range(norb), 2))
+        cast(
+            list[tuple[int, int]],
+            list(itertools.combinations_with_replacement(range(norb), 2)),
+        )
         if interaction_pairs is None
         else interaction_pairs
     )
@@ -844,6 +990,54 @@ def ucj_energy_and_grad_spinless(
         ucj_op.to_parameters(interaction_pairs=interaction_pairs),
         hamiltonian,
     )
+
+
+@overload
+def optimize_ucj_energy_spinless(
+    initial_ucj_op: UCJOpSpinless,
+    hamiltonian: MolecularHamiltonianSpinless,
+    nelec: int,
+    *,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    occupied_orbitals: Sequence[int] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[False] = False,
+) -> UCJOpSpinless: ...
+
+
+@overload
+def optimize_ucj_energy_spinless(
+    initial_ucj_op: UCJOpSpinless,
+    hamiltonian: MolecularHamiltonianSpinless,
+    nelec: int,
+    *,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    occupied_orbitals: Sequence[int] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: Literal[True] = True,
+) -> tuple[UCJOpSpinless, scipy.optimize.OptimizeResult]: ...
+
+
+@overload
+def optimize_ucj_energy_spinless(
+    initial_ucj_op: UCJOpSpinless,
+    hamiltonian: MolecularHamiltonianSpinless,
+    nelec: int,
+    *,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    occupied_orbitals: Sequence[int] | None = None,
+    chunk_size: int | None = None,
+    method: str = "L-BFGS-B",
+    callback=None,
+    options: dict | None = None,
+    return_optimize_result: bool = False,
+) -> UCJOpSpinless | tuple[UCJOpSpinless, scipy.optimize.OptimizeResult]: ...
 
 
 def optimize_ucj_energy_spinless(
@@ -895,7 +1089,10 @@ def optimize_ucj_energy_spinless(
     with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
     validate_interaction_pairs(interaction_pairs, ordered=False)
     interaction_pairs_resolved = (
-        list(itertools.combinations_with_replacement(range(norb), 2))
+        cast(
+            list[tuple[int, int]],
+            list(itertools.combinations_with_replacement(range(norb), 2)),
+        )
         if interaction_pairs is None
         else interaction_pairs
     )
@@ -1057,7 +1254,7 @@ def _make_spin_balanced_objective(
     chunk_size: int | None,
 ):
     """Build a jitted value-and-gradient function for spin-balanced UCJ energy."""
-    interaction_pairs = interaction_pairs_key
+    interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
     occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
     occupied_beta = jnp.asarray(occupied_orbitals_key[1])
 
@@ -1085,7 +1282,7 @@ def _make_spin_balanced_objective(
             )[0]
             index += n_diag_coulomb_params
             diag_coulomb_mats.append(mat)
-        diag_coulomb_mats = jnp.stack(diag_coulomb_mats)
+        diag_coulomb_mat_array = jnp.stack(diag_coulomb_mats)
 
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -1102,7 +1299,7 @@ def _make_spin_balanced_objective(
             one_body_tensor, two_body_tensor, u
         )
         jastrow_mat, jastrow_vec = _spin_balanced_jastrow_phase(
-            diag_coulomb_mats[0], diag_coulomb_mats[1], norb
+            diag_coulomb_mat_array[0], diag_coulomb_mat_array[1], norb
         )
         rotated_reference = orbital_rotation.conj().T
         q_alpha = rotated_reference[:, occupied_alpha]
@@ -1135,7 +1332,7 @@ def _make_spin_unbalanced_objective(
     chunk_size: int | None,
 ):
     """Build a jitted value-and-gradient function for spin-unbalanced UCJ energy."""
-    interaction_pairs = interaction_pairs_key
+    interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
     occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
     occupied_beta = jnp.asarray(occupied_orbitals_key[1])
 
@@ -1148,16 +1345,16 @@ def _make_spin_unbalanced_objective(
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         index = 0
 
-        orbital_rotations = []
+        orbital_rotation_list = []
         n_orbital_rotation_params = norb**2
         for _ in range(2):
-            orbital_rotations.append(
+            orbital_rotation_list.append(
                 unitary_from_parameters_jax(
                     params[index : index + n_orbital_rotation_params], dim=norb
                 )
             )
             index += n_orbital_rotation_params
-        orbital_rotations = jnp.stack(orbital_rotations)
+        orbital_rotations = jnp.stack(orbital_rotation_list)
 
         mat_aa = real_symmetrics_from_parameters_jax(
             params[index : index + len(pairs_aa)],
@@ -1184,15 +1381,15 @@ def _make_spin_unbalanced_objective(
 
         final_orbital_rotation = None
         if with_final_orbital_rotation:
-            final_orbital_rotation = []
+            final_orbital_rotation_list = []
             for _ in range(2):
-                final_orbital_rotation.append(
+                final_orbital_rotation_list.append(
                     unitary_from_parameters_jax(
                         params[index : index + n_orbital_rotation_params], dim=norb
                     )
                 )
                 index += n_orbital_rotation_params
-            final_orbital_rotation = jnp.stack(final_orbital_rotation)
+            final_orbital_rotation = jnp.stack(final_orbital_rotation_list)
         orbital_rotation_alpha, orbital_rotation_beta = orbital_rotations
         u_alpha = (
             orbital_rotation_alpha
@@ -1205,14 +1402,14 @@ def _make_spin_unbalanced_objective(
             else final_orbital_rotation[1] @ orbital_rotation_beta
         )
 
-        h_alpha, g_aa = _propagate_through_orbital_rotations(
+        h_alpha, g_alpha_alpha = _propagate_through_orbital_rotations(
             one_body_tensor, two_body_tensor, u_alpha
         )
-        h_beta, g_bb = _propagate_through_orbital_rotations(
+        h_beta, g_beta_beta = _propagate_through_orbital_rotations(
             one_body_tensor, two_body_tensor, u_beta
         )
-        g_ab = _propagate_spin_sector_tensor(two_body_tensor, u_alpha, u_beta)
-        g_ba = _propagate_spin_sector_tensor(two_body_tensor, u_beta, u_alpha)
+        g_alpha_beta = _propagate_spin_sector_tensor(two_body_tensor, u_alpha, u_beta)
+        g_beta_alpha = _propagate_spin_sector_tensor(two_body_tensor, u_beta, u_alpha)
 
         jastrow_mat, jastrow_vec = _spin_unbalanced_jastrow_phase(
             diag_coulomb_mats[0], diag_coulomb_mats[1], diag_coulomb_mats[2], norb
@@ -1227,10 +1424,10 @@ def _make_spin_unbalanced_objective(
             constant,
             h_alpha,
             h_beta,
-            g_aa,
-            g_ab,
-            g_ba,
-            g_bb,
+            g_alpha_alpha,
+            g_alpha_beta,
+            g_beta_alpha,
+            g_beta_beta,
             jastrow_mat,
             jastrow_vec,
             norb,
@@ -1249,7 +1446,7 @@ def _make_spinless_objective(
     chunk_size: int | None,
 ):
     """Build a jitted value-and-gradient function for spinless UCJ energy."""
-    interaction_pairs = interaction_pairs_key
+    interaction_pairs = list(interaction_pairs_key)
     occupied = jnp.asarray(occupied_orbitals_key)
 
     def energy(
@@ -1548,8 +1745,7 @@ def _same_spin_two_body_energy(
     if n_terms == 0:
         return 0.0
     p_all, q_all, r_all, s_all = (
-        jnp.asarray(array)
-        for array in _canonical_same_spin_two_body_indices(norb)
+        jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
     )
     n_spin_orbitals = 2 * norb
     offset = spin * norb
@@ -1581,12 +1777,7 @@ def _same_spin_two_body_energy(
             rho_sector[rows, q, p] * rho_sector[rows, s, r]
             - rho_sector[rows, s, p] * rho_sector[rows, q, r]
         )
-        coeff = (
-            g[p, q, r, s]
-            - g[r, q, p, s]
-            - g[p, s, r, q]
-            + g[r, s, p, q]
-        )
+        coeff = g[p, q, r, s] - g[r, q, p, s] - g[p, s, r, q] + g[r, s, p, q]
         return 0.5 * coeff * const * det_sector * det_other * wick
 
     return _chunked_term_sum(n_terms, chunk_size, term_chunk)
@@ -1648,29 +1839,57 @@ def _opposite_spin_two_body_energy(
 def _spinful_two_body_energy(
     q_alpha,
     q_beta,
-    g_aa,
-    g_ab,
-    g_ba,
-    g_bb,
+    g_alpha_alpha,
+    g_alpha_beta,
+    g_beta_alpha,
+    g_beta_beta,
     jastrow_mat,
     jastrow_vec,
     norb: int,
     chunk_size: int | None,
 ):
     """Evaluate all spin cases of the two-body Hamiltonian terms."""
-    term_aa = _same_spin_two_body_energy(
-        q_alpha, q_beta, g_aa, jastrow_mat, jastrow_vec, norb, 0, chunk_size
+    term_alpha_alpha = _same_spin_two_body_energy(
+        q_alpha,
+        q_beta,
+        g_alpha_alpha,
+        jastrow_mat,
+        jastrow_vec,
+        norb,
+        0,
+        chunk_size,
     )
-    term_bb = _same_spin_two_body_energy(
-        q_beta, q_alpha, g_bb, jastrow_mat, jastrow_vec, norb, 1, chunk_size
+    term_beta_beta = _same_spin_two_body_energy(
+        q_beta,
+        q_alpha,
+        g_beta_beta,
+        jastrow_mat,
+        jastrow_vec,
+        norb,
+        1,
+        chunk_size,
     )
-    term_ab = _opposite_spin_two_body_energy(
-        q_alpha, q_beta, g_ab, jastrow_mat, jastrow_vec, norb, 0, chunk_size
+    term_alpha_beta = _opposite_spin_two_body_energy(
+        q_alpha,
+        q_beta,
+        g_alpha_beta,
+        jastrow_mat,
+        jastrow_vec,
+        norb,
+        0,
+        chunk_size,
     )
-    term_ba = _opposite_spin_two_body_energy(
-        q_beta, q_alpha, g_ba, jastrow_mat, jastrow_vec, norb, 1, chunk_size
+    term_beta_alpha = _opposite_spin_two_body_energy(
+        q_beta,
+        q_alpha,
+        g_beta_alpha,
+        jastrow_mat,
+        jastrow_vec,
+        norb,
+        1,
+        chunk_size,
     )
-    return term_aa + term_bb + term_ab + term_ba
+    return term_alpha_alpha + term_beta_beta + term_alpha_beta + term_beta_alpha
 
 
 def _compute_energy_spin_balanced(
@@ -1765,10 +1984,10 @@ def _compute_energy_spin_unbalanced(
     constant,
     h_alpha,
     h_beta,
-    g_aa,
-    g_ab,
-    g_ba,
-    g_bb,
+    g_alpha_alpha,
+    g_alpha_beta,
+    g_beta_alpha,
+    g_beta_beta,
     jastrow_mat,
     jastrow_vec,
     norb: int,
@@ -1810,10 +2029,10 @@ def _compute_energy_spin_unbalanced(
     energy_2 = _spinful_two_body_energy(
         q_alpha,
         q_beta,
-        g_aa,
-        g_ab,
-        g_ba,
-        g_bb,
+        g_alpha_alpha,
+        g_alpha_beta,
+        g_beta_alpha,
+        g_beta_beta,
         jastrow_mat,
         jastrow_vec,
         norb,
@@ -1867,8 +2086,7 @@ def _compute_energy_spinless(
 
     n_terms = (norb * (norb - 1) // 2) ** 2
     p_all, q_all, r_all, s_all = (
-        jnp.asarray(array)
-        for array in _canonical_same_spin_two_body_indices(norb)
+        jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
     )
 
     def two_body_chunk(indices):
@@ -1891,10 +2109,7 @@ def _compute_energy_spinless(
         )
         phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
         det, rho = _transition_batch(phi, q)
-        wick = (
-            rho[rows, q_, p] * rho[rows, s, r]
-            - rho[rows, s, p] * rho[rows, q_, r]
-        )
+        wick = rho[rows, q_, p] * rho[rows, s, r] - rho[rows, s, p] * rho[rows, q_, r]
         coeff = (
             g_bp[p, q_, r, s]
             - g_bp[r, q_, p, s]
