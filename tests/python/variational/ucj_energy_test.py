@@ -245,7 +245,7 @@ def test_ucj_energy_and_grad():
     nelec = (1, 1)
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
 
-    ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+    ucj_op_balanced = ffsim.random.random_ucj_op_spin_balanced(
         norb,
         n_reps=1,
         with_final_orbital_rotation=True,
@@ -253,25 +253,26 @@ def test_ucj_energy_and_grad():
         seed=RNG,
     )
     value, grad = ffsim.ucj_energy_and_grad_spin_balanced(
-        ucj_op, mol_hamiltonian, nelec, chunk_size=5
+        ucj_op_balanced, mol_hamiltonian, nelec, chunk_size=5
     )
     np.testing.assert_allclose(
-        value, ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
+        value, ffsim.ucj_energy_spin_balanced(ucj_op_balanced, mol_hamiltonian, nelec)
     )
-    assert grad.shape == ucj_op.to_parameters().shape
+    assert grad.shape == ucj_op_balanced.to_parameters().shape
 
-    ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
+    ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb,
         n_reps=1,
         with_final_orbital_rotation=True,
         diag_coulomb_scale=0.5,
         seed=RNG,
     )
-    value, grad = ffsim.ucj_energy_and_grad(ucj_op, mol_hamiltonian, nelec)
+    value, grad = ffsim.ucj_energy_and_grad(ucj_op_unbalanced, mol_hamiltonian, nelec)
     np.testing.assert_allclose(
-        value, ffsim.ucj_energy_spin_unbalanced(ucj_op, mol_hamiltonian, nelec)
+        value,
+        ffsim.ucj_energy_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec),
     )
-    assert grad.shape == ucj_op.to_parameters().shape
+    assert grad.shape == ucj_op_unbalanced.to_parameters().shape
 
     nelec_spinless = 2
     mol_hamiltonian_spinless = ffsim.random.random_molecular_hamiltonian_spinless(
