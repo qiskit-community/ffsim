@@ -62,20 +62,27 @@ class MolecularHamiltonian(
     @cached_property
     def one_body_tensor_spinless(self) -> np.ndarray:
         """The one-body tensor in spinless format."""
-        return scipy.linalg.block_diag(self.one_body_tensor, self.one_body_tensor)
+        return self.to_spinless().one_body_tensor
 
     @cached_property
     def two_body_tensor_spinless(self) -> np.ndarray:
         """The two-body tensor in spinless format."""
+        return self.to_spinless().two_body_tensor
+
+    def to_spinless(self) -> MolecularHamiltonianSpinless:
+        """Convert to a spinless molecular Hamiltonian."""
         norb = self.norb
-        tensor = np.zeros(
+        one_body = scipy.linalg.block_diag(self.one_body_tensor, self.one_body_tensor)
+        two_body = np.zeros(
             (2 * norb, 2 * norb, 2 * norb, 2 * norb), dtype=self.two_body_tensor.dtype
         )
-        tensor[:norb, :norb, :norb, :norb] = self.two_body_tensor
-        tensor[:norb, :norb, norb:, norb:] = self.two_body_tensor
-        tensor[norb:, norb:, :norb, :norb] = self.two_body_tensor
-        tensor[norb:, norb:, norb:, norb:] = self.two_body_tensor
-        return tensor
+        two_body[:norb, :norb, :norb, :norb] = self.two_body_tensor
+        two_body[:norb, :norb, norb:, norb:] = self.two_body_tensor
+        two_body[norb:, norb:, :norb, :norb] = self.two_body_tensor
+        two_body[norb:, norb:, norb:, norb:] = self.two_body_tensor
+        return MolecularHamiltonianSpinless(
+            one_body_tensor=one_body, two_body_tensor=two_body, constant=self.constant
+        )
 
     def rotated(self, orbital_rotation: np.ndarray) -> MolecularHamiltonian:
         r"""Return the Hamiltonian in a rotated orbital basis.

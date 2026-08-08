@@ -200,14 +200,10 @@ def test_spinless_tensors(norb: int, nelec: tuple[int, int]):
     linop = ffsim.linear_operator(mol_hamiltonian, norb, nelec)
     result = linop @ vec
 
-    mol_hamiltonian_spinless = ffsim.MolecularHamiltonian(
-        one_body_tensor=mol_hamiltonian.one_body_tensor_spinless,
-        two_body_tensor=mol_hamiltonian.two_body_tensor_spinless,
-        constant=mol_hamiltonian.constant,
-    )
+    mol_hamiltonian_spinless = mol_hamiltonian.to_spinless()
     vec_spinless = ffsim.spinful_to_spinless_vec(vec, norb, nelec)
     linop_spinless = ffsim.linear_operator(
-        mol_hamiltonian_spinless, 2 * norb, (sum(nelec), 0)
+        mol_hamiltonian_spinless, 2 * norb, sum(nelec)
     )
     result_spinless = linop_spinless @ vec_spinless
 
