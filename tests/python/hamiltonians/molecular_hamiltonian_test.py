@@ -324,6 +324,21 @@ def test_approx_eq_spinless():
 
 
 @pytest.mark.parametrize("norb, nelec", NORB_NELEC)
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_linear_operator_unrestricted(norb: int, nelec: tuple[int, int], dtype):
+    """Test linear operator for MolecularHamiltonianUnrestricted."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=dtype
+    )
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    linop = ffsim.linear_operator(hamiltonian, norb, nelec)
+    linop_ferm = ffsim.linear_operator(ffsim.fermion_operator(hamiltonian), norb, nelec)
+    np.testing.assert_allclose(linop @ vec, linop_ferm @ vec)
+    np.testing.assert_allclose(linop.adjoint() @ vec, linop_ferm.adjoint() @ vec)
+
+
+@pytest.mark.parametrize("norb, nelec", NORB_NELEC)
 def test_diag_and_trace_unrestricted(norb: int, nelec: tuple[int, int]):
     """Test computing diagonal and trace for MolecularHamiltonianUnrestricted."""
     # TODO remove dtype=float once complex is supported

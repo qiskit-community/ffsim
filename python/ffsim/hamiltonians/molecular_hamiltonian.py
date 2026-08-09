@@ -22,7 +22,7 @@ from pyscf.fci.direct_uhf import make_hdiag as make_hdiag_uhf
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import protocols
-from ffsim.contract.two_body import two_body_linop
+from ffsim.contract.two_body import two_body_linop, two_body_linop_unrestricted
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 
 
@@ -565,8 +565,20 @@ class MolecularHamiltonianUnrestricted(
     ) -> LinearOperator:
         """Return a SciPy LinearOperator representing the object."""
         assert isinstance(nelec, tuple)
-        return protocols.linear_operator(
-            self._fermion_operator_(), norb=norb, nelec=nelec
+        if np.iscomplexobj(self.one_body_tensors) or np.iscomplexobj(
+            self.two_body_tensors
+        ):
+            # PySCF does not provide a spin-unrestricted FCI contraction for complex
+            # integrals, so fall back to the FermionOperator representation.
+            return protocols.linear_operator(
+                self._fermion_operator_(), norb=norb, nelec=nelec
+            )
+        return two_body_linop_unrestricted(
+            self.two_body_tensors,
+            norb=norb,
+            nelec=nelec,
+            one_body_tensors=self.one_body_tensors,
+            constant=self.constant,
         )
 
     def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
