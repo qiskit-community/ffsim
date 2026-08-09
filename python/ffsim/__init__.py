@@ -31,6 +31,7 @@ from ffsim.hamiltonians import (
     DoubleFactorizedHamiltonian,
     MolecularHamiltonian,
     MolecularHamiltonianSpinless,
+    MolecularHamiltonianUnrestricted,
     SingleFactorizedHamiltonian,
 )
 from ffsim.init_cache import init_cache
@@ -133,6 +134,7 @@ __all__ = [
     "MolecularData",
     "MolecularHamiltonian",
     "MolecularHamiltonianSpinless",
+    "MolecularHamiltonianUnrestricted",
     "NumNumAnsatzOpSpinBalanced",
     "ProductStateSum",
     "ReducedDensityMatrix",

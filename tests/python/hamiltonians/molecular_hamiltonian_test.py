@@ -380,3 +380,232 @@ def test_from_fermion_operator_invalid(norb: int):
     op = ffsim.FermionOperator({(ffsim.cre_a(3),): 1.0})
     with pytest.raises(ValueError, match="term"):
         _ = ffsim.MolecularHamiltonian.from_fermion_operator(op)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_unrestricted_rotated(norb: int, nelec: tuple[int, int], dtype):
+    """Test rotating with a different orbital rotation for each spin sector."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=dtype
+    )
+    if dtype is complex:
+        rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
+        rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
+    else:
+        rotation_a = ffsim.random.random_orthogonal(norb, seed=RNG)
+        rotation_b = ffsim.random.random_orthogonal(norb, seed=RNG)
+    rotated = hamiltonian.rotated((rotation_a, rotation_b))
+
+    linop = ffsim.linear_operator(hamiltonian, norb, nelec)
+    linop_rotated = ffsim.linear_operator(rotated, norb, nelec)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    # test definition
+    actual = linop_rotated @ vec
+    expected = ffsim.apply_orbital_rotation(
+        vec, (rotation_a.T.conj(), rotation_b.T.conj()), norb, nelec
+    )
+    expected = linop @ expected
+    expected = ffsim.apply_orbital_rotation(
+        expected, (rotation_a, rotation_b), norb, nelec
+    )
+    np.testing.assert_allclose(actual, expected)
+
+    # test expectation is preserved
+    rotated_vec = ffsim.apply_orbital_rotation(
+        vec, (rotation_a, rotation_b), norb, nelec
+    )
+    original_expectation = np.vdot(vec, linop @ vec)
+    rotated_expectation = np.vdot(rotated_vec, linop_rotated @ rotated_vec)
+    np.testing.assert_allclose(original_expectation, rotated_expectation)
+
+
+@pytest.mark.parametrize("norb", [2, 4, 5])
+def test_unrestricted_rotated_input_forms(norb: int):
+    """Test the accepted forms of the orbital rotation argument."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(norb, seed=RNG)
+    mat_a = ffsim.random.random_unitary(norb, seed=RNG)
+    mat_b = ffsim.random.random_unitary(norb, seed=RNG)
+    eye = np.eye(norb)
+
+    # a single array applies the same rotation to both spin sectors
+    assert ffsim.approx_eq(
+        hamiltonian.rotated(mat_a), hamiltonian.rotated((mat_a, mat_a))
+    )
+
+    # a stacked array is equivalent to a pair
+    assert ffsim.approx_eq(
+        hamiltonian.rotated(np.stack([mat_a, mat_b])),
+        hamiltonian.rotated((mat_a, mat_b)),
+    )
+
+    # None means no operation is applied to that spin sector
+    assert ffsim.approx_eq(
+        hamiltonian.rotated((mat_a, None)), hamiltonian.rotated((mat_a, eye))
+    )
+    assert ffsim.approx_eq(
+        hamiltonian.rotated((None, mat_b)), hamiltonian.rotated((eye, mat_b))
+    )
+    assert ffsim.approx_eq(hamiltonian.rotated((None, None)), hamiltonian)
+
+
+@pytest.mark.parametrize("norb", [1, 4, 5])
+def test_unrestricted_rotated_matches_molecular_hamiltonian(norb: int):
+    """Test that rotating commutes with conversion for a spin-independent rotation."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    assert ffsim.approx_eq(
+        mol_hamiltonian.to_unrestricted().rotated(rotation),
+        mol_hamiltonian.rotated(rotation).to_unrestricted(),
+    )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_to_unrestricted(norb: int, nelec: tuple[int, int]):
+    """Test converting a molecular Hamiltonian to unrestricted form."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    actual = ffsim.linear_operator(mol_hamiltonian.to_unrestricted(), norb, nelec) @ vec
+    expected = ffsim.linear_operator(mol_hamiltonian, norb, nelec) @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_unrestricted_fermion_operator(norb: int, nelec: tuple[int, int]):
+    """Test fermion operator."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(norb, seed=RNG)
+    op = ffsim.fermion_operator(hamiltonian)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    actual = ffsim.linear_operator(op, norb, nelec) @ vec
+    expected = ffsim.linear_operator(hamiltonian, norb, nelec) @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (1, (0, 0)),
+        (1, (0, 1)),
+        (4, (2, 2)),
+        (4, (2, 4)),
+        (5, (3, 2)),
+    ],
+)
+def test_unrestricted_diag_and_trace(norb: int, nelec: tuple[int, int]):
+    """Test computing diagonal and trace."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=float
+    )
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    dim = ffsim.dim(norb, nelec)
+    diag = ffsim.diag(hamiltonian, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(diag, np.diag(linop @ np.eye(dim)))
+    np.testing.assert_allclose(
+        ffsim.trace(hamiltonian, norb=norb, nelec=nelec), np.sum(diag)
+    )
+
+
+def test_unrestricted_diag_complex_raises():
+    """Test that computing the diagonal of a complex Hamiltonian raises an error."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        4, seed=RNG, dtype=complex
+    )
+    with pytest.raises(NotImplementedError, match="complex"):
+        _ = ffsim.diag(hamiltonian, norb=4, nelec=(2, 2))
+
+
+def test_unrestricted_approx_eq():
+    """Test approximate equality."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(4, seed=RNG)
+    other = dataclasses.replace(
+        hamiltonian,
+        one_body_tensors=hamiltonian.one_body_tensors + 1e-7,
+        two_body_tensors=hamiltonian.two_body_tensors + 1e-7,
+    )
+    assert ffsim.approx_eq(hamiltonian, other, rtol=0, atol=1e-6)
+    assert not ffsim.approx_eq(hamiltonian, other, rtol=0, atol=1e-8)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_unrestricted_from_fermion_operator_roundtrip(norb: int):
+    """Test converting fermion operator to unrestricted molecular Hamiltonian."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(norb, seed=RNG)
+    roundtripped = ffsim.MolecularHamiltonianUnrestricted.from_fermion_operator(
+        ffsim.fermion_operator(hamiltonian)
+    )
+    assert ffsim.approx_eq(roundtripped, hamiltonian, atol=0)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_unrestricted_from_fermion_operator_invalid(norb: int):
+    """Test converting fermion operator with invalid terms."""
+    op = ffsim.FermionOperator({(ffsim.cre_a(3), ffsim.cre_b(2)): 1.0})
+    with pytest.raises(ValueError, match="quadratic"):
+        _ = ffsim.MolecularHamiltonianUnrestricted.from_fermion_operator(op)
+    op = ffsim.FermionOperator(
+        {(ffsim.cre_a(3), ffsim.cre_b(2), ffsim.cre_a(3), ffsim.cre_b(2)): 1.0}
+    )
+    with pytest.raises(ValueError, match="quartic"):
+        _ = ffsim.MolecularHamiltonianUnrestricted.from_fermion_operator(op)
+    op = ffsim.FermionOperator({(ffsim.cre_a(3),): 1.0})
+    with pytest.raises(ValueError, match="term"):
+        _ = ffsim.MolecularHamiltonianUnrestricted.from_fermion_operator(op)
+
+
+@pytest.mark.parametrize("norb, nelec", [(3, (2, 1)), (4, (2, 2))])
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_unrestricted_to_spinless(norb: int, nelec: tuple[int, int], dtype):
+    """Test converting to a spinless molecular Hamiltonian."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=dtype
+    )
+    hamiltonian_spinless = hamiltonian.to_spinless()
+
+    assert hamiltonian_spinless.norb == 2 * norb
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    result = ffsim.linear_operator(hamiltonian, norb, nelec) @ vec
+    linop_spinless = ffsim.linear_operator(hamiltonian_spinless, 2 * norb, sum(nelec))
+    result_spinless = linop_spinless @ ffsim.spinful_to_spinless_vec(vec, norb, nelec)
+
+    np.testing.assert_allclose(
+        result_spinless, ffsim.spinful_to_spinless_vec(result, norb, nelec)
+    )
+
+
+@pytest.mark.parametrize("norb", [1, 4, 5])
+def test_unrestricted_to_spinless_matches_molecular_hamiltonian(norb: int):
+    """Test that converting to spinless commutes with converting to unrestricted."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    assert ffsim.approx_eq(
+        mol_hamiltonian.to_unrestricted().to_spinless(),
+        mol_hamiltonian.to_spinless(),
+    )

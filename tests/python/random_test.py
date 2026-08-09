@@ -221,6 +221,41 @@ def test_random_fermion_hamiltonian():
     assert op == op.adjoint()
 
 
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_molecular_hamiltonian_unrestricted_symmetries(dtype):
+    """Test symmetries of the random spin-unrestricted molecular Hamiltonian."""
+    norb = 4
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=dtype
+    )
+    assert hamiltonian.one_body_tensors.dtype == dtype
+    assert hamiltonian.two_body_tensors.dtype == dtype
+    two_body_aa, two_body_ab, two_body_bb = hamiltonian.two_body_tensors
+
+    # The same-spin tensors are symmetric under exchanging their two index pairs.
+    np.testing.assert_allclose(two_body_aa, two_body_aa.transpose(2, 3, 0, 1))
+    np.testing.assert_allclose(two_body_bb, two_body_bb.transpose(2, 3, 0, 1))
+    # The alpha-beta tensor is not, since the beta-alpha term of the Hamiltonian
+    # supplies the transposed contribution.
+    assert not np.allclose(two_body_ab, two_body_ab.transpose(2, 3, 0, 1))
+    # All tensors retain the symmetry within each index pair that makes the
+    # Hamiltonian Hermitian.
+    for tensor in hamiltonian.two_body_tensors:
+        np.testing.assert_allclose(tensor, tensor.transpose(1, 0, 3, 2).conj())
+    for tensor in hamiltonian.one_body_tensors:
+        np.testing.assert_allclose(tensor, tensor.T.conj())
+
+    # The spin sectors are sampled independently.
+    assert not np.allclose(*hamiltonian.one_body_tensors)
+    assert not np.allclose(two_body_aa, two_body_bb)
+
+    # A Hamiltonian is Hermitian.
+    nelec = (2, 1)
+    dim = ffsim.dim(norb, nelec)
+    mat = ffsim.linear_operator(hamiltonian, norb, nelec) @ np.eye(dim)
+    np.testing.assert_allclose(mat, mat.T.conj(), atol=1e-12)
+
+
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
