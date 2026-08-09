@@ -71,7 +71,15 @@ class MolecularHamiltonian(
         return self.to_spinless().two_body_tensor
 
     def to_spinless(self) -> MolecularHamiltonianSpinless:
-        """Convert to a spinless molecular Hamiltonian."""
+        """Convert to a spinless molecular Hamiltonian.
+
+        Returns a :class:`MolecularHamiltonianSpinless` on ``2 * norb`` orbitals
+        representing the same Hamiltonian, with the spin alpha orbitals occupying the
+        first ``norb`` orbitals and the spin beta orbitals the last ``norb`` orbitals.
+
+        Returns:
+            The spinless molecular Hamiltonian.
+        """
         norb = self.norb
         one_body = scipy.linalg.block_diag(self.one_body_tensor, self.one_body_tensor)
         two_body = np.zeros(
@@ -515,7 +523,7 @@ class MolecularHamiltonianUnrestricted(
         )
 
     def to_spinless(self) -> MolecularHamiltonianSpinless:
-        r"""Convert to a spinless molecular Hamiltonian.
+        """Convert to a spinless molecular Hamiltonian.
 
         Returns a :class:`MolecularHamiltonianSpinless` on ``2 * norb`` orbitals
         representing the same Hamiltonian, with the spin alpha orbitals occupying the
