@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 
 import ffsim
 from ffsim.variational.uccsd import uccsd_restricted_linear_operator
@@ -116,6 +117,85 @@ def test_two_body_linop_hermitian_complex():
     result_contract = linop_contract.adjoint() @ vec
     result_ferm = linop_ferm.adjoint() @ vec
     np.testing.assert_allclose(result_contract, result_ferm)
+
+
+def test_two_body_linop_unrestricted_hermitian_real():
+    """Test converting real unrestricted two-body operator to a linear operator."""
+    norb = 5
+    nelec = (3, 2)
+
+    # Generate random unrestricted Hamiltonian
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=float
+    )
+
+    # Get linear operator from contract
+    linop_contract = ffsim.contract.two_body_linop_unrestricted(
+        hamiltonian.two_body_tensors,
+        norb=norb,
+        nelec=nelec,
+        one_body_tensors=hamiltonian.one_body_tensors,
+        constant=hamiltonian.constant,
+    )
+
+    # Get linear operator from FermionOperator
+    linop_ferm = ffsim.linear_operator(
+        ffsim.fermion_operator(hamiltonian), norb=norb, nelec=nelec
+    )
+
+    # Generate random vector
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    # Test operator application
+    result_contract = linop_contract @ vec
+    result_ferm = linop_ferm @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+
+    # Test adjoint operator application
+    result_contract = linop_contract.adjoint() @ vec
+    result_ferm = linop_ferm.adjoint() @ vec
+    np.testing.assert_allclose(result_contract, result_ferm)
+
+
+def test_two_body_linop_unrestricted_real_vector():
+    """Test unrestricted two-body linear operator applied to a real vector."""
+    norb = 4
+    nelec = (2, 2)
+
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=RNG, dtype=float
+    )
+    linop = ffsim.contract.two_body_linop_unrestricted(
+        hamiltonian.two_body_tensors,
+        norb=norb,
+        nelec=nelec,
+        one_body_tensors=hamiltonian.one_body_tensors,
+        constant=hamiltonian.constant,
+    )
+
+    vec = np.asarray(
+        ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG).real
+    )
+    np.testing.assert_allclose(linop @ vec, linop @ vec.astype(complex))
+
+
+def test_two_body_linop_unrestricted_complex_not_implemented():
+    """Test unrestricted two-body linear operator rejects complex tensors."""
+    norb = 4
+    nelec = (2, 2)
+
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(norb, seed=RNG)
+    with pytest.raises(NotImplementedError, match="complex"):
+        ffsim.contract.two_body_linop_unrestricted(
+            hamiltonian.two_body_tensors, norb=norb, nelec=nelec
+        )
+    with pytest.raises(NotImplementedError, match="complex"):
+        ffsim.contract.two_body_linop_unrestricted(
+            hamiltonian.two_body_tensors.real,
+            norb=norb,
+            nelec=nelec,
+            one_body_tensors=hamiltonian.one_body_tensors,
+        )
 
 
 def test_two_body_linop_antihermitian_real():

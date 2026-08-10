@@ -18,6 +18,7 @@ from ffsim.hamiltonians.double_factorized_hamiltonian import DoubleFactorizedHam
 from ffsim.hamiltonians.molecular_hamiltonian import (
     MolecularHamiltonian,
     MolecularHamiltonianSpinless,
+    MolecularHamiltonianUnrestricted,
 )
 from ffsim.hamiltonians.single_factorized_hamiltonian import SingleFactorizedHamiltonian
 
@@ -26,5 +27,6 @@ __all__ = [
     "DoubleFactorizedHamiltonian",
     "MolecularHamiltonian",
     "MolecularHamiltonianSpinless",
+    "MolecularHamiltonianUnrestricted",
     "SingleFactorizedHamiltonian",
 ]
