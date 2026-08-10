@@ -398,6 +398,80 @@ class MolecularHamiltonianSpinless(
             op += FermionOperator({(cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff})
         return op
 
+    @staticmethod
+    def from_fermion_operator(op: FermionOperator) -> MolecularHamiltonianSpinless:
+        r"""Initialize a MolecularHamiltonianSpinless from a FermionOperator.
+
+        The input operator must contain only terms of the following form:
+
+        - A real-valued constant
+        - :math:`a^\dagger_p a_q`
+        - :math:`a^\dagger_p a^\dagger_r a_s a_q`
+
+        Any other terms will cause an error to be raised. No attempt will be made to
+        normal-order terms.
+
+        Since the Hamiltonian is spinless, the fermionic actions in the input operator
+        must all carry the spin alpha label (see :func:`cre_a` and :func:`des_a`).
+
+        Args:
+            op: The FermionOperator from which to initialize the Hamiltonian.
+
+        Returns:
+            The MolecularHamiltonianSpinless represented by the input FermionOperator.
+        """
+        # extract number of orbitals
+        norb = 1 + max(orb for term in op for _, _, orb in term)
+
+        # initialize constant, one- and two-body tensors
+        constant: float = 0.0
+        one_body_tensor = np.zeros((norb, norb), dtype=complex)
+        two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
+
+        for term, coeff in op.items():
+            # constant term
+            if not term:
+                if coeff.imag:
+                    raise ValueError(
+                        f"Constant term must be real. Instead, got {coeff}."
+                    )
+                constant = coeff.real
+            # one-body term
+            elif len(term) == 2:
+                (_, _, p), (_, _, q) = term
+                if term != (cre_a(p), des_a(q)):
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        "MolecularHamiltonianSpinless. The quadratic term "
+                        f"{term} is not of the required form "
+                        r"a^\dagger_p a_q."
+                    )
+                one_body_tensor[p, q] += coeff
+            # two-body term
+            elif len(term) == 4:
+                (_, _, p), (_, _, r), (_, _, s), (_, _, q) = term
+                if term != (cre_a(p), cre_a(r), des_a(s), des_a(q)):
+                    raise ValueError(
+                        "FermionOperator cannot be converted to "
+                        "MolecularHamiltonianSpinless. The quartic term "
+                        f"{term} is not of the required form "
+                        r"a^\dagger_p a^\dagger_r a_s a_q."
+                    )
+                two_body_tensor[p, q, r, s] += 2 * coeff
+            # other terms
+            else:
+                raise ValueError(
+                    "FermionOperator cannot be converted to "
+                    f"MolecularHamiltonianSpinless. The term {term} is neither a "
+                    "constant, one-body, nor two-body term."
+                )
+
+        return MolecularHamiltonianSpinless(
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            constant=constant,
+        )
+
     def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
         if isinstance(other, MolecularHamiltonianSpinless):
             if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):

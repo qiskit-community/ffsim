@@ -290,6 +290,31 @@ def test_fermion_operator_spinless(norb: int, nelec: int):
     np.testing.assert_allclose(actual, expected)
 
 
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_from_fermion_operator_roundtrip_spinless(norb: int):
+    """Test converting fermion operator to spinless molecular Hamiltonian."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(norb, seed=RNG)
+    roundtripped = ffsim.MolecularHamiltonianSpinless.from_fermion_operator(
+        ffsim.fermion_operator(hamiltonian)
+    )
+    assert ffsim.approx_eq(roundtripped, hamiltonian, atol=0)
+
+
+def test_from_fermion_operator_invalid_spinless():
+    """Test converting fermion operator with invalid terms."""
+    op = ffsim.FermionOperator({(ffsim.cre_a(3), ffsim.cre_b(2)): 1.0})
+    with pytest.raises(ValueError, match="quadratic"):
+        _ = ffsim.MolecularHamiltonianSpinless.from_fermion_operator(op)
+    op = ffsim.FermionOperator(
+        {(ffsim.cre_a(3), ffsim.cre_b(2), ffsim.cre_a(3), ffsim.cre_b(2)): 1.0}
+    )
+    with pytest.raises(ValueError, match="quartic"):
+        _ = ffsim.MolecularHamiltonianSpinless.from_fermion_operator(op)
+    op = ffsim.FermionOperator({(ffsim.cre_a(3),): 1.0})
+    with pytest.raises(ValueError, match="term"):
+        _ = ffsim.MolecularHamiltonianSpinless.from_fermion_operator(op)
+
+
 @pytest.mark.parametrize("norb, nelec", NORB_NELEC_SPINLESS)
 @pytest.mark.parametrize("dtype", [float, complex])
 def test_rotated_spinless(norb: int, nelec: int, dtype):
