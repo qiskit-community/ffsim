@@ -16,13 +16,13 @@ from functools import cached_property
 
 import numpy as np
 import scipy.linalg
-from opt_einsum import contract
 from pyscf.fci.direct_nosym import make_hdiag
 from pyscf.fci.direct_uhf import make_hdiag as make_hdiag_uhf
 from scipy.sparse.linalg import LinearOperator
 
 from ffsim import protocols
 from ffsim.contract.two_body import two_body_linop, two_body_linop_unrestricted
+from ffsim.linalg.util import rotate_one_body_tensor, rotate_two_body_tensor
 from ffsim.operators import FermionOperator, cre_a, cre_b, des_a, des_b
 
 
@@ -110,25 +110,13 @@ class MolecularHamiltonian(
         Returns:
             The rotated Hamiltonian.
         """
-        one_body_tensor_rotated = contract(
-            "ab,Aa,Bb->AB",
-            self.one_body_tensor,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize="greedy",
-        )
-        two_body_tensor_rotated = contract(
-            "abcd,Aa,Bb,Cc,Dd->ABCD",
-            self.two_body_tensor,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize="greedy",
-        )
         return MolecularHamiltonian(
-            one_body_tensor=one_body_tensor_rotated,
-            two_body_tensor=two_body_tensor_rotated,
+            one_body_tensor=rotate_one_body_tensor(
+                self.one_body_tensor, orbital_rotation
+            ),
+            two_body_tensor=rotate_two_body_tensor(
+                self.two_body_tensor, orbital_rotation, orbital_rotation
+            ),
             constant=self.constant,
         )
 
@@ -336,25 +324,13 @@ class MolecularHamiltonianSpinless(
         Returns:
             The rotated Hamiltonian.
         """
-        one_body_tensor_rotated = contract(
-            "ab,Aa,Bb->AB",
-            self.one_body_tensor,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize="greedy",
-        )
-        two_body_tensor_rotated = contract(
-            "abcd,Aa,Bb,Cc,Dd->ABCD",
-            self.two_body_tensor,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize="greedy",
-        )
         return MolecularHamiltonianSpinless(
-            one_body_tensor=one_body_tensor_rotated,
-            two_body_tensor=two_body_tensor_rotated,
+            one_body_tensor=rotate_one_body_tensor(
+                self.one_body_tensor, orbital_rotation
+            ),
+            two_body_tensor=rotate_two_body_tensor(
+                self.two_body_tensor, orbital_rotation, orbital_rotation
+            ),
             constant=self.constant,
         )
 
@@ -582,15 +558,21 @@ class MolecularHamiltonianUnrestricted(
         return MolecularHamiltonianUnrestricted(
             one_body_tensors=np.stack(
                 [
-                    _rotate_one_body(self.one_body_tensors[0], rotation_a),
-                    _rotate_one_body(self.one_body_tensors[1], rotation_b),
+                    rotate_one_body_tensor(self.one_body_tensors[0], rotation_a),
+                    rotate_one_body_tensor(self.one_body_tensors[1], rotation_b),
                 ]
             ),
             two_body_tensors=np.stack(
                 [
-                    _rotate_two_body(self.two_body_tensors[0], rotation_a, rotation_a),
-                    _rotate_two_body(self.two_body_tensors[1], rotation_a, rotation_b),
-                    _rotate_two_body(self.two_body_tensors[2], rotation_b, rotation_b),
+                    rotate_two_body_tensor(
+                        self.two_body_tensors[0], rotation_a, rotation_a
+                    ),
+                    rotate_two_body_tensor(
+                        self.two_body_tensors[1], rotation_a, rotation_b
+                    ),
+                    rotate_two_body_tensor(
+                        self.two_body_tensors[2], rotation_b, rotation_b
+                    ),
                 ]
             ),
             constant=self.constant,
@@ -817,46 +799,3 @@ def _unpack_orbital_rotation(
         return orbital_rotation, orbital_rotation
     orbital_rotation_a, orbital_rotation_b = orbital_rotation
     return orbital_rotation_a, orbital_rotation_b
-
-
-def _rotate_one_body(
-    tensor: np.ndarray, orbital_rotation: np.ndarray | None
-) -> np.ndarray:
-    """Rotate a one-body tensor."""
-    if orbital_rotation is None:
-        return tensor
-    return contract(
-        "ab,Aa,Bb->AB",
-        tensor,
-        orbital_rotation,
-        orbital_rotation.conj(),
-        optimize="greedy",
-    )
-
-
-def _rotate_two_body(
-    tensor: np.ndarray,
-    orbital_rotation_1: np.ndarray | None,
-    orbital_rotation_2: np.ndarray | None,
-) -> np.ndarray:
-    """Rotate a two-body tensor.
-
-    The first orbital rotation acts on the first pair of indices and the second orbital
-    rotation acts on the second pair of indices.
-    """
-    if orbital_rotation_1 is None and orbital_rotation_2 is None:
-        return tensor
-    norb = tensor.shape[0]
-    if orbital_rotation_1 is None:
-        orbital_rotation_1 = np.eye(norb)
-    if orbital_rotation_2 is None:
-        orbital_rotation_2 = np.eye(norb)
-    return contract(
-        "abcd,Aa,Bb,Cc,Dd->ABCD",
-        tensor,
-        orbital_rotation_1,
-        orbital_rotation_1.conj(),
-        orbital_rotation_2,
-        orbital_rotation_2.conj(),
-        optimize="greedy",
-    )

@@ -13,11 +13,13 @@
 from __future__ import annotations
 
 import itertools
+from typing import overload
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 import scipy.linalg
+from opt_einsum import contract
 
 
 def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
@@ -735,3 +737,113 @@ def df_tensors_alpha_beta_from_params_jax(
         [diag_coulomb_mats_aa, diag_coulomb_mats_ab, diag_coulomb_mats_bb], axis=1
     )
     return diag_coulomb_mats, orbital_rotations
+
+
+@overload
+def rotate_one_body_tensor(
+    tensor: np.ndarray, orbital_rotation: np.ndarray | None
+) -> np.ndarray: ...
+
+
+@overload
+def rotate_one_body_tensor(
+    tensor: jax.Array, orbital_rotation: jax.Array | np.ndarray | None
+) -> jax.Array: ...
+
+
+def rotate_one_body_tensor(
+    tensor: jax.Array | np.ndarray,
+    orbital_rotation: jax.Array | np.ndarray | None,
+) -> jax.Array | np.ndarray:
+    """Rotate a one-body tensor.
+
+    Accepts and returns either NumPy or JAX arrays; the output array type matches the
+    inputs. Safe under ``jax.jit`` and ``jax.grad``.
+
+    Args:
+        tensor: The one-body tensor.
+        orbital_rotation: The orbital rotation. ``None`` means the identity.
+
+    Returns:
+        The rotated one-body tensor.
+    """
+    if orbital_rotation is None:
+        return tensor
+    return contract(
+        "ab,Aa,Bb->AB",
+        tensor,
+        orbital_rotation,
+        orbital_rotation.conj(),
+        optimize="greedy",
+    )
+
+
+@overload
+def rotate_two_body_tensor(
+    tensor: np.ndarray,
+    orbital_rotation_1: np.ndarray | None,
+    orbital_rotation_2: np.ndarray | None,
+) -> np.ndarray: ...
+
+
+@overload
+def rotate_two_body_tensor(
+    tensor: jax.Array,
+    orbital_rotation_1: jax.Array | np.ndarray | None,
+    orbital_rotation_2: jax.Array | np.ndarray | None,
+) -> jax.Array: ...
+
+
+def rotate_two_body_tensor(
+    tensor: jax.Array | np.ndarray,
+    orbital_rotation_1: jax.Array | np.ndarray | None,
+    orbital_rotation_2: jax.Array | np.ndarray | None,
+) -> jax.Array | np.ndarray:
+    """Rotate a two-body tensor.
+
+    The first orbital rotation acts on the first pair of indices and the second orbital
+    rotation acts on the second pair of indices.
+
+    Accepts and returns either NumPy or JAX arrays; the output array type matches the
+    inputs. Safe under ``jax.jit`` and ``jax.grad``.
+
+    Args:
+        tensor: The two-body tensor.
+        orbital_rotation_1: The orbital rotation acting on the first pair of indices.
+            ``None`` means the identity.
+        orbital_rotation_2: The orbital rotation acting on the second pair of indices.
+            ``None`` means the identity.
+
+    Returns:
+        The rotated two-body tensor.
+    """
+    # The first orbital rotation contracts only the first pair of indices and the second
+    # only the second pair, so a rotation that is the identity is simply omitted from
+    # the contraction rather than materialized.
+    if orbital_rotation_1 is None:
+        if orbital_rotation_2 is None:
+            return tensor
+        return contract(
+            "abcd,Cc,Dd->abCD",
+            tensor,
+            orbital_rotation_2,
+            orbital_rotation_2.conj(),
+            optimize="greedy",
+        )
+    if orbital_rotation_2 is None:
+        return contract(
+            "abcd,Aa,Bb->ABcd",
+            tensor,
+            orbital_rotation_1,
+            orbital_rotation_1.conj(),
+            optimize="greedy",
+        )
+    return contract(
+        "abcd,Aa,Bb,Cc,Dd->ABCD",
+        tensor,
+        orbital_rotation_1,
+        orbital_rotation_1.conj(),
+        orbital_rotation_2,
+        orbital_rotation_2.conj(),
+        optimize="greedy",
+    )
