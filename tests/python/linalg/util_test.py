@@ -10,8 +10,11 @@
 
 """Tests for linear algebra utilities."""
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import pytest
+from opt_einsum import contract
 
 import ffsim
 from ffsim.linalg.util import (
@@ -36,6 +39,8 @@ from ffsim.linalg.util import (
     real_symmetrics_from_parameters,
     real_symmetrics_from_parameters_jax,
     real_symmetrics_to_parameters,
+    rotate_one_body_tensor,
+    rotate_two_body_tensor,
     unitaries_from_parameters,
     unitaries_from_parameters_jax,
     unitaries_to_parameters,
@@ -644,3 +649,161 @@ def test_df_tensors_alpha_beta_parameters_custom_indices_jax_consistency(
     )
     np.testing.assert_allclose(diag_coulomb_jax, diag_coulomb_numpy)
     np.testing.assert_allclose(orb_rot_jax, orb_rot_numpy)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_one_body_tensor(norb: int):
+    """Test rotating a one-body tensor against an explicit matrix product."""
+    # A tensor with no symmetry, so that a misplaced conjugation is detectable.
+    tensor = RNG.normal(size=(norb, norb)) + 1j * RNG.normal(size=(norb, norb))
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    np.testing.assert_allclose(
+        rotate_one_body_tensor(tensor, orbital_rotation),
+        orbital_rotation @ tensor @ orbital_rotation.conj().T,
+        atol=1e-12,
+    )
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_two_body_tensor(norb: int):
+    """Test rotating a two-body tensor against an explicit nested rotation."""
+    tensor = RNG.normal(size=(norb,) * 4) + 1j * RNG.normal(size=(norb,) * 4)
+    orbital_rotation_1 = ffsim.random.random_unitary(norb, seed=RNG)
+    orbital_rotation_2 = ffsim.random.random_unitary(norb, seed=RNG)
+    # Rotating each pair of indices is a one-body rotation applied to that pair, so
+    # build the expected result by rotating one pair at a time.
+    expected = np.einsum(
+        "abcd,Aa,Bb->ABcd", tensor, orbital_rotation_1, orbital_rotation_1.conj()
+    )
+    expected = np.einsum(
+        "abcd,Cc,Dd->abCD", expected, orbital_rotation_2, orbital_rotation_2.conj()
+    )
+    np.testing.assert_allclose(
+        rotate_two_body_tensor(tensor, orbital_rotation_1, orbital_rotation_2),
+        expected,
+        atol=1e-12,
+    )
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_one_body_tensor_jax_consistent(norb: int):
+    """Test rotating a one-body tensor gives same results for JAX and NumPy arrays."""
+    tensor = ffsim.random.random_hermitian(norb, seed=RNG)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    result_numpy = rotate_one_body_tensor(tensor, orbital_rotation)
+    result_jax = rotate_one_body_tensor(
+        jnp.asarray(tensor), jnp.asarray(orbital_rotation)
+    )
+    np.testing.assert_allclose(result_jax, result_numpy)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_two_body_tensor_jax_consistent(norb: int):
+    """Test rotating a two-body tensor gives same results for JAX and NumPy arrays."""
+    tensor = ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=complex)
+    orbital_rotation_1 = ffsim.random.random_unitary(norb, seed=RNG)
+    orbital_rotation_2 = ffsim.random.random_unitary(norb, seed=RNG)
+    result_numpy = rotate_two_body_tensor(
+        tensor, orbital_rotation_1, orbital_rotation_2
+    )
+    result_jax = rotate_two_body_tensor(
+        jnp.asarray(tensor),
+        jnp.asarray(orbital_rotation_1),
+        jnp.asarray(orbital_rotation_2),
+    )
+    np.testing.assert_allclose(result_jax, result_numpy)
+
+    # The identity branches take separate code paths, so check them too.
+    for rotation_1, rotation_2 in [
+        (orbital_rotation_1, None),
+        (None, orbital_rotation_2),
+    ]:
+        np.testing.assert_allclose(
+            rotate_two_body_tensor(
+                jnp.asarray(tensor),
+                None if rotation_1 is None else jnp.asarray(rotation_1),
+                None if rotation_2 is None else jnp.asarray(rotation_2),
+            ),
+            rotate_two_body_tensor(tensor, rotation_1, rotation_2),
+        )
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_tensors_identity(norb: int):
+    """Test that passing None for an orbital rotation applies the identity."""
+    # A tensor with no index symmetries, so that rotating the first pair of indices
+    # gives a different result from rotating the second pair.
+    two_body_tensor = RNG.normal(size=(norb,) * 4) + 1j * RNG.normal(size=(norb,) * 4)
+    one_body_tensor = ffsim.random.random_hermitian(norb, seed=RNG)
+    # Distinct rotations, so that using the wrong one is detectable.
+    orbital_rotation_1 = ffsim.random.random_unitary(norb, seed=RNG)
+    orbital_rotation_2 = ffsim.random.random_unitary(norb, seed=RNG)
+    eye = np.eye(norb)
+
+    np.testing.assert_allclose(
+        rotate_one_body_tensor(one_body_tensor, None), one_body_tensor
+    )
+    np.testing.assert_allclose(
+        rotate_two_body_tensor(two_body_tensor, None, None), two_body_tensor
+    )
+    # Compare against an explicit contraction against the identity rather than against
+    # the function itself, so that both sides cannot drift together.
+    np.testing.assert_allclose(
+        rotate_two_body_tensor(two_body_tensor, orbital_rotation_1, None),
+        contract(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            two_body_tensor,
+            orbital_rotation_1,
+            orbital_rotation_1.conj(),
+            eye,
+            eye,
+            optimize="greedy",
+        ),
+    )
+    np.testing.assert_allclose(
+        rotate_two_body_tensor(two_body_tensor, None, orbital_rotation_2),
+        contract(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            two_body_tensor,
+            eye,
+            eye,
+            orbital_rotation_2,
+            orbital_rotation_2.conj(),
+            optimize="greedy",
+        ),
+    )
+    # The two identity branches rotate different index pairs, so on a tensor with no
+    # index symmetries they must disagree.
+    if norb > 1:
+        assert not np.allclose(
+            rotate_two_body_tensor(two_body_tensor, orbital_rotation_1, None),
+            rotate_two_body_tensor(two_body_tensor, None, orbital_rotation_1),
+        )
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_two_body_tensor_jit_grad(norb: int):
+    """Test rotating a two-body tensor is jittable and differentiable under JAX."""
+    tensor = jnp.asarray(
+        ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=complex)
+    )
+    params = RNG.normal(size=(norb, norb))
+
+    def loss(mat, rotate):
+        orbital_rotation = jax.scipy.linalg.expm(mat - mat.T).astype(complex)
+        return jnp.real(jnp.sum(rotate(tensor, orbital_rotation, orbital_rotation)))
+
+    def rotate_reference(tensor, orbital_rotation_1, orbital_rotation_2):
+        return jnp.einsum(
+            "abcd,Aa,Bb,Cc,Dd->ABCD",
+            tensor,
+            orbital_rotation_1,
+            orbital_rotation_1.conj(),
+            orbital_rotation_2,
+            orbital_rotation_2.conj(),
+        )
+
+    grad = jax.jit(jax.grad(loss), static_argnums=1)(params, rotate_two_body_tensor)
+    grad_expected = jax.jit(jax.grad(loss), static_argnums=1)(params, rotate_reference)
+    assert np.all(np.isfinite(grad))
+    np.testing.assert_allclose(grad, grad_expected, atol=1e-12)
