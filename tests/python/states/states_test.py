@@ -454,10 +454,11 @@ def test_spinful_to_spinless_rdm_energy(norb: int, nelec: tuple[int, int]):
     rdm1, rdm2 = ffsim.rdms(vec, norb=norb, nelec=nelec, rank=2, spin_summed=False)
     rdm1_spinless = ffsim.spinful_to_spinless_rdm1(*rdm1)
     rdm2_spinless = ffsim.spinful_to_spinless_rdm2(*rdm2)
+    mol_ham_spinless = mol_ham.to_spinless()
     energy_spinless = (
-        np.einsum("pq,pq->", rdm1_spinless, mol_ham.one_body_tensor_spinless)
+        np.einsum("pq,pq->", rdm1_spinless, mol_ham_spinless.one_body_tensor)
         + 0.5
-        * np.einsum("pqrs,pqrs->", rdm2_spinless, mol_ham.two_body_tensor_spinless)
+        * np.einsum("pqrs,pqrs->", rdm2_spinless, mol_ham_spinless.two_body_tensor)
         + mol_ham.constant
     )
     np.testing.assert_allclose(energy_spinless, energy, atol=1e-8)
