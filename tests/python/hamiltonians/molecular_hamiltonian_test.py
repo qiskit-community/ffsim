@@ -230,14 +230,6 @@ def test_linear_operator_spinless(norb: int, nelec: tuple[int, int]):
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=norb, seed=RNG)
     hamiltonian_spinless = mol_hamiltonian.to_spinless()
 
-    # the spinless tensor accessors agree with the converted Hamiltonian
-    np.testing.assert_allclose(
-        mol_hamiltonian.one_body_tensor_spinless, hamiltonian_spinless.one_body_tensor
-    )
-    np.testing.assert_allclose(
-        mol_hamiltonian.two_body_tensor_spinless, hamiltonian_spinless.two_body_tensor
-    )
-
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     result = ffsim.linear_operator(mol_hamiltonian, norb, nelec) @ vec
     linop_spinless = ffsim.linear_operator(hamiltonian_spinless, 2 * norb, sum(nelec))
@@ -246,6 +238,22 @@ def test_linear_operator_spinless(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(
         result_spinless, ffsim.spinful_to_spinless_vec(result, norb, nelec)
     )
+
+
+def test_tensor_spinless_deprecated():
+    """Test deprecated spinless tensor properties."""
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=4, seed=RNG)
+    hamiltonian_spinless = mol_hamiltonian.to_spinless()
+    with pytest.deprecated_call():
+        np.testing.assert_allclose(
+            mol_hamiltonian.one_body_tensor_spinless,
+            hamiltonian_spinless.one_body_tensor,
+        )
+    with pytest.deprecated_call():
+        np.testing.assert_allclose(
+            mol_hamiltonian.two_body_tensor_spinless,
+            hamiltonian_spinless.two_body_tensor,
+        )
 
 
 @pytest.mark.parametrize("norb, nelec", NORB_NELEC_SPINLESS)

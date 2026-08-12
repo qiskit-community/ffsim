@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
-from functools import cached_property
 
 import numpy as np
 import scipy.linalg
 from pyscf.fci.direct_nosym import make_hdiag
 from pyscf.fci.direct_uhf import make_hdiag as make_hdiag_uhf
 from scipy.sparse.linalg import LinearOperator
+from typing_extensions import deprecated
 
 from ffsim import protocols
 from ffsim.contract.two_body import two_body_linop, two_body_linop_unrestricted
@@ -60,14 +60,34 @@ class MolecularHamiltonian(
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
-    @cached_property
+    @property
+    @deprecated(
+        "The MolecularHamiltonian.one_body_tensor_spinless property is deprecated. "
+        "Instead, use the to_spinless method and access the one_body_tensor "
+        "attribute of the returned MolecularHamiltonianSpinless."
+    )
     def one_body_tensor_spinless(self) -> np.ndarray:
-        """The one-body tensor in spinless format."""
+        """The one-body tensor in spinless format.
+
+        .. warning::
+            This property is deprecated. Use
+            :meth:`MolecularHamiltonian.to_spinless` instead.
+        """
         return self.to_spinless().one_body_tensor
 
-    @cached_property
+    @property
+    @deprecated(
+        "The MolecularHamiltonian.two_body_tensor_spinless property is deprecated. "
+        "Instead, use the to_spinless method and access the two_body_tensor "
+        "attribute of the returned MolecularHamiltonianSpinless."
+    )
     def two_body_tensor_spinless(self) -> np.ndarray:
-        """The two-body tensor in spinless format."""
+        """The two-body tensor in spinless format.
+
+        .. warning::
+            This property is deprecated. Use
+            :meth:`MolecularHamiltonian.to_spinless` instead.
+        """
         return self.to_spinless().two_body_tensor
 
     def to_spinless(self) -> MolecularHamiltonianSpinless:
