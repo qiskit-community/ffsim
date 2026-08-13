@@ -126,6 +126,33 @@ def test_raise_value_error2():
         )
 
 
+@pytest.mark.parametrize(
+    "connectivity_and_backend",
+    [("heavy-hex", backend_heavy_hex), ("square", backend_square)],
+)
+@pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
+def test_connectivity_is_case_insensitive(connectivity_and_backend):
+    """Test that ``connectivity`` is accepted regardless of case."""
+    connectivity, backend = connectivity_and_backend
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    interaction_pairs = (pairs_aa, None)
+
+    results = []
+    for variant in [connectivity, connectivity.upper(), connectivity.title()]:
+        _, allowed_pairs_ab = generate_lucj_pass_manager(
+            backend=backend,
+            norb=norb,
+            connectivity=cast(Literal["heavy-hex", "square"], variant),
+            interaction_pairs=interaction_pairs,
+            optimization_level=1,
+        )
+        assert allowed_pairs_ab
+        results.append(allowed_pairs_ab)
+
+    # every casing must resolve to the same accommodated pairs
+    assert all(pairs == results[0] for pairs in results)
+
+
 @pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
 def test_backend_with_none_noise_info():
     """Test handling of backend with no noise info."""
