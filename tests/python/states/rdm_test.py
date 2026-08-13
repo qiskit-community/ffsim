@@ -60,6 +60,20 @@ def test_reduced_density_matrices_rotated():
     np.testing.assert_allclose(energy_rotated, energy)
 
 
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_reduced_density_matrices_rotated_one_body_matrix_product(norb: int):
+    """Test rotating the one-body RDM against an explicit matrix product."""
+    one_rdm = RNG.normal(size=(norb, norb)) + 1j * RNG.normal(size=(norb, norb))
+    two_rdm = RNG.normal(size=(norb,) * 4) + 1j * RNG.normal(size=(norb,) * 4)
+    rdms = ffsim.ReducedDensityMatrix(one_rdm=one_rdm, two_rdm=two_rdm)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    np.testing.assert_allclose(
+        rdms.rotated(orbital_rotation).one_rdm,
+        orbital_rotation.conj() @ one_rdm @ orbital_rotation.T,
+        atol=1e-12,
+    )
+
+
 @pytest.mark.parametrize(
     "norb, nelec, spin_summed",
     [

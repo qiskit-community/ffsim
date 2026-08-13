@@ -29,6 +29,7 @@ from pyscf.fci.direct_spin1 import (
 )
 
 from ffsim._cistring import gen_linkstr_index
+from ffsim.linalg.util import rotate_one_body_tensor, rotate_two_body_tensor
 
 if TYPE_CHECKING:
     from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
@@ -52,23 +53,13 @@ class ReducedDensityMatrix:
         Returns:
             The rotated reduced density matrices.
         """
-        one_rdm_rotated = contract(
-            "ab,Aa,Bb->AB",
-            self.one_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize="greedy",
+        # An RDM rotates by the opposite convention from a Hamiltonian tensor,
+        # so pass the conjugate
+        rotation = orbital_rotation.conj()
+        return ReducedDensityMatrix(
+            one_rdm=rotate_one_body_tensor(self.one_rdm, rotation),
+            two_rdm=rotate_two_body_tensor(self.two_rdm, rotation, rotation),
         )
-        two_rdm_rotated = contract(
-            "abcd,Aa,Bb,Cc,Dd->ABCD",
-            self.two_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize="greedy",
-        )
-        return ReducedDensityMatrix(one_rdm=one_rdm_rotated, two_rdm=two_rdm_rotated)
 
     def expectation(self, mol_ham: MolecularHamiltonian) -> float:
         """Return the expectation value of the RDMs with a molecular Hamiltonian."""
