@@ -46,6 +46,7 @@ norb = 36
     "connectivity_and_backend",
     [("heavy-hex", backend_heavy_hex), ("square", backend_square)],
 )
+@pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
 def test_raise_warning1(connectivity_and_backend):
     """Test UserWarning raised when ``initial_layout`` is specified and ignored."""
     connectivity, backend = connectivity_and_backend
@@ -67,6 +68,7 @@ def test_raise_warning1(connectivity_and_backend):
     "connectivity_and_backend",
     [("heavy-hex", backend_heavy_hex), ("square", backend_square)],
 )
+@pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
 def test_raise_warning2(connectivity_and_backend):
     """Test UserWarning raised when ``layout_method`` is specified and ignored."""
     connectivity, backend = connectivity_and_backend
@@ -124,6 +126,7 @@ def test_raise_value_error2():
         )
 
 
+@pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
 def test_backend_with_none_noise_info():
     """Test handling of backend with no noise info."""
     pairs_aa = [(p, p + 1) for p in range(norb - 1)]
@@ -152,6 +155,7 @@ def test_backend_with_none_noise_info():
     "pairs_ab",
     [None, [(32, 32), (4, 4), (8, 8), (24, 24), (16, 16), (28, 28)]],
 )
+@pytest.mark.filterwarnings("ignore:Backend cannot accommodate")
 def test_generate_lucj_pass_manager(pairs_ab, connectivity_and_backend):
     """Test whether the transpiled LUCJ ansatz retains correct a-b interactions.
 

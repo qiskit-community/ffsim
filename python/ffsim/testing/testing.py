@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
 from typing import cast, overload
 
 import numpy as np
@@ -51,12 +51,12 @@ def generate_norb_nelec_spin(
     exhaustive: bool = True,
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
-) -> Iterator[tuple[int, tuple[int, int], Spin]]:
+) -> list[tuple[int, tuple[int, int], Spin]]:
     """Generate (``norb``, ``nelec``, ``spin``) tuples for testing.
 
     Args:
         exhaustive: If True, generates all possible (``norb``, ``nelec``, ``spin``)
-            triplets for each ``norb`` in ``norb_range``. If False, yields a small
+            triplets for each ``norb`` in ``norb_range``. If False, returns a small
             representative set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
         include_norb_zero: Whether to include the case ``norb=0``. Default: True.
@@ -64,18 +64,19 @@ def generate_norb_nelec_spin(
     if exhaustive:
         if norb_range is None:
             raise ValueError("norb_range must be specified when exhaustive=True.")
-        for norb in norb_range:
-            if norb == 0 and not include_norb_zero:
-                continue
-            for nelec in itertools.product(range(norb + 1), repeat=2):
-                for spin in Spin.__members__.values():
-                    yield norb, cast(tuple[int, int], nelec), spin
-    else:
-        for norb, nelec in _NORB_NELEC_CASES:
-            if norb == 0 and not include_norb_zero:
-                continue
-            for spin in Spin.__members__.values():
-                yield norb, nelec, spin
+        return [
+            (norb, cast(tuple[int, int], nelec), spin)
+            for norb in norb_range
+            if norb != 0 or include_norb_zero
+            for nelec in itertools.product(range(norb + 1), repeat=2)
+            for spin in Spin.__members__.values()
+        ]
+    return [
+        (norb, nelec, spin)
+        for norb, nelec in _NORB_NELEC_CASES
+        if norb != 0 or include_norb_zero
+        for spin in Spin.__members__.values()
+    ]
 
 
 def generate_norb_nelec(
@@ -83,12 +84,12 @@ def generate_norb_nelec(
     exhaustive: bool = True,
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
-) -> Iterator[tuple[int, tuple[int, int]]]:
+) -> list[tuple[int, tuple[int, int]]]:
     """Generate (``norb``, ``nelec``) tuples for testing.
 
     Args:
         exhaustive: If True, generates all possible (``norb``, ``nelec``) pairs for
-            each ``norb`` in ``norb_range``. If False, yields a small representative
+            each ``norb`` in ``norb_range``. If False, returns a small representative
             set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
         include_norb_zero: Whether to include the case ``norb=0``. Default: True.
@@ -96,16 +97,17 @@ def generate_norb_nelec(
     if exhaustive:
         if norb_range is None:
             raise ValueError("norb_range must be specified when exhaustive=True.")
-        for norb in norb_range:
-            if norb == 0 and not include_norb_zero:
-                continue
-            for nelec in itertools.product(range(norb + 1), repeat=2):
-                yield norb, cast(tuple[int, int], nelec)
-    else:
-        for norb, nelec in _NORB_NELEC_CASES:
-            if norb == 0 and not include_norb_zero:
-                continue
-            yield norb, nelec
+        return [
+            (norb, cast(tuple[int, int], nelec))
+            for norb in norb_range
+            if norb != 0 or include_norb_zero
+            for nelec in itertools.product(range(norb + 1), repeat=2)
+        ]
+    return [
+        (norb, nelec)
+        for norb, nelec in _NORB_NELEC_CASES
+        if norb != 0 or include_norb_zero
+    ]
 
 
 def generate_norb_nocc(
@@ -113,7 +115,7 @@ def generate_norb_nocc(
     exhaustive: bool = True,
     norb_range: Iterable[int] | None = None,
     include_norb_zero: bool = True,
-) -> Iterator[tuple[int, int]]:
+) -> list[tuple[int, int]]:
     """Generate (``norb``, ``nocc``) tuples for testing.
 
     ``nocc`` refers to the occupation of a single spin species, so it ranges from
@@ -121,7 +123,7 @@ def generate_norb_nocc(
 
     Args:
         exhaustive: If True, generates all possible (``norb``, ``nocc``) pairs for
-            each ``norb`` in ``norb_range``. If False, yields a small representative
+            each ``norb`` in ``norb_range``. If False, returns a small representative
             set covering edge cases, ignoring ``norb_range``.
         norb_range: Range of choices for ``norb``. Required when ``exhaustive=True``.
         include_norb_zero: Whether to include the case ``norb=0``. Default: True.
@@ -129,27 +131,26 @@ def generate_norb_nocc(
     if exhaustive:
         if norb_range is None:
             raise ValueError("norb_range must be specified when exhaustive=True.")
-        for norb in norb_range:
-            if norb == 0 and not include_norb_zero:
-                continue
-            for nocc in range(norb + 1):
-                yield norb, nocc
-    else:
-        for norb, nocc in _NORB_NOCC_CASES:
-            if norb == 0 and not include_norb_zero:
-                continue
-            yield norb, nocc
+        return [
+            (norb, nocc)
+            for norb in norb_range
+            if norb != 0 or include_norb_zero
+            for nocc in range(norb + 1)
+        ]
+    return [
+        (norb, nocc)
+        for norb, nocc in _NORB_NOCC_CASES
+        if norb != 0 or include_norb_zero
+    ]
 
 
-def generate_norb_spin(norb_range: Iterable[int]) -> Iterator[tuple[int, Spin]]:
+def generate_norb_spin(norb_range: Iterable[int]) -> list[tuple[int, Spin]]:
     """Generate (``norb``, ``spin``) tuples for testing.
 
     Given a range of choices for ``norb``, generates all possible (``norb``, ``spin``)
     pairs.
     """
-    for norb in norb_range:
-        for spin in Spin.__members__.values():
-            yield norb, spin
+    return [(norb, spin) for norb in norb_range for spin in Spin.__members__.values()]
 
 
 def random_nelec(norb: int, *, seed=None) -> tuple[int, int]:
