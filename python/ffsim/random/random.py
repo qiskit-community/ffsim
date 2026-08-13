@@ -17,6 +17,7 @@ from collections import defaultdict
 import numpy as np
 
 from ffsim import hamiltonians, operators, variational
+from ffsim.linalg.util import rotate_two_body_tensor
 from ffsim.variational.util import validate_interaction_pairs
 
 
@@ -232,14 +233,8 @@ def random_two_body_tensor(
     two_body_tensor = np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
     if np.issubdtype(dtype, np.complexfloating):
         orbital_rotation = random_unitary(dim, seed=rng)
-        two_body_tensor = np.einsum(
-            "abcd,aA,bB,cC,dD->ABCD",
-            two_body_tensor,
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            optimize=True,
+        two_body_tensor = rotate_two_body_tensor(
+            two_body_tensor, orbital_rotation, orbital_rotation
         )
     return two_body_tensor
 
@@ -377,12 +372,8 @@ def random_molecular_hamiltonian_unrestricted(
         orbital_rotation = random_unitary(norb, seed=rng)
     else:
         orbital_rotation = random_orthogonal(norb, seed=rng, dtype=dtype)
-    two_body_tensor_ab = np.einsum(
-        "abcd,aA,bB->ABcd",
-        ham_ab.two_body_tensor,
-        orbital_rotation,
-        orbital_rotation.conj(),
-        optimize=True,
+    two_body_tensor_ab = rotate_two_body_tensor(
+        ham_ab.two_body_tensor, orbital_rotation, None
     )
     return hamiltonians.MolecularHamiltonianUnrestricted(
         one_body_tensors=np.stack([ham_a.one_body_tensor, ham_b.one_body_tensor]),
