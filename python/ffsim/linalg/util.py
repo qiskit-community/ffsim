@@ -771,10 +771,22 @@ def rotate_one_body_tensor(
         This is the transformation law for operator tensors, which carries the complex
         conjugate on the second rotation. Reduced density matrices are dual to operator
         tensors and transform with the conjugate rotation instead, carrying the complex
-        conjugate on the first rotation. To rotate a one-body reduced density matrix by
-        :math:`U`, pass ``orbital_rotation.conj()``. Equivalently, rotating the reduced
-        density matrices by :math:`U` leaves the energy unchanged relative to rotating
-        the Hamiltonian by :math:`U^\dagger`.
+        conjugate on the first rotation:
+
+        .. math::
+
+            \sum_{ab} \overline{U_{Aa}} U_{Bb} \rho_{ab}.
+
+        To rotate a one-body reduced density matrix by :math:`U`, therefore, pass
+        ``orbital_rotation.conj()``, which produces
+        :math:`\overline{U} \rho \overline{U}^\dagger`. Note that this is
+        :math:`\overline{U}` and *not* :math:`U^\dagger`: the two differ by a transpose,
+        and transposing would exchange the roles of the two contracted indices. Do not
+        confuse this with the operator-level identity that rotating the reduced density
+        matrices by :math:`U` gives the same energy as rotating the Hamiltonian by
+        :math:`U^\dagger` (see :func:`ffsim.optimize_orbitals`); that identity is about
+        which rotation to apply to the *other* object, not about the matrix passed to
+        this function.
 
     Accepts and returns either NumPy or JAX arrays; the output array type matches the
     inputs. Safe under ``jax.jit`` and ``jax.grad``.
@@ -835,7 +847,9 @@ def rotate_two_body_tensor(
         each pair. Reduced density matrices transform with the conjugate rotation
         instead, carrying the complex conjugate on the first rotation of each pair. To
         rotate a two-body reduced density matrix by :math:`U`, pass
-        ``orbital_rotation.conj()`` for both rotations.
+        ``orbital_rotation.conj()`` for both rotations. As explained in
+        :func:`rotate_one_body_tensor`, the matrix to pass is :math:`\overline{U}`, not
+        :math:`U^\dagger`.
 
     Accepts and returns either NumPy or JAX arrays; the output array type matches the
     inputs. Safe under ``jax.jit`` and ``jax.grad``.

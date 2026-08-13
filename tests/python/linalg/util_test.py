@@ -827,8 +827,14 @@ def test_rotate_tensors_reduced_density_matrix_duality(norb: int):
         atol=1e-12,
     )
 
-    # The conjugation is load-bearing, so passing the rotation itself must disagree.
+    # The conjugate rotation is load-bearing, and it is the conjugate and not the
+    # adjoint: the two differ by a transpose, which would exchange the roles of the two
+    # contracted indices. Both wrong guesses must disagree.
     if norb > 1:
-        assert not np.allclose(
-            rotate_one_body_tensor(one_rdm, orbital_rotation), expected.one_rdm
-        )
+        for wrong in [orbital_rotation, orbital_rotation.T.conj(), orbital_rotation.T]:
+            assert not np.allclose(
+                rotate_one_body_tensor(one_rdm, wrong), expected.one_rdm
+            )
+            assert not np.allclose(
+                rotate_two_body_tensor(two_rdm, wrong, wrong), expected.two_rdm
+            )
