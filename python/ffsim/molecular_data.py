@@ -140,7 +140,10 @@ class MolecularData:
         # HACK Not sure if there's a better way to do this...
         with tempfile.NamedTemporaryFile() as fp:
             self.to_fcidump(fp.name)
-            return pyscf.tools.fcidump.to_scf(fp.name)
+            scf = pyscf.tools.fcidump.to_scf(fp.name)
+        # Disable chkfile to silence PySCF serialization warning
+        scf.chkfile = None
+        return scf
 
     @staticmethod
     def from_scf(
