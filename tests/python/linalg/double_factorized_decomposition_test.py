@@ -43,7 +43,9 @@ def test_modified_cholesky(dim: int):
     np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 
 
-@pytest.mark.parametrize("dim, cholesky", itertools.product(range(6), [False, True]))
+@pytest.mark.parametrize(
+    "dim, cholesky", list(itertools.product(range(6), [False, True]))
+)
 def test_double_factorized_random(dim: int, cholesky: bool):
     """Test double-factorized decomposition on a random tensor."""
     two_body_tensor = ffsim.random.random_two_body_tensor(dim, seed=RNG, dtype=float)
