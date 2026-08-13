@@ -27,10 +27,13 @@ def ccsd_energy(
     ham_linop: scipy.sparse.linalg.LinearOperator,
     norb: int,
     nelec: tuple[int, int],
+    trace: complex,
 ) -> float:
     vec = ffsim.hartree_fock_state(norb, nelec)
-    bra = scipy.sparse.linalg.expm_multiply(-linop.adjoint(), vec)
-    ket = scipy.sparse.linalg.expm_multiply(linop, vec)
+    bra = scipy.sparse.linalg.expm_multiply(
+        -linop.adjoint(), vec, traceA=-trace.conjugate()
+    )
+    ket = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=trace)
     energy = np.vdot(bra, ham_linop @ ket).real
     np.testing.assert_allclose(energy.imag, 0)
     return energy.real
@@ -64,14 +67,18 @@ def test_coupled_cluster_singles_and_doubles_restricted():
     # Test singles energy
     cc_singles = ffsim.singles_excitations_restricted(ccsd.t1)
     cc_singles_linop = ffsim.linear_operator(cc_singles, norb=norb, nelec=nelec)
-    energy_ferm = ccsd_energy(cc_singles_linop, ham_linop, norb=norb, nelec=nelec)
+    energy_ferm = ccsd_energy(
+        cc_singles_linop, ham_linop, norb=norb, nelec=nelec, trace=0.0
+    )
     nocc, _ = ccsd.t1.shape
     one_body_tensor = np.zeros((norb, norb))
     one_body_tensor[:nocc, nocc:] = -ccsd.t1
     one_body_linop = ffsim.contract.one_body_linop(
         one_body_tensor, norb=norb, nelec=nelec
     )
-    energy_contract = ccsd_energy(one_body_linop, ham_linop, norb=norb, nelec=nelec)
+    energy_contract = ccsd_energy(
+        one_body_linop, ham_linop, norb=norb, nelec=nelec, trace=0.0
+    )
     np.testing.assert_allclose(energy_ferm, energy_contract)
     np.testing.assert_allclose(energy_ferm, t1_energy + scf.e_tot)
 
@@ -81,20 +88,25 @@ def test_coupled_cluster_singles_and_doubles_restricted():
         {(): 1.0}
     )
     cc_doubles_linop = ffsim.linear_operator(cc_doubles, norb=norb, nelec=nelec)
-    energy_ferm = ccsd_energy(cc_doubles_linop, ham_linop, norb=norb, nelec=nelec)
+    # The added constant of 1.0 gives the operator a trace of dim
+    dim = ffsim.dim(norb, nelec)
+    energy_ferm = ccsd_energy(
+        cc_doubles_linop, ham_linop, norb=norb, nelec=nelec, trace=dim
+    )
     nocc, _ = ccsd.t1.shape
     two_body_tensor = np.zeros((norb, norb, norb, norb))
     two_body_tensor[nocc:, :nocc, nocc:, :nocc] = ccsd.t2.transpose(2, 0, 3, 1)
     two_body_linop = ffsim.contract.two_body_linop(
         two_body_tensor.astype(complex), norb=norb, nelec=nelec, constant=1.0
     )
-    energy_contract = ccsd_energy(two_body_linop, ham_linop, norb=norb, nelec=nelec)
+    energy_contract = ccsd_energy(
+        two_body_linop, ham_linop, norb=norb, nelec=nelec, trace=dim
+    )
     np.testing.assert_allclose(energy_ferm, energy_contract)
     np.testing.assert_allclose(energy_ferm, t2_energy + scf.e_tot)
 
     # Test action on a random state vector
     # The one-body linear operator from the contract method doesn't pass this test
-    dim = ffsim.dim(norb, nelec)
     vec = ffsim.random.random_state_vector(dim, seed=RNG)
     result_ferm = cc_doubles_linop @ vec
     result_contract = two_body_linop @ vec
@@ -124,7 +136,7 @@ def test_ccsd_generator_restricted():
 
     ccsd_gen = ffsim.ccsd_generator_restricted(t1=ccsd.t1, t2=ccsd.t2)
     ccsd_gen_linop = ffsim.linear_operator(ccsd_gen, norb=norb, nelec=nelec)
-    energy = ccsd_energy(ccsd_gen_linop, ham_linop, norb=norb, nelec=nelec)
+    energy = ccsd_energy(ccsd_gen_linop, ham_linop, norb=norb, nelec=nelec, trace=0.0)
     np.testing.assert_allclose(energy, ccsd.e_tot)
 
 
@@ -156,7 +168,7 @@ def test_ccsd_generator_unrestricted():
 
     ccsd_gen = ffsim.ccsd_generator_unrestricted(t1=ccsd.t1, t2=ccsd.t2)
     ccsd_gen_linop = ffsim.linear_operator(ccsd_gen, norb=norb, nelec=nelec)
-    energy = ccsd_energy(ccsd_gen_linop, ham_linop, norb=norb, nelec=nelec)
+    energy = ccsd_energy(ccsd_gen_linop, ham_linop, norb=norb, nelec=nelec, trace=0.0)
     np.testing.assert_allclose(energy, ccsd.e_tot)
 
 
