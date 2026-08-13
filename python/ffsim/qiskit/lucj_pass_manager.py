@@ -15,7 +15,7 @@ from __future__ import annotations
 import copy
 import warnings
 from collections import OrderedDict
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import rustworkx
 from qiskit.circuit import Instruction
@@ -136,17 +136,18 @@ def _get_layout_graph_and_allowed_pairs_ab(
         graph_new = copy.deepcopy(graph)
 
         # add new nodes and edges
-        if connectivity == "heavy-hex":
-            for i, (a, b) in enumerate(sorted(pairs_ab, key=lambda x: x[0])):
-                new_node = num_nodes + i
-                graph_new.add_node(new_node)
-                graph_new.add_edge(a, new_node, None)
-                graph_new.add_edge(new_node, b + norb, None)
-        elif connectivity == "square":
-            for i, (a, b) in enumerate(sorted(pairs_ab, key=lambda x: x[0])):
-                graph_new.add_edge(a, b + norb, None)
-        else:
-            ValueError(f"connectivity={connectivity} not supported.")
+        match connectivity:
+            case "heavy-hex":
+                for i, (a, b) in enumerate(sorted(pairs_ab, key=lambda x: x[0])):
+                    new_node = num_nodes + i
+                    graph_new.add_node(new_node)
+                    graph_new.add_edge(a, new_node, None)
+                    graph_new.add_edge(new_node, b + norb, None)
+            case "square":
+                for a, b in sorted(pairs_ab, key=lambda x: x[0]):
+                    graph_new.add_edge(a, b + norb, None)
+            case _:
+                raise ValueError(f"connectivity={connectivity} not supported.")
 
         isomorphic = rustworkx.is_subgraph_isomorphic(
             backend_coupling_graph,
@@ -472,14 +473,15 @@ def generate_lucj_pass_manager(
             f"connectivity={connectivity} is not supported. "
             f"Only supported topologies are either 'heavy-hex' or 'square'"
         )
+    connectivity = cast(Literal["heavy-hex", "square"], connectivity.lower())
 
     if pairs_ab is None:
-        if connectivity.lower() == "heavy-hex":
+        if connectivity == "heavy-hex":
             resolved_pairs_ab = [(p, p) for p in range(norb) if p % 4 == 0]
-        elif connectivity.lower() == "square":
+        elif connectivity == "square":
             resolved_pairs_ab = [(p, p) for p in range(norb)]
     else:
-        resolved_pairs_ab = copy.deepcopy(pairs_ab)
+        resolved_pairs_ab = list(pairs_ab)
 
     (placeholder_initial_layout, allowed_pairs_ab) = (
         _get_placeholder_layout_and_allowed_interactions(
