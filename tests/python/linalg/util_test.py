@@ -807,3 +807,28 @@ def test_rotate_two_body_tensor_jit_grad(norb: int):
     grad_expected = jax.jit(jax.grad(loss), static_argnums=1)(params, rotate_reference)
     assert np.all(np.isfinite(grad))
     np.testing.assert_allclose(grad, grad_expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_rotate_tensors_reduced_density_matrix_duality(norb: int):
+    """Test rotating RDMs by passing the conjugate rotation to the rotation helpers."""
+    one_rdm = RNG.normal(size=(norb, norb)) + 1j * RNG.normal(size=(norb, norb))
+    two_rdm = RNG.normal(size=(norb,) * 4) + 1j * RNG.normal(size=(norb,) * 4)
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    expected = ffsim.ReducedDensityMatrix(one_rdm, two_rdm).rotated(orbital_rotation)
+    conjugated = orbital_rotation.conj()
+    np.testing.assert_allclose(
+        rotate_one_body_tensor(one_rdm, conjugated), expected.one_rdm, atol=1e-12
+    )
+    np.testing.assert_allclose(
+        rotate_two_body_tensor(two_rdm, conjugated, conjugated),
+        expected.two_rdm,
+        atol=1e-12,
+    )
+
+    # The conjugation is load-bearing, so passing the rotation itself must disagree.
+    if norb > 1:
+        assert not np.allclose(
+            rotate_one_body_tensor(one_rdm, orbital_rotation), expected.one_rdm
+        )
