@@ -755,7 +755,26 @@ def rotate_one_body_tensor(
     tensor: jax.Array | np.ndarray,
     orbital_rotation: jax.Array | np.ndarray | None,
 ) -> jax.Array | np.ndarray:
-    """Rotate a one-body tensor.
+    r"""Rotate a one-body tensor.
+
+    Given an orbital rotation :math:`U`, returns the tensor with entries
+
+    .. math::
+
+        \sum_{ab} U_{Aa} \overline{U_{Bb}} t_{ab},
+
+    which is the one-body tensor of the operator
+    :math:`\mathcal{U} H \mathcal{U}^\dagger` when :math:`t` is the one-body tensor of
+    :math:`H`.
+
+    Note:
+        This is the transformation law for operator tensors, which carries the complex
+        conjugate on the second rotation. Reduced density matrices are dual to operator
+        tensors and transform with the conjugate rotation instead, carrying the complex
+        conjugate on the first rotation. To rotate a one-body reduced density matrix by
+        :math:`U`, pass ``orbital_rotation.conj()``. Equivalently, rotating the reduced
+        density matrices by :math:`U` leaves the energy unchanged relative to rotating
+        the Hamiltonian by :math:`U^\dagger`.
 
     Accepts and returns either NumPy or JAX arrays; the output array type matches the
     inputs. Safe under ``jax.jit`` and ``jax.grad``.
@@ -799,10 +818,24 @@ def rotate_two_body_tensor(
     orbital_rotation_1: jax.Array | np.ndarray | None,
     orbital_rotation_2: jax.Array | np.ndarray | None,
 ) -> jax.Array | np.ndarray:
-    """Rotate a two-body tensor.
+    r"""Rotate a two-body tensor.
 
     The first orbital rotation acts on the first pair of indices and the second orbital
-    rotation acts on the second pair of indices.
+    rotation acts on the second pair of indices. Each pair is rotated by the same
+    transformation law as :func:`rotate_one_body_tensor`, so given orbital rotations
+    :math:`U` and :math:`V` this returns the tensor with entries
+
+    .. math::
+
+        \sum_{abcd} U_{Aa} \overline{U_{Bb}} V_{Cc} \overline{V_{Dd}} t_{abcd}.
+
+    Note:
+        As in :func:`rotate_one_body_tensor`, this is the transformation law for
+        operator tensors, which carries the complex conjugate on the second rotation of
+        each pair. Reduced density matrices transform with the conjugate rotation
+        instead, carrying the complex conjugate on the first rotation of each pair. To
+        rotate a two-body reduced density matrix by :math:`U`, pass
+        ``orbital_rotation.conj()`` for both rotations.
 
     Accepts and returns either NumPy or JAX arrays; the output array type matches the
     inputs. Safe under ``jax.jit`` and ``jax.grad``.

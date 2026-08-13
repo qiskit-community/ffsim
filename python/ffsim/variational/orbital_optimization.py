@@ -19,6 +19,8 @@ import scipy.optimize
 
 from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.linalg.util import (
+    rotate_one_body_tensor,
+    rotate_two_body_tensor,
     unitary_from_parameters,
     unitary_from_parameters_jax,
     unitary_to_parameters,
@@ -48,22 +50,13 @@ def _make_optimize_orbitals_value_and_grad(norb: int, real: bool):
         constant: jax.Array,
     ) -> jax.Array:
         orbital_rotation = unitary_from_parameters_jax(x, dim=norb, real=real)
-        one_rdm_rotated = jnp.einsum(
-            "ab,Aa,Bb->AB",
-            one_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize=True,
-        )
-        two_rdm_rotated = jnp.einsum(
-            "abcd,Aa,Bb,Cc,Dd->ABCD",
-            two_rdm,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation.conj(),
-            orbital_rotation,
-            optimize=True,
-        )
+        # Reduced density matrices are dual to operator tensors, so they transform under
+        # the conjugate of the orbital rotation: rotating the RDMs by U gives the same
+        # energy as rotating the Hamiltonian by U^dagger. The rotation helpers implement
+        # the operator convention, so they receive the conjugate rotation here.
+        conjugated = orbital_rotation.conj()
+        one_rdm_rotated = rotate_one_body_tensor(one_rdm, conjugated)
+        two_rdm_rotated = rotate_two_body_tensor(two_rdm, conjugated, conjugated)
         return (
             constant
             + jnp.einsum("ab,ab->", one_body_tensor, one_rdm_rotated)
