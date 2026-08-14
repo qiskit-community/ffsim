@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "jax",
+    "jax<0.10",
     "numpy",
     "opt_einsum",
     "orjson",
