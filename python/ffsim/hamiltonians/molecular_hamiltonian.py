@@ -186,17 +186,22 @@ class MolecularHamiltonian(
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
+        norb = self.norb
+        cre_ops_a = [cre_a(p) for p in range(norb)]
+        cre_ops_b = [cre_b(p) for p in range(norb)]
+        des_ops_a = [des_a(p) for p in range(norb)]
+        des_ops_b = [des_b(p) for p in range(norb)]
         coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {(): self.constant}
-        for p, q in itertools.product(range(self.norb), repeat=2):
+        for p, q in itertools.product(range(norb), repeat=2):
             coeff = self.one_body_tensor[p, q]
-            coeffs[cre_a(p), des_a(q)] = coeff
-            coeffs[cre_b(p), des_b(q)] = coeff
-        for p, q, r, s in itertools.product(range(self.norb), repeat=4):
+            coeffs[cre_ops_a[p], des_ops_a[q]] = coeff
+            coeffs[cre_ops_b[p], des_ops_b[q]] = coeff
+        for p, q, r, s in itertools.product(range(norb), repeat=4):
             coeff = 0.5 * self.two_body_tensor[p, q, r, s]
-            coeffs[cre_a(p), cre_a(r), des_a(s), des_a(q)] = coeff
-            coeffs[cre_a(p), cre_b(r), des_b(s), des_a(q)] = coeff
-            coeffs[cre_b(p), cre_a(r), des_a(s), des_b(q)] = coeff
-            coeffs[cre_b(p), cre_b(r), des_b(s), des_b(q)] = coeff
+            coeffs[cre_ops_a[p], cre_ops_a[r], des_ops_a[s], des_ops_a[q]] = coeff
+            coeffs[cre_ops_a[p], cre_ops_b[r], des_ops_b[s], des_ops_a[q]] = coeff
+            coeffs[cre_ops_b[p], cre_ops_a[r], des_ops_a[s], des_ops_b[q]] = coeff
+            coeffs[cre_ops_b[p], cre_ops_b[r], des_ops_b[s], des_ops_b[q]] = coeff
         return FermionOperator(coeffs)
 
     @staticmethod
@@ -385,13 +390,18 @@ class MolecularHamiltonianSpinless(
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
+        norb = self.norb
+        cre_ops = [cre_a(p) for p in range(norb)]
+        des_ops = [des_a(p) for p in range(norb)]
         op = FermionOperator({(): self.constant})
-        for p, q in itertools.product(range(self.norb), repeat=2):
+        for p, q in itertools.product(range(norb), repeat=2):
             coeff = self.one_body_tensor[p, q]
-            op += FermionOperator({(cre_a(p), des_a(q)): coeff})
-        for p, q, r, s in itertools.product(range(self.norb), repeat=4):
+            op += FermionOperator({(cre_ops[p], des_ops[q]): coeff})
+        for p, q, r, s in itertools.product(range(norb), repeat=4):
             coeff = 0.5 * self.two_body_tensor[p, q, r, s]
-            op += FermionOperator({(cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff})
+            op += FermionOperator(
+                {(cre_ops[p], cre_ops[r], des_ops[s], des_ops[q]): coeff}
+            )
         return op
 
     @staticmethod
@@ -683,24 +693,29 @@ class MolecularHamiltonianUnrestricted(
 
     def _fermion_operator_(self) -> FermionOperator:
         """Return a FermionOperator representing the object."""
+        norb = self.norb
         one_body_a, one_body_b = self.one_body_tensors
         two_body_aa, two_body_ab, two_body_bb = self.two_body_tensors
+        cre_ops_a = [cre_a(p) for p in range(norb)]
+        cre_ops_b = [cre_b(p) for p in range(norb)]
+        des_ops_a = [des_a(p) for p in range(norb)]
+        des_ops_b = [des_b(p) for p in range(norb)]
         coeffs: dict[tuple[tuple[bool, bool, int], ...], complex] = {(): self.constant}
-        for p, q in itertools.product(range(self.norb), repeat=2):
-            coeffs[cre_a(p), des_a(q)] = one_body_a[p, q]
-            coeffs[cre_b(p), des_b(q)] = one_body_b[p, q]
-        for p, q, r, s in itertools.product(range(self.norb), repeat=4):
-            coeffs[cre_a(p), cre_a(r), des_a(s), des_a(q)] = (
+        for p, q in itertools.product(range(norb), repeat=2):
+            coeffs[cre_ops_a[p], des_ops_a[q]] = one_body_a[p, q]
+            coeffs[cre_ops_b[p], des_ops_b[q]] = one_body_b[p, q]
+        for p, q, r, s in itertools.product(range(norb), repeat=4):
+            coeffs[cre_ops_a[p], cre_ops_a[r], des_ops_a[s], des_ops_a[q]] = (
                 0.5 * two_body_aa[p, q, r, s]
             )
-            coeffs[cre_b(p), cre_b(r), des_b(s), des_b(q)] = (
+            coeffs[cre_ops_b[p], cre_ops_b[r], des_ops_b[s], des_ops_b[q]] = (
                 0.5 * two_body_bb[p, q, r, s]
             )
-            coeffs[cre_a(p), cre_b(r), des_b(s), des_a(q)] = (
+            coeffs[cre_ops_a[p], cre_ops_b[r], des_ops_b[s], des_ops_a[q]] = (
                 0.5 * two_body_ab[p, q, r, s]
             )
             # The beta-alpha tensor is the transpose of the alpha-beta tensor.
-            coeffs[cre_b(p), cre_a(r), des_a(s), des_b(q)] = (
+            coeffs[cre_ops_b[p], cre_ops_a[r], des_ops_a[s], des_ops_b[q]] = (
                 0.5 * two_body_ab[r, s, p, q]
             )
         return FermionOperator(coeffs)
