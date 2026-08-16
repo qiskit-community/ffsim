@@ -228,15 +228,15 @@ def random_two_body_tensor(
     rng = np.random.default_rng(seed)
     if rank is None:
         rank = dim * (dim + 1) // 2
-    cholesky_vecs = rng.standard_normal((rank, dim, dim)).astype(dtype, copy=False)
-    cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
-    two_body_tensor = np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
+    mats = rng.standard_normal((rank, dim, dim))
+    mats += mats.transpose(0, 2, 1)
+    two_body_tensor = np.tensordot(mats, mats, axes=(0, 0))
     if np.issubdtype(dtype, np.complexfloating):
         orbital_rotation = random_unitary(dim, seed=rng)
         two_body_tensor = rotate_two_body_tensor(
             two_body_tensor, orbital_rotation, orbital_rotation
         )
-    return two_body_tensor
+    return two_body_tensor.astype(dtype, copy=False)
 
 
 def random_t2_amplitudes(
