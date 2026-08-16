@@ -216,8 +216,9 @@ def random_two_body_tensor(
     Args:
         dim: The dimension of the tensor. The shape of the returned tensor will be
             (dim, dim, dim, dim).
-        rank: Rank of the sampled tensor. The default behavior is to use
-            the maximum rank, which is `norb * (norb + 1) // 2`.
+        rank: Rank of the sampled tensor. The default behavior is to use the maximum
+            rank, which is ``dim**2`` if ``dtype`` is a complex type, and
+            ``dim * (dim + 1) // 2`` if it is a real type.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -226,17 +227,14 @@ def random_two_body_tensor(
         The sampled two-body tensor.
     """
     rng = np.random.default_rng(seed)
+    is_complex = np.issubdtype(dtype, np.complexfloating)
     if rank is None:
-        rank = dim * (dim + 1) // 2
-    mats = rng.standard_normal((rank, dim, dim))
-    mats += mats.transpose(0, 2, 1)
-    two_body_tensor = np.tensordot(mats, mats, axes=(0, 0))
-    if np.issubdtype(dtype, np.complexfloating):
-        orbital_rotation = random_unitary(dim, seed=rng)
-        two_body_tensor = rotate_two_body_tensor(
-            two_body_tensor, orbital_rotation, orbital_rotation
-        )
-    return two_body_tensor.astype(dtype, copy=False)
+        rank = dim**2 if is_complex else dim * (dim + 1) // 2
+    mats = rng.standard_normal((rank, dim, dim)).astype(dtype, copy=False)
+    if is_complex:
+        mats += 1j * rng.standard_normal((rank, dim, dim))
+    mats += mats.transpose(0, 2, 1).conj()
+    return np.tensordot(mats, mats, axes=(0, 0))
 
 
 def random_t2_amplitudes(
