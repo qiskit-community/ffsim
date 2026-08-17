@@ -18,6 +18,8 @@ from ffsim.hamiltonians.molecular_hamiltonian import (
 )
 from ffsim.linalg.util import (
     real_symmetrics_from_parameters_jax,
+    rotate_one_body_tensor,
+    rotate_two_body_tensor,
     unitary_from_parameters_jax,
 )
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
@@ -31,8 +33,6 @@ def ucj_energy_spin_balanced(
     ucj_op: UCJOpSpinBalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
-    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
-    | None = None,
     *,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
@@ -45,8 +45,6 @@ def ucj_energy_spin_balanced(
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
         nelec: The number of alpha and beta electrons.
-        interaction_pairs: The interaction pairs to consider. If None, all pairs are
-            considered.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
         chunk_size: The number of two-body Hamiltonian terms to process at a time.
@@ -59,12 +57,6 @@ def ucj_energy_spin_balanced(
 
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
-
-    pairs_aa, pairs_ab = (
-        interaction_pairs if interaction_pairs is not None else (None, None)
-    )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=False)
 
     norb = ucj_op.norb
     diag_coulomb_mats = ucj_op.diag_coulomb_mats
@@ -87,10 +79,11 @@ def ucj_energy_spin_balanced(
         jnp.asarray(rotated_reference[:, occupied_beta]),
     )
 
-    h_pq, g_pqrs = _propagate_through_orbital_rotations(
-        jnp.asarray(hamiltonian.one_body_tensor),
-        jnp.asarray(hamiltonian.two_body_tensor),
-        jnp.asarray(u),
+    # ffsim's convention is a conjugate transpose of our `u`
+    u_dag = jnp.asarray(u).conj().T
+    h_pq = rotate_one_body_tensor(jnp.asarray(hamiltonian.one_body_tensor), u_dag)
+    g_pqrs = rotate_two_body_tensor(
+        jnp.asarray(hamiltonian.two_body_tensor), u_dag, u_dag
     )
 
     jastrow_mat, jastrow_vec = _spin_balanced_jastrow_phase(
@@ -332,12 +325,6 @@ def ucj_energy_spin_unbalanced(
     ucj_op: UCJOpSpinUnbalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
-    interaction_pairs: tuple[
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-    ]
-    | None = None,
     *,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
@@ -350,8 +337,6 @@ def ucj_energy_spin_unbalanced(
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
         nelec: The number of alpha and beta electrons.
-        interaction_pairs: The interaction pairs to consider. If None, all pairs are
-            considered.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
 
@@ -360,13 +345,6 @@ def ucj_energy_spin_unbalanced(
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
-
-    pairs_aa, pairs_ab, pairs_bb = (
-        interaction_pairs if interaction_pairs is not None else (None, None, None)
-    )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=True)
-    validate_interaction_pairs(pairs_bb, ordered=False)
 
     norb = ucj_op.norb
     diag_coulomb_mats = ucj_op.diag_coulomb_mats
@@ -394,18 +372,14 @@ def ucj_energy_spin_unbalanced(
 
     one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
     two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
-    h_alpha, g_alpha_alpha = _propagate_through_orbital_rotations(
-        one_body_tensor, two_body_tensor, jnp.asarray(u_alpha)
-    )
-    h_beta, g_beta_beta = _propagate_through_orbital_rotations(
-        one_body_tensor, two_body_tensor, jnp.asarray(u_beta)
-    )
-    g_alpha_beta = _propagate_spin_sector_tensor(
-        two_body_tensor, jnp.asarray(u_alpha), jnp.asarray(u_beta)
-    )
-    g_beta_alpha = _propagate_spin_sector_tensor(
-        two_body_tensor, jnp.asarray(u_beta), jnp.asarray(u_alpha)
-    )
+    u_alpha_dag = jnp.asarray(u_alpha).conj().T
+    u_beta_dag = jnp.asarray(u_beta).conj().T
+    h_alpha = rotate_one_body_tensor(one_body_tensor, u_alpha_dag)
+    g_alpha_alpha = rotate_two_body_tensor(two_body_tensor, u_alpha_dag, u_alpha_dag)
+    h_beta = rotate_one_body_tensor(one_body_tensor, u_beta_dag)
+    g_beta_beta = rotate_two_body_tensor(two_body_tensor, u_beta_dag, u_beta_dag)
+    g_alpha_beta = rotate_two_body_tensor(two_body_tensor, u_alpha_dag, u_beta_dag)
+    g_beta_alpha = rotate_two_body_tensor(two_body_tensor, u_beta_dag, u_alpha_dag)
 
     jastrow_mat, jastrow_vec = _spin_unbalanced_jastrow_phase(
         jnp.asarray(diag_coulomb_mats[0][0]),
@@ -722,10 +696,10 @@ def ucj_energy_spinless(
 
     occupied = _occupied_orbitals_key_spinless(norb, nelec, occupied_orbitals)
     q = jnp.asarray(orbital_rotation.conj().T[:, occupied])
-    h_bp, g_bp = _propagate_through_orbital_rotations(
-        jnp.asarray(hamiltonian.one_body_tensor),
-        jnp.asarray(hamiltonian.two_body_tensor),
-        jnp.asarray(u),
+    u_dag = jnp.asarray(u).conj().T
+    h_bp = rotate_one_body_tensor(jnp.asarray(hamiltonian.one_body_tensor), u_dag)
+    g_bp = rotate_two_body_tensor(
+        jnp.asarray(hamiltonian.two_body_tensor), u_dag, u_dag
     )
     jastrow_mat, jastrow_vec = _spinless_jastrow_phase(
         jnp.asarray(ucj_op.diag_coulomb_mats[0])
@@ -1109,9 +1083,9 @@ def _make_spin_balanced_objective(
             if final_orbital_rotation is None
             else final_orbital_rotation @ orbital_rotation
         )
-        h_bp, g_bp = _propagate_through_orbital_rotations(
-            one_body_tensor, two_body_tensor, u
-        )
+        u_dag = u.conj().T
+        h_bp = rotate_one_body_tensor(one_body_tensor, u_dag)
+        g_bp = rotate_two_body_tensor(two_body_tensor, u_dag, u_dag)
         jastrow_mat, jastrow_vec = _spin_balanced_jastrow_phase(
             diag_coulomb_mat_array[0], diag_coulomb_mat_array[1], norb
         )
@@ -1216,14 +1190,16 @@ def _make_spin_unbalanced_objective(
             else final_orbital_rotation[1] @ orbital_rotation_beta
         )
 
-        h_alpha, g_alpha_alpha = _propagate_through_orbital_rotations(
-            one_body_tensor, two_body_tensor, u_alpha
+        u_alpha_dag = u_alpha.conj().T
+        u_beta_dag = u_beta.conj().T
+        h_alpha = rotate_one_body_tensor(one_body_tensor, u_alpha_dag)
+        g_alpha_alpha = rotate_two_body_tensor(
+            two_body_tensor, u_alpha_dag, u_alpha_dag
         )
-        h_beta, g_beta_beta = _propagate_through_orbital_rotations(
-            one_body_tensor, two_body_tensor, u_beta
-        )
-        g_alpha_beta = _propagate_spin_sector_tensor(two_body_tensor, u_alpha, u_beta)
-        g_beta_alpha = _propagate_spin_sector_tensor(two_body_tensor, u_beta, u_alpha)
+        h_beta = rotate_one_body_tensor(one_body_tensor, u_beta_dag)
+        g_beta_beta = rotate_two_body_tensor(two_body_tensor, u_beta_dag, u_beta_dag)
+        g_alpha_beta = rotate_two_body_tensor(two_body_tensor, u_alpha_dag, u_beta_dag)
+        g_beta_alpha = rotate_two_body_tensor(two_body_tensor, u_beta_dag, u_alpha_dag)
 
         jastrow_mat, jastrow_vec = _spin_unbalanced_jastrow_phase(
             diag_coulomb_mats[0], diag_coulomb_mats[1], diag_coulomb_mats[2], norb
@@ -1295,9 +1271,9 @@ def _make_spinless_objective(
             if final_orbital_rotation is None
             else final_orbital_rotation @ orbital_rotation
         )
-        h_bp, g_bp = _propagate_through_orbital_rotations(
-            one_body_tensor, two_body_tensor, u
-        )
+        u_dag = u.conj().T
+        h_bp = rotate_one_body_tensor(one_body_tensor, u_dag)
+        g_bp = rotate_two_body_tensor(two_body_tensor, u_dag, u_dag)
         jastrow_mat, jastrow_vec = _spinless_jastrow_phase(diag_coulomb_mat)
         q = orbital_rotation.conj().T[:, occupied]
         return _compute_energy_spinless(
@@ -1312,64 +1288,6 @@ def _make_spinless_objective(
         )
 
     return jax.jit(jax.value_and_grad(energy, argnums=0))
-
-
-def _propagate_through_orbital_rotations(h_pq, g_pqrs, u):
-    r"""
-    Propagate one- and two-body tensors through an orbital rotation
-    using Lemma 1.
-
-    .. math::
-        H
-        = E_0
-        + \sum_{pq,\sigma} h_{pq} a^\dagger_{p\sigma} a_{q\sigma}
-        + \frac12 \sum_{pqrs,\sigma\tau} g_{pqrs}
-          a^\dagger_{p\sigma} a^\dagger_{r\tau} a_{s\tau} a_{q\sigma}.
-
-    For the orbital rotation matrix :math:`u`, this computes
-
-    .. math::
-        \tilde{h}_{p' q'} =
-        \sum_{pq} u^*_{p p'} h_{pq} u_{q q'}
-
-    and
-
-    .. math::
-        \tilde{g}_{p' q' r' s'}
-        = \sum_{p q r s}
-            u^*_{p p'} u_{q q'} g_{p q r s} u^*_{r r'} u_{s s'}.
-
-    Args:
-        h_pq: The one-body tensor.
-        g_pqrs: The two-body tensor.
-        u: The orbital rotation matrix.
-    Returns:
-        The propagated one- and two-body tensors.
-    """
-    h_tilde = u.conj().T @ h_pq @ u
-    g_tilde = jnp.einsum(
-        "pi,qj,pqrs,rk,sl->ijkl",
-        u.conj(),
-        u,
-        g_pqrs,
-        u.conj(),
-        u,
-        optimize=True,
-    )
-    return h_tilde, g_tilde
-
-
-def _propagate_spin_sector_tensor(g_pqrs, u_left, u_right):
-    """Propagate two-body terms whose two one-body factors use different rotations."""
-    return jnp.einsum(
-        "pi,qj,pqrs,rk,sl->ijkl",
-        u_left.conj(),
-        u_left,
-        g_pqrs,
-        u_right.conj(),
-        u_right,
-        optimize=True,
-    )
 
 
 def _spin_balanced_jastrow_phase(same, diff, norb):
