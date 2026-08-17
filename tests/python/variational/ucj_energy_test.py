@@ -267,7 +267,7 @@ def test_ucj_energy_and_grad():
         diag_coulomb_scale=0.5,
         seed=RNG,
     )
-    value, grad = ffsim.ucj_energy_and_grad(ucj_op_unbalanced, mol_hamiltonian, nelec)
+    value, grad = ffsim.ucj_energy_and_grad_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec)
     np.testing.assert_allclose(
         value,
         ffsim.ucj_energy_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec),
