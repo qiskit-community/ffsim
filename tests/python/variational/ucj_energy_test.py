@@ -43,10 +43,12 @@ def test_ucj_energy_spin_balanced_n2():
     assert norb == 8
     assert nelec == (5, 5)
 
-    pairs_aa = [(p, p) for p in range(norb-1)]
-    pairs_ab = [(p, p) for p in range(norb-1)]
+    pairs_aa = [(p, p) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb - 1)]
 
-    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1, interaction_pairs=(pairs_aa, pairs_ab), n_reps=1)
+    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
+        ccsd.t2, t1=ccsd.t1, interaction_pairs=(pairs_aa, pairs_ab), n_reps=1
+    )
 
     backprop_energy = ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
     statevector_energy = _statevector_energy(ucj_op, mol_hamiltonian, norb, nelec)
@@ -270,7 +272,9 @@ def test_ucj_energy_and_grad():
         diag_coulomb_scale=0.5,
         seed=RNG,
     )
-    value, grad = ffsim.ucj_energy_and_grad_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec)
+    value, grad = ffsim.ucj_energy_and_grad_spin_unbalanced(
+        ucj_op_unbalanced, mol_hamiltonian, nelec
+    )
     np.testing.assert_allclose(
         value,
         ffsim.ucj_energy_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec),
