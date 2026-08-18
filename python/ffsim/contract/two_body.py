@@ -145,7 +145,6 @@ def _two_body_linop_complex(
 
     def rmatvec(vec: np.ndarray):
         result = contract_2e_nosym(
-            # TODO come up with a way to test this transpose
             two_body_tensor.transpose(1, 0, 3, 2).conj(),
             vec,
             norb,

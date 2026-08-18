@@ -12,15 +12,35 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pyscf.fci
 import pytest
 from scipy.sparse.linalg import LinearOperator
 
 import ffsim
-from ffsim import FermionOperator
+from ffsim import FermionOperator, cre_a, cre_b, des_a, des_b
 
 RNG = np.random.default_rng(308444818162923832831691142041679886023)
+
+
+def _assert_linop_equals(
+    op: FermionOperator,
+    expected_linop: LinearOperator,
+    norb: int,
+    nelec: tuple[int, int],
+) -> None:
+    """Assert that the linear operator of op matches a reference linear operator."""
+    actual_linop = ffsim.linear_operator(op, norb, nelec)
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    original = vec.copy()
+    np.testing.assert_allclose(actual_linop @ vec, expected_linop @ vec, atol=1e-12)
+    np.testing.assert_allclose(
+        actual_linop.adjoint() @ vec, expected_linop.adjoint() @ vec, atol=1e-12
+    )
+    # test no side effect
+    np.testing.assert_allclose(original, vec)
 
 
 def _reference_linear_operator(
@@ -621,6 +641,8 @@ def test_linear_operator_one_body():
     """Test linear operator of a one-body operator."""
     norb = 5
 
+    # The tensor is deliberately not Hermitian, so that the adjoint of the operator
+    # is not the same as the operator itself.
     one_body_tensor = np.zeros((norb, norb)).astype(complex)
     one_body_tensor[1, 2] = 0.5
     one_body_tensor[2, 1] = -0.5
@@ -630,46 +652,107 @@ def test_linear_operator_one_body():
         expected_linop = ffsim.contract.one_body_linop(
             one_body_tensor, norb=norb, nelec=nelec
         )
+        _assert_linop_equals(
+            FermionOperator(
+                {
+                    (cre_a(1), des_a(2)): 0.5,
+                    (cre_a(2), des_a(1)): -0.5,
+                    (cre_a(3), des_a(1)): 1 + 1j,
+                    (cre_b(1), des_b(2)): 0.5,
+                    (cre_b(2), des_b(1)): -0.5,
+                    (cre_b(3), des_b(1)): 1 + 1j,
+                }
+            ),
+            expected_linop,
+            norb,
+            nelec,
+        )
+        # The same operator, with some terms written out of normal order. Reversing a
+        # term is a plain sign change only because its two orbitals differ, so the
+        # anticommutator contributes no lower-order term.
+        _assert_linop_equals(
+            FermionOperator(
+                {
+                    (des_a(2), cre_a(1)): -0.5,
+                    (des_a(1), cre_a(2)): 0.5,
+                    (cre_a(3), des_a(1)): 1 + 1j,
+                    (des_b(2), cre_b(1)): -0.5,
+                    (des_b(1), cre_b(2)): 0.5,
+                    (cre_b(3), des_b(1)): 1 + 1j,
+                }
+            ),
+            expected_linop,
+            norb,
+            nelec,
+        )
 
-        op = FermionOperator(
+
+def test_linear_operator_two_body():
+    """Test linear operator of a two-body operator."""
+    norb = 5
+
+    # The contraction assumes the tensor is symmetric within each of its index pairs
+    # and under exchanging the two pairs, so each entry is set together with the rest
+    # of its symmetry orbit. The tensor is deliberately not Hermitian as an operator,
+    # so that the adjoint is not the same as the operator itself.
+    two_body_tensor = np.zeros((norb, norb, norb, norb)).astype(complex)
+    for p, q, r, s in [
+        (1, 2, 3, 4),
+        (1, 2, 4, 3),
+        (2, 1, 3, 4),
+        (2, 1, 4, 3),
+        (3, 4, 1, 2),
+        (3, 4, 2, 1),
+        (4, 3, 1, 2),
+        (4, 3, 2, 1),
+    ]:
+        two_body_tensor[p, q, r, s] = 1 + 1j
+    two_body_tensor[0, 0, 3, 3] = two_body_tensor[3, 3, 0, 0] = 0.5
+    two_body_tensor[2, 2, 3, 3] = two_body_tensor[3, 3, 2, 2] = -0.25
+
+    # Each nonzero entry h[p, q, r, s] contributes
+    # 1/2 h[p, q, r, s] a^\dagger_{p sigma} a^\dagger_{r tau} a_{s tau} a_{q sigma}
+    # summed over both spins sigma and tau.
+    op = FermionOperator({})
+    for p, q, r, s in itertools.product(range(norb), repeat=4):
+        coeff = 0.5 * two_body_tensor[p, q, r, s]
+        if not coeff:
+            continue
+        op += FermionOperator(
             {
-                (ffsim.cre_a(1), ffsim.des_a(2)): 0.5,
-                (ffsim.cre_a(2), ffsim.des_a(1)): -0.5,
-                (ffsim.cre_a(3), ffsim.des_a(1)): 1 + 1j,
-                (ffsim.cre_b(1), ffsim.des_b(2)): 0.5,
-                (ffsim.cre_b(2), ffsim.des_b(1)): -0.5,
-                (ffsim.cre_b(3), ffsim.des_b(1)): 1 + 1j,
+                (cre_a(p), cre_a(r), des_a(s), des_a(q)): coeff,
+                (cre_a(p), cre_b(r), des_b(s), des_a(q)): coeff,
+                (cre_b(p), cre_a(r), des_a(s), des_b(q)): coeff,
+                (cre_b(p), cre_b(r), des_b(s), des_b(q)): coeff,
             }
         )
-        actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
-        original = vec.copy()
-        actual = actual_linop @ vec
-        expected = expected_linop @ vec
-        # test no side effect
-        np.testing.assert_allclose(original, vec)
-        # check results match
-        np.testing.assert_allclose(actual, expected)
 
-        op = FermionOperator(
-            {
-                (ffsim.des_a(2), ffsim.cre_a(1)): -0.5,
-                (ffsim.des_a(1), ffsim.cre_a(2)): 0.5,
-                (ffsim.cre_a(3), ffsim.des_a(1)): 1 + 1j,
-                (ffsim.des_b(2), ffsim.cre_b(1)): -0.5,
-                (ffsim.des_b(1), ffsim.cre_b(2)): 0.5,
-                (ffsim.cre_b(3), ffsim.des_b(1)): 1 + 1j,
-            }
+    for nelec in [(2, 2), (0, 2), (5, 4)]:
+        _assert_linop_equals(
+            op,
+            ffsim.contract.two_body_linop(two_body_tensor, norb=norb, nelec=nelec),
+            norb,
+            nelec,
         )
-        actual_linop = ffsim.linear_operator(op, norb, nelec)
-        vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
-        original = vec.copy()
-        actual = actual_linop @ vec
-        expected = expected_linop @ vec
-        # test no side effect
-        np.testing.assert_allclose(original, vec)
-        # check results match
-        np.testing.assert_allclose(actual, expected)
+
+    # A single quartic term, written in several equivalent orderings. Reordering is a
+    # plain sign change only because the four ladder operators act on distinct
+    # (spin, orbital) pairs, so the anticommutators contribute no lower-order term.
+    expected_op = FermionOperator(
+        {(cre_a(0), cre_a(2), des_a(3), des_a(1)): 0.75 - 0.25j}
+    )
+    reordered_ops = [
+        # the two creations swapped, an odd permutation
+        FermionOperator({(cre_a(2), cre_a(0), des_a(3), des_a(1)): -(0.75 - 0.25j)}),
+        # the two annihilations swapped, an odd permutation
+        FermionOperator({(cre_a(0), cre_a(2), des_a(1), des_a(3)): -(0.75 - 0.25j)}),
+        # fully reversed, an even permutation
+        FermionOperator({(des_a(1), des_a(3), cre_a(2), cre_a(0)): 0.75 - 0.25j}),
+    ]
+    for nelec in [(2, 2), (0, 2), (5, 4)]:
+        expected_linop = ffsim.linear_operator(expected_op, norb, nelec)
+        for reordered_op in reordered_ops:
+            _assert_linop_equals(reordered_op, expected_linop, norb, nelec)
 
 
 def test_linear_operator():
