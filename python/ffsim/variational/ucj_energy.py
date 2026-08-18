@@ -29,6 +29,7 @@ from ffsim.variational.util import validate_interaction_pairs
 
 jax.config.update("jax_enable_x64", True)
 
+
 def ucj_energy_spin_balanced(
     ucj_op: UCJOpSpinBalanced,
     hamiltonian: MolecularHamiltonian,
