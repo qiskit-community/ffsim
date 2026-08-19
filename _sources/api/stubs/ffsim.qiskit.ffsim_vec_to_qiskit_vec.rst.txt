@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.ffsim\_vec\_to\_qiskit\_vec
+========================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autofunction:: ffsim_vec_to_qiskit_vec

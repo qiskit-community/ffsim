@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.PrepareSlaterDeterminantJW
+=======================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: PrepareSlaterDeterminantJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

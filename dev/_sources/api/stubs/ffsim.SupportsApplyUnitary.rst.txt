@@ -1,0 +1,23 @@
+﻿ffsim.SupportsApplyUnitary
+==========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsApplyUnitary
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsApplyUnitary._apply_unitary_
+
+   .. automethod:: _apply_unitary_
+   
+   

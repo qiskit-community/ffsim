@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_diagonal\_coulomb\_hamiltonian
+===================================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_diagonal_coulomb_hamiltonian
