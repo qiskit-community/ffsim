@@ -346,15 +346,19 @@ def strings_to_addresses(
         strings, input_type=bitstring_type, output_type=BitstringType.INT, length=norb
     )
     if isinstance(nelec, int):
-        return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings)
+        # PySCF returns int32 addresses
+        return cistring.strs2addr(norb=norb, nelec=nelec, strings=strings).astype(
+            np.int64
+        )
     n_alpha, n_beta = nelec
-    strings = np.asarray(strings)
+    strings = np.asarray(strings, dtype=np.uint64 if norb <= 32 else object)
     strings_a = strings & ((1 << norb) - 1)
     strings_b = strings >> norb
     addrs_a = cistring.strs2addr(norb=norb, nelec=n_alpha, strings=strings_a)
     addrs_b = cistring.strs2addr(norb=norb, nelec=n_beta, strings=strings_b)
     dim_b = math.comb(norb, n_beta)
-    return addrs_a * dim_b + addrs_b
+    # PySCF returns int32 addresses
+    return addrs_a.astype(np.int64) * dim_b + addrs_b
 
 
 def bitstring_to_occupied_orbitals(bitstring: int) -> list[int]:
