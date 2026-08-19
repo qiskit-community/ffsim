@@ -299,6 +299,57 @@ def test_addresses_to_strings_large_address():
     ]
 
 
+@pytest.mark.parametrize("norb", [31, 32, 33, 63])
+def test_addresses_and_strings_roundtrip_wide(norb: int):
+    """Test round trip for spinful bitstrings wider than a single spin's."""
+    nelec = (1, 1)
+    dim = ffsim.dim(norb, nelec)
+    addresses = np.array([0, dim // 2, dim - 1])
+    strings = ffsim.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    assert strings[-1] == (1 << (norb - 1)) | (1 << (2 * norb - 1))
+    np.testing.assert_array_equal(
+        ffsim.strings_to_addresses(strings, norb=norb, nelec=nelec), addresses
+    )
+
+
+@pytest.mark.parametrize("norb", [32, 33, 47, 62])
+def test_addresses_and_strings_roundtrip_int64_boundary(norb: int):
+    """Test round trip for spinful bitstrings straddling the largest int64."""
+    nelec = (1, 1)
+    addresses = np.array([0, 63 - norb])
+    strings = ffsim.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    assert strings[0] < 2**63 <= strings[1] < 2**64
+    np.testing.assert_array_equal(
+        ffsim.strings_to_addresses(strings, norb=norb, nelec=nelec), addresses
+    )
+
+
+def test_strings_to_addresses_large_dimension():
+    """Test converting strings to addresses in a space too large to index in int32."""
+    norb = 30
+    nelec = (15, 15)
+    n_beta = nelec[1]
+    dim = ffsim.dim(norb, nelec)
+    assert ffsim.dim(norb, n_beta) < 2**31 <= dim
+    addresses = np.array([0, dim // 2, dim - 1])
+    strings = ffsim.addresses_to_strings(addresses, norb=norb, nelec=nelec)
+    np.testing.assert_array_equal(
+        ffsim.strings_to_addresses(strings, norb=norb, nelec=nelec), addresses
+    )
+
+
+def test_strings_to_addresses_spinless_recombination():
+    """Test that spinless addresses are wide enough to recombine across spins."""
+    norb = 30
+    nocc = 15
+    dim = ffsim.dim(norb, nocc)
+    # The highest address, making the product below the largest one reachable.
+    strings = [sum(1 << orb for orb in range(norb - nocc, norb))]
+    addresses = ffsim.strings_to_addresses(strings, norb=norb, nelec=nocc)
+    assert addresses[0] == dim - 1
+    np.testing.assert_array_equal(addresses * dim, [(dim - 1) * dim])
+
+
 def test_strings_to_addresses_int():
     """Test converting statevector strings to addresses, input type int."""
     norb = 3
