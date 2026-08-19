@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "ffsim"
 requires-python = ">=3.11"
-version = "0.0.84"
+version = "0.0.85.dev"
 description = "Faster simulation of fermionic quantum circuits."
 readme = "README.md"
 license = { file = "LICENSE" }
