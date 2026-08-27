@@ -165,7 +165,27 @@ def test_ucj_energy_spinless(pairs):
     assert optimized_energy < ucj_energy
 
 
-def test_ucj_energy_chunk_size_nondivisor():
+def test_ucj_energy_chunk_size_nondivisor_spin_balanced():
+    """Test two-body chunking with chunk sizes that do not divide term counts."""
+    norb = 4
+
+    nelec = (2, 1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+        norb,
+        n_reps=1,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
+    unchunked = ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
+    chunked = ffsim.ucj_energy_spin_balanced(
+        ucj_op, mol_hamiltonian, nelec, chunk_size=7
+    )
+    np.testing.assert_allclose(chunked, unchunked)
+
+
+def test_ucj_energy_chunk_size_nondivisor_spin_unbalanced():
     """Test two-body chunking with chunk sizes that do not divide term counts."""
     norb = 4
 
@@ -183,6 +203,11 @@ def test_ucj_energy_chunk_size_nondivisor():
         ucj_op, mol_hamiltonian, nelec, chunk_size=7
     )
     np.testing.assert_allclose(chunked, unchunked)
+
+
+def test_ucj_energy_chunk_size_nondivisor_spinless():
+    """Test two-body chunking with chunk sizes that do not divide term counts."""
+    norb = 4
 
     nelec_spinless = 2
     mol_hamiltonian_spinless = ffsim.random.random_molecular_hamiltonian_spinless(
