@@ -20,6 +20,25 @@ def statevector_energy(ucj_op, hamiltonian, norb, nelec):
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     return np.real(np.vdot(ansatz_state, linop @ ansatz_state))
 
+def finite_diff_grad(
+    energy_func,
+    from_parameters,
+    params,
+    index,
+    energy_args,
+    from_parameters_kwargs,
+    eps=1e-6,
+):
+    step = np.zeros_like(params)
+    step[index] = eps
+    plus_op = from_parameters(params + step, **from_parameters_kwargs)
+    minus_op = from_parameters(params - step, **from_parameters_kwargs)
+    plus_energy = energy_func(plus_op, *energy_args)
+    minus_energy = energy_func(minus_op, *energy_args)
+    return (plus_energy - minus_energy) / (2 * eps)
+
+
+
 @pytest.mark.parametrize(
     "pairs",
     [
@@ -232,10 +251,9 @@ def test_ucj_energy_chunk_size_nondivisor_spinless():
     np.testing.assert_allclose(chunked, unchunked)
 
 
-def test_ucj_energy_and_grad_func():
-    """Test UCJ energy-and-gradient callables."""
+def test_ucj_energy_and_grad_func_spin_balanced():
+    """Test UCJ energy-and-gradient callable."""
     norb = 3
-
     nelec = (1, 1)
     mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
 
@@ -249,11 +267,35 @@ def test_ucj_energy_and_grad_func():
     value_and_grad = ffsim.ucj_energy_and_grad_func_spin_balanced(
         ucj_op_balanced, mol_hamiltonian, nelec, chunk_size=5
     )
-    value, grad = value_and_grad(ucj_op_balanced.to_parameters())
+    params = ucj_op_balanced.to_parameters()
+    value, grad = value_and_grad(params)
     np.testing.assert_allclose(
         value, ffsim.ucj_energy_spin_balanced(ucj_op_balanced, mol_hamiltonian, nelec)
     )
-    assert grad.shape == ucj_op_balanced.to_parameters().shape
+    assert grad.shape == params.shape
+
+    indices = RNG.choice(params.shape[0], size=3, replace=False)
+    for index in indices:
+        finite_diff = finite_diff_grad(
+            ffsim.ucj_energy_spin_balanced,
+            ffsim.UCJOpSpinBalanced.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian, nelec),
+            from_parameters_kwargs=dict(
+                norb=norb,
+                n_reps=1,
+                with_final_orbital_rotation=True,
+            ),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
+
+
+def test_ucj_energy_and_grad_func_spin_unbalanced():
+    """Test UCJ energy-and-gradient callable."""
+    norb = 3
+    nelec = (1, 1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
 
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb,
@@ -265,13 +307,34 @@ def test_ucj_energy_and_grad_func():
     value_and_grad = ffsim.ucj_energy_and_grad_func_spin_unbalanced(
         ucj_op_unbalanced, mol_hamiltonian, nelec
     )
-    value, grad = value_and_grad(ucj_op_unbalanced.to_parameters())
+    params = ucj_op_unbalanced.to_parameters()
+    value, grad = value_and_grad(params)
     np.testing.assert_allclose(
         value,
         ffsim.ucj_energy_spin_unbalanced(ucj_op_unbalanced, mol_hamiltonian, nelec),
     )
-    assert grad.shape == ucj_op_unbalanced.to_parameters().shape
+    assert grad.shape == params.shape
 
+    indices = RNG.choice(params.shape[0], size=3, replace=False)
+    for index in indices:
+        finite_diff = finite_diff_grad(
+            ffsim.ucj_energy_spin_unbalanced,
+            ffsim.UCJOpSpinUnbalanced.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian, nelec),
+            from_parameters_kwargs=dict(
+                norb=norb,
+                n_reps=1,
+                with_final_orbital_rotation=True,
+            ),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
+
+
+def test_ucj_energy_and_grad_func_spinless():
+    """Test UCJ energy-and-gradient callable."""
+    norb = 3
     nelec_spinless = 2
     mol_hamiltonian_spinless = ffsim.random.random_molecular_hamiltonian_spinless(
         norb, seed=RNG
@@ -307,26 +370,19 @@ def test_ucj_energy_and_grad_func():
     )
     assert grad.shape == params.shape
 
-    eps = 1e-6
-    index = 0
-    step = np.zeros_like(params)
-    step[index] = eps
-    plus_op = ffsim.UCJOpSpinless.from_parameters(
-        params + step,
-        norb=norb,
-        n_reps=1,
-        interaction_pairs=interaction_pairs,
-        with_final_orbital_rotation=True,
-    )
-    minus_op = ffsim.UCJOpSpinless.from_parameters(
-        params - step,
-        norb=norb,
-        n_reps=1,
-        interaction_pairs=interaction_pairs,
-        with_final_orbital_rotation=True,
-    )
-    finite_diff = (
-        ffsim.ucj_energy_spinless(plus_op, mol_hamiltonian_spinless, nelec_spinless)
-        - ffsim.ucj_energy_spinless(minus_op, mol_hamiltonian_spinless, nelec_spinless)
-    ) / (2 * eps)
-    np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
+    indices = RNG.choice(params.shape[0], size=3, replace=False)
+    for index in indices:
+        finite_diff = finite_diff_grad(
+            ffsim.ucj_energy_spinless,
+            ffsim.UCJOpSpinless.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian_spinless, nelec_spinless),
+            from_parameters_kwargs=dict(
+                norb=norb,
+                n_reps=1,
+                interaction_pairs=interaction_pairs,
+                with_final_orbital_rotation=True,
+            ),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
