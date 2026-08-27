@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 import itertools
 from collections.abc import Sequence
-from typing import Literal, cast, overload
+from typing import Callable, Literal, cast, overload
 
 import jax
 import jax.numpy as jnp
@@ -106,8 +106,7 @@ def ucj_energy_spin_balanced(
         )
     )
 
-
-def ucj_energy_and_grad_spin_balanced(
+def ucj_energy_and_grad_func_spin_balanced(
     ucj_op: UCJOpSpinBalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
@@ -116,10 +115,11 @@ def ucj_energy_and_grad_spin_balanced(
     *,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
-) -> tuple[float, np.ndarray]:
-    """Compute the UCJ energy and parameter gradient for a spin-balanced system.
+) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
+    """
+    Return a callable that computes the UCJ energy and parameter gradient for a spin-balanced system.
 
-    The gradient is with respect to the flattened parameter vector returned by
+    The gradient is with respect to the flattened parameter vector returned by 
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
 
     Args:
@@ -135,8 +135,9 @@ def ucj_energy_and_grad_spin_balanced(
             If ``None``, all two-body terms are processed in one batch.
 
     Returns:
-        The energy and its gradient with respect to the UCJ parameter vector.
+        A callable that takes a flattened parameter vector and returns the energy value and gradient.
     """
+
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
 
@@ -168,159 +169,21 @@ def ucj_energy_and_grad_spin_balanced(
         occupied_orbitals_key,
         chunk_size,
     )
-    return _evaluate_ucj_value_and_grad(
-        value_and_grad,
-        ucj_op.to_parameters(interaction_pairs=interaction_pairs),
-        hamiltonian,
-    )
 
+    one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
+    two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
+    constant = jnp.asarray(hamiltonian.constant)
 
-@overload
-def optimize_ucj_energy_spin_balanced(
-    initial_ucj_op: UCJOpSpinBalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[False] = False,
-) -> UCJOpSpinBalanced: ...
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(
+            jnp.asarray(x),
+            one_body_tensor,
+            two_body_tensor,
+            constant,
+        )
+        return float(value), np.asarray(grad)
 
-
-@overload
-def optimize_ucj_energy_spin_balanced(
-    initial_ucj_op: UCJOpSpinBalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[True] = True,
-) -> tuple[UCJOpSpinBalanced, scipy.optimize.OptimizeResult]: ...
-
-
-@overload
-def optimize_ucj_energy_spin_balanced(
-    initial_ucj_op: UCJOpSpinBalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> UCJOpSpinBalanced | tuple[UCJOpSpinBalanced, scipy.optimize.OptimizeResult]: ...
-
-
-def optimize_ucj_energy_spin_balanced(
-    initial_ucj_op: UCJOpSpinBalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> UCJOpSpinBalanced | tuple[UCJOpSpinBalanced, scipy.optimize.OptimizeResult]:
-    """Optimize a spin-balanced UCJ operator to minimize energy.
-
-    Args:
-        initial_ucj_op: The initial UCJ operator. Must have n_reps=1, with an
-            optional final orbital rotation.
-        hamiltonian: The Hamiltonian.
-        nelec: The number of alpha and beta electrons.
-        interaction_pairs: The interaction pairs used to parameterize the Jastrow
-            matrices. If None, all pairs are considered.
-        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
-            the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
-        method: The optimization method. See the documentation of
-            `scipy.optimize.minimize`_ for possible values.
-        callback: Callback function for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        options: Options for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
-
-    Returns:
-        The optimized UCJ operator. If ``return_optimize_result`` is set to ``True``,
-        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """
-    _validate_ucj_op(initial_ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, initial_ucj_op.norb)
-
-    norb = initial_ucj_op.norb
-    with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
-    triu_indices = cast(
-        list[tuple[int, int]],
-        list(itertools.combinations_with_replacement(range(norb), 2)),
-    )
-    pairs_aa, pairs_ab = (
-        interaction_pairs if interaction_pairs is not None else (None, None)
-    )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=False)
-    if pairs_aa is None:
-        pairs_aa = triu_indices
-    if pairs_ab is None:
-        pairs_ab = triu_indices
-    interaction_pairs_key = (
-        _interaction_pairs_key(pairs_aa),
-        _interaction_pairs_key(pairs_ab),
-    )
-    occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
-
-    value_and_grad = _make_spin_balanced_objective(
-        norb,
-        interaction_pairs_key,
-        with_final_orbital_rotation,
-        occupied_orbitals_key,
-        chunk_size,
-    )
-    result = _minimize_ucj_parameters(
-        value_and_grad,
-        initial_ucj_op.to_parameters(interaction_pairs=interaction_pairs),
-        hamiltonian,
-        method,
-        callback,
-        options,
-    )
-    optimized_ucj_op = UCJOpSpinBalanced.from_parameters(
-        result.x,
-        norb=initial_ucj_op.norb,
-        n_reps=1,
-        interaction_pairs=interaction_pairs,
-        with_final_orbital_rotation=with_final_orbital_rotation,
-    )
-
-    if return_optimize_result:
-        return optimized_ucj_op, result
-
-    return optimized_ucj_op
-
+    return scipy_func
 
 def ucj_energy_spin_unbalanced(
     ucj_op: UCJOpSpinUnbalanced,
@@ -406,8 +269,7 @@ def ucj_energy_spin_unbalanced(
         )
     )
 
-
-def ucj_energy_and_grad_spin_unbalanced(
+def ucj_energy_and_grad_func_spin_unbalanced(
     ucj_op: UCJOpSpinUnbalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
@@ -420,8 +282,9 @@ def ucj_energy_and_grad_spin_unbalanced(
     *,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
-) -> tuple[float, np.ndarray]:
-    """Compute the UCJ energy and parameter gradient for a spin-unbalanced system.
+) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
+    """
+    Return a callable that computes the UCJ energy and parameter gradient for a spin-unbalanced system.
 
     The gradient is with respect to the flattened parameter vector returned by
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
@@ -479,184 +342,21 @@ def ucj_energy_and_grad_spin_unbalanced(
         occupied_orbitals_key,
         chunk_size,
     )
-    return _evaluate_ucj_value_and_grad(
-        value_and_grad,
-        ucj_op.to_parameters(interaction_pairs),
-        hamiltonian,
-    )
 
+    one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
+    two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
+    constant = jnp.asarray(hamiltonian.constant)
 
-@overload
-def optimize_ucj_energy_spin_unbalanced(
-    initial_ucj_op: UCJOpSpinUnbalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-    ]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[False] = False,
-) -> UCJOpSpinUnbalanced: ...
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(
+            jnp.asarray(x),
+            one_body_tensor,
+            two_body_tensor,
+            constant,
+        )
+        return float(value), np.asarray(grad)
 
-
-@overload
-def optimize_ucj_energy_spin_unbalanced(
-    initial_ucj_op: UCJOpSpinUnbalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-    ]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[True] = True,
-) -> tuple[UCJOpSpinUnbalanced, scipy.optimize.OptimizeResult]: ...
-
-
-@overload
-def optimize_ucj_energy_spin_unbalanced(
-    initial_ucj_op: UCJOpSpinUnbalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-    ]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> (
-    UCJOpSpinUnbalanced | tuple[UCJOpSpinUnbalanced, scipy.optimize.OptimizeResult]
-): ...
-
-
-def optimize_ucj_energy_spin_unbalanced(
-    initial_ucj_op: UCJOpSpinUnbalanced,
-    hamiltonian: MolecularHamiltonian,
-    nelec: tuple[int, int],
-    *,
-    interaction_pairs: tuple[
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-        list[tuple[int, int]] | None,
-    ]
-    | None = None,
-    occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> UCJOpSpinUnbalanced | tuple[UCJOpSpinUnbalanced, scipy.optimize.OptimizeResult]:
-    """Optimize a spin-unbalanced UCJ operator to minimize energy.
-
-    Args:
-        initial_ucj_op: The initial UCJ operator. Must have n_reps=1, with an
-            optional final orbital rotation.
-        hamiltonian: The Hamiltonian.
-        nelec: The number of alpha and beta electrons.
-        interaction_pairs: The interaction pairs used to parameterize the Jastrow
-            matrices. If None, all pairs are considered.
-        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
-            the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
-        method: The optimization method. See the documentation of
-            `scipy.optimize.minimize`_ for possible values.
-        callback: Callback function for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        options: Options for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
-
-    Returns:
-        The optimized UCJ operator. If ``return_optimize_result`` is set to ``True``,
-        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """
-    _validate_ucj_op(initial_ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, initial_ucj_op.norb)
-
-    norb = initial_ucj_op.norb
-    with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
-    triu_indices = cast(
-        list[tuple[int, int]],
-        list(itertools.combinations_with_replacement(range(norb), 2)),
-    )
-    mat_indices = cast(
-        list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
-    )
-    pairs_aa, pairs_ab, pairs_bb = (
-        interaction_pairs if interaction_pairs is not None else (None, None, None)
-    )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=True)
-    validate_interaction_pairs(pairs_bb, ordered=False)
-    if pairs_aa is None:
-        pairs_aa = triu_indices
-    if pairs_ab is None:
-        pairs_ab = mat_indices
-    if pairs_bb is None:
-        pairs_bb = triu_indices
-    interaction_pairs_key = (
-        _interaction_pairs_key(pairs_aa),
-        _interaction_pairs_key(pairs_ab),
-        _interaction_pairs_key(pairs_bb),
-    )
-    occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
-
-    value_and_grad = _make_spin_unbalanced_objective(
-        norb,
-        interaction_pairs_key,
-        with_final_orbital_rotation,
-        occupied_orbitals_key,
-        chunk_size,
-    )
-    result = _minimize_ucj_parameters(
-        value_and_grad,
-        initial_ucj_op.to_parameters(interaction_pairs),
-        hamiltonian,
-        method,
-        callback,
-        options,
-    )
-    optimized_ucj_op = UCJOpSpinUnbalanced.from_parameters(
-        result.x,
-        norb=initial_ucj_op.norb,
-        n_reps=1,
-        interaction_pairs=interaction_pairs,
-        with_final_orbital_rotation=with_final_orbital_rotation,
-    )
-
-    if return_optimize_result:
-        return optimized_ucj_op, result
-
-    return optimized_ucj_op
-
+    return scipy_func
 
 def ucj_energy_spinless(
     ucj_op: UCJOpSpinless,
@@ -718,8 +418,7 @@ def ucj_energy_spinless(
         )
     )
 
-
-def ucj_energy_and_grad_spinless(
+def ucj_energy_and_grad_func_spinless(
     ucj_op: UCJOpSpinless,
     hamiltonian: MolecularHamiltonianSpinless,
     nelec: int,
@@ -727,8 +426,9 @@ def ucj_energy_and_grad_spinless(
     *,
     occupied_orbitals: Sequence[int] | None = None,
     chunk_size: int | None = None,
-) -> tuple[float, np.ndarray]:
-    """Compute the UCJ energy and parameter gradient for a spinless system.
+) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
+    """
+    Return a callable that computes the UCJ energy and parameter gradient for a spinless system.
 
     The gradient is with respect to the flattened parameter vector returned by
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
@@ -774,150 +474,21 @@ def ucj_energy_and_grad_spinless(
         occupied_orbitals_key,
         chunk_size,
     )
-    return _evaluate_ucj_value_and_grad(
-        value_and_grad,
-        ucj_op.to_parameters(interaction_pairs=interaction_pairs),
-        hamiltonian,
-    )
 
+    one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
+    two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
+    constant = jnp.asarray(hamiltonian.constant)
 
-@overload
-def optimize_ucj_energy_spinless(
-    initial_ucj_op: UCJOpSpinless,
-    hamiltonian: MolecularHamiltonianSpinless,
-    nelec: int,
-    *,
-    interaction_pairs: list[tuple[int, int]] | None = None,
-    occupied_orbitals: Sequence[int] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[False] = False,
-) -> UCJOpSpinless: ...
-
-
-@overload
-def optimize_ucj_energy_spinless(
-    initial_ucj_op: UCJOpSpinless,
-    hamiltonian: MolecularHamiltonianSpinless,
-    nelec: int,
-    *,
-    interaction_pairs: list[tuple[int, int]] | None = None,
-    occupied_orbitals: Sequence[int] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: Literal[True] = True,
-) -> tuple[UCJOpSpinless, scipy.optimize.OptimizeResult]: ...
-
-
-@overload
-def optimize_ucj_energy_spinless(
-    initial_ucj_op: UCJOpSpinless,
-    hamiltonian: MolecularHamiltonianSpinless,
-    nelec: int,
-    *,
-    interaction_pairs: list[tuple[int, int]] | None = None,
-    occupied_orbitals: Sequence[int] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> UCJOpSpinless | tuple[UCJOpSpinless, scipy.optimize.OptimizeResult]: ...
-
-
-def optimize_ucj_energy_spinless(
-    initial_ucj_op: UCJOpSpinless,
-    hamiltonian: MolecularHamiltonianSpinless,
-    nelec: int,
-    *,
-    interaction_pairs: list[tuple[int, int]] | None = None,
-    occupied_orbitals: Sequence[int] | None = None,
-    chunk_size: int | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
-    return_optimize_result: bool = False,
-) -> UCJOpSpinless | tuple[UCJOpSpinless, scipy.optimize.OptimizeResult]:
-    """Optimize a spinless UCJ operator to minimize energy.
-
-    Args:
-        initial_ucj_op: The initial UCJ operator. Must have n_reps=1, with an
-            optional final orbital rotation.
-        hamiltonian: The Hamiltonian.
-        nelec: The number of electrons.
-        interaction_pairs: The interaction pairs used to parameterize the Jastrow
-            matrix. If None, all pairs are considered.
-        occupied_orbitals: The occupied orbitals for the reference state. Defaults to
-            the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
-        method: The optimization method. See the documentation of
-            `scipy.optimize.minimize`_ for possible values.
-        callback: Callback function for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        options: Options for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
-
-    Returns:
-        The optimized UCJ operator. If ``return_optimize_result`` is set to ``True``,
-        the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also returned.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
-    """
-    _validate_ucj_op(initial_ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, initial_ucj_op.norb)
-
-    norb = initial_ucj_op.norb
-    with_final_orbital_rotation = initial_ucj_op.final_orbital_rotation is not None
-    validate_interaction_pairs(interaction_pairs, ordered=False)
-    interaction_pairs_resolved = (
-        cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
+    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        value, grad = value_and_grad(
+            jnp.asarray(x),
+            one_body_tensor,
+            two_body_tensor,
+            constant,
         )
-        if interaction_pairs is None
-        else interaction_pairs
-    )
-    interaction_pairs_key = _interaction_pairs_key(interaction_pairs_resolved)
-    occupied_orbitals_key = _occupied_orbitals_key_spinless(
-        norb, nelec, occupied_orbitals
-    )
+        return float(value), np.asarray(grad)
 
-    value_and_grad = _make_spinless_objective(
-        norb,
-        interaction_pairs_key,
-        with_final_orbital_rotation,
-        occupied_orbitals_key,
-        chunk_size,
-    )
-    result = _minimize_ucj_parameters(
-        value_and_grad,
-        initial_ucj_op.to_parameters(interaction_pairs=interaction_pairs),
-        hamiltonian,
-        method,
-        callback,
-        options,
-    )
-    optimized_ucj_op = UCJOpSpinless.from_parameters(
-        result.x,
-        norb=initial_ucj_op.norb,
-        n_reps=1,
-        interaction_pairs=interaction_pairs,
-        with_final_orbital_rotation=with_final_orbital_rotation,
-    )
-
-    if return_optimize_result:
-        return optimized_ucj_op, result
-
-    return optimized_ucj_op
-
+    return scipy_func
 
 def _validate_ucj_op(ucj_op) -> None:
     """Check if the UCJ operator is compatible with fermionic backpropagation."""
@@ -937,58 +508,10 @@ def _validate_molecular_hamiltonian(
             f"orbitals. Got {hamiltonian.norb} and {norb}."
         )
 
-
-def _evaluate_ucj_value_and_grad(
-    value_and_grad,
-    params: np.ndarray,
-    hamiltonian: MolecularHamiltonian | MolecularHamiltonianSpinless,
-) -> tuple[float, np.ndarray]:
-    """Evaluate a JAX UCJ objective and return NumPy-compatible outputs."""
-    value, grad = value_and_grad(
-        jnp.asarray(params),
-        jnp.asarray(hamiltonian.one_body_tensor),
-        jnp.asarray(hamiltonian.two_body_tensor),
-        jnp.asarray(hamiltonian.constant),
-    )
-    return float(value), np.asarray(grad)
-
-
-def _minimize_ucj_parameters(
-    value_and_grad,
-    initial_params: np.ndarray,
-    hamiltonian: MolecularHamiltonian | MolecularHamiltonianSpinless,
-    method: str,
-    callback,
-    options: dict | None,
-) -> scipy.optimize.OptimizeResult:
-    """Run SciPy minimization with a JAX value-and-gradient function."""
-    one_body_tensor = jnp.asarray(hamiltonian.one_body_tensor)
-    two_body_tensor = jnp.asarray(hamiltonian.two_body_tensor)
-    constant = jnp.asarray(hamiltonian.constant)
-
-    def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
-        value, grad = value_and_grad(
-            jnp.asarray(x),
-            one_body_tensor,
-            two_body_tensor,
-            constant,
-        )
-        return float(value), np.asarray(grad)
-
-    return scipy.optimize.minimize(
-        scipy_func,
-        initial_params,
-        method=method,
-        jac=True,
-        callback=callback,
-        options=options,
-    )
-
-
 def _interaction_pairs_key(
     interaction_pairs: Sequence[tuple[int, int]],
 ) -> tuple[tuple[int, int], ...]:
-    """Functools requires arguments to be hashable."""
+    """functools.cache requires arguments to be hashable."""
     return tuple((i, j) for i, j in interaction_pairs)
 
 
@@ -997,7 +520,7 @@ def _occupied_orbitals_key(
     nelec: tuple[int, int],
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    """Functools requires arguments to be hashable."""
+    """functools.cache requires arguments to be hashable."""
     if occupied_orbitals is None:
         occupied_orbitals = (range(nelec[0]), range(nelec[1]))
 
