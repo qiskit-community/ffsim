@@ -45,11 +45,31 @@ def test_ucj_energy_spin_balanced(pairs):
     optimized_energy = ffsim.ucj_energy_spin_balanced(optimized_ucj_op, mol_hamiltonian, nelec)
     assert optimized_energy < ucj_energy
 
-# def test_ucj_energy_spin_unbalanced(): 
-#     ...
+@pytest.mark.parametrize("pairs", [None, (None, None, None), ([(0, 0), (1, 1)], [(0, 0), (1, 1)], [(0, 0), (1, 1)]), ([(0, 0), (1, 1)], None, None)])
+def test_ucj_energy_spin_unbalanced(pairs): 
+    norb = 3
+    nelec = (1, 1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb,
+        n_reps=1,
+        interaction_pairs=pairs,
+        with_final_orbital_rotation=True,
+        diag_coulomb_scale=0.5,
+        seed=RNG,
+    )
 
-# def test_ucj_energy_spinless(): 
-#     ...
+    ucj_energy = ffsim.ucj_energy_spin_unbalanced(ucj_op, mol_hamiltonian, nelec)
+    sv_energy = statevector_energy(ucj_op, mol_hamiltonian, norb, nelec)
+
+    np.testing.assert_allclose(ucj_energy, sv_energy)
+
+    optimized_ucj_op = ffsim.optimize_ucj_energy_spin_unbalanced(
+        ucj_op, mol_hamiltonian, nelec, interaction_pairs=pairs, options={"maxiter": 5}
+    )
+
+    optimized_energy = ffsim.ucj_energy_spin_unbalanced(optimized_ucj_op, mol_hamiltonian, nelec)
+    assert optimized_energy < ucj_energy
 
 # def test_ucj_energy_spin_balanced_n2():
 #     """Compare fermionic backpropagation against statevector simulation."""
