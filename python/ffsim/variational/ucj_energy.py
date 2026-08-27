@@ -501,7 +501,9 @@ def ucj_energy_and_grad_func_spinless(
     return scipy_func
 
 
-def _validate_ucj_op(ucj_op) -> None:
+def _validate_ucj_op(
+    ucj_op: UCJOpSpinBalanced | UCJOpSpinUnbalanced | UCJOpSpinless,
+) -> None:
     """Check if the UCJ operator is compatible with fermionic backpropagation."""
     if ucj_op.n_reps != 1:
         raise NotImplementedError(
@@ -576,7 +578,9 @@ def _make_spin_balanced_objective(
     with_final_orbital_rotation: bool,
     occupied_orbitals_key: tuple[tuple[int, ...], tuple[int, ...]],
     chunk_size: int | None,
-):
+) -> Callable[
+    [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
+]:
     """Build a jitted value-and-gradient function for spin-balanced UCJ energy."""
     interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
     occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
@@ -654,7 +658,9 @@ def _make_spin_unbalanced_objective(
     with_final_orbital_rotation: bool,
     occupied_orbitals_key: tuple[tuple[int, ...], tuple[int, ...]],
     chunk_size: int | None,
-):
+) -> Callable[
+    [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
+]:
     """Build a jitted value-and-gradient function for spin-unbalanced UCJ energy."""
     interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
     occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
@@ -770,7 +776,9 @@ def _make_spinless_objective(
     with_final_orbital_rotation: bool,
     occupied_orbitals_key: tuple[int, ...],
     chunk_size: int | None,
-):
+) -> Callable[
+    [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
+]:
     """Build a jitted value-and-gradient function for spinless UCJ energy."""
     interaction_pairs = list(interaction_pairs_key)
     occupied = jnp.asarray(occupied_orbitals_key)
@@ -826,7 +834,9 @@ def _make_spinless_objective(
     return jax.jit(jax.value_and_grad(energy, argnums=0))
 
 
-def _spin_balanced_jastrow_phase(same, diff, norb):
+def _spin_balanced_jastrow_phase(
+    same: jax.Array, diff: jax.Array, norb: int
+) -> tuple[jax.Array, jax.Array]:
     r"""
     Convert spin-balanced Jastrow matrices to spin-orbital phase parameters.
 
@@ -868,7 +878,9 @@ def _spin_balanced_jastrow_phase(same, diff, norb):
     return jastrow_mat, jastrow_vec
 
 
-def _spin_unbalanced_jastrow_phase(same_aa, diff_ab, same_bb, norb):
+def _spin_unbalanced_jastrow_phase(
+    same_aa: jax.Array, diff_ab: jax.Array, same_bb: jax.Array, norb: int
+) -> tuple[jax.Array, jax.Array]:
     """Convert spin-unbalanced Jastrow matrices to spin-orbital phase parameters."""
     n_spin_orbitals = 2 * norb
 
@@ -885,13 +897,13 @@ def _spin_unbalanced_jastrow_phase(same_aa, diff_ab, same_bb, norb):
     return jastrow_mat, jastrow_vec
 
 
-def _spinless_jastrow_phase(mat):
+def _spinless_jastrow_phase(mat: jax.Array) -> tuple[jax.Array, jax.Array]:
     """Convert a spinless Jastrow matrix to phase parameters."""
     mat_offdiag = mat - jnp.diag(jnp.diag(mat))
     return mat_offdiag / 2, jnp.diag(mat) / 2
 
 
-def _transition_batch(phi, q):
+def _transition_batch(phi: jax.Array, q: jax.Array) -> tuple[jax.Array, jax.Array]:
     """Compute diagonal-phase Slater overlaps and transition densities."""
     q_conj = jnp.conj(q)
     n_occ = q.shape[1]
@@ -905,7 +917,9 @@ def _transition_batch(phi, q):
     return det, transition_density
 
 
-def _jastrow_phase(delta, jastrow_mat, jastrow_vec):
+def _jastrow_phase(
+    delta: jax.Array, jastrow_mat: jax.Array, jastrow_vec: jax.Array
+) -> tuple[jax.Array, jax.Array]:
     """Return the Jastrow scalar and vector phase for occupation changes."""
     phi = -2.0 * (delta @ jastrow_mat.T)
     const = jnp.exp(
@@ -942,7 +956,9 @@ def _canonical_same_spin_two_body_indices(
     return p, q, r, s
 
 
-def _chunked_term_sum(n_terms: int, chunk_size: int | None, func):
+def _chunked_term_sum(
+    n_terms: int, chunk_size: int | None, func: Callable[[jax.Array], jax.Array]
+) -> jax.Array:
     """Sum per-term values over indices, optionally in fixed-size chunks."""
     if chunk_size is None or chunk_size >= n_terms:
         return jnp.sum(func(jnp.arange(n_terms)))
@@ -956,7 +972,7 @@ def _chunked_term_sum(n_terms: int, chunk_size: int | None, func):
     index_chunks = safe_indices.reshape(n_chunks, chunk_size)
     mask_chunks = mask.reshape(n_chunks, chunk_size)
 
-    def chunk_sum(args):
+    def chunk_sum(args: tuple[jax.Array, jax.Array]) -> jax.Array:
         chunk_indices, chunk_mask = args
         return jnp.sum(jnp.where(chunk_mask, func(chunk_indices), 0))
 
@@ -964,14 +980,14 @@ def _chunked_term_sum(n_terms: int, chunk_size: int | None, func):
 
 
 def _one_body_spin_sector_energy(
-    q_sector,
-    q_other,
-    h_sector,
-    jastrow_mat,
-    jastrow_vec,
+    q_sector: jax.Array,
+    q_other: jax.Array,
+    h_sector: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     spin: int,
-):
+) -> jax.Array:
     """Evaluate one-body terms for one spin sector of a spinful Hamiltonian."""
     n_spin_orbitals = 2 * norb
     p, q = jnp.meshgrid(jnp.arange(norb), jnp.arange(norb), indexing="ij")
@@ -999,26 +1015,26 @@ def _one_body_spin_sector_energy(
 
 
 def _same_spin_two_body_energy(
-    q_sector,
-    q_other,
-    g,
-    jastrow_mat,
-    jastrow_vec,
+    q_sector: jax.Array,
+    q_other: jax.Array,
+    g: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     spin: int,
     chunk_size: int | None,
-):
+) -> jax.Array:
     """Evaluate all canonical same-spin two-body terms."""
     n_terms = (norb * (norb - 1) // 2) ** 2
     if n_terms == 0:
-        return 0.0
+        return jnp.array(0.0)
     p_all, q_all, r_all, s_all = (
         jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
     )
     n_spin_orbitals = 2 * norb
     offset = spin * norb
 
-    def term_chunk(indices):
+    def term_chunk(indices: jax.Array) -> jax.Array:
         p = p_all[indices]
         q = q_all[indices]
         r = r_all[indices]
@@ -1052,15 +1068,15 @@ def _same_spin_two_body_energy(
 
 
 def _opposite_spin_two_body_energy(
-    q_left,
-    q_right,
-    g,
-    jastrow_mat,
-    jastrow_vec,
+    q_left: jax.Array,
+    q_right: jax.Array,
+    g: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     left_spin: int,
     chunk_size: int | None,
-):
+) -> jax.Array:
     """Evaluate all opposite-spin two-body terms."""
     n_terms = norb**4
     g_flat = g.reshape(-1)
@@ -1069,7 +1085,7 @@ def _opposite_spin_two_body_energy(
     right_spin = 1 - left_spin
     right_offset = right_spin * norb
 
-    def term_chunk(indices):
+    def term_chunk(indices: jax.Array) -> jax.Array:
         p, q, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
         rows = jnp.arange(indices.shape[0])
 
@@ -1105,17 +1121,17 @@ def _opposite_spin_two_body_energy(
 
 
 def _spinful_two_body_energy(
-    q_alpha,
-    q_beta,
-    g_alpha_alpha,
-    g_alpha_beta,
-    g_beta_alpha,
-    g_beta_beta,
-    jastrow_mat,
-    jastrow_vec,
+    q_alpha: jax.Array,
+    q_beta: jax.Array,
+    g_alpha_alpha: jax.Array,
+    g_alpha_beta: jax.Array,
+    g_beta_alpha: jax.Array,
+    g_beta_beta: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     chunk_size: int | None,
-):
+) -> jax.Array:
     """Evaluate all spin cases of the two-body Hamiltonian terms."""
     term_alpha_alpha = _same_spin_two_body_energy(
         q_alpha,
@@ -1161,17 +1177,17 @@ def _spinful_two_body_energy(
 
 
 def _compute_energy_spin_balanced(
-    q_alpha,
-    q_beta,
-    constant,
-    h_bp,
-    g_bp,
-    jastrow_mat,
-    jastrow_vec,
+    q_alpha: jax.Array,
+    q_beta: jax.Array,
+    constant: jax.Array,
+    h_bp: jax.Array,
+    g_bp: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     *,
     chunk_size: int | None = None,
-):
+) -> jax.Array:
     r"""Compute the spin-balanced UCJ energy from backpropagated tensors.
 
     This implements the final energy calculation of fermionic backpropagation.
@@ -1247,21 +1263,21 @@ def _compute_energy_spin_balanced(
 
 
 def _compute_energy_spin_unbalanced(
-    q_alpha,
-    q_beta,
-    constant,
-    h_alpha,
-    h_beta,
-    g_alpha_alpha,
-    g_alpha_beta,
-    g_beta_alpha,
-    g_beta_beta,
-    jastrow_mat,
-    jastrow_vec,
+    q_alpha: jax.Array,
+    q_beta: jax.Array,
+    constant: jax.Array,
+    h_alpha: jax.Array,
+    h_beta: jax.Array,
+    g_alpha_alpha: jax.Array,
+    g_alpha_beta: jax.Array,
+    g_beta_alpha: jax.Array,
+    g_beta_beta: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     *,
     chunk_size: int | None = None,
-):
+) -> jax.Array:
     r"""Compute the spin-unbalanced UCJ energy from backpropagated tensors.
 
     This is the spin-unbalanced analogue of :func:`_compute_energy_spin_balanced`.
@@ -1311,16 +1327,16 @@ def _compute_energy_spin_unbalanced(
 
 
 def _compute_energy_spinless(
-    q,
-    constant,
-    h_bp,
-    g_bp,
-    jastrow_mat,
-    jastrow_vec,
+    q: jax.Array,
+    constant: jax.Array,
+    h_bp: jax.Array,
+    g_bp: jax.Array,
+    jastrow_mat: jax.Array,
+    jastrow_vec: jax.Array,
     norb: int,
     *,
     chunk_size: int | None = None,
-):
+) -> jax.Array:
     r"""Compute the spinless UCJ energy from backpropagated tensors.
 
     The input tensors are the Hamiltonian tensors after backpropagating through the
@@ -1357,7 +1373,7 @@ def _compute_energy_spinless(
         jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
     )
 
-    def two_body_chunk(indices):
+    def two_body_chunk(indices: jax.Array) -> jax.Array:
         p = p_all[indices]
         q_ = q_all[indices]
         r = r_all[indices]
