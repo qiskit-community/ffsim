@@ -1,5 +1,7 @@
 """Tests for UCJ energy evaluation by fermionic backpropagation."""
 
+from typing import Any, Callable
+
 import numpy as np
 import pytest
 import scipy.optimize
@@ -9,7 +11,13 @@ import ffsim
 RNG = np.random.default_rng(4978)
 
 
-def statevector_energy(ucj_op, hamiltonian, norb, nelec):
+def statevector_energy(
+    ucj_op: ffsim.UCJOpSpinBalanced | ffsim.UCJOpSpinUnbalanced | ffsim.UCJOpSpinless,
+    hamiltonian: ffsim.MolecularHamiltonian | ffsim.MolecularHamiltonianSpinless,
+    norb: int,
+    nelec: int | tuple[int, int],
+) -> float:
+    """Compute the energy of a UCJ ansatz statevector with respect to a Hamiltonian."""
     occupied_orbitals = (
         range(nelec) if isinstance(nelec, int) else (range(nelec[0]), range(nelec[1]))
     )
@@ -20,15 +28,22 @@ def statevector_energy(ucj_op, hamiltonian, norb, nelec):
     linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
     return np.real(np.vdot(ansatz_state, linop @ ansatz_state))
 
+
 def finite_diff_grad(
-    energy_func,
-    from_parameters,
-    params,
-    index,
-    energy_args,
-    from_parameters_kwargs,
-    eps=1e-6,
-):
+    energy_func: Callable[..., float],
+    from_parameters: Callable[
+        ..., ffsim.UCJOpSpinBalanced | ffsim.UCJOpSpinUnbalanced | ffsim.UCJOpSpinless
+    ],
+    params: np.ndarray,
+    index: int,
+    energy_args: tuple[Any, ...],
+    from_parameters_kwargs: dict[str, Any],
+    eps: float = 1e-6,
+) -> float:
+    """Compute the finite-difference gradient of the energy function.
+
+    The gradient is computed with respect to `param[index]`.
+    """
     step = np.zeros_like(params)
     step[index] = eps
     plus_op = from_parameters(params + step, **from_parameters_kwargs)
@@ -36,7 +51,6 @@ def finite_diff_grad(
     plus_energy = energy_func(plus_op, *energy_args)
     minus_energy = energy_func(minus_op, *energy_args)
     return (plus_energy - minus_energy) / (2 * eps)
-
 
 
 @pytest.mark.parametrize(
