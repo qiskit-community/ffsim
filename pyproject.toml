@@ -33,6 +33,10 @@ dependencies = [
     "typing-extensions",
 ]
 
+[project.optional-dependencies]
+cuda12 = ["jax[cuda12]"]
+cuda13 = ["jax[cuda13]"]
+
 [project.urls]
 Homepage = "https://github.com/qiskit-community/ffsim"
 Documentation = "https://qiskit-community.github.io/ffsim/"
