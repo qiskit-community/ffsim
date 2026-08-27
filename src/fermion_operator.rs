@@ -151,7 +151,6 @@ impl FermionOperator {
             let key_parts: Vec<String> = key
                 .iter()
                 .map(|(action, spin, orb)| {
-                    
                     let action_str = if !action && !spin {
                         "des_a"
                     } else if !action && *spin {
