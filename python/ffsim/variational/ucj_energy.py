@@ -5,12 +5,11 @@ from __future__ import annotations
 import functools
 import itertools
 from collections.abc import Sequence
-from typing import Callable, Literal, cast, overload
+from typing import Callable, cast
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-import scipy.optimize
 
 from ffsim.hamiltonians.molecular_hamiltonian import (
     MolecularHamiltonian,
@@ -106,6 +105,7 @@ def ucj_energy_spin_balanced(
         )
     )
 
+
 def ucj_energy_and_grad_func_spin_balanced(
     ucj_op: UCJOpSpinBalanced,
     hamiltonian: MolecularHamiltonian,
@@ -117,9 +117,10 @@ def ucj_energy_and_grad_func_spin_balanced(
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
     """
-    Return a callable that computes the UCJ energy and parameter gradient for a spin-balanced system.
+    Return a callable that computes the UCJ energy and parameter gradient for a
+    spin-balanced system.
 
-    The gradient is with respect to the flattened parameter vector returned by 
+    The gradient is with respect to the flattened parameter vector returned by
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
 
     Args:
@@ -135,7 +136,8 @@ def ucj_energy_and_grad_func_spin_balanced(
             If ``None``, all two-body terms are processed in one batch.
 
     Returns:
-        A callable that takes a flattened parameter vector and returns the energy value and gradient.
+        A callable that takes a flattened parameter vector and returns the energy
+        value and gradient.
     """
 
     _validate_ucj_op(ucj_op)
@@ -184,6 +186,7 @@ def ucj_energy_and_grad_func_spin_balanced(
         return float(value), np.asarray(grad)
 
     return scipy_func
+
 
 def ucj_energy_spin_unbalanced(
     ucj_op: UCJOpSpinUnbalanced,
@@ -269,6 +272,7 @@ def ucj_energy_spin_unbalanced(
         )
     )
 
+
 def ucj_energy_and_grad_func_spin_unbalanced(
     ucj_op: UCJOpSpinUnbalanced,
     hamiltonian: MolecularHamiltonian,
@@ -284,7 +288,8 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
     """
-    Return a callable that computes the UCJ energy and parameter gradient for a spin-unbalanced system.
+    Return a callable that computes the UCJ energy and parameter gradient for a
+    spin-unbalanced system.
 
     The gradient is with respect to the flattened parameter vector returned by
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
@@ -302,7 +307,8 @@ def ucj_energy_and_grad_func_spin_unbalanced(
             If ``None``, all two-body terms are processed in one batch.
 
     Returns:
-        The energy and its gradient with respect to the UCJ parameter vector.
+        A callable that takes a flattened parameter vector and returns the energy
+        value and gradient.
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
@@ -357,6 +363,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
         return float(value), np.asarray(grad)
 
     return scipy_func
+
 
 def ucj_energy_spinless(
     ucj_op: UCJOpSpinless,
@@ -418,6 +425,7 @@ def ucj_energy_spinless(
         )
     )
 
+
 def ucj_energy_and_grad_func_spinless(
     ucj_op: UCJOpSpinless,
     hamiltonian: MolecularHamiltonianSpinless,
@@ -428,7 +436,8 @@ def ucj_energy_and_grad_func_spinless(
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
     """
-    Return a callable that computes the UCJ energy and parameter gradient for a spinless system.
+    Return a callable that computes the UCJ energy and parameter gradient for a
+    spinless system.
 
     The gradient is with respect to the flattened parameter vector returned by
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
@@ -446,7 +455,8 @@ def ucj_energy_and_grad_func_spinless(
             If ``None``, all two-body terms are processed in one batch.
 
     Returns:
-        The energy and its gradient with respect to the UCJ parameter vector.
+        A callable that takes a flattened parameter vector and returns the energy
+        value and gradient.
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
@@ -490,6 +500,7 @@ def ucj_energy_and_grad_func_spinless(
 
     return scipy_func
 
+
 def _validate_ucj_op(ucj_op) -> None:
     """Check if the UCJ operator is compatible with fermionic backpropagation."""
     if ucj_op.n_reps != 1:
@@ -507,6 +518,7 @@ def _validate_molecular_hamiltonian(
             "The Hamiltonian and UCJ operator should have the same number of "
             f"orbitals. Got {hamiltonian.norb} and {norb}."
         )
+
 
 def _interaction_pairs_key(
     interaction_pairs: Sequence[tuple[int, int]],
