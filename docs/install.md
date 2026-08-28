@@ -17,6 +17,19 @@ pip install ffsim
 
 For improved performance on [x86](https://en.wikipedia.org/wiki/X86) systems, considering [installing from source](#install-from-source).
 
+### GPU acceleration
+
+Some functions in ffsim are implemented with [JAX](https://docs.jax.dev/), which uses the CPU by default. If you have an NVIDIA GPU, you can install the appropriate extra to let JAX use the GPU instead:
+
+```bash
+pip install "ffsim[cuda12]"  # for CUDA 12
+pip install "ffsim[cuda13]"  # for CUDA 13
+```
+
+These extras install a CUDA-enabled JAX; no changes to your code are required, because JAX selects the GPU automatically once the plugin is present. The GPU wheels are only published for Linux.
+
+The speedup grows with the number of orbitals, and is negligible below roughly 16 orbitals, where the cost is dominated by kernel launch overhead rather than by the linear algebra. To force the CPU path for comparison, set the environment variable `JAX_PLATFORMS=cpu`.
+
 ## Install from source
 
 You can use pip to install ffsim from source. For example:

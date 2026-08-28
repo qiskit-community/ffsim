@@ -74,13 +74,15 @@ mypy
 ### Fix lint errors
 
 ```bash
-ruff check --fix
+ruff check --fix  # for Python code
+cargo clippy --all --fix -- -D warnings  # for Rust code
 ```
 
 ### Fix formatting errors
 
 ```bash
-ruff format
+ruff format  # for Python code
+cargo fmt --all  # for Rust code
 ```
 
 ### Run spell check
