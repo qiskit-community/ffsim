@@ -1,0 +1,6 @@
+﻿ffsim.apply\_fsim\_gate
+=======================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_fsim_gate

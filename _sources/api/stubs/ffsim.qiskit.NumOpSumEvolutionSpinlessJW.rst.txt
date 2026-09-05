@@ -1,0 +1,28 @@
+﻿ffsim.qiskit.NumOpSumEvolutionSpinlessJW
+========================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: NumOpSumEvolutionSpinlessJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NumOpSumEvolutionSpinlessJW.inverse
+
+   .. automethod:: inverse
+   
+   

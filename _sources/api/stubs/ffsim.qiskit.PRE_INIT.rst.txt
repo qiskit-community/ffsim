@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.PRE\_INIT
+======================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autodata:: PRE_INIT

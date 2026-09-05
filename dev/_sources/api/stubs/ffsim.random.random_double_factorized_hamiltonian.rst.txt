@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_double\_factorized\_hamiltonian
+====================================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_double_factorized_hamiltonian

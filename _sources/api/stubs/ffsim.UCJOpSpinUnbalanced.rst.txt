@@ -1,0 +1,61 @@
+﻿ffsim.UCJOpSpinUnbalanced
+=========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCJOpSpinUnbalanced
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCJOpSpinUnbalanced.atol
+      ~UCJOpSpinUnbalanced.final_orbital_rotation
+      ~UCJOpSpinUnbalanced.n_reps
+      ~UCJOpSpinUnbalanced.norb
+      ~UCJOpSpinUnbalanced.rtol
+      ~UCJOpSpinUnbalanced.validate
+      ~UCJOpSpinUnbalanced.diag_coulomb_mats
+      ~UCJOpSpinUnbalanced.orbital_rotations
+
+   .. autoattribute:: atol
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: n_reps
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: rtol
+
+   .. autoattribute:: validate
+
+   .. autoattribute:: diag_coulomb_mats
+
+   .. autoattribute:: orbital_rotations
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCJOpSpinUnbalanced.from_parameters
+      ~UCJOpSpinUnbalanced.from_t_amplitudes
+      ~UCJOpSpinUnbalanced.n_params
+      ~UCJOpSpinUnbalanced.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: from_t_amplitudes
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

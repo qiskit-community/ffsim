@@ -1,0 +1,6 @@
+﻿ffsim.apply\_num\_op\_sum\_evolution
+====================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_num_op_sum_evolution

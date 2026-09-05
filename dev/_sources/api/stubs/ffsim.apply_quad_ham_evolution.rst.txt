@@ -1,0 +1,6 @@
+﻿ffsim.apply\_quad\_ham\_evolution
+=================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_quad_ham_evolution

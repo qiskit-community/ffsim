@@ -1,0 +1,6 @@
+﻿ffsim.apply\_fswap\_gate
+========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_fswap_gate
