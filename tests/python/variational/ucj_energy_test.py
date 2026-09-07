@@ -66,6 +66,7 @@ def finite_diff_grad(
 @pytest.mark.parametrize(
     "pairs",
     [
+        [],
         None,
         (None, None),
         ([(0, 0), (1, 1)], [(0, 0), (1, 1)]),
@@ -117,6 +118,7 @@ def test_ucj_energy_spin_balanced(pairs):
 @pytest.mark.parametrize(
     "pairs",
     [
+        [],
         None,
         (None, None, None),
         ([(0, 0), (1, 1)], [(0, 0), (1, 1)], [(0, 0), (1, 1)]),
@@ -165,7 +167,7 @@ def test_ucj_energy_spin_unbalanced(pairs):
     assert optimized_energy < ucj_energy
 
 
-@pytest.mark.parametrize("pairs", [None, [(0, 0), (1, 1)]])
+@pytest.mark.parametrize("pairs", [[], None, [(0, 0), (1, 1)]])
 def test_ucj_energy_spinless(pairs):
     norb = 3
     nelec = 2
