@@ -112,7 +112,7 @@ def test_uccsd_real_apply_unitary():
 def test_uccsd_real_energy():
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -242,7 +242,7 @@ def test_uccsd_complex_apply_unitary():
 def test_uccsd_complex_energy():
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )

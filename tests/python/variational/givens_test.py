@@ -130,7 +130,7 @@ def test_givens_orbital_rotation_t1_roundtrip():
     """Test round-tripping orbital rotation from t1 amplitudes."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -178,7 +178,7 @@ def test_givens_orbital_rotation_t_amplitudes():
     """Test initialization from orbital rotation gives fully parametrized ansatz."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )

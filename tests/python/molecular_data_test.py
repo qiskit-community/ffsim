@@ -69,7 +69,7 @@ def test_molecular_data_run_methods_closed_shell():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -142,7 +142,7 @@ def test_json_closed_shell(tmp_path: pathlib.Path):
     """Test saving to and loading from JSON for a closed-shell molecule."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[("N", (0, 0, 0)), ("N", (1.0, 0, 0))],
+        atom=[("N", (0, 0, -0.5)), ("N", (0, 0, 0.5))],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -220,7 +220,7 @@ def test_fcidump(tmp_path: pathlib.Path):
     """Test saving to and loading from FCIDUMP."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
         spin=0,

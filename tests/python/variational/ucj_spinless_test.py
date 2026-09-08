@@ -108,7 +108,7 @@ def test_parameters_roundtrip_interaction_pairs():
 def test_t_amplitudes_energy():
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (0, 0, 1.0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -230,7 +230,7 @@ def test_t_amplitudes_restrict_indices():
     # Build an H2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["H", (0, 0, 0)], ["H", (0, 0, 1.8)]],
+        atom=[["H", (0, 0, -0.9)], ["H", (0, 0, 0.9)]],
         basis="sto-6g",
         symmetry="Dooh",
     )

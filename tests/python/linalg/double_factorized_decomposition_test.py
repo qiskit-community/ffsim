@@ -182,7 +182,7 @@ def test_double_factorized_compressed_n2_unconstrained():
     """Test compressed double factorization on N2."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -234,7 +234,7 @@ def test_double_factorized_compressed_n2_constrained():
     """Test constrained compressed double factorization on N2."""
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -446,7 +446,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="sto-6g",
         symmetry="Dooh",
     )
@@ -528,7 +528,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (1.0, 0, 0)]],
+        atom=[["N", (0, 0, -0.5)], ["N", (0, 0, 0.5)]],
         basis="6-31g",
         symmetry="Dooh",
     )

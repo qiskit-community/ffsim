@@ -24,7 +24,7 @@ def test_optimize_orbitals():
     # Build N2 molecule
     mol = pyscf.gto.Mole()
     mol.build(
-        atom=[["N", (0, 0, 0)], ["N", (2.4, 0, 0)]],
+        atom=[["N", (0, 0, -1.2)], ["N", (0, 0, 1.2)]],
         basis="6-31g",
         symmetry="Dooh",
     )
