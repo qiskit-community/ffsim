@@ -112,6 +112,7 @@ def test_molecular_data_run_methods_open_shell():
         basis="sto-6g",
         symmetry="Dooh",
         spin=length % 2,
+        verbose=0,
     )
 
     # Get molecular data
