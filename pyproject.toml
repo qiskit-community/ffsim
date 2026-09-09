@@ -52,7 +52,9 @@ dev = [
     "typos",
 ]
 docs = [
+    "ipykernel",
     "myst-parser",
+    "nbclient",
     "nbmake",
     "nbsphinx",
     "qiskit[visualization]",
