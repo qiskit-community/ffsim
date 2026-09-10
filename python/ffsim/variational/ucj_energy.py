@@ -51,9 +51,9 @@ def ucj_energy_spin_balanced(
     using the fermionic backpropagation outlined in https://arxiv.org/abs/2607.21337.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
@@ -138,9 +138,9 @@ def ucj_energy_and_grad_func_spin_balanced(
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrices. If None, all pairs are considered.
@@ -214,12 +214,14 @@ def ucj_energy_spin_unbalanced(
     using the fermionic backpropagation outlined in https://arxiv.org/abs/2607.21337.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
+        chunk_size: The number of two-body Hamiltonian terms to process at a time.
+            If ``None``, all two-body terms are processed in one batch.
 
     Returns:
         The expectation value of the Hamiltonian with respect to the UCJ state.
@@ -309,9 +311,9 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrices. If None, all pairs are considered.
@@ -391,9 +393,9 @@ def ucj_energy_spinless(
     using the fermionic backpropagation outlined in https://arxiv.org/abs/2607.21337.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
@@ -461,9 +463,9 @@ def ucj_energy_and_grad_func_spinless(
     ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
 
     Args:
-        hamiltonian: The Hamiltonian.
         ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
             orbital rotation.
+        hamiltonian: The Hamiltonian.
         nelec: The number of electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrix. If None, all pairs are considered.
