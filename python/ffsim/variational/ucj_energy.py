@@ -1211,6 +1211,7 @@ def _spinful_two_body_energy(
     return term_alpha_alpha + term_beta_beta + term_alpha_beta + term_beta_alpha
 
 
+@jax.jit(static_argnames=["norb", "chunk_size"])
 def _compute_energy_spin_balanced(
     q_alpha: jax.Array,
     q_beta: jax.Array,
@@ -1297,6 +1298,7 @@ def _compute_energy_spin_balanced(
     return jnp.real(constant + energy_alpha_1 + energy_beta_1 + energy_2)
 
 
+@jax.jit(static_argnames=["norb", "chunk_size"])
 def _compute_energy_spin_unbalanced(
     q_alpha: jax.Array,
     q_beta: jax.Array,
@@ -1361,6 +1363,7 @@ def _compute_energy_spin_unbalanced(
     return jnp.real(constant + energy_alpha_1 + energy_beta_1 + energy_2)
 
 
+@jax.jit(static_argnames=["norb", "chunk_size"])
 def _compute_energy_spinless(
     occ_coeffs: jax.Array,
     constant: jax.Array,
