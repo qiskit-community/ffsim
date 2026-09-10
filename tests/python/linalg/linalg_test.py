@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import scipy.linalg
 import scipy.sparse
 
 import ffsim
@@ -43,6 +44,29 @@ def test_reduced_matrix():
         actual = reduced_mat[i, j]
         expected = np.vdot(vecs[i], mat @ vecs[j])
         np.testing.assert_allclose(actual, expected)
+
+
+def test_logm_unitary():
+    for dim in range(10):
+        mat = ffsim.random.random_unitary(dim, seed=RNG)
+        log = ffsim.linalg.logm_unitary(mat)
+        assert ffsim.linalg.is_antihermitian(log)
+        np.testing.assert_allclose(scipy.linalg.expm(log), mat)
+        if dim:
+            # agrees with the general-purpose matrix logarithm
+            np.testing.assert_allclose(log, scipy.linalg.logm(mat), atol=1e-12)
+
+
+def test_logm_unitary_orthogonal():
+    for dim in range(10):
+        mat = ffsim.random.random_orthogonal(dim, seed=RNG)
+        log = ffsim.linalg.logm_unitary(mat)
+        assert ffsim.linalg.is_antihermitian(log)
+        np.testing.assert_allclose(scipy.linalg.expm(log), mat, atol=1e-12)
+        # The logarithm is not compared against scipy.linalg.logm here. An orthogonal
+        # matrix with determinant -1 has an eigenvalue of -1, whose principal logarithm
+        # can be either of the equally valid values i*pi and -i*pi, and the two
+        # functions do not always make the same choice.
 
 
 def test_match_global_phase():

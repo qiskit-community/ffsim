@@ -23,6 +23,7 @@ from ffsim.linalg.givens import (
 )
 from ffsim.linalg.linalg import (
     expm_multiply_taylor,
+    logm_unitary,
     lup,
     match_global_phase,
     one_hot,
@@ -51,6 +52,7 @@ __all__ = [
     "is_real_symmetric",
     "is_special_orthogonal",
     "is_unitary",
+    "logm_unitary",
     "lup",
     "match_global_phase",
     "modified_cholesky",
