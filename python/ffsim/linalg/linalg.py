@@ -16,6 +16,7 @@ import cmath
 from collections.abc import Sequence
 
 import numpy as np
+import scipy.linalg
 import scipy.sparse.linalg
 
 
@@ -31,6 +32,27 @@ def expm_multiply_taylor(
         result += term
         denominator += 1
     return result
+
+
+def logm_unitary(mat: np.ndarray) -> np.ndarray:
+    """Compute the principal matrix logarithm of a unitary matrix.
+
+    The logarithm is computed from the Schur decomposition, which for a unitary
+    matrix takes the form ``mat = vecs @ diag(eigs) @ vecs.conj().T``, where ``vecs``
+    is unitary and the eigenvalues ``eigs`` lie on the unit circle. The logarithm is
+    obtained by replacing each eigenvalue with the imaginary number given by its phase.
+
+    This is faster than the general-purpose :func:`scipy.linalg.logm`, and unlike that
+    function it returns an antihermitian matrix by construction.
+
+    Args:
+        mat: The unitary matrix.
+
+    Returns:
+        The antihermitian principal matrix logarithm of the unitary matrix.
+    """
+    schur_form, vecs = scipy.linalg.schur(mat, output="complex")
+    return (vecs * 1j * np.angle(np.diag(schur_form))) @ vecs.conj().T
 
 
 def lup(mat: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

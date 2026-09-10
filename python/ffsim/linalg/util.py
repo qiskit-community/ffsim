@@ -21,6 +21,8 @@ import numpy as np
 import scipy.linalg
 from opt_einsum import contract
 
+from ffsim.linalg.linalg import logm_unitary
+
 
 def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
     """Convert an antihermitian matrix to parameters.
@@ -206,7 +208,9 @@ def unitaries_to_parameters(mats: np.ndarray, real: bool = False) -> np.ndarray:
     Returns:
         The list of real numbers parameterizing the unitaries.
     """
-    return antihermitians_to_parameters(scipy.linalg.logm(mats), real=real)
+    return antihermitians_to_parameters(
+        np.stack([logm_unitary(mat) for mat in mats]), real=real
+    )
 
 
 def unitaries_from_parameters(

@@ -16,7 +16,6 @@ import itertools
 
 import numpy as np
 import pytest
-import scipy.linalg
 import scipy.sparse.linalg
 
 import ffsim
@@ -46,17 +45,14 @@ def test_apply_diag_coulomb_evolution_random_spinless(norb: int, nelec: int):
         )
 
         op = ffsim.contract.diag_coulomb_linop(mat, norb=norb, nelec=(nelec, 0))
-        if norb:
-            orbital_op = ffsim.contract.one_body_linop(
-                scipy.linalg.logm(orbital_rotation), norb=norb, nelec=(nelec, 0)
-            )
-            expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
-            expected = scipy.sparse.linalg.expm_multiply(
-                -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
-            )
-            expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
-        else:
-            expected = vec
+        orbital_op = ffsim.contract.one_body_linop(
+            ffsim.linalg.logm_unitary(orbital_rotation), norb=norb, nelec=(nelec, 0)
+        )
+        expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
+        expected = scipy.sparse.linalg.expm_multiply(
+            -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
 
         np.testing.assert_allclose(result, expected)
 
@@ -94,17 +90,14 @@ def test_apply_diag_coulomb_evolution_random_symmetric_spin(
         op = ffsim.contract.diag_coulomb_linop(
             mat, norb=norb, nelec=nelec, z_representation=z_representation
         )
-        if norb:
-            orbital_op = ffsim.contract.one_body_linop(
-                scipy.linalg.logm(orbital_rotation), norb=norb, nelec=nelec
-            )
-            expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
-            expected = scipy.sparse.linalg.expm_multiply(
-                -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
-            )
-            expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
-        else:
-            expected = vec
+        orbital_op = ffsim.contract.one_body_linop(
+            ffsim.linalg.logm_unitary(orbital_rotation), norb=norb, nelec=nelec
+        )
+        expected = scipy.sparse.linalg.expm_multiply(-orbital_op, vec, traceA=0)
+        expected = scipy.sparse.linalg.expm_multiply(
+            -1j * time * op, expected, traceA=-1j * time * np.sum(np.abs(mat))
+        )
+        expected = scipy.sparse.linalg.expm_multiply(orbital_op, expected, traceA=0)
 
         np.testing.assert_allclose(result, expected)
 
