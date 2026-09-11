@@ -46,13 +46,10 @@ def test_apply_orbital_rotation_one_body_linop(norb: int, nelec: tuple[int, int]
         vec = ffsim.random.random_state_vector(dim, seed=RNG)
 
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
-        if norb:
-            op = ffsim.contract.one_body_linop(
-                scipy.linalg.logm(mat), norb=norb, nelec=nelec
-            )
-            expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=0)
-        else:
-            expected = vec
+        op = ffsim.contract.one_body_linop(
+            ffsim.linalg.logm_unitary(mat), norb=norb, nelec=nelec
+        )
+        expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=0)
 
         np.testing.assert_allclose(result, expected)
 
@@ -66,10 +63,9 @@ def test_apply_orbital_rotation_random_spinless(norb: int, nocc: int):
     for _ in range(3):
         mat = ffsim.random.random_unitary(norb, seed=RNG)
         vec = ffsim.random.random_state_vector(dim, seed=RNG)
-        if norb:
-            gen = _orbital_rotation_generator(scipy.linalg.logm(mat), spin=False)
-            op = ffsim.linear_operator(gen, norb=norb, nelec=(nocc, 0))
-        expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=0) if norb else vec
+        gen = _orbital_rotation_generator(ffsim.linalg.logm_unitary(mat), spin=False)
+        op = ffsim.linear_operator(gen, norb=norb, nelec=(nocc, 0))
+        expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=0)
         result = ffsim.apply_orbital_rotation(vec, mat, norb, nocc)
         np.testing.assert_allclose(result, expected)
 
@@ -85,17 +81,16 @@ def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]
         mat_b = ffsim.random.random_unitary(norb, seed=RNG)
         vec = ffsim.random.random_state_vector(dim, seed=RNG)
 
-        if norb:
-            gen_a = _orbital_rotation_generator(scipy.linalg.logm(mat_a), spin=False)
-            gen_b = _orbital_rotation_generator(scipy.linalg.logm(mat_b), spin=True)
-            op_a = ffsim.linear_operator(gen_a, norb=norb, nelec=nelec)
-            op_b = ffsim.linear_operator(gen_b, norb=norb, nelec=nelec)
-            op_ab = ffsim.linear_operator(gen_a + gen_b, norb=norb, nelec=nelec)
+        gen_a = _orbital_rotation_generator(
+            ffsim.linalg.logm_unitary(mat_a), spin=False
+        )
+        gen_b = _orbital_rotation_generator(ffsim.linalg.logm_unitary(mat_b), spin=True)
+        op_a = ffsim.linear_operator(gen_a, norb=norb, nelec=nelec)
+        op_b = ffsim.linear_operator(gen_b, norb=norb, nelec=nelec)
+        op_ab = ffsim.linear_operator(gen_a + gen_b, norb=norb, nelec=nelec)
 
         # (mat_a, mat_b)
-        expected = (
-            scipy.sparse.linalg.expm_multiply(op_ab, vec, traceA=0) if norb else vec
-        )
+        expected = scipy.sparse.linalg.expm_multiply(op_ab, vec, traceA=0)
         result = ffsim.apply_orbital_rotation(vec, (mat_a, mat_b), norb, nelec)
         np.testing.assert_allclose(result, expected)
         result = ffsim.apply_orbital_rotation(
@@ -104,16 +99,12 @@ def test_apply_orbital_rotation_random_spinful(norb: int, nelec: tuple[int, int]
         np.testing.assert_allclose(result, expected)
 
         # (mat_a, None)
-        expected = (
-            scipy.sparse.linalg.expm_multiply(op_a, vec, traceA=0) if norb else vec
-        )
+        expected = scipy.sparse.linalg.expm_multiply(op_a, vec, traceA=0)
         result = ffsim.apply_orbital_rotation(vec, (mat_a, None), norb, nelec)
         np.testing.assert_allclose(result, expected)
 
         # (None, mat_b)
-        expected = (
-            scipy.sparse.linalg.expm_multiply(op_b, vec, traceA=0) if norb else vec
-        )
+        expected = scipy.sparse.linalg.expm_multiply(op_b, vec, traceA=0)
         result = ffsim.apply_orbital_rotation(vec, (None, mat_b), norb, nelec)
         np.testing.assert_allclose(result, expected)
 
@@ -201,7 +192,9 @@ def test_apply_orbital_rotation_special_case():
     result = ffsim.apply_orbital_rotation(vec, mat, norb, nelec)
     np.testing.assert_allclose(np.linalg.norm(result), 1)
 
-    op = ffsim.contract.one_body_linop(scipy.linalg.logm(mat), norb=norb, nelec=nelec)
+    op = ffsim.contract.one_body_linop(
+        ffsim.linalg.logm_unitary(mat), norb=norb, nelec=nelec
+    )
     expected = scipy.sparse.linalg.expm_multiply(op, vec, traceA=0)
     np.testing.assert_allclose(result, expected, atol=1e-12)
 
