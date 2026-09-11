@@ -147,7 +147,7 @@ class OrbitalRotationJW(Gate):
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
         beta_qubits = qubits[norb:]
-        for instruction in _orbital_rotation_jw(
+        for instruction in orbital_rotation_jw(
             alpha_qubits,
             self.orbital_rotation_a,
             tol=self.tol,
@@ -156,7 +156,7 @@ class OrbitalRotationJW(Gate):
             **self.optimize_kwargs,
         ):
             circuit.append(instruction)
-        for instruction in _orbital_rotation_jw(
+        for instruction in orbital_rotation_jw(
             beta_qubits,
             self.orbital_rotation_b,
             tol=self.tol,
@@ -238,7 +238,7 @@ class OrbitalRotationSpinlessJW(Gate):
         """Gate decomposition."""
         qubits = QuantumRegister(self.num_qubits)
         circuit = QuantumCircuit(qubits, name=self.name)
-        for instruction in _orbital_rotation_jw(
+        for instruction in orbital_rotation_jw(
             qubits,
             self.orbital_rotation,
             tol=self.tol,
@@ -254,7 +254,7 @@ class OrbitalRotationSpinlessJW(Gate):
         return OrbitalRotationSpinlessJW(self.norb, self.orbital_rotation.T.conj())
 
 
-def _orbital_rotation_jw(
+def orbital_rotation_jw(
     qubits: Sequence[Qubit],
     orbital_rotation: np.ndarray,
     tol: float,

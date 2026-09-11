@@ -10,11 +10,10 @@
 
 from __future__ import annotations
 
-import cmath
 import math
 from collections.abc import Iterator, Sequence
 
-import numpy as np
+import scipy
 from qiskit.circuit import (
     CircuitInstruction,
     Gate,
@@ -24,7 +23,7 @@ from qiskit.circuit import (
 )
 from qiskit.circuit.library import PhaseGate, XXPlusYYGate
 
-from ffsim import linalg
+from ffsim.qiskit.gates.orbital_rotation import orbital_rotation_jw
 
 
 class FermionicFFTJW(Gate):
@@ -112,20 +111,8 @@ def _fermionic_fft_jw(qubits: Sequence[Qubit]) -> Iterator[CircuitInstruction]:
         yield from _cooley_tukey_ffft_jw(qubits)
     else:
         # Fallback to dense Fourier matrix Givens decomposition
-        fourier_mat = _dft_matrix(n)
-        givens_rotations, phase_shifts = linalg.givens_decomposition(fourier_mat)
-
-        for c, s, i, j in givens_rotations:
-            c_angle = math.acos(c)
-            if c_angle:
-                yield CircuitInstruction(
-                    XXPlusYYGate(2 * c_angle, cmath.phase(s) - 0.5 * math.pi),
-                    (qubits[i], qubits[j]),
-                )
-        for i, phase_shift in enumerate(phase_shifts):
-            phase = cmath.phase(phase_shift)
-            if phase:
-                yield CircuitInstruction(PhaseGate(phase), (qubits[i]))
+        dft_mat = scipy.linalg.dft(n, scale="sqrtn")
+        yield from orbital_rotation_jw(qubits, dft_mat, tol=1e-12)
 
 
 def _cooley_tukey_ffft_jw(qubits: Sequence[Qubit]) -> Iterator[CircuitInstruction]:
@@ -161,31 +148,3 @@ def _cooley_tukey_ffft_jw(qubits: Sequence[Qubit]) -> Iterator[CircuitInstructio
             XXPlusYYGate(math.pi / 2, -math.pi / 2),
             (q_even, q_odd),
         )
-
-
-def _dft_matrix(n: int) -> np.ndarray:
-    """Generate the unitary n x n DFT matrix.
-
-    This is the equivalent of scipy.linalg.dft(n, scale="sqrtn).
-    The matrix elements are defined as:
-
-    .. math::
-        F_{k, j} = \\frac{1}{\\sqrt{n}} e^{-i 2\\pi k j / n}
-
-    Example:
-        >>> _fourier_matrix(2)
-        array([[ 1/sqrt(2),  1/sqrt(2)],
-               [ 1/sqrt(2), -1/sqrt(2)]])
-
-    Args:
-        n: The dimension of the Fourier transform matrix.
-
-    Returns:
-        n x n unitary DFT matrix.
-    """
-    mat = np.zeros((n, n), dtype=complex)
-    omega = np.exp(-2j * np.pi / n)
-    for k in range(n):
-        for j in range(n):
-            mat[k, j] = (omega ** (k * j)) / np.sqrt(n)
-    return mat
