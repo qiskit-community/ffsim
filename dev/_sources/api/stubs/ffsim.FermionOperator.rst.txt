@@ -1,0 +1,50 @@
+﻿ffsim.FermionOperator
+=====================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: FermionOperator
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FermionOperator.adjoint
+      ~FermionOperator.conserves_particle_number
+      ~FermionOperator.conserves_spin_z
+      ~FermionOperator.copy
+      ~FermionOperator.items
+      ~FermionOperator.keys
+      ~FermionOperator.many_body_order
+      ~FermionOperator.normal_ordered
+      ~FermionOperator.simplify
+      ~FermionOperator.values
+
+   .. automethod:: adjoint
+
+   .. automethod:: conserves_particle_number
+
+   .. automethod:: conserves_spin_z
+
+   .. automethod:: copy
+
+   .. automethod:: items
+
+   .. automethod:: keys
+
+   .. automethod:: many_body_order
+
+   .. automethod:: normal_ordered
+
+   .. automethod:: simplify
+
+   .. automethod:: values
+   
+   

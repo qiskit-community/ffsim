@@ -1,0 +1,6 @@
+﻿ffsim.contract.num\_op\_sum\_linop
+==================================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: num_op_sum_linop

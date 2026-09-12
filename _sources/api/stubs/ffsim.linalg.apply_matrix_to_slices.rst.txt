@@ -1,0 +1,6 @@
+﻿ffsim.linalg.apply\_matrix\_to\_slices
+======================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: apply_matrix_to_slices

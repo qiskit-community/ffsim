@@ -1,0 +1,614 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Create a variational ansatz\n",
+    "\n",
+    "In this tutorial, we'll implement the [unitary cluster Jastrow (UCJ) ansatz](https://pubs.acs.org/doi/abs/10.1021/acs.jctc.9b00963), a variational quantum circuit ansatz for molecular quantum chemistry. ffsim provides a built-in implementation in [UCJOpSpinBalanced](../api/stubs/ffsim.UCJOpSpinBalanced.rst#ffsim.UCJOpSpinBalanced); in this tutorial we'll implement our own simplified version by defining a variational operator class. See [The local unitary cluster Jastrow (LUCJ) ansatz](../explanations/lucj.ipynb) for a detailed explanation of the ansatz and its properties.\n",
+    "\n",
+    "## Build the molecule\n",
+    "\n",
+    "We begin by building a nitrogen molecule in an active space of 6 orbitals and 6 electrons. We also compute the full configuration interaction (FCI) energy to use as a reference for gauging the quality of our variational state."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -108.464957764796\n",
+      "CASCI E = -108.566842251942  E(CI) = -11.9110176528507  S^2 = 0.0000000\n",
+      "norb = 6\n",
+      "nelec = (3, 3)\n",
+      "FCI energy = -108.5668422519418\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "import pyscf.mcscf\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Build N2 molecule\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[[\"N\", (0, 0, -0.5)], [\"N\", (0.0, 0, 0.5)]],\n",
+    "    basis=\"sto-6g\",\n",
+    "    symmetry=\"Dooh\",\n",
+    ")\n",
+    "\n",
+    "# Define active space\n",
+    "n_frozen = 4\n",
+    "active_space = range(n_frozen, mol.nao_nr())\n",
+    "\n",
+    "# Get molecular data and Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "norb = mol_data.norb\n",
+    "nelec = mol_data.nelec\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "\n",
+    "# Compute the FCI (exact) energy for comparison\n",
+    "cas = pyscf.mcscf.CASCI(scf, ncas=norb, nelecas=nelec).run()\n",
+    "fci_energy = cas.e_tot\n",
+    "\n",
+    "print(f\"norb = {norb}\")\n",
+    "print(f\"nelec = {nelec}\")\n",
+    "print(f\"FCI energy = {fci_energy}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The UCJ ansatz\n",
+    "\n",
+    "The UCJ ansatz prepares a variational quantum state by applying $L$ layers of operators to a reference state $|\\Phi_0\\rangle$, typically the Hartree-Fock state:\n",
+    "\n",
+    "$$\n",
+    "|\\Psi\\rangle = \\prod_{k=0}^{L-1} \\mathcal{U}_k e^{i \\mathcal{J}_k} \\mathcal{U}_k^\\dagger |\\Phi_0\\rangle.\n",
+    "$$\n",
+    "\n",
+    "The number of layers $L$ is called the number of ansatz repetitions. Each layer consists of two operations applied in sequence:\n",
+    "\n",
+    "1. **An [orbital rotation](../explanations/orbital-rotation.ipynb)** $\\mathcal{U}_k$, specified by a unitary matrix $U_k$. An orbital rotation transforms the single-particle basis of the state and can be implemented efficiently on a quantum computer.\n",
+    "\n",
+    "2. **A Jastrow factor** $e^{i \\mathcal{J}_k}$, where $\\mathcal{J}_k$ is a diagonal Coulomb operator\n",
+    "\n",
+    "$$\n",
+    "\\mathcal{J}_k = \\frac{1}{2} \\sum_{ij,\\sigma\\tau} J^{(\\sigma\\tau)}_{k,ij} \\, n_{i\\sigma} n_{j\\tau}.\n",
+    "$$\n",
+    "\n",
+    "The diagonal Coulomb operator is diagonal in the computational basis, meaning it applies phases to basis states determined solely by the electron occupancies. Conjugating by the orbital rotation $\\mathcal{U}_k$ allows the interaction structure to be varied flexibly in each layer.\n",
+    "\n",
+    "For a closed-shell molecule, we use the **spin-balanced** variant of the UCJ ansatz, in which $J^{(\\alpha\\alpha)} = J^{(\\beta\\beta)}$ and $J^{(\\alpha\\beta)} = J^{(\\beta\\alpha)}$. Each layer is then described by two symmetric matrices $J^{(\\alpha\\alpha)}$ and $J^{(\\alpha\\beta)}$, along with a single unitary $U_k$ applied to both spin sectors.\n",
+    "\n",
+    "## Implementing the operator class\n",
+    "\n",
+    "ffsim uses a protocol-based design (see [Protocols](../explanations/protocols.ipynb)) to allow user-defined classes to integrate with its functions. To make our UCJ operator work with [ffsim.apply_unitary](../api/stubs/ffsim.apply_unitary.rst#ffsim.apply_unitary), we implement the ``SupportsApplyUnitary`` protocol by defining a ``_apply_unitary_`` method with the signature\n",
+    "\n",
+    "```python\n",
+    "def _apply_unitary_(\n",
+    "    self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool\n",
+    ") -> np.ndarray:\n",
+    "    ...\n",
+    "```\n",
+    "\n",
+    "Inside ``_apply_unitary_``, we implement each UCJ layer as three steps:\n",
+    "\n",
+    "1. Apply $\\mathcal{U}_k^\\dagger$ using [apply_orbital_rotation](../api/stubs/ffsim.apply_orbital_rotation.rst#ffsim.apply_orbital_rotation).\n",
+    "2. Apply the Jastrow factor $e^{i \\mathcal{J}_k}$ using [apply_diag_coulomb_evolution](../api/stubs/ffsim.apply_diag_coulomb_evolution.rst#ffsim.apply_diag_coulomb_evolution). Note that ``apply_diag_coulomb_evolution`` computes $e^{-it\\mathcal{J}}$, so we pass ``time=-1.0`` to get $e^{i\\mathcal{J}}$. For the spin-balanced case, $J^{(\\alpha\\alpha)} = J^{(\\beta\\beta)}$, so we pass the same matrix for both.\n",
+    "3. Apply $\\mathcal{U}_k$ using [apply_orbital_rotation](../api/stubs/ffsim.apply_orbital_rotation.rst#ffsim.apply_orbital_rotation).\n",
+    "\n",
+    "To support variational optimization with a standard optimizer, we also implement ``from_parameters`` and ``to_parameters`` methods for conversion between the operator and a real-valued parameter vector. For the orbital rotations, we use the parametrization $U = \\exp(K)$ where $K$ is anti-Hermitian ($K^\\dagger = -K$). Any anti-Hermitian $N \\times N$ matrix has $N^2$ real degrees of freedom:\n",
+    "\n",
+    "- The $N(N-1)/2$ real off-diagonal entries of the strict upper triangle of $K$.\n",
+    "- The $N(N+1)/2$ imaginary parts of the upper triangle of $K$ (including the diagonal, which must be purely imaginary).\n",
+    "\n",
+    "For each symmetric diagonal Coulomb matrix, we store the $N(N+1)/2$ upper-triangle entries. The total parameter count per layer is therefore $N^2 + 2 \\cdot N(N+1)/2 = N^2 + N(N+1)$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from dataclasses import dataclass\n",
+    "\n",
+    "import numpy as np\n",
+    "import scipy.linalg\n",
+    "\n",
+    "\n",
+    "def _unitary_from_params(params: np.ndarray, norb: int) -> np.ndarray:\n",
+    "    \"\"\"Construct a unitary matrix from a real-valued parameter vector.\n",
+    "\n",
+    "    Uses the parametrization U = exp(K) where K is anti-Hermitian (K† = -K).\n",
+    "    The norb**2 parameters encode K as:\n",
+    "    - the first norb*(norb-1)//2 entries: real parts of the strict upper\n",
+    "      triangle of K,\n",
+    "    - the remaining norb*(norb+1)//2 entries: imaginary parts of the upper\n",
+    "      triangle of K.\n",
+    "    \"\"\"\n",
+    "    n_triu_offdiag = norb * (norb - 1) // 2\n",
+    "    mat = np.zeros((norb, norb), dtype=complex)\n",
+    "    # Imaginary part, on the upper triangle including the diagonal. Assign this\n",
+    "    # first, because the real part below touches only the strict upper triangle.\n",
+    "    rows, cols = np.triu_indices(norb)\n",
+    "    vals = 1j * params[n_triu_offdiag:]\n",
+    "    mat[rows, cols] = vals\n",
+    "    mat[cols, rows] = vals\n",
+    "    # Real part, on the strict upper triangle, antisymmetric\n",
+    "    rows, cols = np.triu_indices(norb, k=1)\n",
+    "    vals = params[:n_triu_offdiag]\n",
+    "    mat[rows, cols] += vals\n",
+    "    mat[cols, rows] -= vals\n",
+    "    return scipy.linalg.expm(mat)\n",
+    "\n",
+    "\n",
+    "def _params_from_unitary(unitary: np.ndarray) -> np.ndarray:\n",
+    "    \"\"\"Extract parameters from a unitary matrix via its matrix logarithm.\n",
+    "\n",
+    "    For a unitary matrix the logarithm is anti-Hermitian up to numerical error,\n",
+    "    so its upper triangle can be read off directly.\n",
+    "    \"\"\"\n",
+    "    norb = unitary.shape[0]\n",
+    "    n_triu_offdiag = norb * (norb - 1) // 2\n",
+    "    mat = scipy.linalg.logm(unitary)\n",
+    "    rows, cols = np.triu_indices(norb, k=1)\n",
+    "    params = np.empty(norb**2)\n",
+    "    params[:n_triu_offdiag] = mat[rows, cols].real\n",
+    "    rows, cols = np.triu_indices(norb)\n",
+    "    params[n_triu_offdiag:] = mat[rows, cols].imag\n",
+    "    return params\n",
+    "\n",
+    "\n",
+    "@dataclass\n",
+    "class UCJOp:\n",
+    "    \"\"\"Spin-balanced UCJ ansatz operator.\n",
+    "\n",
+    "    Attributes:\n",
+    "        diag_coulomb_mats: The diagonal Coulomb matrices, as a NumPy array of\n",
+    "            shape ``(n_reps, 2, norb, norb)``. The second axis indexes the spin\n",
+    "            interaction type: index 0 for alpha-alpha, index 1 for alpha-beta.\n",
+    "        orbital_rotations: The orbital rotations, as a NumPy array of shape\n",
+    "            ``(n_reps, norb, norb)``.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    diag_coulomb_mats: np.ndarray  # shape: (n_reps, 2, norb, norb)\n",
+    "    orbital_rotations: np.ndarray  # shape: (n_reps, norb, norb)\n",
+    "\n",
+    "    @property\n",
+    "    def norb(self) -> int:\n",
+    "        \"\"\"The number of spatial orbitals.\"\"\"\n",
+    "        return self.diag_coulomb_mats.shape[-1]\n",
+    "\n",
+    "    @property\n",
+    "    def n_reps(self) -> int:\n",
+    "        \"\"\"The number of ansatz repetitions.\"\"\"\n",
+    "        return self.diag_coulomb_mats.shape[0]\n",
+    "\n",
+    "    def _apply_unitary_(\n",
+    "        self,\n",
+    "        vec: np.ndarray,\n",
+    "        norb: int,\n",
+    "        nelec: int | tuple[int, int],\n",
+    "        copy: bool,\n",
+    "    ) -> np.ndarray:\n",
+    "        if isinstance(nelec, int):\n",
+    "            return NotImplemented\n",
+    "        if copy:\n",
+    "            vec = vec.copy()\n",
+    "        for (mat_aa, mat_ab), orbital_rotation in zip(\n",
+    "            self.diag_coulomb_mats, self.orbital_rotations\n",
+    "        ):\n",
+    "            # Step 1: Apply U†\n",
+    "            vec = ffsim.apply_orbital_rotation(\n",
+    "                vec, orbital_rotation.conj().T, norb=norb, nelec=nelec, copy=False\n",
+    "            )\n",
+    "            # Step 2: Apply exp(iJ)\n",
+    "            # apply_diag_coulomb_evolution computes exp(-itJ), so time=-1.0\n",
+    "            # gives exp(iJ)\n",
+    "            # For spin-balanced: J^aa = J^bb, so we pass the same matrix for both\n",
+    "            vec = ffsim.apply_diag_coulomb_evolution(\n",
+    "                vec,\n",
+    "                (mat_aa, mat_ab, mat_aa),\n",
+    "                time=-1.0,\n",
+    "                norb=norb,\n",
+    "                nelec=nelec,\n",
+    "                copy=False,\n",
+    "            )\n",
+    "            # Step 3: Apply U\n",
+    "            vec = ffsim.apply_orbital_rotation(\n",
+    "                vec, orbital_rotation, norb=norb, nelec=nelec, copy=False\n",
+    "            )\n",
+    "        return vec\n",
+    "\n",
+    "    @staticmethod\n",
+    "    def n_params(norb: int, n_reps: int) -> int:\n",
+    "        \"\"\"Return the number of parameters of the ansatz.\"\"\"\n",
+    "        return n_reps * (norb**2 + norb * (norb + 1))\n",
+    "\n",
+    "    @staticmethod\n",
+    "    def from_parameters(params: np.ndarray, *, norb: int, n_reps: int) -> \"UCJOp\":\n",
+    "        \"\"\"Initialize a UCJOp from a real-valued parameter vector.\n",
+    "\n",
+    "        The parameter vector encodes the operator layer by layer. For each of\n",
+    "        the ``n_reps`` layers, the layout is:\n",
+    "        - norb**2 parameters for the orbital rotation,\n",
+    "        - norb*(norb+1)//2 parameters for the alpha-alpha diagonal Coulomb matrix,\n",
+    "        - norb*(norb+1)//2 parameters for the alpha-beta diagonal Coulomb matrix.\n",
+    "        \"\"\"\n",
+    "        triu_rows, triu_cols = np.triu_indices(norb)\n",
+    "        n_triu = len(triu_rows)\n",
+    "        diag_coulomb_mats = np.zeros((n_reps, 2, norb, norb))\n",
+    "        orbital_rotations = np.zeros((n_reps, norb, norb), dtype=complex)\n",
+    "        index = 0\n",
+    "        for k in range(n_reps):\n",
+    "            orbital_rotations[k] = _unitary_from_params(\n",
+    "                params[index : index + norb**2], norb\n",
+    "            )\n",
+    "            index += norb**2\n",
+    "            for spin_index in range(2):\n",
+    "                diag_coulomb_mats[k, spin_index][triu_rows, triu_cols] = params[\n",
+    "                    index : index + n_triu\n",
+    "                ]\n",
+    "                diag_coulomb_mats[k, spin_index][triu_cols, triu_rows] = params[\n",
+    "                    index : index + n_triu\n",
+    "                ]\n",
+    "                index += n_triu\n",
+    "        return UCJOp(\n",
+    "            diag_coulomb_mats=diag_coulomb_mats, orbital_rotations=orbital_rotations\n",
+    "        )\n",
+    "\n",
+    "    def to_parameters(self) -> np.ndarray:\n",
+    "        \"\"\"Convert the operator to a real-valued parameter vector.\"\"\"\n",
+    "        norb = self.norb\n",
+    "        triu_rows, triu_cols = np.triu_indices(norb)\n",
+    "        n_triu = len(triu_rows)\n",
+    "        params = np.zeros(UCJOp.n_params(norb, self.n_reps))\n",
+    "        index = 0\n",
+    "        for k in range(self.n_reps):\n",
+    "            params[index : index + norb**2] = _params_from_unitary(\n",
+    "                self.orbital_rotations[k]\n",
+    "            )\n",
+    "            index += norb**2\n",
+    "            for spin_index in range(2):\n",
+    "                params[index : index + n_triu] = self.diag_coulomb_mats[k, spin_index][\n",
+    "                    triu_rows, triu_cols\n",
+    "                ]\n",
+    "                index += n_triu\n",
+    "        return params"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's verify the implementation with randomly initialized parameters. We generate a random parameter vector, construct the operator using ``from_parameters``, and apply it to the Hartree-Fock state using ``ffsim.apply_unitary``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy with random parameters: -106.029938\n",
+      "FCI energy:                    -108.566842\n"
+     ]
+    }
+   ],
+   "source": [
+    "rng = np.random.default_rng(1234)\n",
+    "\n",
+    "n_reps = 2\n",
+    "\n",
+    "# Initialize with a random parameter vector\n",
+    "x = rng.standard_normal(UCJOp.n_params(norb, n_reps))\n",
+    "operator = UCJOp.from_parameters(x, norb=norb, n_reps=n_reps)\n",
+    "\n",
+    "# Prepare the Hartree-Fock reference state and Hamiltonian linear operator\n",
+    "reference_state = ffsim.hartree_fock_state(norb, nelec)\n",
+    "hamiltonian_linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)\n",
+    "\n",
+    "# Apply the operator using the protocol function\n",
+    "ansatz_state = ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "energy = np.real(np.vdot(ansatz_state, hamiltonian_linop @ ansatz_state))\n",
+    "\n",
+    "print(f\"Energy with random parameters: {energy:.6f}\")\n",
+    "print(f\"FCI energy:                    {fci_energy:.6f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Random parameters generally produce a state with high energy. A better strategy is to initialize the parameters from the results of a classical calculation.\n",
+    "\n",
+    "## Initializing from CCSD amplitudes\n",
+    "\n",
+    "A natural way to initialize the UCJ ansatz is from the coupled cluster singles and doubles (CCSD) $t$-amplitudes. As explained in [The LUCJ ansatz](../explanations/lucj.ipynb#Parameter-initialization-from-CCSD), the connection is established by a double factorization of the $T_2$ operator:\n",
+    "\n",
+    "$$\n",
+    "T_2 - T_2^\\dagger = i \\sum_{k=0}^{L-1} \\mathcal{U}_k \\mathcal{J}_k \\mathcal{U}_k^\\dagger.\n",
+    "$$\n",
+    "\n",
+    "The Trotter approximation $e^{T_2 - T_2^\\dagger} \\approx \\prod_k \\mathcal{U}_k e^{i\\mathcal{J}_k} \\mathcal{U}_k^\\dagger$ then yields an operator in UCJ form. We use [ffsim.linalg.double_factorized_t2](../api/stubs/ffsim.linalg.double_factorized_t2.rst#ffsim.linalg.double_factorized_t2) to compute the factorization.\n",
+    "\n",
+    "First, let's run CCSD to obtain the $t$-amplitudes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "E(CCSD) = -108.5658290955831  E_corr = -0.1008713307875629\n",
+      "CCSD energy: -108.565829\n",
+      "Number of terms from double factorization: 18\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pyscf import cc\n",
+    "\n",
+    "# Run CCSD\n",
+    "ccsd = cc.CCSD(\n",
+    "    scf, frozen=[i for i in range(mol.nao_nr()) if i not in active_space]\n",
+    ").run()\n",
+    "\n",
+    "# Double-factorize the t2 amplitudes\n",
+    "diag_coulomb_mats_df, orbital_rotations_df = ffsim.linalg.double_factorized_t2(ccsd.t2)\n",
+    "n_vecs = len(orbital_rotations_df)\n",
+    "\n",
+    "print(f\"CCSD energy: {ccsd.e_tot:.6f}\")\n",
+    "print(f\"Number of terms from double factorization: {n_vecs}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The double factorization produces ``n_vecs`` terms, each with one orbital rotation and one diagonal Coulomb matrix. We'll truncate to ``n_reps = 2`` layers. In the spin-balanced approximation, the same matrix is used for both the alpha-alpha and alpha-beta interactions, so we stack it to get the shape ``(n_reps, 2, norb, norb)`` expected by our class.\n",
+    "\n",
+    "Since our class is a plain dataclass, we can also construct it directly from arrays, without going through the parameter vector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy at CCSD initialization: -108.552820\n",
+      "FCI energy:                    -108.566842\n",
+      "Error from FCI:                0.014023\n"
+     ]
+    }
+   ],
+   "source": [
+    "n_reps = 2\n",
+    "\n",
+    "# Truncate to n_reps layers and stack the same matrix for both spin interactions\n",
+    "orbital_rotations_init = orbital_rotations_df[:n_reps]\n",
+    "diag_coulomb_mats_init = np.stack(\n",
+    "    [diag_coulomb_mats_df[:n_reps], diag_coulomb_mats_df[:n_reps]], axis=1\n",
+    ")\n",
+    "\n",
+    "# Construct the operator directly from arrays\n",
+    "operator_init = UCJOp(\n",
+    "    diag_coulomb_mats=diag_coulomb_mats_init,\n",
+    "    orbital_rotations=orbital_rotations_init,\n",
+    ")\n",
+    "\n",
+    "# Apply and compute energy\n",
+    "ansatz_state = ffsim.apply_unitary(\n",
+    "    reference_state, operator_init, norb=norb, nelec=nelec\n",
+    ")\n",
+    "energy_init = np.real(np.vdot(ansatz_state, hamiltonian_linop @ ansatz_state))\n",
+    "\n",
+    "print(f\"Energy at CCSD initialization: {energy_init:.6f}\")\n",
+    "print(f\"FCI energy:                    {fci_energy:.6f}\")\n",
+    "print(f\"Error from FCI:                {energy_init - fci_energy:.6f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The CCSD-initialized ansatz already gives a much lower energy than random initialization. We can improve it further with variational optimization.\n",
+    "\n",
+    "## Variational optimization\n",
+    "\n",
+    "We use ``to_parameters`` to extract the initial parameter vector from the CCSD-initialized operator, then define an objective function that calls ``from_parameters`` to reconstruct the operator at each optimizer step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of parameters: 156\n",
+      "Energy at initialization:  -108.552820\n",
+      "Energy after optimization: -108.561738\n",
+      "FCI energy:                -108.566842\n",
+      "Error from FCI:            0.005104\n"
+     ]
+    }
+   ],
+   "source": [
+    "import scipy.optimize\n",
+    "\n",
+    "# Get the initial parameter vector from the CCSD-initialized operator\n",
+    "x0 = operator_init.to_parameters()\n",
+    "print(f\"Number of parameters: {len(x0)}\")\n",
+    "\n",
+    "\n",
+    "def energy_from_params(x: np.ndarray) -> float:\n",
+    "    operator = UCJOp.from_parameters(x, norb=norb, n_reps=n_reps)\n",
+    "    state = ffsim.apply_unitary(reference_state, operator, norb=norb, nelec=nelec)\n",
+    "    return np.real(np.vdot(state, hamiltonian_linop @ state))\n",
+    "\n",
+    "\n",
+    "result = scipy.optimize.minimize(\n",
+    "    energy_from_params,\n",
+    "    x0=x0,\n",
+    "    method=\"L-BFGS-B\",\n",
+    "    options=dict(maxiter=50),\n",
+    ")\n",
+    "\n",
+    "print(f\"Energy at initialization:  {energy_init:.6f}\")\n",
+    "print(f\"Energy after optimization: {result.fun:.6f}\")\n",
+    "print(f\"FCI energy:                {fci_energy:.6f}\")\n",
+    "print(f\"Error from FCI:            {result.fun - fci_energy:.6f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Comparing with the built-in implementation\n",
+    "\n",
+    "Let's verify that our ``UCJOp`` produces the same result as ffsim's built-in [UCJOpSpinBalanced](../api/stubs/ffsim.UCJOpSpinBalanced.rst#ffsim.UCJOpSpinBalanced) when given the same arrays."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Overlap between custom and built-in states: 1.000000000000003\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Apply our custom UCJOp\n",
+    "state_custom = ffsim.apply_unitary(\n",
+    "    reference_state, operator_init, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "# Apply the built-in UCJOpSpinBalanced with the same arrays\n",
+    "builtin_operator = ffsim.UCJOpSpinBalanced(\n",
+    "    diag_coulomb_mats=diag_coulomb_mats_init,\n",
+    "    orbital_rotations=orbital_rotations_init,\n",
+    ")\n",
+    "state_builtin = ffsim.apply_unitary(\n",
+    "    reference_state, builtin_operator, norb=norb, nelec=nelec\n",
+    ")\n",
+    "\n",
+    "overlap = abs(np.vdot(state_custom, state_builtin))\n",
+    "print(f\"Overlap between custom and built-in states: {overlap:.15f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The two implementations produce identical states, confirming that our class correctly captures the UCJ ansatz.\n",
+    "\n",
+    "The built-in class also provides a [from_t_amplitudes](../api/stubs/ffsim.UCJOpSpinBalanced.rst#ffsim.UCJOpSpinBalanced.from_t_amplitudes) method that performs the whole CCSD initialization in a single call: it double-factorizes the $t_2$ amplitudes, truncates the decomposition to ``n_reps`` terms, and stacks each diagonal Coulomb matrix for the two spin interaction types. Let's check that it reproduces the operator we constructed by hand."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Diagonal Coulomb matrices match: True\n",
+      "Orbital rotations match:         True\n",
+      "Energy from from_t_amplitudes: -108.552820\n",
+      "Energy at CCSD initialization: -108.552820\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Initialize the built-in operator directly from the CCSD t2 amplitudes\n",
+    "builtin_operator_t2 = ffsim.UCJOpSpinBalanced.from_t_amplitudes(ccsd.t2, n_reps=n_reps)\n",
+    "\n",
+    "print(\n",
+    "    \"Diagonal Coulomb matrices match: \"\n",
+    "    f\"{np.allclose(builtin_operator_t2.diag_coulomb_mats, diag_coulomb_mats_init)}\"\n",
+    ")\n",
+    "print(\n",
+    "    \"Orbital rotations match:         \"\n",
+    "    f\"{np.allclose(builtin_operator_t2.orbital_rotations, orbital_rotations_init)}\"\n",
+    ")\n",
+    "\n",
+    "# Compute the energy of the state prepared by the built-in operator\n",
+    "state_builtin_t2 = ffsim.apply_unitary(\n",
+    "    reference_state, builtin_operator_t2, norb=norb, nelec=nelec\n",
+    ")\n",
+    "energy_builtin_t2 = np.real(\n",
+    "    np.vdot(state_builtin_t2, hamiltonian_linop @ state_builtin_t2)\n",
+    ")\n",
+    "\n",
+    "print(f\"Energy from from_t_amplitudes: {energy_builtin_t2:.6f}\")\n",
+    "print(f\"Energy at CCSD initialization: {energy_init:.6f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "``from_t_amplitudes`` reproduces our hand-built initialization exactly. On top of the truncation we performed here, it supports several features that we did not implement, including initializing a final orbital rotation from the $t_1$ amplitudes, restricting the diagonal Coulomb interactions to a chosen set of orbital pairs (giving the *local* UCJ, or LUCJ, ansatz), and variationally optimizing the double factorization to reduce its error.\n",
+    "\n",
+    "You've made it to the end of this tutorial! For next steps, consider exploring:\n",
+    "- [The local unitary cluster Jastrow (LUCJ) ansatz](../explanations/lucj.ipynb) for a deeper treatment of the ansatz, including locality constraints and CCSD initialization.\n",
+    "- [Simulate the variational quantum eigensolver (VQE)](../how-to-guides/simulate-vqe.ipynb) for a guide on running VQE with ffsim, including the linear method optimizer."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.13"
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

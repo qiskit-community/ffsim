@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_antihermitian
+==================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_antihermitian

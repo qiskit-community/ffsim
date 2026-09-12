@@ -1,0 +1,6 @@
+﻿ffsim.optimize.minimize\_linear\_method
+=======================================
+
+.. currentmodule:: ffsim.optimize
+
+.. autofunction:: minimize_linear_method

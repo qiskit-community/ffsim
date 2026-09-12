@@ -1,0 +1,6 @@
+﻿ffsim.s\_x\_operator
+====================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: s_x_operator

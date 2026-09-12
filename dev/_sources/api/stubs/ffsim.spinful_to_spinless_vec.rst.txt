@@ -1,0 +1,6 @@
+﻿ffsim.spinful\_to\_spinless\_vec
+================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: spinful_to_spinless_vec

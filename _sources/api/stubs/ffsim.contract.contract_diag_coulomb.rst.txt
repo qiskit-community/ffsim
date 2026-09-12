@@ -1,0 +1,6 @@
+﻿ffsim.contract.contract\_diag\_coulomb
+======================================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: contract_diag_coulomb

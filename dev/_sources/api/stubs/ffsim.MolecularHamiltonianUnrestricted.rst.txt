@@ -1,0 +1,46 @@
+﻿ffsim.MolecularHamiltonianUnrestricted
+======================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: MolecularHamiltonianUnrestricted
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MolecularHamiltonianUnrestricted.constant
+      ~MolecularHamiltonianUnrestricted.norb
+      ~MolecularHamiltonianUnrestricted.one_body_tensors
+      ~MolecularHamiltonianUnrestricted.two_body_tensors
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: one_body_tensors
+
+   .. autoattribute:: two_body_tensors
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MolecularHamiltonianUnrestricted.from_fermion_operator
+      ~MolecularHamiltonianUnrestricted.rotated
+      ~MolecularHamiltonianUnrestricted.to_spinless
+
+   .. automethod:: from_fermion_operator
+
+   .. automethod:: rotated
+
+   .. automethod:: to_spinless
+   
+   

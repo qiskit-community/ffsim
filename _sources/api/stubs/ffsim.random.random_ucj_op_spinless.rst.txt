@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_ucj\_op\_spinless
+======================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_ucj_op_spinless

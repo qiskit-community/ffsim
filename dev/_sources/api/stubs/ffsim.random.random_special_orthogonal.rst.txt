@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_special\_orthogonal
+========================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_special_orthogonal

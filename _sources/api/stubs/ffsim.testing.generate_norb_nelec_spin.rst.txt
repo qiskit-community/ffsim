@@ -1,0 +1,6 @@
+﻿ffsim.testing.generate\_norb\_nelec\_spin
+=========================================
+
+.. currentmodule:: ffsim.testing
+
+.. autofunction:: generate_norb_nelec_spin

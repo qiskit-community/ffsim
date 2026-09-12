@@ -1,0 +1,6 @@
+﻿ffsim.fermion\_operator
+=======================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: fermion_operator

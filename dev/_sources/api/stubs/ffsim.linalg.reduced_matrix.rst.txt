@@ -1,0 +1,6 @@
+﻿ffsim.linalg.reduced\_matrix
+============================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: reduced_matrix

@@ -1,0 +1,6 @@
+﻿ffsim.uccsd\_generator\_unrestricted
+====================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: uccsd_generator_unrestricted

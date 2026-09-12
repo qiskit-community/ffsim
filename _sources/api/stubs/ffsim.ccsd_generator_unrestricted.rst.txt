@@ -1,0 +1,6 @@
+﻿ffsim.ccsd\_generator\_unrestricted
+===================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: ccsd_generator_unrestricted

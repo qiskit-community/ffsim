@@ -1,0 +1,6 @@
+﻿ffsim.slater\_determinant\_amplitudes
+=====================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: slater_determinant_amplitudes
