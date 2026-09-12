@@ -569,6 +569,8 @@ def _occupied_orbitals_key(
         raise ValueError("Alpha occupied orbital indices are out of range.")
     if any(orb < 0 or orb >= norb for orb in occupied_beta):
         raise ValueError("Beta occupied orbital indices are out of range.")
+    if len(set(occupied_alpha)) != nelec[0] or len(set(occupied_beta)) != nelec[1]:
+        raise ValueError("Occupied orbitals should not contain duplicates.")
     return occupied_alpha, occupied_beta
 
 
@@ -586,6 +588,8 @@ def _occupied_orbitals_key_spinless(
         raise ValueError("occupied_orbitals should contain nelec orbitals.")
     if any(orb < 0 or orb >= norb for orb in occupied):
         raise ValueError("Occupied orbital indices are out of range.")
+    if len(set(occupied)) != nelec:
+        raise ValueError("Occupied orbitals should not contain duplicates.")
     return occupied
 
 
