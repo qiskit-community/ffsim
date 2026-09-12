@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import itertools
 from typing import overload
 
 import jax
@@ -22,6 +21,50 @@ import scipy.linalg
 from opt_einsum import contract
 
 from ffsim.linalg.linalg import logm_unitary
+
+
+def upper_triangular_indices(dim: int) -> list[tuple[int, int]]:
+    """Return the upper triangular indices of a matrix, including the diagonal.
+
+    The indices are returned in the same order as ``np.triu_indices(dim)``.
+    """
+    return [(row, col) for row in range(dim) for col in range(row, dim)]
+
+
+def all_indices(dim: int) -> list[tuple[int, int]]:
+    """Return all indices of a matrix, in row-major order."""
+    return [(row, col) for row in range(dim) for col in range(dim)]
+
+
+def rows_and_cols(indices: list[tuple[int, int]]) -> tuple[list[int], list[int]]:
+    """Split a list of index pairs into lists of row and column indices.
+
+    Unlike ``zip(*indices)``, this handles an empty list of indices.
+    """
+    rows = [row for row, _ in indices]
+    cols = [col for _, col in indices]
+    return rows, cols
+
+
+def mask_from_indices(
+    dim: int, indices: list[tuple[int, int]], symmetric: bool = False
+) -> np.ndarray:
+    """Return a boolean matrix that is True at the given indices, and False elsewhere.
+
+    Args:
+        dim: The width and height of the matrix.
+        indices: The indices at which the matrix is True.
+        symmetric: Whether to also set the transposes of the given indices to True.
+
+    Returns:
+        The boolean matrix.
+    """
+    rows, cols = rows_and_cols(indices)
+    mask = np.zeros((dim, dim), dtype=bool)
+    mask[rows, cols] = True
+    if symmetric:
+        mask[cols, rows] = True
+    return mask
 
 
 def antihermitian_to_parameters(mat: np.ndarray, real: bool = False) -> np.ndarray:
@@ -304,10 +347,9 @@ def real_symmetrics_to_parameters(
     """
     n_mats, dim, _ = mats.shape
     if triu_indices is None:
-        rows, cols = np.triu_indices(dim)
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-    n_params_per_mat = len(rows)
+        triu_indices = upper_triangular_indices(dim)
+    rows, cols = rows_and_cols(triu_indices)
+    n_params_per_mat = len(triu_indices)
     params = np.zeros((n_mats, n_params_per_mat))
     params[:, :] = mats[:, rows, cols]
     return params.reshape(-1)
@@ -334,11 +376,9 @@ def real_symmetrics_from_parameters(
         The array of real symmetric matrices, with shape (n_mats, dim, dim).
     """
     if triu_indices is None:
-        rows, cols = np.triu_indices(dim)
-        n_params_per_mat = dim * (dim + 1) // 2
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-        n_params_per_mat = len(triu_indices)
+        triu_indices = upper_triangular_indices(dim)
+    rows, cols = rows_and_cols(triu_indices)
+    n_params_per_mat = len(triu_indices)
     params = params.reshape(n_mats, n_params_per_mat)
     mats = np.zeros((n_mats, dim, dim))
     mats[:, rows, cols] = params
@@ -354,11 +394,9 @@ def real_symmetrics_from_parameters_jax(
 ) -> jax.Array:
     """JAX version of real_symmetrics_from_parameters."""
     if triu_indices is None:
-        rows, cols = jnp.triu_indices(dim)
-        n_params_per_mat = dim * (dim + 1) // 2
-    else:
-        rows, cols = zip(*triu_indices)  # type: ignore
-        n_params_per_mat = len(triu_indices)
+        triu_indices = upper_triangular_indices(dim)
+    rows, cols = rows_and_cols(triu_indices)
+    n_params_per_mat = len(triu_indices)
     params = params.reshape(n_mats, n_params_per_mat)
     mats = jnp.zeros((n_mats, dim, dim))
     mats = mats.at[:, rows, cols].set(params)
@@ -382,10 +420,9 @@ def real_matrices_to_parameters(
     """
     n_mats, dim, _ = mats.shape
     if indices is None:
-        rows, cols = zip(*itertools.product(range(dim), repeat=2))
-    else:
-        rows, cols = zip(*indices)  # type: ignore
-    n_params_per_mat = len(rows)
+        indices = all_indices(dim)
+    rows, cols = rows_and_cols(indices)
+    n_params_per_mat = len(indices)
     params = np.zeros((n_mats, n_params_per_mat))
     params[:, :] = mats[:, rows, cols]
     return params.reshape(-1)
@@ -412,11 +449,9 @@ def real_matrices_from_parameters(
         The array of real matrices, with shape (n_mats, dim, dim).
     """
     if indices is None:
-        rows, cols = zip(*itertools.product(range(dim), repeat=2))
-        n_params_per_mat = dim**2
-    else:
-        rows, cols = zip(*indices)  # type: ignore
-        n_params_per_mat = len(indices)
+        indices = all_indices(dim)
+    rows, cols = rows_and_cols(indices)
+    n_params_per_mat = len(indices)
     params = params.reshape(n_mats, n_params_per_mat)
     mats = np.zeros((n_mats, dim, dim))
     mats[:, rows, cols] = params
@@ -431,11 +466,9 @@ def real_matrices_from_parameters_jax(
 ) -> jax.Array:
     """JAX version of real_matrices_from_parameters."""
     if indices is None:
-        rows, cols = zip(*itertools.product(range(dim), repeat=2))
-        n_params_per_mat = dim**2
-    else:
-        rows, cols = zip(*indices)  # type: ignore
-        n_params_per_mat = len(indices)
+        indices = all_indices(dim)
+    rows, cols = rows_and_cols(indices)
+    n_params_per_mat = len(indices)
     params = params.reshape(n_mats, n_params_per_mat)
     mats = jnp.zeros((n_mats, dim, dim))
     mats = mats.at[:, rows, cols].set(params)

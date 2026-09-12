@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import functools
-import itertools
 import math
 from typing import Literal, cast, overload
 
@@ -639,8 +638,7 @@ def _double_factorized_t2_explicit(
     one_body_tensors = np.zeros((n_vecs, 2, norb, norb), dtype=complex)
     for outer_vec, one_body_tensor in zip(outer_vecs.T, one_body_tensors):
         mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc), range(nocc, nocc + nvrt)))
-        mat[row, col] = outer_vec
+        mat[nocc:, :nocc] = outer_vec.reshape(nocc, nvrt).T
         one_body_tensor[0] = _quadrature(mat, sign=1)
         one_body_tensor[1] = _quadrature(mat, sign=-1)
 
@@ -1183,11 +1181,9 @@ def _double_factorized_t2_alpha_beta_explicit(
         left_vecs.T, right_vecs, one_body_tensors
     ):
         left_mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc_a), range(nocc_a, norb)))
-        left_mat[row, col] = left_vec
+        left_mat[nocc_a:, :nocc_a] = left_vec.reshape(nocc_a, nvrt_a).T
         right_mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc_b), range(nocc_b, norb)))
-        right_mat[row, col] = right_vec
+        right_mat[nocc_b:, :nocc_b] = right_vec.reshape(nocc_b, nvrt_b).T
         these_one_body_tensors[0, :, 0] = _quadrature(left_mat, 1)
         these_one_body_tensors[0, 0, 1] = _quadrature(right_mat, 1)
         these_one_body_tensors[0, 1, 1] = _quadrature(-right_mat, 1)
