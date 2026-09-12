@@ -223,9 +223,8 @@ class UCJOpSpinless(
                 "based on the function inputs. "
                 f"Expected {n_params} but got {len(params)}."
             )
-        triu_indices = upper_triangular_indices(norb)
         if interaction_pairs is None:
-            interaction_pairs = triu_indices
+            interaction_pairs = upper_triangular_indices(norb)
         diag_coulomb_mats = np.zeros((n_reps, norb, norb))
         orbital_rotations = np.zeros((n_reps, norb, norb), dtype=complex)
         index = 0
@@ -291,9 +290,8 @@ class UCJOpSpinless(
             with_final_orbital_rotation=self.final_orbital_rotation is not None,
         )
 
-        triu_indices = upper_triangular_indices(norb)
         if interaction_pairs is None:
-            interaction_pairs = triu_indices
+            interaction_pairs = upper_triangular_indices(norb)
 
         params = np.zeros(n_params)
         index = 0
@@ -438,8 +436,9 @@ class UCJOpSpinless(
 
         # Zero out diagonal coulomb matrix entries if requested
         if interaction_pairs is not None:
-            mask = mask_from_indices(norb, interaction_pairs)
-            diag_coulomb_mats *= mask | mask.T
+            diag_coulomb_mats *= mask_from_indices(
+                norb, interaction_pairs, symmetric=True
+            )
 
         return UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,

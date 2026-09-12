@@ -272,12 +272,11 @@ class UCJOpSpinUnbalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        mat_indices = all_indices(norb)
         triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
-            pairs_ab = mat_indices
+            pairs_ab = all_indices(norb)
         if pairs_bb is None:
             pairs_bb = triu_indices
         diag_coulomb_mats = np.zeros((n_reps, 3, norb, norb))
@@ -294,23 +293,16 @@ class UCJOpSpinUnbalanced(
                 )
                 index += n_params
             # Diag Coulomb matrices
-            n_params = len(pairs_aa)
-            rows, cols = rows_and_cols(pairs_aa)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[0, cols, rows] = vals
-            diag_coulomb_mat[0, rows, cols] = vals
-            index += n_params
-            n_params = len(pairs_ab)
-            rows, cols = rows_and_cols(pairs_ab)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[1, rows, cols] = vals
-            index += n_params
-            n_params = len(pairs_bb)
-            rows, cols = rows_and_cols(pairs_bb)
-            vals = params[index : index + n_params]
-            diag_coulomb_mat[2, cols, rows] = vals
-            diag_coulomb_mat[2, rows, cols] = vals
-            index += n_params
+            for indices, this_diag_coulomb_mat, symmetric in zip(
+                (pairs_aa, pairs_ab, pairs_bb), diag_coulomb_mat, (True, False, True)
+            ):
+                n_params = len(indices)
+                rows, cols = rows_and_cols(indices)
+                vals = params[index : index + n_params]
+                if symmetric:
+                    this_diag_coulomb_mat[cols, rows] = vals
+                this_diag_coulomb_mat[rows, cols] = vals
+                index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -378,12 +370,11 @@ class UCJOpSpinUnbalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        mat_indices = all_indices(norb)
         triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
-            pairs_ab = mat_indices
+            pairs_ab = all_indices(norb)
         if pairs_bb is None:
             pairs_bb = triu_indices
 
@@ -669,13 +660,11 @@ class UCJOpSpinUnbalanced(
 
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
-            mask = mask_from_indices(norb, pairs_aa)
-            diag_coulomb_mats[:, 0] *= mask | mask.T
+            diag_coulomb_mats[:, 0] *= mask_from_indices(norb, pairs_aa, symmetric=True)
         if pairs_ab is not None:
             diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab)
         if pairs_bb is not None:
-            mask = mask_from_indices(norb, pairs_bb)
-            diag_coulomb_mats[:, 2] *= mask | mask.T
+            diag_coulomb_mats[:, 2] *= mask_from_indices(norb, pairs_bb, symmetric=True)
 
         return UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,

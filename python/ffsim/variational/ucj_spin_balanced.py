@@ -507,11 +507,9 @@ class UCJOpSpinBalanced(
 
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
-            mask = mask_from_indices(norb, pairs_aa)
-            diag_coulomb_mats[:, 0] *= mask | mask.T
+            diag_coulomb_mats[:, 0] *= mask_from_indices(norb, pairs_aa, symmetric=True)
         if pairs_ab is not None:
-            mask = mask_from_indices(norb, pairs_ab)
-            diag_coulomb_mats[:, 1] *= mask | mask.T
+            diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab, symmetric=True)
 
         return UCJOpSpinBalanced(
             diag_coulomb_mats=diag_coulomb_mats,

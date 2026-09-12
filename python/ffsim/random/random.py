@@ -644,11 +644,9 @@ def random_ucj_op_spin_balanced(
 
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
-        mask = mask_from_indices(norb, pairs_aa)
-        diag_coulomb_mats[:, 0] *= mask | mask.T
+        diag_coulomb_mats[:, 0] *= mask_from_indices(norb, pairs_aa, symmetric=True)
     if pairs_ab is not None:
-        mask = mask_from_indices(norb, pairs_ab)
-        diag_coulomb_mats[:, 1] *= mask | mask.T
+        diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab, symmetric=True)
 
     return variational.UCJOpSpinBalanced(
         diag_coulomb_mats=diag_coulomb_mats,
@@ -764,13 +762,11 @@ def random_ucj_op_spin_unbalanced(
 
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
-        mask = mask_from_indices(norb, pairs_aa)
-        diag_coulomb_mats[:, 0] *= mask | mask.T
+        diag_coulomb_mats[:, 0] *= mask_from_indices(norb, pairs_aa, symmetric=True)
     if pairs_ab is not None:
         diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab)
     if pairs_bb is not None:
-        mask = mask_from_indices(norb, pairs_bb)
-        diag_coulomb_mats[:, 2] *= mask | mask.T
+        diag_coulomb_mats[:, 2] *= mask_from_indices(norb, pairs_bb, symmetric=True)
 
     return variational.UCJOpSpinUnbalanced(
         diag_coulomb_mats=diag_coulomb_mats,
@@ -847,8 +843,7 @@ def random_ucj_op_spinless(
 
     # Zero out diagonal coulomb matrix entries if requested
     if interaction_pairs is not None:
-        mask = mask_from_indices(norb, interaction_pairs)
-        diag_coulomb_mats *= mask | mask.T
+        diag_coulomb_mats *= mask_from_indices(norb, interaction_pairs, symmetric=True)
 
     return variational.UCJOpSpinless(
         diag_coulomb_mats=diag_coulomb_mats,

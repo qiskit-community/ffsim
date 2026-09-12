@@ -46,14 +46,24 @@ def rows_and_cols(indices: list[tuple[int, int]]) -> tuple[list[int], list[int]]
     return rows, cols
 
 
-def mask_from_indices(dim: int, indices: list[tuple[int, int]]) -> np.ndarray:
+def mask_from_indices(
+    dim: int, indices: list[tuple[int, int]], symmetric: bool = False
+) -> np.ndarray:
     """Return a boolean matrix that is True at the given indices, and False elsewhere.
 
-    To mask the transposed indices as well, use ``mask | mask.T``.
+    Args:
+        dim: The width and height of the matrix.
+        indices: The indices at which the matrix is True.
+        symmetric: Whether to also set the transposes of the given indices to True.
+
+    Returns:
+        The boolean matrix.
     """
     rows, cols = rows_and_cols(indices)
     mask = np.zeros((dim, dim), dtype=bool)
     mask[rows, cols] = True
+    if symmetric:
+        mask[cols, rows] = True
     return mask
 
 
@@ -339,7 +349,7 @@ def real_symmetrics_to_parameters(
     if triu_indices is None:
         triu_indices = upper_triangular_indices(dim)
     rows, cols = rows_and_cols(triu_indices)
-    n_params_per_mat = len(rows)
+    n_params_per_mat = len(triu_indices)
     params = np.zeros((n_mats, n_params_per_mat))
     params[:, :] = mats[:, rows, cols]
     return params.reshape(-1)
@@ -412,7 +422,7 @@ def real_matrices_to_parameters(
     if indices is None:
         indices = all_indices(dim)
     rows, cols = rows_and_cols(indices)
-    n_params_per_mat = len(rows)
+    n_params_per_mat = len(indices)
     params = np.zeros((n_mats, n_params_per_mat))
     params[:, :] = mats[:, rows, cols]
     return params.reshape(-1)
