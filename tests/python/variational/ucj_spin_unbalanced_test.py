@@ -416,3 +416,34 @@ def test_validate():
                 [np.stack([eye, eye, eye]) for _ in range(n_reps)]
             ),
         )
+
+
+def test_empty_interaction_pairs():
+    """Test constructing operators with empty lists of interaction pairs."""
+    norb = 4
+    nocc_a, nocc_b = 2, 1
+    nvrt_a, nvrt_b = norb - nocc_a, norb - nocc_b
+    n_reps = 2
+    empty_pairs: list[tuple[int, int]] = []
+    interaction_pairs = (empty_pairs, empty_pairs, empty_pairs)
+    t2 = (
+        ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float),
+        RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)),
+        ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float),
+    )
+
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        t2, n_reps=n_reps, interaction_pairs=interaction_pairs
+    )
+    np.testing.assert_allclose(
+        operator.diag_coulomb_mats, np.zeros((n_reps, 3, norb, norb))
+    )
+
+    params = operator.to_parameters(interaction_pairs=interaction_pairs)
+    assert len(params) == ffsim.UCJOpSpinUnbalanced.n_params(
+        norb, n_reps, interaction_pairs=interaction_pairs
+    )
+    roundtrip = ffsim.UCJOpSpinUnbalanced.from_parameters(
+        params, norb=norb, n_reps=n_reps, interaction_pairs=interaction_pairs
+    )
+    assert ffsim.approx_eq(operator, roundtrip)

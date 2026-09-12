@@ -17,7 +17,7 @@ from collections import defaultdict
 import numpy as np
 
 from ffsim import hamiltonians, operators, variational
-from ffsim.linalg.util import rotate_two_body_tensor
+from ffsim.linalg.util import mask_from_indices, rotate_two_body_tensor
 from ffsim.variational.util import validate_interaction_pairs
 
 
@@ -644,19 +644,11 @@ def random_ucj_op_spin_balanced(
 
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if pairs_aa:
-            rows, cols = zip(*pairs_aa)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-        diag_coulomb_mats[:, 0] *= mask
+        mask = mask_from_indices(norb, pairs_aa)
+        diag_coulomb_mats[:, 0] *= mask | mask.T
     if pairs_ab is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if pairs_ab:
-            rows, cols = zip(*pairs_ab)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-        diag_coulomb_mats[:, 1] *= mask
+        mask = mask_from_indices(norb, pairs_ab)
+        diag_coulomb_mats[:, 1] *= mask | mask.T
 
     return variational.UCJOpSpinBalanced(
         diag_coulomb_mats=diag_coulomb_mats,
@@ -772,25 +764,13 @@ def random_ucj_op_spin_unbalanced(
 
     # Zero out diagonal coulomb matrix entries if requested
     if pairs_aa is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if pairs_aa:
-            rows, cols = zip(*pairs_aa)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-        diag_coulomb_mats[:, 0] *= mask
+        mask = mask_from_indices(norb, pairs_aa)
+        diag_coulomb_mats[:, 0] *= mask | mask.T
     if pairs_ab is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if pairs_ab:
-            rows, cols = zip(*pairs_ab)
-            mask[rows, cols] = True
-        diag_coulomb_mats[:, 1] *= mask
+        diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab)
     if pairs_bb is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if pairs_bb:
-            rows, cols = zip(*pairs_bb)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-        diag_coulomb_mats[:, 2] *= mask
+        mask = mask_from_indices(norb, pairs_bb)
+        diag_coulomb_mats[:, 2] *= mask | mask.T
 
     return variational.UCJOpSpinUnbalanced(
         diag_coulomb_mats=diag_coulomb_mats,
@@ -867,12 +847,8 @@ def random_ucj_op_spinless(
 
     # Zero out diagonal coulomb matrix entries if requested
     if interaction_pairs is not None:
-        mask = np.zeros((norb, norb), dtype=bool)
-        if interaction_pairs:
-            rows, cols = zip(*interaction_pairs)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-        diag_coulomb_mats *= mask
+        mask = mask_from_indices(norb, interaction_pairs)
+        diag_coulomb_mats *= mask | mask.T
 
     return variational.UCJOpSpinless(
         diag_coulomb_mats=diag_coulomb_mats,

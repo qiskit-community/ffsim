@@ -31,6 +31,7 @@ from ffsim.linalg.util import (
     df_tensors_from_params,
     df_tensors_from_params_jax,
     df_tensors_to_params,
+    rows_and_cols,
 )
 
 jax.config.update("jax_enable_x64", True)
@@ -637,9 +638,9 @@ def _double_factorized_t2_explicit(
     n_vecs = len(outer_eigs)
 
     one_body_tensors = np.zeros((n_vecs, 2, norb, norb), dtype=complex)
+    col, row = rows_and_cols(list(itertools.product(range(nocc), range(nocc, norb))))
     for outer_vec, one_body_tensor in zip(outer_vecs.T, one_body_tensors):
         mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc), range(nocc, nocc + nvrt)))
         mat[row, col] = outer_vec
         one_body_tensor[0] = _quadrature(mat, sign=1)
         one_body_tensor[1] = _quadrature(mat, sign=-1)
@@ -1179,15 +1180,19 @@ def _double_factorized_t2_alpha_beta_explicit(
     n_vecs = len(singular_vals)
 
     one_body_tensors = np.zeros((n_vecs, 2, 2, 2, norb, norb), dtype=complex)
+    col_a, row_a = rows_and_cols(
+        list(itertools.product(range(nocc_a), range(nocc_a, norb)))
+    )
+    col_b, row_b = rows_and_cols(
+        list(itertools.product(range(nocc_b), range(nocc_b, norb)))
+    )
     for left_vec, right_vec, these_one_body_tensors in zip(
         left_vecs.T, right_vecs, one_body_tensors
     ):
         left_mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc_a), range(nocc_a, norb)))
-        left_mat[row, col] = left_vec
+        left_mat[row_a, col_a] = left_vec
         right_mat = np.zeros((norb, norb))
-        col, row = zip(*itertools.product(range(nocc_b), range(nocc_b, norb)))
-        right_mat[row, col] = right_vec
+        right_mat[row_b, col_b] = right_vec
         these_one_body_tensors[0, :, 0] = _quadrature(left_mat, 1)
         these_one_body_tensors[0, 0, 1] = _quadrature(right_mat, 1)
         these_one_body_tensors[0, 1, 1] = _quadrature(-right_mat, 1)

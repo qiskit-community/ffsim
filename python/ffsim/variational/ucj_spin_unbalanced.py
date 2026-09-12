@@ -19,7 +19,14 @@ from typing import cast
 import numpy as np
 
 from ffsim import gates, linalg, protocols
-from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
+from ffsim.linalg.util import (
+    all_indices,
+    mask_from_indices,
+    rows_and_cols,
+    unitary_from_parameters,
+    unitary_to_parameters,
+    upper_triangular_indices,
+)
 from ffsim.variational.util import (
     orbital_rotation_from_t1_amplitudes,
     validate_interaction_pairs,
@@ -265,13 +272,8 @@ class UCJOpSpinUnbalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        mat_indices = cast(
-            list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
-        )
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        mat_indices = all_indices(norb)
+        triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
@@ -292,26 +294,23 @@ class UCJOpSpinUnbalanced(
                 )
                 index += n_params
             # Diag Coulomb matrices
-            if pairs_aa:
-                n_params = len(pairs_aa)
-                rows, cols = zip(*pairs_aa)
-                vals = params[index : index + n_params]
-                diag_coulomb_mat[0, cols, rows] = vals
-                diag_coulomb_mat[0, rows, cols] = vals
-                index += n_params
-            if pairs_ab:
-                n_params = len(pairs_ab)
-                rows, cols = zip(*pairs_ab)
-                vals = params[index : index + n_params]
-                diag_coulomb_mat[1, rows, cols] = vals
-                index += n_params
-            if pairs_bb:
-                n_params = len(pairs_bb)
-                rows, cols = zip(*pairs_bb)
-                vals = params[index : index + n_params]
-                diag_coulomb_mat[2, cols, rows] = vals
-                diag_coulomb_mat[2, rows, cols] = vals
-                index += n_params
+            n_params = len(pairs_aa)
+            rows, cols = rows_and_cols(pairs_aa)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[0, cols, rows] = vals
+            diag_coulomb_mat[0, rows, cols] = vals
+            index += n_params
+            n_params = len(pairs_ab)
+            rows, cols = rows_and_cols(pairs_ab)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[1, rows, cols] = vals
+            index += n_params
+            n_params = len(pairs_bb)
+            rows, cols = rows_and_cols(pairs_bb)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[2, cols, rows] = vals
+            diag_coulomb_mat[2, rows, cols] = vals
+            index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -379,13 +378,8 @@ class UCJOpSpinUnbalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        mat_indices = cast(
-            list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
-        )
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        mat_indices = all_indices(norb)
+        triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
@@ -410,12 +404,11 @@ class UCJOpSpinUnbalanced(
                 (pairs_aa, pairs_ab, pairs_bb),
                 diag_coulomb_mat,
             ):
-                if indices:
-                    n_params = len(indices)
-                    params[index : index + n_params] = this_diag_coulomb_mat[
-                        tuple(zip(*indices))
-                    ]
-                    index += n_params
+                n_params = len(indices)
+                params[index : index + n_params] = this_diag_coulomb_mat[
+                    rows_and_cols(indices)
+                ]
+                index += n_params
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
             n_params = norb**2
@@ -676,25 +669,13 @@ class UCJOpSpinUnbalanced(
 
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            if pairs_aa:
-                rows, cols = zip(*pairs_aa)
-                mask[rows, cols] = True
-                mask[cols, rows] = True
-            diag_coulomb_mats[:, 0] *= mask
+            mask = mask_from_indices(norb, pairs_aa)
+            diag_coulomb_mats[:, 0] *= mask | mask.T
         if pairs_ab is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            if pairs_ab:
-                rows, cols = zip(*pairs_ab)
-                mask[rows, cols] = True
-            diag_coulomb_mats[:, 1] *= mask
+            diag_coulomb_mats[:, 1] *= mask_from_indices(norb, pairs_ab)
         if pairs_bb is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            if pairs_bb:
-                rows, cols = zip(*pairs_bb)
-                mask[rows, cols] = True
-                mask[cols, rows] = True
-            diag_coulomb_mats[:, 2] *= mask
+            mask = mask_from_indices(norb, pairs_bb)
+            diag_coulomb_mats[:, 2] *= mask | mask.T
 
         return UCJOpSpinUnbalanced(
             diag_coulomb_mats=diag_coulomb_mats,

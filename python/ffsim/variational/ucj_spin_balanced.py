@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import itertools
 import math
 from dataclasses import InitVar, dataclass
 from typing import cast
@@ -21,7 +20,13 @@ import numpy as np
 import pyscf.ci
 
 from ffsim import gates, linalg, protocols
-from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
+from ffsim.linalg.util import (
+    mask_from_indices,
+    rows_and_cols,
+    unitary_from_parameters,
+    unitary_to_parameters,
+    upper_triangular_indices,
+)
 from ffsim.variational.util import (
     orbital_rotation_from_t1_amplitudes,
     validate_interaction_pairs,
@@ -251,10 +256,7 @@ class UCJOpSpinBalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
@@ -275,13 +277,12 @@ class UCJOpSpinBalanced(
             for indices, this_diag_coulomb_mat in zip(
                 (pairs_aa, pairs_ab), diag_coulomb_mat
             ):
-                if indices:
-                    n_params = len(indices)
-                    rows, cols = zip(*indices)
-                    vals = params[index : index + n_params]
-                    this_diag_coulomb_mat[cols, rows] = vals
-                    this_diag_coulomb_mat[rows, cols] = vals
-                    index += n_params
+                n_params = len(indices)
+                rows, cols = rows_and_cols(indices)
+                vals = params[index : index + n_params]
+                this_diag_coulomb_mat[cols, rows] = vals
+                this_diag_coulomb_mat[rows, cols] = vals
+                index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -340,10 +341,7 @@ class UCJOpSpinBalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        triu_indices = upper_triangular_indices(norb)
         if pairs_aa is None:
             pairs_aa = triu_indices
         if pairs_ab is None:
@@ -362,12 +360,11 @@ class UCJOpSpinBalanced(
             for indices, this_diag_coulomb_mat in zip(
                 (pairs_aa, pairs_ab), diag_coulomb_mat
             ):
-                if indices:
-                    n_params = len(indices)
-                    params[index : index + n_params] = this_diag_coulomb_mat[
-                        tuple(zip(*indices))
-                    ]
-                    index += n_params
+                n_params = len(indices)
+                params[index : index + n_params] = this_diag_coulomb_mat[
+                    rows_and_cols(indices)
+                ]
+                index += n_params
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
             params[index:] = unitary_to_parameters(self.final_orbital_rotation)
@@ -510,19 +507,11 @@ class UCJOpSpinBalanced(
 
         # Zero out diagonal coulomb matrix entries if requested
         if pairs_aa is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            if pairs_aa:
-                rows, cols = zip(*pairs_aa)
-                mask[rows, cols] = True
-                mask[cols, rows] = True
-            diag_coulomb_mats[:, 0] *= mask
+            mask = mask_from_indices(norb, pairs_aa)
+            diag_coulomb_mats[:, 0] *= mask | mask.T
         if pairs_ab is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            if pairs_ab:
-                rows, cols = zip(*pairs_ab)
-                mask[rows, cols] = True
-                mask[cols, rows] = True
-            diag_coulomb_mats[:, 1] *= mask
+            mask = mask_from_indices(norb, pairs_ab)
+            diag_coulomb_mats[:, 1] *= mask | mask.T
 
         return UCJOpSpinBalanced(
             diag_coulomb_mats=diag_coulomb_mats,

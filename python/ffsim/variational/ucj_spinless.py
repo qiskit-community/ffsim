@@ -12,14 +12,19 @@
 
 from __future__ import annotations
 
-import itertools
 from dataclasses import InitVar, dataclass
 from typing import cast
 
 import numpy as np
 
 from ffsim import gates, linalg, protocols
-from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
+from ffsim.linalg.util import (
+    mask_from_indices,
+    rows_and_cols,
+    unitary_from_parameters,
+    unitary_to_parameters,
+    upper_triangular_indices,
+)
 from ffsim.variational.util import (
     orbital_rotation_from_t1_amplitudes,
     validate_interaction_pairs,
@@ -218,10 +223,7 @@ class UCJOpSpinless(
                 "based on the function inputs. "
                 f"Expected {n_params} but got {len(params)}."
             )
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        triu_indices = upper_triangular_indices(norb)
         if interaction_pairs is None:
             interaction_pairs = triu_indices
         diag_coulomb_mats = np.zeros((n_reps, norb, norb))
@@ -237,13 +239,12 @@ class UCJOpSpinless(
             )
             index += n_params
             # Diag Coulomb matrix
-            if interaction_pairs:
-                n_params = len(interaction_pairs)
-                rows, cols = zip(*interaction_pairs)
-                vals = params[index : index + n_params]
-                diag_coulomb_mat[cols, rows] = vals
-                diag_coulomb_mat[rows, cols] = vals
-                index += n_params
+            n_params = len(interaction_pairs)
+            rows, cols = rows_and_cols(interaction_pairs)
+            vals = params[index : index + n_params]
+            diag_coulomb_mat[cols, rows] = vals
+            diag_coulomb_mat[rows, cols] = vals
+            index += n_params
         # Final orbital rotation
         final_orbital_rotation = None
         if with_final_orbital_rotation:
@@ -290,10 +291,7 @@ class UCJOpSpinless(
             with_final_orbital_rotation=self.final_orbital_rotation is not None,
         )
 
-        triu_indices = cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        triu_indices = upper_triangular_indices(norb)
         if interaction_pairs is None:
             interaction_pairs = triu_indices
 
@@ -307,12 +305,11 @@ class UCJOpSpinless(
             params[index : index + n_params] = unitary_to_parameters(orbital_rotation)
             index += n_params
             # Diag Coulomb matrix
-            if interaction_pairs:
-                n_params = len(interaction_pairs)
-                params[index : index + n_params] = diag_coulomb_mat[
-                    tuple(zip(*interaction_pairs))
-                ]
-                index += n_params
+            n_params = len(interaction_pairs)
+            params[index : index + n_params] = diag_coulomb_mat[
+                rows_and_cols(interaction_pairs)
+            ]
+            index += n_params
         # Final orbital rotation
         if self.final_orbital_rotation is not None:
             params[index:] = unitary_to_parameters(self.final_orbital_rotation)
@@ -441,11 +438,8 @@ class UCJOpSpinless(
 
         # Zero out diagonal coulomb matrix entries if requested
         if interaction_pairs is not None:
-            mask = np.zeros((norb, norb), dtype=bool)
-            rows, cols = zip(*interaction_pairs)
-            mask[rows, cols] = True
-            mask[cols, rows] = True
-            diag_coulomb_mats *= mask
+            mask = mask_from_indices(norb, interaction_pairs)
+            diag_coulomb_mats *= mask | mask.T
 
         return UCJOpSpinless(
             diag_coulomb_mats=diag_coulomb_mats,
