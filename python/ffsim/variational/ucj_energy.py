@@ -622,12 +622,16 @@ def _make_spin_balanced_objective(
         diag_coulomb_mats = []
         for pairs in interaction_pairs:
             n_diag_coulomb_params = len(pairs)
-            mat = real_symmetrics_from_parameters_jax(
-                params[param_offset : param_offset + n_diag_coulomb_params],
-                dim=norb,
-                n_mats=1,
-                triu_indices=pairs,
-            )[0]
+            mat = (
+                jnp.zeros((norb, norb))
+                if not pairs
+                else real_symmetrics_from_parameters_jax(
+                    params[param_offset : param_offset + n_diag_coulomb_params],
+                    dim=norb,
+                    n_mats=1,
+                    triu_indices=pairs,
+                )[0]
+            )
             param_offset += n_diag_coulomb_params
             diag_coulomb_mats.append(mat)
         diag_coulomb_mat_array = jnp.stack(diag_coulomb_mats)
@@ -709,12 +713,14 @@ def _make_spin_unbalanced_objective(
             param_offset += n_orbital_rotation_params
         orbital_rotations = jnp.stack(orbital_rotation_list)
 
-        mat_aa = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(pairs_aa)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=pairs_aa,
-        )[0]
+        mat_aa = jnp.zeros((norb, norb))
+        if pairs_aa:
+            mat_aa = real_symmetrics_from_parameters_jax(
+                params[param_offset : param_offset + len(pairs_aa)],
+                dim=norb,
+                n_mats=1,
+                triu_indices=pairs_aa,
+            )[0]
         param_offset += len(pairs_aa)
         mat_ab = jnp.zeros((norb, norb))
         if pairs_ab:
@@ -723,12 +729,14 @@ def _make_spin_unbalanced_objective(
                 params[param_offset : param_offset + len(pairs_ab)]
             )
         param_offset += len(pairs_ab)
-        mat_bb = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(pairs_bb)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=pairs_bb,
-        )[0]
+        mat_bb = jnp.zeros((norb, norb))
+        if pairs_bb:
+            mat_bb = real_symmetrics_from_parameters_jax(
+                params[param_offset : param_offset + len(pairs_bb)],
+                dim=norb,
+                n_mats=1,
+                triu_indices=pairs_bb,
+            )[0]
         param_offset += len(pairs_bb)
         diag_coulomb_mats = jnp.stack([mat_aa, mat_ab, mat_bb])
 
@@ -820,12 +828,14 @@ def _make_spinless_objective(
         )
         param_offset += n_orbital_rotation_params
 
-        diag_coulomb_mat = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(interaction_pairs)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=interaction_pairs,
-        )[0]
+        diag_coulomb_mat = jnp.zeros((norb, norb))
+        if interaction_pairs:
+            diag_coulomb_mat = real_symmetrics_from_parameters_jax(
+                params[param_offset : param_offset + len(interaction_pairs)],
+                dim=norb,
+                n_mats=1,
+                triu_indices=interaction_pairs,
+            )[0]
         param_offset += len(interaction_pairs)
 
         final_orbital_rotation = None
