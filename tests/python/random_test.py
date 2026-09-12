@@ -256,6 +256,72 @@ def test_random_molecular_hamiltonian_unrestricted_symmetries(dtype):
     np.testing.assert_allclose(mat, mat.T.conj(), atol=1e-12)
 
 
+@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("n_reps", range(1, 4))
+def test_random_ucj_op_spinless_empty_interaction_pairs(norb: int, n_reps: int):
+    """Test sampling spinless UCJ operator with empty interaction pairs."""
+    op = ffsim.random.random_ucj_op_spinless(
+        norb, n_reps=n_reps, interaction_pairs=[], seed=RNG
+    )
+    np.testing.assert_allclose(op.diag_coulomb_mats, np.zeros((n_reps, norb, norb)))
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("n_reps", range(1, 4))
+def test_random_ucj_op_spin_balanced_empty_interaction_pairs(norb: int, n_reps: int):
+    """Test sampling spin-balanced UCJ operator with empty interaction pairs."""
+    op = ffsim.random.random_ucj_op_spin_balanced(
+        norb, n_reps=n_reps, interaction_pairs=([], []), seed=RNG
+    )
+    np.testing.assert_allclose(op.diag_coulomb_mats, np.zeros((n_reps, 2, norb, norb)))
+
+    # An empty list zeros out only its own diagonal Coulomb matrices
+    for index in range(2):
+        interaction_pairs: list[list[tuple[int, int]] | None] = [None, None]
+        interaction_pairs[index] = []
+        op = ffsim.random.random_ucj_op_spin_balanced(
+            norb,
+            n_reps=n_reps,
+            interaction_pairs=(interaction_pairs[0], interaction_pairs[1]),
+            seed=RNG,
+        )
+        np.testing.assert_allclose(
+            op.diag_coulomb_mats[:, index], np.zeros((n_reps, norb, norb))
+        )
+        for other in set(range(2)) - {index}:
+            assert np.any(op.diag_coulomb_mats[:, other])
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+@pytest.mark.parametrize("n_reps", range(1, 4))
+def test_random_ucj_op_spin_unbalanced_empty_interaction_pairs(norb: int, n_reps: int):
+    """Test sampling spin-unbalanced UCJ operator with empty interaction pairs."""
+    op = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb, n_reps=n_reps, interaction_pairs=([], [], []), seed=RNG
+    )
+    np.testing.assert_allclose(op.diag_coulomb_mats, np.zeros((n_reps, 3, norb, norb)))
+
+    # An empty list zeros out only its own diagonal Coulomb matrices
+    for index in range(3):
+        interaction_pairs: list[list[tuple[int, int]] | None] = [None, None, None]
+        interaction_pairs[index] = []
+        op = ffsim.random.random_ucj_op_spin_unbalanced(
+            norb,
+            n_reps=n_reps,
+            interaction_pairs=(
+                interaction_pairs[0],
+                interaction_pairs[1],
+                interaction_pairs[2],
+            ),
+            seed=RNG,
+        )
+        np.testing.assert_allclose(
+            op.diag_coulomb_mats[:, index], np.zeros((n_reps, norb, norb))
+        )
+        for other in set(range(3)) - {index}:
+            assert np.any(op.diag_coulomb_mats[:, other])
+
+
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
