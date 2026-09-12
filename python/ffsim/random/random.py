@@ -868,9 +868,10 @@ def random_ucj_op_spinless(
     # Zero out diagonal coulomb matrix entries if requested
     if interaction_pairs is not None:
         mask = np.zeros((norb, norb), dtype=bool)
-        rows, cols = zip(*interaction_pairs)
-        mask[rows, cols] = True
-        mask[cols, rows] = True
+        if interaction_pairs:
+            rows, cols = zip(*interaction_pairs)
+            mask[rows, cols] = True
+            mask[cols, rows] = True
         diag_coulomb_mats *= mask
 
     return variational.UCJOpSpinless(

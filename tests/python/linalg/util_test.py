@@ -435,7 +435,8 @@ def test_df_tensors_alpha_beta_parameters_empty_indices(
     n_tensors: int, norb: int, real: bool
 ):
     """Test parameterizing double factorization tensors with empty indices."""
-    diag_coulomb_indices = ([], [], [])
+    empty_pairs: list[tuple[int, int]] = []
+    diag_coulomb_indices = (empty_pairs, empty_pairs, empty_pairs)
 
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
     n_params_total = n_tensors * 2 * n_params_per_orb_rot
@@ -786,7 +787,8 @@ def test_df_tensors_alpha_beta_parameters_empty_indices_jax_consistency(
     n_tensors: int, norb: int, real: bool
 ):
     """Test JAX and NumPy versions of DF tensors with empty indices agree."""
-    diag_coulomb_indices = ([], [], [])
+    empty_pairs: list[tuple[int, int]] = []
+    diag_coulomb_indices = (empty_pairs, empty_pairs, empty_pairs)
 
     n_params_per_orb_rot = norb * (norb - 1) // 2 if real else norb**2
     params = RNG.normal(size=n_tensors * 2 * n_params_per_orb_rot)
