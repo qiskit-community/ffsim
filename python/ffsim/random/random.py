@@ -56,6 +56,7 @@ def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         dim: The width and height of the matrix.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled density matrix.
@@ -106,14 +107,14 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     return q * (d / np.abs(d))
 
 
-def random_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
+def random_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray:
     """Return a random orthogonal matrix distributed with Haar measure.
 
     Args:
         dim: The width and height of the matrix.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of ``np.random.Generator`` or else a valid input to
-            ``np.random.default_rng``.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled orthogonal matrix.
@@ -130,14 +131,14 @@ def random_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
     return q * (d / np.abs(d))
 
 
-def random_special_orthogonal(dim: int, seed=None, dtype=float) -> np.ndarray:
+def random_special_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray:
     """Return a random special orthogonal matrix distributed with Haar measure.
 
     Args:
         dim: The width and height of the matrix.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of ``np.random.Generator`` or else a valid input to
-            ``np.random.default_rng``.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled special orthogonal matrix.
@@ -153,7 +154,6 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
-        rank: The rank of the matrix. If ``None``, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -175,9 +175,9 @@ def random_real_symmetric_matrix(
     Args:
         dim: The width and height of the matrix.
         rank: The rank of the matrix. If ``None``, the maximum rank is used.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of ``np.random.Generator`` or else a valid input to
-            ``np.random.default_rng``.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
 
     Returns:
         The sampled real symmetric matrix.
@@ -194,7 +194,6 @@ def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
-        rank: The rank of the matrix. If ``None``, the maximum rank is used.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -277,7 +276,7 @@ def random_t2_amplitudes(
 
 
 def random_molecular_hamiltonian(
-    norb: int, seed=None, dtype=complex
+    norb: int, *, seed=None, dtype=complex
 ) -> hamiltonians.MolecularHamiltonian:
     """Sample a random molecular Hamiltonian.
 
@@ -306,7 +305,7 @@ def random_molecular_hamiltonian(
 
 
 def random_molecular_hamiltonian_spinless(
-    norb: int, seed=None, dtype=complex
+    norb: int, *, seed=None, dtype=complex
 ) -> hamiltonians.MolecularHamiltonianSpinless:
     """Sample a random spinless molecular Hamiltonian.
 
@@ -335,7 +334,7 @@ def random_molecular_hamiltonian_spinless(
 
 
 def random_molecular_hamiltonian_unrestricted(
-    norb: int, seed=None, dtype=complex
+    norb: int, *, seed=None, dtype=complex
 ) -> hamiltonians.MolecularHamiltonianUnrestricted:
     """Sample a random spin-unrestricted molecular Hamiltonian.
 
@@ -458,7 +457,7 @@ def random_uccsd_op_unrestricted_real(
 
     Args:
         norb: The number of spatial orbitals.
-        nocc: The number of spatial orbitals that are occupied by electrons.
+        nelec: The numbers of spin alpha and spin beta fermions.
         with_final_orbital_rotation: Whether to include a final orbital rotation
             in the operator.
         seed: A seed to initialize the pseudorandom number generator.
@@ -712,7 +711,7 @@ def random_ucj_op_spin_unbalanced(
         interaction_pairs = (None, None, None)
     pairs_aa, pairs_ab, pairs_bb = interaction_pairs
     validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_bb, ordered=True)
+    validate_interaction_pairs(pairs_ab, ordered=True)
     validate_interaction_pairs(pairs_bb, ordered=False)
 
     rng = np.random.default_rng(seed)
@@ -930,6 +929,7 @@ def random_double_factorized_hamiltonian(
 
 def random_fermion_operator(
     norb: int,
+    *,
     n_terms: int | None = None,
     max_term_length: int | None = None,
     num_and_spin_conserving: bool = False,
@@ -1003,7 +1003,7 @@ def _random_fermion_operator_num_and_spin_z_conserving(
 
 
 def random_fermion_hamiltonian(
-    norb: int, n_terms: int | None = None, seed=None
+    norb: int, *, n_terms: int | None = None, seed=None
 ) -> operators.FermionOperator:
     """Sample a random fermion Hamiltonian.
 

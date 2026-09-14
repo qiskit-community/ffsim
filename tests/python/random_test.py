@@ -329,3 +329,18 @@ def test_raise_errors():
 
     with pytest.raises(ValueError, match="Dimension"):
         _ = ffsim.random.random_density_matrix(0, seed=RNG)
+
+    # Each list of interaction pairs is validated, including the alpha-beta list,
+    # which is allowed to contain lower triangular pairs but not duplicates.
+    with pytest.raises(ValueError, match="Duplicate"):
+        _ = ffsim.random.random_ucj_op_spin_unbalanced(
+            4, interaction_pairs=(None, [(0, 1), (0, 1)], None), seed=RNG
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.random.random_ucj_op_spin_unbalanced(
+            4, interaction_pairs=([(1, 0)], None, None), seed=RNG
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.random.random_ucj_op_spin_unbalanced(
+            4, interaction_pairs=(None, None, [(1, 0)]), seed=RNG
+        )

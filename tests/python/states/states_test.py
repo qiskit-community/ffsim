@@ -438,7 +438,7 @@ def test_spinful_to_spinless_vec_rdm(norb: int, nelec: tuple[int, int]):
 )
 def test_spinful_to_spinless_rdm_energy(norb: int, nelec: tuple[int, int]):
     """Test converting RDMs to spinless format preserves energy."""
-    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, nelec)
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
     linop = ffsim.linear_operator(mol_ham, norb=norb, nelec=nelec)
     vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
     energy = np.vdot(vec, linop @ vec)
