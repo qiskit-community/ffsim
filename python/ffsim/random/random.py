@@ -348,12 +348,33 @@ def random_t2_amplitudes(
 
 
 def random_molecular_hamiltonian(
-    norb: int, *, seed=None, dtype=complex
+    norb: int,
+    *,
+    one_body_scale: float = 1.0,
+    two_body_scale: float = 1.0,
+    constant_scale: float = 1.0,
+    rank: int | None = None,
+    seed=None,
+    dtype=complex,
 ) -> hamiltonians.MolecularHamiltonian:
     """Sample a random molecular Hamiltonian.
 
+    The ``one_body_scale``, ``two_body_scale``, and ``constant_scale`` arguments
+    multiply the sampled one-body tensor, two-body tensor, and constant. Since the
+    underlying distributions are normalized so that their scale does not depend on the
+    rank of the two-body tensor (see :func:`random_two_body_tensor`), the ratio
+    ``two_body_scale / one_body_scale`` sets the strength of the interaction relative to
+    the one-body term, analogous to the ratio :math:`U / t` of a Fermi-Hubbard model:
+    increasing it yields a more strongly interacting Hamiltonian. Scaling all three
+    arguments by a common factor only changes the unit of energy.
+
     Args:
         norb: The number of spatial orbitals.
+        one_body_scale: Multiplies the sampled one-body tensor.
+        two_body_scale: Multiplies the sampled two-body tensor.
+        constant_scale: Multiplies the sampled constant.
+        rank: The rank of the sampled two-body tensor. See
+            :func:`random_two_body_tensor`.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the one- and two-body tensors. The constant
@@ -367,8 +388,10 @@ def random_molecular_hamiltonian(
         one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
     else:
         one_body_tensor = random_real_symmetric_matrix(norb, seed=rng, dtype=dtype)
-    two_body_tensor = random_two_body_tensor(norb, seed=rng, dtype=dtype)
-    constant = rng.standard_normal()
+    one_body_tensor *= one_body_scale
+    two_body_tensor = random_two_body_tensor(norb, rank=rank, seed=rng, dtype=dtype)
+    two_body_tensor *= two_body_scale
+    constant = constant_scale * rng.standard_normal()
     return hamiltonians.MolecularHamiltonian(
         one_body_tensor=one_body_tensor,
         two_body_tensor=two_body_tensor,
@@ -377,12 +400,33 @@ def random_molecular_hamiltonian(
 
 
 def random_molecular_hamiltonian_spinless(
-    norb: int, *, seed=None, dtype=complex
+    norb: int,
+    *,
+    one_body_scale: float = 1.0,
+    two_body_scale: float = 1.0,
+    constant_scale: float = 1.0,
+    rank: int | None = None,
+    seed=None,
+    dtype=complex,
 ) -> hamiltonians.MolecularHamiltonianSpinless:
     """Sample a random spinless molecular Hamiltonian.
 
+    The ``one_body_scale``, ``two_body_scale``, and ``constant_scale`` arguments
+    multiply the sampled one-body tensor, two-body tensor, and constant. Since the
+    underlying distributions are normalized so that their scale does not depend on the
+    rank of the two-body tensor (see :func:`random_two_body_tensor`), the ratio
+    ``two_body_scale / one_body_scale`` sets the strength of the interaction relative to
+    the one-body term, analogous to the ratio :math:`U / t` of a Fermi-Hubbard model:
+    increasing it yields a more strongly interacting Hamiltonian. Scaling all three
+    arguments by a common factor only changes the unit of energy.
+
     Args:
         norb: The number of orbitals.
+        one_body_scale: Multiplies the sampled one-body tensor.
+        two_body_scale: Multiplies the sampled two-body tensor.
+        constant_scale: Multiplies the sampled constant.
+        rank: The rank of the sampled two-body tensor. See
+            :func:`random_two_body_tensor`.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the one- and two-body tensors. The constant
@@ -396,8 +440,10 @@ def random_molecular_hamiltonian_spinless(
         one_body_tensor = random_hermitian(norb, seed=rng, dtype=dtype)
     else:
         one_body_tensor = random_real_symmetric_matrix(norb, seed=rng, dtype=dtype)
-    two_body_tensor = random_two_body_tensor(norb, seed=rng, dtype=dtype)
-    constant = rng.standard_normal()
+    one_body_tensor *= one_body_scale
+    two_body_tensor = random_two_body_tensor(norb, rank=rank, seed=rng, dtype=dtype)
+    two_body_tensor *= two_body_scale
+    constant = constant_scale * rng.standard_normal()
     return hamiltonians.MolecularHamiltonianSpinless(
         one_body_tensor=one_body_tensor,
         two_body_tensor=two_body_tensor,
@@ -406,7 +452,14 @@ def random_molecular_hamiltonian_spinless(
 
 
 def random_molecular_hamiltonian_unrestricted(
-    norb: int, *, seed=None, dtype=complex
+    norb: int,
+    *,
+    one_body_scale: float = 1.0,
+    two_body_scale: float = 1.0,
+    constant_scale: float = 1.0,
+    rank: int | None = None,
+    seed=None,
+    dtype=complex,
 ) -> hamiltonians.MolecularHamiltonianUnrestricted:
     """Sample a random spin-unrestricted molecular Hamiltonian.
 
@@ -420,8 +473,16 @@ def random_molecular_hamiltonian_unrestricted(
     Hamiltonian supplies the transposed contribution. See
     :class:`~ffsim.MolecularHamiltonianUnrestricted`.
 
+    The scale arguments are applied to every spin sector; see
+    :func:`random_molecular_hamiltonian`.
+
     Args:
         norb: The number of spatial orbitals.
+        one_body_scale: Multiplies the sampled one-body tensor.
+        two_body_scale: Multiplies the sampled two-body tensor.
+        constant_scale: Multiplies the sampled constant.
+        rank: The rank of the sampled two-body tensor. See
+            :func:`random_two_body_tensor`.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the one- and two-body tensors. The constant
@@ -432,7 +493,16 @@ def random_molecular_hamiltonian_unrestricted(
     """
     rng = np.random.default_rng(seed)
     ham_a, ham_b, ham_ab = (
-        random_molecular_hamiltonian(norb, seed=rng, dtype=dtype) for _ in range(3)
+        random_molecular_hamiltonian(
+            norb,
+            one_body_scale=one_body_scale,
+            two_body_scale=two_body_scale,
+            constant_scale=constant_scale,
+            rank=rank,
+            seed=rng,
+            dtype=dtype,
+        )
+        for _ in range(3)
     )
     # Break the symmetry of the alpha-beta tensor under exchanging its two index pairs
     # by rotating only its first pair of indices. This preserves the symmetry within

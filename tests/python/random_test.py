@@ -37,6 +37,16 @@ def sample_matrices(sampler, n_samples: int = 8000, dim: int = 4) -> np.ndarray:
     return np.array([sampler(dim, seed=RNG) for _ in range(n_samples)])
 
 
+def pair_matrix(two_body_tensor: np.ndarray) -> np.ndarray:
+    """Return a two-body tensor as a matrix indexed by orbital pairs.
+
+    The returned matrix is ``mat[(p, q), (r, s)] = two_body_tensor[p, q, s, r]``, which
+    is the form in which the tensor is positive semidefinite.
+    """
+    dim = two_body_tensor.shape[0]
+    return two_body_tensor.transpose(0, 1, 3, 2).reshape(dim**2, dim**2)
+
+
 def test_assert_t2_has_correct_symmetry():
     """Test that t2 amplitudes from a real molecule passes our symmetry test."""
     mol = pyscf.gto.Mole()
@@ -92,6 +102,39 @@ def test_random_two_body_tensor_symmetry():
         np.testing.assert_allclose(two_body_tensor[k, ell, i, j], val)
         np.testing.assert_allclose(two_body_tensor[j, i, ell, k], val.conjugate())
         np.testing.assert_allclose(two_body_tensor[ell, k, j, i], val.conjugate())
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_two_body_tensor_positive_semidefinite(dtype):
+    """Test that the two-body tensor is positive semidefinite in the pair basis."""
+    mat = pair_matrix(ffsim.random.random_two_body_tensor(5, seed=RNG, dtype=dtype))
+    assert ffsim.linalg.is_hermitian(mat)
+    assert np.min(np.linalg.eigvalsh(mat)) > -1e-8
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+@pytest.mark.parametrize("rank", [10, 50])
+def test_random_two_body_tensor_scale_independent_of_rank(dtype, rank: int):
+    """Test that the scale of the two-body tensor does not depend on the rank."""
+    dim = 5
+    # In the pair basis, the diagonal of the tensor averages the squared magnitudes of
+    # the entries of the Hermitian matrices being sampled. Those have variance four in
+    # the complex case, and two off the diagonal and four on the diagonal in the real
+    # case, and averaging leaves the expected value independent of the rank.
+    expected = 4 if np.issubdtype(dtype, np.complexfloating) else 2 + 2 / dim
+    means = [
+        np.mean(
+            np.diag(
+                pair_matrix(
+                    ffsim.random.random_two_body_tensor(
+                        dim, rank=rank, seed=RNG, dtype=dtype
+                    )
+                )
+            )
+        ).real
+        for _ in range(20)
+    ]
+    np.testing.assert_allclose(np.mean(means), expected, rtol=0.1)
 
 
 @pytest.mark.parametrize("dim", range(10))
@@ -306,6 +349,94 @@ def test_random_molecular_hamiltonian(dtype):
     dim = ffsim.dim(norb, nelec)
     mat = ffsim.linear_operator(hamiltonian, norb, nelec) @ np.eye(dim)
     np.testing.assert_allclose(mat, mat.T.conj(), atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "sampler",
+    [
+        ffsim.random.random_molecular_hamiltonian,
+        ffsim.random.random_molecular_hamiltonian_spinless,
+    ],
+)
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_molecular_hamiltonian_scales(sampler, dtype):
+    """Test scaling the terms of a random molecular Hamiltonian."""
+    norb = 4
+    seed = RNG.integers(1 << 32)
+    hamiltonian = sampler(norb, seed=seed, dtype=dtype)
+    scaled = sampler(
+        norb,
+        one_body_scale=2.0,
+        two_body_scale=0.5,
+        constant_scale=0.0,
+        seed=seed,
+        dtype=dtype,
+    )
+    np.testing.assert_allclose(scaled.one_body_tensor, 2 * hamiltonian.one_body_tensor)
+    np.testing.assert_allclose(
+        scaled.two_body_tensor, 0.5 * hamiltonian.two_body_tensor
+    )
+    assert scaled.constant == 0
+
+
+@pytest.mark.parametrize("rank", [1, 5, 10])
+def test_random_molecular_hamiltonian_rank(rank: int):
+    """Test the rank of the two-body tensor of a random molecular Hamiltonian."""
+    norb = 4
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(
+        norb, rank=rank, seed=RNG, dtype=float
+    )
+    np.testing.assert_allclose(
+        np.linalg.matrix_rank(pair_matrix(hamiltonian.two_body_tensor)), rank
+    )
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_molecular_hamiltonian_unrestricted_scales(dtype):
+    """Test scaling the terms of a random unrestricted molecular Hamiltonian."""
+    norb = 4
+    seed = RNG.integers(1 << 32)
+    hamiltonian = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb, seed=seed, dtype=dtype
+    )
+    scaled = ffsim.random.random_molecular_hamiltonian_unrestricted(
+        norb,
+        one_body_scale=2.0,
+        two_body_scale=0.5,
+        constant_scale=3.0,
+        seed=seed,
+        dtype=dtype,
+    )
+    np.testing.assert_allclose(
+        scaled.one_body_tensors, 2 * hamiltonian.one_body_tensors
+    )
+    np.testing.assert_allclose(
+        scaled.two_body_tensors, 0.5 * hamiltonian.two_body_tensors
+    )
+    np.testing.assert_allclose(scaled.constant, 3 * hamiltonian.constant)
+
+
+def test_random_double_factorized_hamiltonian_scale_independent_of_rank():
+    """Test that the scale of the DF two-body part does not depend on the rank."""
+    norb = 4
+
+    def mean_norm(rank: int) -> float:
+        return float(
+            np.mean(
+                [
+                    np.linalg.norm(
+                        ffsim.random.random_double_factorized_hamiltonian(
+                            norb, rank=rank, real=True, seed=RNG
+                        )
+                        .to_molecular_hamiltonian()
+                        .two_body_tensor
+                    )
+                    for _ in range(50)
+                ]
+            )
+        )
+
+    np.testing.assert_allclose(mean_norm(2), mean_norm(20), rtol=0.15)
 
 
 @pytest.mark.parametrize("dtype", [float, complex])
