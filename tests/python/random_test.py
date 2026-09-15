@@ -32,6 +32,11 @@ def assert_t2_has_correct_symmetry(t2: np.ndarray):
         np.testing.assert_allclose(t2[i, j, a, b], t2[j, i, b, a])
 
 
+def sample_matrices(sampler, n_samples: int = 8000, dim: int = 4) -> np.ndarray:
+    """Draw many matrices from a sampler, for testing its distribution."""
+    return np.array([sampler(dim, seed=RNG) for _ in range(n_samples)])
+
+
 def test_assert_t2_has_correct_symmetry():
     """Test that t2 amplitudes from a real molecule passes our symmetry test."""
     mol = pyscf.gto.Mole()
@@ -48,11 +53,15 @@ def test_assert_t2_has_correct_symmetry():
     assert_t2_has_correct_symmetry(t2bb)
 
 
-def test_random_t2_amplitudes_symmetry():
-    """Test random t2 amplitudes symmetry."""
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_t2_amplitudes(dtype):
+    """Test random t2 amplitudes."""
     norb = 5
     nocc = 3
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG)
+    nvrt = norb - nocc
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=dtype)
+    assert t2.shape == (nocc, nocc, nvrt, nvrt)
+    assert t2.dtype == dtype
     assert_t2_has_correct_symmetry(t2)
 
 
@@ -125,9 +134,62 @@ def test_random_real_symmetric_matrix():
     np.testing.assert_allclose(np.linalg.matrix_rank(mat), dim)
 
     rank = 3
-    mat = ffsim.random.random_real_symmetric_matrix(dim, rank=rank, seed=RNG)
-    assert ffsim.linalg.is_real_symmetric(mat)
-    np.testing.assert_allclose(np.linalg.matrix_rank(mat), rank)
+    mats = [
+        ffsim.random.random_real_symmetric_matrix(dim, rank=rank, seed=RNG)
+        for _ in range(10)
+    ]
+    for mat in mats:
+        assert ffsim.linalg.is_real_symmetric(mat)
+        np.testing.assert_allclose(np.linalg.matrix_rank(mat), rank)
+    # The sampled matrices are indefinite, not positive semidefinite.
+    eigs = np.linalg.eigvalsh(mats)
+    assert np.any(eigs < -1e-8)
+    assert np.any(eigs > 1e-8)
+
+
+def test_random_real_symmetric_matrix_goe():
+    """Test that random real symmetric matrices are distributed with the GOE."""
+    mats = sample_matrices(ffsim.random.random_real_symmetric_matrix)
+    # The diagonal entries have variance two and the off-diagonal entries have unit
+    # variance.
+    np.testing.assert_allclose(np.mean(mats), 0, atol=0.05)
+    np.testing.assert_allclose(np.var(mats[:, 0, 0]), 2, rtol=0.1)
+    np.testing.assert_allclose(np.var(mats[:, 0, 1]), 1, rtol=0.1)
+    # Half of the eigenvalues are negative.
+    eigs = np.linalg.eigvalsh(mats)
+    np.testing.assert_allclose(np.mean(eigs < 0), 0.5, rtol=0.1)
+
+    # The distribution is invariant under conjugation by an orthogonal matrix.
+    orthogonal = ffsim.random.random_orthogonal(mats.shape[-1], seed=RNG)
+    rotated = orthogonal @ mats @ orthogonal.T
+    np.testing.assert_allclose(np.var(rotated[:, 0, 0]), 2, rtol=0.15)
+    np.testing.assert_allclose(np.var(rotated[:, 0, 1]), 1, rtol=0.15)
+
+
+@pytest.mark.parametrize("dim", range(10))
+def test_random_hermitian(dim: int):
+    """Test random Hermitian matrix."""
+    mat = ffsim.random.random_hermitian(dim, seed=RNG)
+    assert mat.dtype == complex
+    assert ffsim.linalg.is_hermitian(mat)
+
+
+def test_random_hermitian_gue():
+    """Test that random Hermitian matrices are distributed with the GUE."""
+    mats = sample_matrices(ffsim.random.random_hermitian)
+    # The diagonal entries have unit variance, and the real and imaginary parts of the
+    # off-diagonal entries have variance one half.
+    np.testing.assert_allclose(np.mean(mats), 0, atol=0.05)
+    np.testing.assert_allclose(np.var(mats[:, 0, 0].real), 1, rtol=0.1)
+    np.testing.assert_allclose(np.var(mats[:, 0, 1].real), 0.5, rtol=0.1)
+    np.testing.assert_allclose(np.var(mats[:, 0, 1].imag), 0.5, rtol=0.1)
+
+    # The distribution is invariant under conjugation by a unitary.
+    unitary = ffsim.random.random_unitary(mats.shape[-1], seed=RNG)
+    rotated = unitary @ mats @ unitary.T.conj()
+    np.testing.assert_allclose(np.var(rotated[:, 0, 0].real), 1, rtol=0.15)
+    np.testing.assert_allclose(np.var(rotated[:, 0, 1].real), 0.5, rtol=0.15)
+    np.testing.assert_allclose(np.var(rotated[:, 0, 1].imag), 0.5, rtol=0.15)
 
 
 @pytest.mark.parametrize("dim", range(10))
@@ -135,6 +197,15 @@ def test_random_antihermitian_matrix(dim: int):
     """Test random anti-Hermitian matrix."""
     mat = ffsim.random.random_antihermitian(dim, seed=RNG)
     assert ffsim.linalg.is_antihermitian(mat)
+
+
+def test_random_antihermitian_gue():
+    """Test that random anti-Hermitian matrices are 1j times a GUE sample."""
+    mats = -1j * sample_matrices(ffsim.random.random_antihermitian)
+    np.testing.assert_allclose(np.mean(mats), 0, atol=0.05)
+    np.testing.assert_allclose(np.var(mats[:, 0, 0].real), 1, rtol=0.1)
+    np.testing.assert_allclose(np.var(mats[:, 0, 1].real), 0.5, rtol=0.1)
+    np.testing.assert_allclose(np.var(mats[:, 0, 1].imag), 0.5, rtol=0.1)
 
 
 @pytest.mark.parametrize("dim", range(1, 10))
@@ -219,6 +290,22 @@ def test_random_fermion_hamiltonian():
     assert op.conserves_spin_z()
     # A Hamiltonian is Hermitian.
     assert op == op.adjoint()
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_molecular_hamiltonian(dtype):
+    """Test random molecular Hamiltonian."""
+    norb = 4
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=dtype)
+    assert hamiltonian.one_body_tensor.dtype == dtype
+    assert hamiltonian.two_body_tensor.dtype == dtype
+    assert ffsim.linalg.is_hermitian(hamiltonian.one_body_tensor)
+
+    # A Hamiltonian is Hermitian.
+    nelec = (2, 1)
+    dim = ffsim.dim(norb, nelec)
+    mat = ffsim.linear_operator(hamiltonian, norb, nelec) @ np.eye(dim)
+    np.testing.assert_allclose(mat, mat.T.conj(), atol=1e-12)
 
 
 @pytest.mark.parametrize("dtype", [float, complex])
@@ -320,6 +407,44 @@ def test_random_ucj_op_spin_unbalanced_empty_interaction_pairs(norb: int, n_reps
         )
         for other in set(range(3)) - {index}:
             assert np.any(op.diag_coulomb_mats[:, other])
+
+
+@pytest.mark.parametrize("diag_coulomb_normal", [False, True])
+def test_random_ucj_op_diag_coulomb_distribution(diag_coulomb_normal: bool):
+    """Test the mean and scale of the sampled diagonal Coulomb matrices."""
+    norb = 4
+    mean = 10.0
+    scale = 1e-3
+    op_balanced = ffsim.random.random_ucj_op_spin_balanced(
+        norb,
+        n_reps=2,
+        diag_coulomb_mean=mean,
+        diag_coulomb_scale=scale,
+        diag_coulomb_normal=diag_coulomb_normal,
+        seed=RNG,
+    )
+    op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb,
+        n_reps=2,
+        diag_coulomb_mean=mean,
+        diag_coulomb_scale=scale,
+        diag_coulomb_normal=diag_coulomb_normal,
+        seed=RNG,
+    )
+    op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb,
+        n_reps=2,
+        diag_coulomb_mean=mean,
+        diag_coulomb_scale=scale,
+        diag_coulomb_normal=diag_coulomb_normal,
+        seed=RNG,
+    )
+    for diag_coulomb_mats in [
+        op_balanced.diag_coulomb_mats,
+        op_unbalanced.diag_coulomb_mats,
+        op_spinless.diag_coulomb_mats,
+    ]:
+        np.testing.assert_allclose(diag_coulomb_mats, mean, atol=1e-2)
 
 
 def test_raise_errors():

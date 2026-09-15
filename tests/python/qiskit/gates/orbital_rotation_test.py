@@ -230,7 +230,7 @@ def test_compressed_max_layers(norb: int):
 def test_near_identity_compressed_max_layers():
     """Test max_layers for a near-identity rotation."""
     norb = 8
-    scale = 4e-13
+    scale = 8e-13
     generator = 1j * scale * ffsim.random.random_hermitian(norb, seed=12345)
     mat = scipy.linalg.expm(generator)
     max_layers = 2
