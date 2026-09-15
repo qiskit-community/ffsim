@@ -55,7 +55,7 @@ class NumNumAnsatzOpSpinBalancedJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         circuit = QuantumCircuit(qubits, name=self.name)
         for instruction in _num_num_ansatz_spin_balanced_jw(
             qubits, self.num_num_ansatz_op
