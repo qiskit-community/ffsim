@@ -967,6 +967,14 @@ def random_double_factorized_hamiltonian(
 ) -> hamiltonians.DoubleFactorizedHamiltonian:
     """Sample a random double-factorized Hamiltonian.
 
+    The two-body part of the Hamiltonian is a sum of ``rank`` terms, each built from an
+    independent random orbital rotation and an independent random diagonal Coulomb
+    matrix sampled from the Gaussian orthogonal ensemble (see
+    :func:`random_real_symmetric_matrix`). The diagonal Coulomb matrices are divided by
+    the square root of the rank so that the scale of the two-body part does not depend
+    on the rank: the terms are independent and have mean zero, so their sum fluctuates
+    on the scale of the square root of the number of terms.
+
     Args:
         norb: The number of spatial orbitals.
         rank: The desired number of terms in the two-body part of the Hamiltonian.
@@ -995,6 +1003,7 @@ def random_double_factorized_hamiltonian(
     diag_coulomb_mats = np.stack(
         [random_real_symmetric_matrix(norb, seed=rng) for _ in range(rank)]
     )
+    diag_coulomb_mats /= math.sqrt(rank)
     constant = rng.standard_normal()
     return hamiltonians.DoubleFactorizedHamiltonian(
         one_body_tensor=one_body_tensor,
