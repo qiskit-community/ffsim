@@ -10,7 +10,6 @@
 
 from __future__ import annotations
 
-import itertools
 import math
 from collections import defaultdict
 
@@ -23,6 +22,11 @@ from ffsim.variational.util import validate_interaction_pairs
 
 def random_state_vector(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Return a random state vector sampled from the uniform distribution.
+
+    The state vector is obtained by normalizing a vector of independent standard
+    Gaussians, which yields the unique probability distribution on the unit sphere that
+    is invariant under multiplication by a unitary matrix (an orthogonal matrix, if
+    ``dtype`` is a real type).
 
     Args:
         dim: The dimension of the state vector.
@@ -52,6 +56,13 @@ def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     A density matrix is positive semi-definite and has trace equal to one.
 
+    The Hilbert-Schmidt measure is the measure induced by tracing out one half of a
+    uniformly random pure state on a doubled Hilbert space (see
+    :func:`random_state_vector`). It is the canonical member of the family of induced
+    measures: it is the flat measure on the set of density matrices, and it is invariant
+    under conjugation by any unitary. If ``dtype`` is a real type, then the real analog
+    is sampled instead.
+
     Args:
         dim: The width and height of the matrix.
         seed: A seed to initialize the pseudorandom number generator.
@@ -65,10 +76,11 @@ def random_density_matrix(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         ValueError: Dimension must be at least one.
 
     References:
-        - `Osipov, Sommers, and Zyczkowski, "Random Bures mixed states and the distribution of their purity" (2010)`_
-
-    .. _Osipov, Sommers, and Zyczkowski, "Random Bures mixed states and the distribution of their purity" (2010): https://arxiv.org/abs/0909.5094
-    """  # noqa: E501
+        - `Zyczkowski and Sommers, "Induced measures in the space of mixed quantum
+          states" (2001) <https://arxiv.org/abs/quant-ph/0012101>`_
+        - `Osipov, Sommers, and Zyczkowski, "Random Bures mixed states and the
+          distribution of their purity" (2010) <https://arxiv.org/abs/0909.5094>`_
+    """
     if dim < 1:
         raise ValueError("Dimension must be at least one.")
 
@@ -95,10 +107,9 @@ def random_unitary(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
         The sampled unitary matrix.
 
     References:
-        - `Mezzadri, "How to generate random matrices from the classical compact groups" (2007)`_
-
-    .. _Mezzadri, "How to generate random matrices from the classical compact groups" (2007): https://arxiv.org/abs/math-ph/0609050
-    """  # noqa: E501
+        - `Mezzadri, "How to generate random matrices from the classical compact
+          groups" (2007) <https://arxiv.org/abs/math-ph/0609050>`_
+    """
     rng = np.random.default_rng(seed)
     z = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     z += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
@@ -120,10 +131,9 @@ def random_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray:
         The sampled orthogonal matrix.
 
     References:
-        - `Mezzadri, "How to generate random matrices from the classical compact groups" (2007)`_
-
-    .. _Mezzadri, "How to generate random matrices from the classical compact groups" (2007): https://arxiv.org/abs/math-ph/0609050
-    """  # noqa: E501
+        - `Mezzadri, "How to generate random matrices from the classical compact
+          groups" (2007) <https://arxiv.org/abs/math-ph/0609050>`_
+    """
     rng = np.random.default_rng(seed)
     m = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     q, r = np.linalg.qr(m)
@@ -134,6 +144,12 @@ def random_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray:
 def random_special_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray:
     """Return a random special orthogonal matrix distributed with Haar measure.
 
+    The matrix is sampled by drawing a Haar-distributed orthogonal matrix and negating
+    its first row if its determinant is negative. Negating a row is multiplication by a
+    fixed reflection, which maps the Haar measure of the orthogonal group, conditioned
+    on the determinant being ``-1``, onto the Haar measure of the special orthogonal
+    group, so the result is Haar-distributed.
+
     Args:
         dim: The width and height of the matrix.
         seed: A seed to initialize the pseudorandom number generator.
@@ -142,6 +158,10 @@ def random_special_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray
 
     Returns:
         The sampled special orthogonal matrix.
+
+    References:
+        - `Mezzadri, "How to generate random matrices from the classical compact
+          groups" (2007) <https://arxiv.org/abs/math-ph/0609050>`_
     """
     mat = random_orthogonal(dim, seed=seed, dtype=dtype)
     if np.linalg.det(mat) < 0:
@@ -150,7 +170,13 @@ def random_special_orthogonal(dim: int, *, seed=None, dtype=float) -> np.ndarray
 
 
 def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
-    """Return a random Hermitian matrix.
+    """Return a random Hermitian matrix from the Gaussian unitary ensemble.
+
+    The Gaussian unitary ensemble (GUE) is the canonical distribution over Hermitian
+    matrices: it is the unique Gaussian distribution invariant under conjugation by a
+    unitary matrix. The entries satisfy ``E[H[i, i] ** 2] = E[abs(H[i, j]) ** 2] = 1``,
+    so the eigenvalues follow the semicircle law on
+    ``[-2 * sqrt(dim), 2 * sqrt(dim)]``.
 
     Args:
         dim: The width and height of the matrix.
@@ -160,17 +186,31 @@ def random_hermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
 
     Returns:
         The sampled Hermitian matrix.
+
+    References:
+        - `Livan, Novaes, and Vivo, "Introduction to Random Matrices: Theory and
+          Practice" (2017) <https://arxiv.org/abs/1712.07903>`_
     """
     rng = np.random.default_rng(seed)
     mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     mat += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
-    return mat + mat.T.conj()
+    return 0.5 * (mat + mat.T.conj())
 
 
 def random_real_symmetric_matrix(
     dim: int, *, rank: int | None = None, seed=None, dtype=float
 ) -> np.ndarray:
-    """Return a random real symmetric matrix.
+    """Return a random real symmetric matrix from the Gaussian orthogonal ensemble.
+
+    The Gaussian orthogonal ensemble (GOE) is the canonical distribution over real
+    symmetric matrices: it is the unique Gaussian distribution invariant under
+    conjugation by an orthogonal matrix. Off-diagonal entries have unit variance and
+    diagonal entries have variance two, so the eigenvalues follow the semicircle law on
+    ``[-2 * sqrt(dim), 2 * sqrt(dim)]``.
+
+    If ``rank`` is specified, then the sampled matrix is a GOE matrix supported on a
+    uniformly random subspace of that dimension. Passing ``rank=dim`` is equivalent to
+    leaving ``rank`` unspecified.
 
     Args:
         dim: The width and height of the matrix.
@@ -181,16 +221,29 @@ def random_real_symmetric_matrix(
 
     Returns:
         The sampled real symmetric matrix.
+
+    References:
+        - `Livan, Novaes, and Vivo, "Introduction to Random Matrices: Theory and
+          Practice" (2017) <https://arxiv.org/abs/1712.07903>`_
     """
     rng = np.random.default_rng(seed)
     if rank is None:
         rank = dim
-    mat = rng.standard_normal((dim, rank)).astype(dtype, copy=False)
-    return mat @ mat.T
+    mat = rng.standard_normal((rank, rank)).astype(dtype, copy=False)
+    mat = (mat + mat.T) / math.sqrt(2)
+    if rank == dim:
+        return mat
+    frame = random_orthogonal(dim, seed=rng, dtype=dtype)[:, :rank]
+    return frame @ mat @ frame.T
 
 
 def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     """Return a random anti-Hermitian matrix.
+
+    The sampled matrix is ``1j`` times a matrix sampled from the Gaussian unitary
+    ensemble, the canonical distribution over Hermitian matrices; see
+    :func:`random_hermitian`. Its eigenvalues are purely imaginary, and their imaginary
+    parts follow the semicircle law on ``[-2 * sqrt(dim), 2 * sqrt(dim)]``.
 
     Args:
         dim: The width and height of the matrix.
@@ -204,13 +257,22 @@ def random_antihermitian(dim: int, *, seed=None, dtype=complex) -> np.ndarray:
     rng = np.random.default_rng(seed)
     mat = rng.standard_normal((dim, dim)).astype(dtype, copy=False)
     mat += 1j * rng.standard_normal((dim, dim)).astype(dtype, copy=False)
-    return mat - mat.T.conj()
+    return 0.5 * (mat - mat.T.conj())
 
 
 def random_two_body_tensor(
     dim: int, *, rank: int | None = None, seed=None, dtype=complex
 ) -> np.ndarray:
     """Sample a random two-body tensor.
+
+    The tensor is sampled by summing outer products of ``rank`` independent random
+    Hermitian matrices. This gives it the symmetries of a two-body integrals tensor,
+    ``tensor[p, q, r, s] == tensor[r, s, p, q] == tensor[q, p, s, r].conjugate()``, and
+    it also makes the tensor positive semidefinite when viewed as a matrix indexed by
+    the orbital pairs ``(p, q)`` and ``(r, s)`` - a property that it shares with the
+    electron repulsion integrals of a molecule. The maximum rank is the dimension of the
+    space of matrices being summed over, so at the default rank the tensor spans that
+    space.
 
     Args:
         dim: The dimension of the tensor. The shape of the returned tensor will be
@@ -241,6 +303,14 @@ def random_t2_amplitudes(
 ) -> np.ndarray:
     """Sample a random t2 amplitudes tensor.
 
+    A t2 amplitudes tensor satisfies ``t2[i, j, a, b] == t2[j, i, b, a]``, so viewed as
+    a matrix indexed by the occupied-virtual orbital pairs ``(i, a)`` and ``(j, b)``, it
+    is a symmetric matrix. The tensor is sampled from the canonical Gaussian
+    distribution over such matrices: the Gaussian orthogonal ensemble if ``dtype`` is a
+    real type (see :func:`random_real_symmetric_matrix`), and its complex analog, which
+    is invariant under the map ``mat -> unitary @ mat @ unitary.T``, if ``dtype`` is a
+    complex type.
+
     Args:
         norb: The number of orbitals.
         nocc: The number of orbitals that are occupied by an electron.
@@ -253,26 +323,15 @@ def random_t2_amplitudes(
     """
     rng = np.random.default_rng(seed)
     nvrt = norb - nocc
-    t2 = np.zeros((nocc, nocc, nvrt, nvrt), dtype=dtype)
-    pairs = itertools.product(range(nocc), range(nocc, norb))
-    for (i, a), (j, b) in itertools.combinations_with_replacement(pairs, 2):
-        val = rng.standard_normal()
-        t2[i, j, a - nocc, b - nocc] = val
-        t2[j, i, b - nocc, a - nocc] = val
+    n_pairs = nocc * nvrt
+    mat = rng.standard_normal((n_pairs, n_pairs)).astype(dtype, copy=False)
     if np.issubdtype(dtype, np.complexfloating):
-        t2_large = np.zeros((norb, norb, norb, norb), dtype=dtype)
-        t2_large[:nocc, :nocc, nocc:, nocc:] = t2
-        orbital_rotation = random_unitary(norb, seed=rng)
-        t2_large = np.einsum(
-            "ijab,iI,jJ,aA,bB->IJAB",
-            t2_large,
-            orbital_rotation.conj(),
-            orbital_rotation.conj(),
-            orbital_rotation,
-            orbital_rotation,
-        )
-        t2 = t2_large[:nocc, :nocc, nocc:, nocc:]
-    return t2
+        mat += 1j * rng.standard_normal((n_pairs, n_pairs))
+    mat = (mat + mat.T) / math.sqrt(2)
+    # The row index of mat is i * nvrt + a, so reshaping gives the axes (i, a, j, b).
+    return np.ascontiguousarray(
+        mat.reshape(nocc, nvrt, nocc, nvrt).transpose(0, 2, 1, 3)
+    )
 
 
 def random_molecular_hamiltonian(
@@ -593,7 +652,9 @@ def random_ucj_op_spin_balanced(
         diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
             Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
-            Defaults to ``2 * pi``.
+            Defaults to ``2 * pi``. The entries of a diagonal Coulomb matrix enter the
+            operator as phases, so the default uniform window of width ``2 * pi``
+            centered at zero samples them uniformly over their full period.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
@@ -693,7 +754,9 @@ def random_ucj_op_spin_unbalanced(
         diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
             Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
-            Defaults to ``2 * pi``.
+            Defaults to ``2 * pi``. The entries of a diagonal Coulomb matrix enter the
+            operator as phases, so the default uniform window of width ``2 * pi``
+            centered at zero samples them uniformly over their full period.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
@@ -803,7 +866,9 @@ def random_ucj_op_spinless(
         diag_coulomb_mean: Mean of the entries of the diagonal Coulomb matrices.
             Defaults to ``0``.
         diag_coulomb_scale: Scale of the entries of the diagonal Coulomb matrices.
-            Defaults to ``2 * pi``.
+            Defaults to ``2 * pi``. The entries of a diagonal Coulomb matrix enter the
+            operator as phases, so the default uniform window of width ``2 * pi``
+            centered at zero samples them uniformly over their full period.
         diag_coulomb_normal: Whether to draw the entries of the diagonal Coulomb
             matrices from a normal distribution, rather than a uniform distribution.
             If True, then the entries are drawn by calling
@@ -937,6 +1002,15 @@ def random_fermion_operator(
 ) -> operators.FermionOperator:
     """Sample a random fermion operator.
 
+    The terms are sampled independently and uniformly: the length of a term is uniform
+    in ``[1, max_term_length]``, and each of its actions is a creation or annihilation
+    operator, a spin, and an orbital, each chosen uniformly. If
+    ``num_and_spin_conserving`` is set to True, then a term is instead built from a
+    uniform number of excitations, each of which pairs a creation with an annihilation
+    operator acting on the same spin. Coefficients are standard complex Gaussians.
+    Because repeated terms are combined, the sampled operator may have fewer than
+    ``n_terms`` terms.
+
     Args:
         norb: The number of spatial orbitals.
         n_terms: The number of terms to include in the operator. If not specified,
@@ -1008,6 +1082,9 @@ def random_fermion_hamiltonian(
     """Sample a random fermion Hamiltonian.
 
     A fermion Hamiltonian is hermitian and conserves particle number and spin :math:`z`.
+
+    The operator is sampled by drawing a random particle-number and spin-:math:`z`
+    conserving operator (see :func:`random_fermion_operator`) and adding its adjoint.
 
     Args:
         norb: The number of spatial orbitals.
