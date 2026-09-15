@@ -265,7 +265,7 @@ def random_two_body_tensor(
 ) -> np.ndarray:
     """Sample a random two-body tensor.
 
-    The tensor is sampled by summing outer products of ``rank`` independent random
+    The tensor is sampled by averaging outer products of ``rank`` independent random
     Hermitian matrices. This gives it the symmetries of a two-body integrals tensor,
     ``tensor[p, q, r, s] == tensor[r, s, p, q] == tensor[q, p, s, r].conjugate()``, and
     it also makes the tensor positive semidefinite when viewed as a matrix indexed by
@@ -273,6 +273,13 @@ def random_two_body_tensor(
     electron repulsion integrals of a molecule. The maximum rank is the dimension of the
     space of matrices being summed over, so at the default rank the tensor spans that
     space.
+
+    The outer products are averaged rather than summed so that the scale of the tensor
+    does not depend on the rank. As a matrix indexed by orbital pairs, the tensor is a
+    Wishart matrix in the normalization under which the eigenvalue distribution
+    converges to the Marchenko-Pastur law, so its spectrum, and hence the scale of the
+    tensor, stays bounded as ``dim`` grows at the default rank, which is proportional to
+    the dimension ``dim**2`` of that matrix.
 
     Args:
         dim: The dimension of the tensor. The shape of the returned tensor will be
@@ -286,6 +293,10 @@ def random_two_body_tensor(
 
     Returns:
         The sampled two-body tensor.
+
+    References:
+        - `Livan, Novaes, and Vivo, "Introduction to Random Matrices: Theory and
+          Practice" (2017) <https://arxiv.org/abs/1712.07903>`_
     """
     rng = np.random.default_rng(seed)
     is_complex = np.issubdtype(dtype, np.complexfloating)
@@ -295,7 +306,9 @@ def random_two_body_tensor(
     if is_complex:
         mats += 1j * rng.standard_normal((rank, dim, dim))
     mats += mats.transpose(0, 2, 1).conj()
-    return np.tensordot(mats, mats, axes=(0, 0))
+    tensor = np.tensordot(mats, mats, axes=(0, 0))
+    tensor /= rank
+    return tensor
 
 
 def random_t2_amplitudes(
