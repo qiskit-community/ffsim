@@ -1,0 +1,6 @@
+﻿ffsim.simulate\_qdrift\_double\_factorized
+==========================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: simulate_qdrift_double_factorized

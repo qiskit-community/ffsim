@@ -1,0 +1,6 @@
+﻿ffsim.contract.contract\_one\_body
+==================================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: contract_one_body

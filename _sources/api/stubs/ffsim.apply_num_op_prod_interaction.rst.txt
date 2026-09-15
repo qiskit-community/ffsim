@@ -1,0 +1,6 @@
+﻿ffsim.apply\_num\_op\_prod\_interaction
+=======================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_num_op_prod_interaction

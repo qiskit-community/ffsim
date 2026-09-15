@@ -1,0 +1,6 @@
+﻿ffsim.apply\_givens\_rotation
+=============================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_givens_rotation

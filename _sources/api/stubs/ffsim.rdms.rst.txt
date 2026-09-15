@@ -1,0 +1,6 @@
+﻿ffsim.rdms
+==========
+
+.. currentmodule:: ffsim
+
+.. autofunction:: rdms
