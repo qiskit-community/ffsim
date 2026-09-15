@@ -578,6 +578,56 @@ def test_random_ucj_op_diag_coulomb_distribution(diag_coulomb_normal: bool):
         np.testing.assert_allclose(diag_coulomb_mats, mean, atol=1e-2)
 
 
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_random_givens_ansatz_op(norb: int):
+    """Test sampling a Givens rotation ansatz operator."""
+    op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
+    assert op.norb == norb
+    assert len(op.thetas) == len(op.interaction_pairs)
+    assert op.phis is not None
+    assert len(op.phis) == len(op.interaction_pairs)
+    assert op.phase_angles is not None
+    assert len(op.phase_angles) == norb
+    assert ffsim.linalg.is_unitary(op.to_orbital_rotation())
+
+    # The Givens rotation phases and the layer of phase gates are optional
+    op = ffsim.random.random_givens_ansatz_op(
+        norb, with_phis=False, with_phase_angles=False, seed=RNG
+    )
+    assert op.phis is None
+    assert op.phase_angles is None
+
+    # The interaction pairs can be specified
+    interaction_pairs = list(itertools.combinations(range(norb), 2))
+    op = ffsim.random.random_givens_ansatz_op(
+        norb, interaction_pairs=interaction_pairs, seed=RNG
+    )
+    assert op.interaction_pairs == interaction_pairs
+    assert len(op.thetas) == len(interaction_pairs)
+
+
+@pytest.mark.parametrize("norb", range(1, 5))
+def test_random_num_num_ansatz_op_spin_balanced(norb: int):
+    """Test sampling a spin-balanced number-number interaction ansatz operator."""
+    op = ffsim.random.random_num_num_ansatz_op_spin_balanced(norb, seed=RNG)
+    assert op.norb == norb
+    # By default, all pairs of orbitals interact, including an orbital with itself
+    pairs = list(itertools.combinations_with_replacement(range(norb), 2))
+    for these_pairs, thetas in zip(op.interaction_pairs, op.thetas):
+        assert these_pairs == pairs
+        assert len(thetas) == len(pairs)
+
+    # The interaction pairs can be specified
+    pairs_aa: list[tuple[int, int]] = [(0, norb - 1)]
+    pairs_ab: list[tuple[int, int]] = []
+    op = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+        norb, interaction_pairs=(pairs_aa, pairs_ab), seed=RNG
+    )
+    assert op.interaction_pairs == (pairs_aa, pairs_ab)
+    assert len(op.thetas[0]) == len(pairs_aa)
+    assert len(op.thetas[1]) == len(pairs_ab)
+
+
 def test_raise_errors():
     """Test errors are raised as expected."""
     with pytest.raises(ValueError, match="Dimension"):
@@ -599,4 +649,13 @@ def test_raise_errors():
     with pytest.raises(ValueError, match="triangular"):
         _ = ffsim.random.random_ucj_op_spin_unbalanced(
             4, interaction_pairs=(None, None, [(1, 0)]), seed=RNG
+        )
+
+    with pytest.raises(ValueError, match="Duplicate"):
+        _ = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+            4, interaction_pairs=([(0, 1), (0, 1)], []), seed=RNG
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+            4, interaction_pairs=([], [(1, 0)]), seed=RNG
         )

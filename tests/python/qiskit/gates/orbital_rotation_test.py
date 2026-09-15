@@ -309,3 +309,35 @@ def test_inverse_spinless(norb: int, nocc: int):
         statevec = statevec.evolve(gate.inverse())
 
         np.testing.assert_allclose(np.array(statevec), vec)
+
+
+def test_equality():
+    """Test equality comparison."""
+    norb = 5
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation)
+    assert gate == ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation.copy())
+    assert gate == ffsim.qiskit.OrbitalRotationJW(
+        norb, (orbital_rotation, orbital_rotation)
+    )
+    assert gate != ffsim.qiskit.OrbitalRotationJW(norb, other_orbital_rotation)
+    assert gate != ffsim.qiskit.OrbitalRotationJW(norb, (orbital_rotation, None))
+    assert gate != ffsim.qiskit.OrbitalRotationJW(
+        norb, (orbital_rotation, other_orbital_rotation)
+    )
+    assert gate != ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation)
+    assert gate == ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation.copy())
+    assert gate != ffsim.qiskit.OrbitalRotationSpinlessJW(norb, other_orbital_rotation)
+    assert gate != "gate"

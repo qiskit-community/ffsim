@@ -86,3 +86,30 @@ def test_tol():
         qubits,
     )
     assert "xx_plus_yy" not in circuit.decompose(reps=2).count_ops()
+
+
+def test_equality():
+    """Test equality comparison."""
+    norb = 4
+    hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
+    other_hamiltonian = ffsim.random.random_diagonal_coulomb_hamiltonian(norb, seed=RNG)
+
+    gate = ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        hamiltonian, 1.0, n_steps=2, order=1
+    )
+    assert gate == ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        hamiltonian, 1.0, n_steps=2, order=1
+    )
+    assert gate != ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        other_hamiltonian, 1.0, n_steps=2, order=1
+    )
+    assert gate != ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        hamiltonian, 2.0, n_steps=2, order=1
+    )
+    assert gate != ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        hamiltonian, 1.0, n_steps=3, order=1
+    )
+    assert gate != ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW(
+        hamiltonian, 1.0, n_steps=2, order=2
+    )
+    assert gate != "gate"

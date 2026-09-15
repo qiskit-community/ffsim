@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 from collections import defaultdict
 
@@ -17,6 +18,7 @@ import numpy as np
 
 from ffsim import hamiltonians, operators, variational
 from ffsim.linalg.util import mask_from_indices, rotate_two_body_tensor
+from ffsim.variational.ucj_angles_spin_balanced import brickwork
 from ffsim.variational.util import validate_interaction_pairs
 
 
@@ -996,6 +998,99 @@ def random_ucj_op_spinless(
         diag_coulomb_mats=diag_coulomb_mats,
         orbital_rotations=orbital_rotations,
         final_orbital_rotation=final_orbital_rotation,
+    )
+
+
+def random_givens_ansatz_op(
+    norb: int,
+    *,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    with_phis: bool = True,
+    with_phase_angles: bool = True,
+    seed=None,
+) -> variational.GivensAnsatzOp:
+    r"""Sample a random Givens rotation ansatz operator.
+
+    The angles of the operator are sampled uniformly from the interval
+    :math:`[-\pi, \pi)`. The angles enter the operator as rotation angles and phases,
+    so this window of width :math:`2 \pi` samples them uniformly over their full
+    period.
+
+    Args:
+        norb: The number of spatial orbitals.
+        interaction_pairs: The orbital pairs to apply the Givens rotations to.
+            If not specified, a brickwork pattern of ``norb`` layers is used, which is
+            enough to express an arbitrary orbital rotation.
+        with_phis: Whether to include complex phases for the Givens rotations.
+        with_phase_angles: Whether to include a layer of single-orbital phase gates.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled Givens rotation ansatz operator.
+    """
+    if interaction_pairs is None:
+        interaction_pairs = list(brickwork(norb, norb))
+
+    rng = np.random.default_rng(seed)
+    thetas = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phis = None
+    if with_phis:
+        phis = rng.uniform(-np.pi, np.pi, size=len(interaction_pairs))
+    phase_angles = None
+    if with_phase_angles:
+        phase_angles = rng.uniform(-np.pi, np.pi, size=norb)
+
+    return variational.GivensAnsatzOp(
+        norb,
+        interaction_pairs,
+        thetas=thetas,
+        phis=phis,
+        phase_angles=phase_angles,
+    )
+
+
+def random_num_num_ansatz_op_spin_balanced(
+    norb: int,
+    *,
+    interaction_pairs: tuple[list[tuple[int, int]], list[tuple[int, int]]]
+    | None = None,
+    seed=None,
+) -> variational.NumNumAnsatzOpSpinBalanced:
+    r"""Sample a random spin-balanced number-number interaction ansatz operator.
+
+    The angles of the operator are sampled uniformly from the interval
+    :math:`[-\pi, \pi)`. The angles enter the operator as phases, so this window of
+    width :math:`2 \pi` samples them uniformly over their full period.
+
+    Args:
+        norb: The number of spatial orbitals.
+        interaction_pairs: The orbital pairs to apply the number-number interactions to.
+            If specified, ``interaction_pairs`` should be a pair of lists, for
+            alpha-alpha and alpha-beta interactions, in that order. Each list should
+            contain pairs of integers representing the orbitals that interact, and each
+            integer pair must be upper triangular, that is, of the form :math:`(i, j)`
+            where :math:`i \leq j`. If not specified, all pairs of orbitals interact,
+            including the interaction of an orbital with itself.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled number-number interaction ansatz operator.
+    """
+    if interaction_pairs is None:
+        pairs = list(itertools.combinations_with_replacement(range(norb), 2))
+        interaction_pairs = (pairs, pairs)
+    pairs_aa, pairs_ab = interaction_pairs
+
+    rng = np.random.default_rng(seed)
+    return variational.NumNumAnsatzOpSpinBalanced(
+        norb,
+        interaction_pairs=(pairs_aa, pairs_ab),
+        thetas=(
+            rng.uniform(-np.pi, np.pi, size=len(pairs_aa)),
+            rng.uniform(-np.pi, np.pi, size=len(pairs_ab)),
+        ),
     )
 
 
