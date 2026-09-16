@@ -20,6 +20,10 @@ from ffsim.qiskit.gates.diag_coulomb_trotter_split_op import (
 from ffsim.qiskit.gates.double_factorized_trotter import (
     SimulateTrotterDoubleFactorizedJW,
 )
+from ffsim.qiskit.gates.fermionic_fft import (
+    FermionicFFTJW,
+    FermionicFFTSpinlessJW,
+)
 from ffsim.qiskit.gates.givens_ansatz import (
     GivensAnsatzOpJW,
     GivensAnsatzOpSpinlessJW,
@@ -48,6 +52,8 @@ from ffsim.qiskit.gates.ucj import (
 __all__ = [
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
+    "FermionicFFTJW",
+    "FermionicFFTSpinlessJW",
     "GivensAnsatzOpJW",
     "GivensAnsatzOpSpinlessJW",
     "NumNumAnsatzOpSpinBalancedJW",
