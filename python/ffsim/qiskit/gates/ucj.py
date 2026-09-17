@@ -83,7 +83,7 @@ class UCJOpSpinBalancedJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _ucj_op_spin_balanced_jw(
                 qubits,
@@ -203,7 +203,7 @@ class UCJOpSpinUnbalancedJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _ucj_op_spin_unbalanced_jw(
                 qubits,
@@ -315,7 +315,7 @@ class UCJOpSpinlessJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _ucj_op_spinless_jw(
                 qubits,

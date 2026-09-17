@@ -74,7 +74,7 @@ class SimulateTrotterDoubleFactorizedJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _simulate_trotter_double_factorized(
                 qubits,

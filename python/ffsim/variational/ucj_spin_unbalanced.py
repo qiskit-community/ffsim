@@ -513,7 +513,7 @@ class UCJOpSpinUnbalanced(
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
         validate_interaction_pairs(pairs_aa, ordered=False)
-        validate_interaction_pairs(pairs_bb, ordered=True)
+        validate_interaction_pairs(pairs_ab, ordered=True)
         validate_interaction_pairs(pairs_bb, ordered=False)
 
         t2aa, t2ab, t2bb = t2

@@ -110,6 +110,7 @@ extend-ignore-re = ["[0-9a-f]{8,}"]
 
 [tool.typos.default.extend-words]
 datas = "datas"
+goe = "goe"  # Gaussian orthogonal ensemble
 ket = "ket"
 
 [tool.tox]

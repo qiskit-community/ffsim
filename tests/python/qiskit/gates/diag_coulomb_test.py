@@ -284,3 +284,35 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int], z_representation: bo
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
         np.testing.assert_allclose(np.array(statevec), vec)
+
+
+def test_equality_spinful():
+    """Test equality comparison."""
+    norb = 5
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    other_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+
+    gate = ffsim.qiskit.DiagCoulombEvolutionJW(norb, mat, 1.0)
+    assert gate == ffsim.qiskit.DiagCoulombEvolutionJW(norb, mat.copy(), 1.0)
+    assert gate == ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, mat, mat), 1.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionJW(norb, other_mat, 1.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionJW(norb, mat, 2.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionJW(norb, (mat, None, mat), 1.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionJW(
+        norb, mat, 1.0, z_representation=True
+    )
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, 1.0)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+    other_mat = ffsim.random.random_real_symmetric_matrix(norb, seed=RNG)
+
+    gate = ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, 1.0)
+    assert gate == ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat.copy(), 1.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, other_mat, 1.0)
+    assert gate != ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(norb, mat, 2.0)
+    assert gate != "gate"
