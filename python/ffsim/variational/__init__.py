@@ -29,6 +29,14 @@ from ffsim.variational.uccsd import (
     UCCSDOpUnrestrictedReal,
 )
 from ffsim.variational.ucj_angles_spin_balanced import UCJAnglesOpSpinBalanced
+from ffsim.variational.ucj_energy import (
+    ucj_energy_and_grad_func_spin_balanced,
+    ucj_energy_and_grad_func_spin_unbalanced,
+    ucj_energy_and_grad_func_spinless,
+    ucj_energy_spin_balanced,
+    ucj_energy_spin_unbalanced,
+    ucj_energy_spinless,
+)
 from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
 from ffsim.variational.ucj_spin_unbalanced import UCJOpSpinUnbalanced
 from ffsim.variational.ucj_spinless import UCJOpSpinless
@@ -48,4 +56,10 @@ __all__ = [
     "multireference_state",
     "multireference_state_prod",
     "optimize_orbitals",
+    "ucj_energy_and_grad_func_spin_balanced",
+    "ucj_energy_and_grad_func_spin_unbalanced",
+    "ucj_energy_and_grad_func_spinless",
+    "ucj_energy_spin_balanced",
+    "ucj_energy_spin_unbalanced",
+    "ucj_energy_spinless",
 ]
