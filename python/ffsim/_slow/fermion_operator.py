@@ -65,6 +65,8 @@ class FermionOperator(MutableMapping):
         return NotImplemented
 
     def __add__(self, other) -> "FermionOperator":
+        if not isinstance(other, (FermionOperator, complex)):
+            return NotImplemented
         result = self.copy()
         result += other
         return result
@@ -88,6 +90,8 @@ class FermionOperator(MutableMapping):
         return NotImplemented
 
     def __sub__(self, other) -> "FermionOperator":
+        if not isinstance(other, (FermionOperator, complex)):
+            return NotImplemented
         result = self.copy()
         result -= other
         return result
