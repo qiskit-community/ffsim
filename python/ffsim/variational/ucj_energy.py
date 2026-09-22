@@ -969,27 +969,6 @@ def _spin_slice(spin: int, norb: int) -> slice:
     return slice(offset, offset + norb)
 
 
-@functools.cache
-def _canonical_same_spin_two_body_indices(
-    norb: int,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Return canonical same-spin two-body index arrays.
-    """
-    pairs = list(itertools.combinations(range(norb), 2))
-    n_terms = len(pairs) ** 2
-    p = np.empty(n_terms, dtype=np.int64)
-    q = np.empty(n_terms, dtype=np.int64)
-    r = np.empty(n_terms, dtype=np.int64)
-    s = np.empty(n_terms, dtype=np.int64)
-    for index, ((p_, r_), (q_, s_)) in enumerate(itertools.product(pairs, repeat=2)):
-        p[index] = p_
-        q[index] = q_
-        r[index] = r_
-        s[index] = s_
-    return p, q, r, s
-
-
 def _chunked_term_sum(
     n_terms: int, chunk_size: int | None, func: Callable[[jax.Array], jax.Array]
 ) -> jax.Array:
@@ -1062,17 +1041,17 @@ def _same_spin_two_body_energy(
     n_terms = (norb * (norb - 1) // 2) ** 2
     if n_terms == 0:
         return jnp.array(0.0)
-    p_all, q_all, r_all, s_all = (
-        jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
-    )
+    pair_rows, pair_cols = jnp.triu_indices(norb, k=1)
+    n_pairs = pair_rows.shape[0]
     n_spin_orbitals = 2 * norb
     offset = spin * norb
 
     def term_chunk(indices: jax.Array) -> jax.Array:
-        p = p_all[indices]
-        q = q_all[indices]
-        r = r_all[indices]
-        s = s_all[indices]
+        left, right = jnp.divmod(indices, n_pairs)
+        p = pair_rows[left]
+        q = pair_rows[right]
+        r = pair_cols[left]
+        s = pair_cols[right]
         rows = jnp.arange(indices.shape[0])
 
         delta = (
@@ -1411,15 +1390,15 @@ def _compute_energy_spinless(
     energy_1 = jnp.sum(h_rotated[p, q] * const * det * rho[rows, q, p])
 
     n_terms = (norb * (norb - 1) // 2) ** 2
-    p_all, q_all, r_all, s_all = (
-        jnp.asarray(array) for array in _canonical_same_spin_two_body_indices(norb)
-    )
+    pair_rows, pair_cols = jnp.triu_indices(norb, k=1)
+    n_pairs = pair_rows.shape[0]
 
     def two_body_chunk(indices: jax.Array) -> jax.Array:
-        p = p_all[indices]
-        q = q_all[indices]
-        r = r_all[indices]
-        s = s_all[indices]
+        left, right = jnp.divmod(indices, n_pairs)
+        p = pair_rows[left]
+        q = pair_rows[right]
+        r = pair_cols[left]
+        s = pair_cols[right]
         rows = jnp.arange(indices.shape[0])
 
         delta = (
