@@ -21,12 +21,6 @@ import ffsim
 RNG = np.random.default_rng(47209049524507342724926741129799062179)
 
 
-def brickwork(norb: int, n_layers: int):
-    for i in range(n_layers):
-        for j in range(i % 2, norb - 1, 2):
-            yield (j, j + 1)
-
-
 @pytest.mark.parametrize(
     "norb, nelec", ffsim.testing.generate_norb_nelec(exhaustive=False)
 )
@@ -34,14 +28,7 @@ def test_random_spinful(norb: int, nelec: tuple[int, int]):
     """Test random Givens rotation ansatz gives correct output state."""
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        interaction_pairs = list(brickwork(norb, norb))
-        thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
-
-        givens_ansatz_op = ffsim.GivensAnsatzOp(
-            norb, interaction_pairs, thetas=thetas, phis=phis, phase_angles=phase_angles
-        )
+        givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
         gate = ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op)
 
         small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
@@ -68,14 +55,7 @@ def test_random_spinless(norb: int, nelec: int):
     """Test random spinless Givens rotation ansatz gives correct output state."""
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        interaction_pairs = list(brickwork(norb, norb))
-        thetas = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phis = RNG.uniform(-np.pi, np.pi, size=len(interaction_pairs))
-        phase_angles = RNG.uniform(-np.pi, np.pi, size=norb)
-
-        givens_ansatz_op = ffsim.GivensAnsatzOp(
-            norb, interaction_pairs, thetas=thetas, phis=phis, phase_angles=phase_angles
-        )
+        givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
         gate = ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
         assert gate.num_qubits == norb
 
@@ -94,3 +74,28 @@ def test_random_spinless(norb: int, nelec: int):
         )
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_equality_spinful():
+    """Test equality comparison."""
+    norb = 5
+    givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
+    other_givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
+
+    gate = ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op)
+    assert gate == ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op)
+    assert gate != ffsim.qiskit.GivensAnsatzOpJW(other_givens_ansatz_op)
+    assert gate != ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
+    other_givens_ansatz_op = ffsim.random.random_givens_ansatz_op(norb, seed=RNG)
+
+    gate = ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
+    assert gate == ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op)
+    assert gate != ffsim.qiskit.GivensAnsatzOpSpinlessJW(other_givens_ansatz_op)
+    assert gate != "gate"

@@ -24,7 +24,7 @@ RNG = np.random.default_rng(59409857034680041709746050388110385019)
 @pytest.mark.parametrize(
     "norb, nelec, time, n_steps, order, atol",
     [
-        (3, (1, 1), 0.1, 20, 0, 1e-2),
+        (3, (1, 1), 0.2, 20, 0, 1e-2),
         (4, (2, 1), 0.1, 10, 2, 1e-3),
         (4, (2, 2), 0.1, 10, 1, 1e-3),
     ],

@@ -142,7 +142,7 @@ class OrbitalRotationJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         circuit = QuantumCircuit(qubits, name=self.name)
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
@@ -236,7 +236,7 @@ class OrbitalRotationSpinlessJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         circuit = QuantumCircuit(qubits, name=self.name)
         for instruction in _orbital_rotation_jw(
             qubits,

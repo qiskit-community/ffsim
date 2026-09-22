@@ -70,6 +70,32 @@ def test_n_params():
             )
 
 
+def test_t_amplitudes_validate_interaction_pairs():
+    """Test from_t_amplitudes validates each list of interaction pairs."""
+    norb = 4
+    nocc_a, nocc_b = 2, 1
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+    t2 = (t2aa, t2ab, t2bb)
+
+    # The alpha-beta pairs are allowed to be lower triangular, but not duplicated.
+    with pytest.raises(ValueError, match="Duplicate"):
+        _ = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, n_reps=2, interaction_pairs=(None, [(0, 1), (0, 1)], None)
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, n_reps=2, interaction_pairs=([(1, 0)], None, None)
+        )
+    with pytest.raises(ValueError, match="triangular"):
+        _ = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, n_reps=2, interaction_pairs=(None, None, [(1, 0)])
+        )
+
+
 def test_parameters_roundtrip_all_to_all():
     norb = 5
     n_reps = 2
