@@ -602,9 +602,16 @@ def double_factorized_t2(
         ``True``, the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also
         returned.
 
+    Raises:
+        ValueError: The t2 amplitudes are complex-valued.
+
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if np.iscomplexobj(t2_amplitudes):
+        raise ValueError(
+            "Double factorization of complex t2 amplitudes is not supported."
+        )
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
@@ -964,9 +971,16 @@ def double_factorized_t2_alpha_beta(
           indexes the spin sector of the orbital rotation: first alpha, then beta.
           The first axis indexes the terms of the decomposition.
 
+    Raises:
+        ValueError: The t2 amplitudes are complex-valued.
+
     .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
+    if np.iscomplexobj(t2_amplitudes):
+        raise ValueError(
+            "Double factorization of complex t2 amplitudes is not supported."
+        )
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
