@@ -114,3 +114,32 @@ def test_inverse_spinless(norb: int, nocc: int):
         statevec = statevec.evolve(gate.inverse())
 
         np.testing.assert_allclose(np.array(statevec), vec)
+
+
+# Each size exercises a distinct path of the mixed-radix recursion.
+# N = N1 * N2, where N2 is the smallest prime factor.
+#   6 = 2 * 3:     mixed prime factors, so the size-N2 and size-N1 DFTs differ
+#   8 = 2 * 2 * 2: recursion three levels deep
+#   9 = 3 * 3:     repeated odd prime, with non-trivial twidles for N2 > 2
+@pytest.mark.parametrize("norb", [6, 8, 9])
+def test_fermionic_fft_spinless_composite(norb: int):
+    """Test spinless fermionic FFT for composite sizes."""
+    mat = scipy.linalg.dft(norb, scale="sqrtn")
+    gate = FermionicFFTSpinlessJW(norb)
+
+    for nocc in [1, norb // 2]:
+        nelec = (nocc, 0)
+        dim = ffsim.dim(norb, nelec)
+        small_vec = ffsim.random.random_state_vector(dim, seed=RNG)
+        big_vec = ffsim.qiskit.ffsim_vec_to_qiskit_vec(
+            small_vec, norb=norb, nelec=nelec
+        )
+
+        statevec = Statevector(big_vec).evolve(gate)
+        result = ffsim.qiskit.qiskit_vec_to_ffsim_vec(
+            np.array(statevec), norb=norb, nelec=nelec
+        )
+
+        expected = ffsim.apply_orbital_rotation(small_vec, mat, norb=norb, nelec=nelec)
+
+        np.testing.assert_allclose(result, expected, atol=1e-12)
