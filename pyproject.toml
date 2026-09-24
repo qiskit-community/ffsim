@@ -27,8 +27,8 @@ dependencies = [
     "numpy",
     "opt_einsum",
     "orjson",
-    "pyscf >= 2.12",
-    "qiskit >= 2.0",
+    "pyscf>=2.12",
+    "qiskit>=2.0,<3",
     "scipy",
     "typing-extensions",
 ]
