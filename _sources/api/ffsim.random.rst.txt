@@ -1,0 +1,33 @@
+ffsim.random
+============
+
+Random sampling utilities
+
+.. currentmodule:: ffsim.random
+
+.. autosummary::
+   :toctree: stubs/
+
+   random_antihermitian
+   random_density_matrix
+   random_diagonal_coulomb_hamiltonian
+   random_double_factorized_hamiltonian
+   random_fermion_hamiltonian
+   random_fermion_operator
+   random_hermitian
+   random_molecular_hamiltonian
+   random_molecular_hamiltonian_spinless
+   random_orthogonal
+   random_real_symmetric_matrix
+   random_special_orthogonal
+   random_state_vector
+   random_t2_amplitudes
+   random_two_body_tensor
+   random_uccsd_op_restricted
+   random_uccsd_op_restricted_real
+   random_uccsd_op_unrestricted
+   random_uccsd_op_unrestricted_real
+   random_ucj_op_spin_balanced
+   random_ucj_op_spin_unbalanced
+   random_ucj_op_spinless
+   random_unitary

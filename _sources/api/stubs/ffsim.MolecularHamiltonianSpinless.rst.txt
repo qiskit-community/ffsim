@@ -1,0 +1,40 @@
+﻿ffsim.MolecularHamiltonianSpinless
+==================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: MolecularHamiltonianSpinless
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MolecularHamiltonianSpinless.constant
+      ~MolecularHamiltonianSpinless.norb
+      ~MolecularHamiltonianSpinless.one_body_tensor
+      ~MolecularHamiltonianSpinless.two_body_tensor
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: one_body_tensor
+
+   .. autoattribute:: two_body_tensor
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MolecularHamiltonianSpinless.rotated
+
+   .. automethod:: rotated
+   
+   

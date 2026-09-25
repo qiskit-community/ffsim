@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.final\_state\_vector
+=================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autofunction:: final_state_vector

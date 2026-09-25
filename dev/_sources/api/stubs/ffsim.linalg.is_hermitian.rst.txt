@@ -1,0 +1,6 @@
+﻿ffsim.linalg.is\_hermitian
+==========================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: is_hermitian

@@ -1,0 +1,34 @@
+﻿ffsim.FermionAction
+===================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: FermionAction
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FermionAction.action
+      ~FermionAction.orb
+      ~FermionAction.spin
+
+   .. autoattribute:: action
+
+   .. autoattribute:: orb
+
+   .. autoattribute:: spin
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

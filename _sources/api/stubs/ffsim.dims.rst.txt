@@ -1,0 +1,6 @@
+﻿ffsim.dims
+==========
+
+.. currentmodule:: ffsim
+
+.. autofunction:: dims

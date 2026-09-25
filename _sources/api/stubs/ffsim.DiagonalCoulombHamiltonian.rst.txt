@@ -1,0 +1,40 @@
+﻿ffsim.DiagonalCoulombHamiltonian
+================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: DiagonalCoulombHamiltonian
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DiagonalCoulombHamiltonian.constant
+      ~DiagonalCoulombHamiltonian.norb
+      ~DiagonalCoulombHamiltonian.one_body_tensor
+      ~DiagonalCoulombHamiltonian.diag_coulomb_mats
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: one_body_tensor
+
+   .. autoattribute:: diag_coulomb_mats
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DiagonalCoulombHamiltonian.from_fermion_operator
+
+   .. automethod:: from_fermion_operator
+   
+   
