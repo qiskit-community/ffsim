@@ -966,22 +966,42 @@ def _spinless_jastrow_phase(mat: jax.Array) -> tuple[jax.Array, jax.Array]:
     return mat_offdiag / 2, jnp.diag(mat) / 2
 
 
-def _transition_batch(
+def _transition_factors(
     diagonal_phases: jax.Array, occ_coeffs: jax.Array
-) -> tuple[jax.Array, jax.Array]:
-    """Compute diagonal-phase Slater overlaps and transition densities."""
-    occ_coeffs_conj = jnp.conj(occ_coeffs)
-    n_occ = occ_coeffs.shape[1]
-    norb = occ_coeffs.shape[0]
+) -> tuple[jax.Array, jax.Array, jax.Array]:
+    """Return overlap and coefficient factors for diagonal-phase transitions."""
+    q_dag = jnp.conj(occ_coeffs).T
     phase_factors = jnp.exp(1j * diagonal_phases)
     phased_coeffs = phase_factors[:, :, None] * occ_coeffs[None, :, :]
-    overlap = jnp.einsum("pi,bpj->bij", occ_coeffs_conj, phased_coeffs)
-    det = jnp.linalg.det(overlap)
-    overlap_rhs = jnp.broadcast_to(
-        occ_coeffs_conj.T, (diagonal_phases.shape[0], n_occ, norb)
-    )
-    transition_density = phased_coeffs @ jnp.linalg.solve(overlap, overlap_rhs)
-    return det, transition_density
+    overlap = jnp.einsum("ip,bpj->bij", q_dag, phased_coeffs)
+    return overlap, phased_coeffs, q_dag
+
+
+def _overlap_batch(diagonal_phases: jax.Array, occ_coeffs: jax.Array) -> jax.Array:
+    """Return diagonal-phase Slater overlaps for a batch of phases."""
+    overlap, _, _ = _transition_factors(diagonal_phases, occ_coeffs)
+    return jnp.linalg.det(overlap)
+
+
+def _det_weighted_transition_batch(
+    diagonal_phases: jax.Array,
+    occ_coeffs: jax.Array,
+    row_orbitals: jax.Array,
+    col_orbitals: jax.Array,
+) -> jax.Array:
+    """Return determinant-weighted one- or two-body transition factors."""
+    overlap, phased_coeffs, q_dag = _transition_factors(diagonal_phases, occ_coeffs)
+    batch_size = diagonal_phases.shape[0]
+    body_order = row_orbitals.shape[1]
+
+    selected_rows = phased_coeffs[jnp.arange(batch_size)[:, None], row_orbitals]
+    selected_cols = jnp.transpose(q_dag[:, col_orbitals], (1, 0, 2))
+    zeros = jnp.zeros((batch_size, body_order, body_order), dtype=overlap.dtype)
+    upper = jnp.concatenate([overlap, selected_cols], axis=2)
+    lower = jnp.concatenate([selected_rows, zeros], axis=2)
+    bordered = jnp.concatenate([upper, lower], axis=1)
+    det = jnp.linalg.det(bordered)
+    return jnp.where(body_order == 1, -det, det)
 
 
 def _jastrow_phase(
@@ -1052,12 +1072,12 @@ def _one_body_spin_sector_energy(
     phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
     sector_slice = _spin_slice(spin, norb)
     other_slice = _spin_slice(1 - spin, norb)
-    det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
-    det_other, _ = _transition_batch(phi[:, other_slice], q_other)
-
-    return jnp.sum(
-        h_sector[p, q] * const * det_sector * det_other * rho_sector[rows, q, p]
+    det_rho_sector = _det_weighted_transition_batch(
+        phi[:, sector_slice], q_sector, q[:, None], p[:, None]
     )
+    det_other = _overlap_batch(phi[:, other_slice], q_other)
+
+    return jnp.sum(h_sector[p, q] * const * det_rho_sector * det_other)
 
 
 def _same_spin_two_body_energy(
@@ -1101,19 +1121,20 @@ def _same_spin_two_body_energy(
         phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
         sector_slice = _spin_slice(spin, norb)
         other_slice = _spin_slice(1 - spin, norb)
-        det_sector, rho_sector = _transition_batch(phi[:, sector_slice], q_sector)
-        det_other, _ = _transition_batch(phi[:, other_slice], q_other)
-        wick = (
-            rho_sector[rows, q, p] * rho_sector[rows, s, r]
-            - rho_sector[rows, s, p] * rho_sector[rows, q, r]
+        det_wick = _det_weighted_transition_batch(
+            phi[:, sector_slice],
+            q_sector,
+            jnp.stack([q, s], axis=1),
+            jnp.stack([p, r], axis=1),
         )
+        det_other = _overlap_batch(phi[:, other_slice], q_other)
         coeff = (
             g_sector[p, q, r, s]
             - g_sector[r, q, p, s]
             - g_sector[p, s, r, q]
             + g_sector[r, s, p, q]
         )
-        return 0.5 * coeff * const * det_sector * det_other * wick
+        return 0.5 * coeff * const * det_wick * det_other
 
     return _chunked_term_sum(n_terms, chunk_size, term_chunk)
 
@@ -1152,21 +1173,13 @@ def _opposite_spin_two_body_energy(
             .add(-1)
         )
         phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-        det_left, rho_left = _transition_batch(
-            phi[:, _spin_slice(left_spin, norb)], q_left
+        det_rho_left = _det_weighted_transition_batch(
+            phi[:, _spin_slice(left_spin, norb)], q_left, q[:, None], p[:, None]
         )
-        det_right, rho_right = _transition_batch(
-            phi[:, _spin_slice(right_spin, norb)], q_right
+        det_rho_right = _det_weighted_transition_batch(
+            phi[:, _spin_slice(right_spin, norb)], q_right, s[:, None], r[:, None]
         )
-        return (
-            0.5
-            * g_flat[indices]
-            * const
-            * det_left
-            * det_right
-            * rho_left[rows, q, p]
-            * rho_right[rows, s, r]
-        )
+        return 0.5 * g_flat[indices] * const * det_rho_left * det_rho_right
 
     return _chunked_term_sum(n_terms, chunk_size, term_chunk)
 
@@ -1274,8 +1287,7 @@ def _compute_energy_spin_balanced(
         \qquad
         e^{ic} = \exp[-i(\delta^T A \delta + \delta^T \ell)].
 
-    Finally, the overlaps are evaluated using Lowdin's formula
-    using Lemma 3.
+    Transition factors are evaluated directly from the bordered determinants.
 
     Args:
         q_alpha: Alpha block of :math:`Q`, shape ``(norb, nalpha)``.
@@ -1349,13 +1361,14 @@ def _compute_energy_spin_unbalanced(
         \qquad
         e^{ic} = \exp[-i(\delta^T A \delta + \delta^T \ell)].
 
-    Same-spin two-body terms use the Wick contraction
+    Same-spin two-body terms use the determinant-weighted Wick contraction
 
     .. math::
-        \rho_{q p}\rho_{s r} - \rho_{s p}\rho_{q r},
+        \det(M)(\rho_{q p}\rho_{s r} - \rho_{s p}\rho_{q r}),
 
-    while opposite-spin terms factor into products of alpha and beta transition
-    densities.
+    while opposite-spin terms factor into products of determinant-weighted alpha
+    and beta one-body transition factors. These quantities are evaluated with
+    bordered determinants.
     """
     energy_alpha_1 = _one_body_spin_sector_energy(
         q_alpha, q_beta, h_alpha, jastrow_mat, jastrow_vec, norb, 0
@@ -1407,11 +1420,11 @@ def _compute_energy_spinless(
         \qquad
         e^{ic} = \exp[-i(\delta^T A \delta + \delta^T \ell)].
 
-    Lowdin's formula gives the transition density :math:`\rho`, and the two-body
-    contribution uses the spinless Wick contraction
+    The implementation evaluates determinant-weighted transition factors directly
+    with bordered determinants.
 
     .. math::
-        \rho_{q p}\rho_{s r} - \rho_{s p}\rho_{q r}.
+        \det(M)(\rho_{q p}\rho_{s r} - \rho_{s p}\rho_{q r}).
     """
     p, q = jnp.meshgrid(jnp.arange(norb), jnp.arange(norb), indexing="ij")
     p = p.ravel()
@@ -1419,8 +1432,8 @@ def _compute_energy_spinless(
     rows = jnp.arange(norb**2)
     delta = jnp.zeros((norb**2, norb)).at[rows, p].add(1).at[rows, q].add(-1)
     phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-    det, rho = _transition_batch(phi, occ_coeffs)
-    energy_1 = jnp.sum(h_rotated[p, q] * const * det * rho[rows, q, p])
+    det_rho = _det_weighted_transition_batch(phi, occ_coeffs, q[:, None], p[:, None])
+    energy_1 = jnp.sum(h_rotated[p, q] * const * det_rho)
 
     n_terms = (norb * (norb - 1) // 2) ** 2
     pair_rows, pair_cols = jnp.triu_indices(norb, k=1)
@@ -1446,15 +1459,19 @@ def _compute_energy_spinless(
             .add(-1)
         )
         phi, const = _jastrow_phase(delta, jastrow_mat, jastrow_vec)
-        det, rho = _transition_batch(phi, occ_coeffs)
-        wick = rho[rows, q, p] * rho[rows, s, r] - rho[rows, s, p] * rho[rows, q, r]
+        det_wick = _det_weighted_transition_batch(
+            phi,
+            occ_coeffs,
+            jnp.stack([q, s], axis=1),
+            jnp.stack([p, r], axis=1),
+        )
         coeff = (
             g_rotated[p, q, r, s]
             - g_rotated[r, q, p, s]
             - g_rotated[p, s, r, q]
             + g_rotated[r, s, p, q]
         )
-        return 0.5 * coeff * const * det * wick
+        return 0.5 * coeff * const * det_wick
 
     energy_2 = (
         0.0 if n_terms == 0 else _chunked_term_sum(n_terms, chunk_size, two_body_chunk)
