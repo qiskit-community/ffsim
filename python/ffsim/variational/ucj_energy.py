@@ -177,6 +177,12 @@ def ucj_energy_and_grad_func_spin_balanced(
         _interaction_pairs_key(pairs_ab),
     )
     occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
+    expected_n_params = UCJOpSpinBalanced.n_params(
+        norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
 
     value_and_grad = _make_spin_balanced_objective(
         norb,
@@ -191,6 +197,7 @@ def ucj_energy_and_grad_func_spin_balanced(
     constant = jnp.asarray(hamiltonian.constant)
 
     def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        _validate_parameter_vector(x, expected_n_params)
         value, grad = value_and_grad(
             jnp.asarray(x),
             one_body_tensor,
@@ -356,6 +363,12 @@ def ucj_energy_and_grad_func_spin_unbalanced(
         _interaction_pairs_key(pairs_bb),
     )
     occupied_orbitals_key = _occupied_orbitals_key(norb, nelec, occupied_orbitals)
+    expected_n_params = UCJOpSpinUnbalanced.n_params(
+        norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
 
     value_and_grad = _make_spin_unbalanced_objective(
         norb,
@@ -370,6 +383,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     constant = jnp.asarray(hamiltonian.constant)
 
     def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        _validate_parameter_vector(x, expected_n_params)
         value, grad = value_and_grad(
             jnp.asarray(x),
             one_body_tensor,
@@ -496,6 +510,12 @@ def ucj_energy_and_grad_func_spinless(
     occupied_orbitals_key = _occupied_orbitals_key_spinless(
         norb, nelec, occupied_orbitals
     )
+    expected_n_params = UCJOpSpinless.n_params(
+        norb,
+        n_reps=1,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
 
     value_and_grad = _make_spinless_objective(
         norb,
@@ -510,6 +530,7 @@ def ucj_energy_and_grad_func_spinless(
     constant = jnp.asarray(hamiltonian.constant)
 
     def scipy_func(x: np.ndarray) -> tuple[float, np.ndarray]:
+        _validate_parameter_vector(x, expected_n_params)
         value, grad = value_and_grad(
             jnp.asarray(x),
             one_body_tensor,
@@ -539,6 +560,18 @@ def _validate_molecular_hamiltonian(
         raise ValueError(
             "The Hamiltonian and UCJ operator should have the same number of "
             f"orbitals. Got {hamiltonian.norb} and {norb}."
+        )
+
+
+def _validate_parameter_vector(x: np.ndarray, expected_n_params: int) -> None:
+    """Validate a parameter vector before passing it to JAX."""
+    if x.ndim != 1:
+        raise ValueError(f"x must be a 1-dimensional array, got shape {x.shape}.")
+    if x.size != expected_n_params:
+        raise ValueError(
+            "The number of parameters passed did not match the number expected "
+            "based on the function inputs. "
+            f"Expected {expected_n_params} but got {len(x)}."
         )
 
 
