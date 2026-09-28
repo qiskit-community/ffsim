@@ -12,8 +12,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import numpy as np
 import pytest
 from qiskit.quantum_info import Statevector
@@ -30,12 +28,8 @@ def test_random_num_num_ansatz(norb: int, nelec: tuple[int, int]):
     """Test random number-number interaction ansatz gives correct output state."""
     dim = ffsim.dim(norb, nelec)
     for _ in range(3):
-        pairs_aa = list(itertools.combinations_with_replacement(range(norb), 2))
-        pairs_ab = list(itertools.combinations_with_replacement(range(norb), 2))
-        thetas_aa = RNG.uniform(-np.pi, np.pi, size=len(pairs_aa))
-        thetas_ab = RNG.uniform(-np.pi, np.pi, size=len(pairs_ab))
-        num_num_ansatz_op = ffsim.NumNumAnsatzOpSpinBalanced(
-            norb, interaction_pairs=(pairs_aa, pairs_ab), thetas=(thetas_aa, thetas_ab)
+        num_num_ansatz_op = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+            norb, seed=RNG
         )
         gate = ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(num_num_ansatz_op)
 
@@ -54,3 +48,19 @@ def test_random_num_num_ansatz(norb: int, nelec: tuple[int, int]):
         )
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_equality():
+    """Test equality comparison."""
+    norb = 5
+    num_num_ansatz_op = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+        norb, seed=RNG
+    )
+    other_num_num_ansatz_op = ffsim.random.random_num_num_ansatz_op_spin_balanced(
+        norb, seed=RNG
+    )
+
+    gate = ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(num_num_ansatz_op)
+    assert gate == ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(num_num_ansatz_op)
+    assert gate != ffsim.qiskit.NumNumAnsatzOpSpinBalancedJW(other_num_num_ansatz_op)
+    assert gate != "gate"

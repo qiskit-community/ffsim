@@ -230,7 +230,7 @@ def test_compressed_max_layers(norb: int):
 def test_near_identity_compressed_max_layers():
     """Test max_layers for a near-identity rotation."""
     norb = 8
-    scale = 4e-13
+    scale = 8e-13
     generator = 1j * scale * ffsim.random.random_hermitian(norb, seed=12345)
     mat = scipy.linalg.expm(generator)
     max_layers = 2
@@ -309,3 +309,35 @@ def test_inverse_spinless(norb: int, nocc: int):
         statevec = statevec.evolve(gate.inverse())
 
         np.testing.assert_allclose(np.array(statevec), vec)
+
+
+def test_equality():
+    """Test equality comparison."""
+    norb = 5
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation)
+    assert gate == ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation.copy())
+    assert gate == ffsim.qiskit.OrbitalRotationJW(
+        norb, (orbital_rotation, orbital_rotation)
+    )
+    assert gate != ffsim.qiskit.OrbitalRotationJW(norb, other_orbital_rotation)
+    assert gate != ffsim.qiskit.OrbitalRotationJW(norb, (orbital_rotation, None))
+    assert gate != ffsim.qiskit.OrbitalRotationJW(
+        norb, (orbital_rotation, other_orbital_rotation)
+    )
+    assert gate != ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation)
+    assert gate == ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation.copy())
+    assert gate != ffsim.qiskit.OrbitalRotationSpinlessJW(norb, other_orbital_rotation)
+    assert gate != "gate"

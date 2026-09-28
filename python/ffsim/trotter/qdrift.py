@@ -405,6 +405,14 @@ def spectral_norm_diag_coulomb(
     # decompose the diag Coulomb mat as a sum of squared one-body operators
     one_body_tensors = one_body_square_decomposition(diag_coulomb_mat)
 
+    # A negative eigenvalue of the diag Coulomb mat makes the decomposition imaginary.
+    # The two-body operator is linear in the diag Coulomb mat, so negating the matrix
+    # negates the operator and leaves its spectral norm unchanged, which lets us work
+    # with a real decomposition instead.
+    if np.iscomplexobj(one_body_tensors):
+        diag_coulomb_mat = -diag_coulomb_mat
+        one_body_tensors = one_body_square_decomposition(diag_coulomb_mat)
+
     # for a rank-1 diag Coulomb mat, we can compute the exact spectral norm in the
     # number representation. In the Z representation we return an upper bound instead.
     if len(one_body_tensors) == 1:

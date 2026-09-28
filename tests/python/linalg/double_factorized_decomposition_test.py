@@ -398,6 +398,14 @@ def test_double_factorized_t2_amplitudes_max_terms_error():
         _, _ = ffsim.linalg.double_factorized_t2(t2, max_terms=0)
 
 
+@pytest.mark.parametrize("optimize", [False, True])
+def test_double_factorized_t2_complex_error(optimize: bool):
+    """Test double_factorized_t2 raises an error on complex amplitudes."""
+    t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=complex)
+    with pytest.raises(ValueError, match="complex t2 amplitudes"):
+        ffsim.linalg.double_factorized_t2(t2, optimize=optimize)
+
+
 def test_double_factorized_t2_tol_max_terms():
     """Test double-factorized decomposition error threshold and max terms."""
     mol = pyscf.gto.Mole()
@@ -719,6 +727,14 @@ def test_double_factorized_t2_alpha_beta_max_terms_error():
     t2ab = RNG.standard_normal(shape)
     with pytest.raises(ValueError, match="max_terms"):
         _, _ = ffsim.linalg.double_factorized_t2_alpha_beta(t2ab, max_terms=0)
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+def test_double_factorized_t2_alpha_beta_complex_error(optimize: bool):
+    """Test double_factorized_t2_alpha_beta raises on complex amplitudes."""
+    t2ab = RNG.standard_normal((2, 2, 2, 2)).astype(complex)
+    with pytest.raises(ValueError, match="complex t2 amplitudes"):
+        ffsim.linalg.double_factorized_t2_alpha_beta(t2ab, optimize=optimize)
 
 
 def test_double_factorized_t2_alpha_beta_tol_max_terms():

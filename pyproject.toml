@@ -27,8 +27,8 @@ dependencies = [
     "numpy",
     "opt_einsum",
     "orjson",
-    "pyscf >= 2.12",
-    "qiskit >= 2.0",
+    "pyscf>=2.12",
+    "qiskit>=2.0,<3",
     "scipy",
     "typing-extensions",
 ]
@@ -110,6 +110,7 @@ extend-ignore-re = ["[0-9a-f]{8,}"]
 
 [tool.typos.default.extend-words]
 datas = "datas"
+goe = "goe"  # Gaussian orthogonal ensemble
 ket = "ket"
 
 [tool.tox]
