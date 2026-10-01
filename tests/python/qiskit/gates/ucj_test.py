@@ -252,3 +252,50 @@ def test_random_ucj_op_spinless(norb: int, nelec: int):
         expected = ffsim.apply_unitary(small_vec, ucj_op, norb=norb, nelec=nelec)
 
         np.testing.assert_allclose(result, expected)
+
+
+def test_equality_spin_balanced():
+    """Test equality comparison of spin-balanced UCJ gate."""
+    norb = 5
+    n_reps = 2
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(norb, n_reps=n_reps, seed=RNG)
+    other_ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+        norb, n_reps=n_reps, seed=RNG
+    )
+    ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb, n_reps=n_reps, seed=RNG
+    )
+
+    gate = ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op)
+    assert gate == ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op)
+    assert gate != ffsim.qiskit.UCJOpSpinBalancedJW(other_ucj_op)
+    assert gate != ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced)
+    assert gate != "gate"
+
+
+def test_equality_spin_unbalanced():
+    """Test equality comparison of spin-unbalanced UCJ gate."""
+    norb = 5
+    n_reps = 2
+    ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(norb, n_reps=n_reps, seed=RNG)
+    other_ucj_op = ffsim.random.random_ucj_op_spin_unbalanced(
+        norb, n_reps=n_reps, seed=RNG
+    )
+
+    gate = ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op)
+    assert gate == ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op)
+    assert gate != ffsim.qiskit.UCJOpSpinUnbalancedJW(other_ucj_op)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison of spinless UCJ gate."""
+    norb = 5
+    n_reps = 2
+    ucj_op = ffsim.random.random_ucj_op_spinless(norb, n_reps=n_reps, seed=RNG)
+    other_ucj_op = ffsim.random.random_ucj_op_spinless(norb, n_reps=n_reps, seed=RNG)
+
+    gate = ffsim.qiskit.UCJOpSpinlessJW(ucj_op)
+    assert gate == ffsim.qiskit.UCJOpSpinlessJW(ucj_op)
+    assert gate != ffsim.qiskit.UCJOpSpinlessJW(other_ucj_op)
+    assert gate != "gate"

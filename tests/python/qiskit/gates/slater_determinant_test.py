@@ -334,3 +334,83 @@ def test_compressed_state_fidelity(norb: int, nelec: tuple[int, int]):
         prev_fidelity = fidelity
     # The full decomposition reproduces the exact Slater determinant.
     assert prev_fidelity == pytest.approx(1.0)
+
+
+def test_equality_hartree_fock():
+    """Test equality comparison of Hartree-Fock preparation."""
+    norb = 5
+
+    gate = ffsim.qiskit.PrepareHartreeFockJW(norb, (3, 2))
+    assert gate == ffsim.qiskit.PrepareHartreeFockJW(norb, (3, 2))
+    assert gate != ffsim.qiskit.PrepareHartreeFockJW(norb, (2, 3))
+    assert gate != ffsim.qiskit.PrepareHartreeFockJW(norb, (3, 3))
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantJW(norb, ([0, 1, 2], [0, 1]))
+    assert gate != "gate"
+
+
+def test_equality_hartree_fock_spinless():
+    """Test equality comparison of spinless Hartree-Fock preparation."""
+    norb = 5
+
+    gate = ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, 3)
+    assert gate == ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, 3)
+    assert gate != ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, 2)
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(norb, [0, 1, 2])
+    assert gate != "gate"
+
+
+def test_equality_slater_determinant():
+    """Test equality comparison of Slater determinant preparation."""
+    norb = 5
+    occupied_orbitals = ([0, 1], [1, 2])
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, occupied_orbitals, orbital_rotation
+    )
+    assert gate == ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, ([0, 1], [1, 2]), orbital_rotation.copy()
+    )
+    assert gate == ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, occupied_orbitals, (orbital_rotation, orbital_rotation)
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, ([0, 2], [1, 2]), orbital_rotation
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, occupied_orbitals, other_orbital_rotation
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantJW(
+        norb, occupied_orbitals, (orbital_rotation, None)
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantJW(norb, occupied_orbitals)
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, [0, 1], orbital_rotation
+    )
+    assert gate != "gate"
+
+
+def test_equality_slater_determinant_spinless():
+    """Test equality comparison of spinless Slater determinant preparation."""
+    norb = 5
+    occupied_orbitals = [0, 1]
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+    other_orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    gate = ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, occupied_orbitals, orbital_rotation
+    )
+    assert gate == ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, [0, 1], orbital_rotation.copy()
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, [0, 2], orbital_rotation
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, occupied_orbitals, other_orbital_rotation
+    )
+    assert gate != ffsim.qiskit.PrepareSlaterDeterminantSpinlessJW(
+        norb, occupied_orbitals
+    )
+    assert gate != "gate"

@@ -166,3 +166,32 @@ def test_inverse_spinful(norb: int, nelec: tuple[int, int]):
         statevec = Statevector(vec).evolve(gate)
         statevec = statevec.evolve(gate.inverse())
         np.testing.assert_allclose(np.array(statevec), vec)
+
+
+def test_equality_spinful():
+    """Test equality comparison."""
+    norb = 5
+    coeffs = RNG.standard_normal(norb)
+    other_coeffs = RNG.standard_normal(norb)
+
+    gate = ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs, 1.0)
+    assert gate == ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs.copy(), 1.0)
+    assert gate == ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs, coeffs), 1.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionJW(norb, other_coeffs, 1.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionJW(norb, coeffs, 2.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionJW(norb, (coeffs, None), 1.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, coeffs, 1.0)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    coeffs = RNG.standard_normal(norb)
+    other_coeffs = RNG.standard_normal(norb)
+
+    gate = ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, coeffs, 1.0)
+    assert gate == ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, coeffs.copy(), 1.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, other_coeffs, 1.0)
+    assert gate != ffsim.qiskit.NumOpSumEvolutionSpinlessJW(norb, coeffs, 2.0)
+    assert gate != "gate"

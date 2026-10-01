@@ -91,7 +91,7 @@ class DiagCoulombEvolutionJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         generate_instructions = (
             _diag_coulomb_evo_z_rep_jw
             if self.z_representation
@@ -148,7 +148,7 @@ class DiagCoulombEvolutionSpinlessJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _diag_coulomb_evo_num_rep_spinless_jw(
                 qubits, mat=self.mat, time=self.time, norb=self.norb

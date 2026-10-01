@@ -72,7 +72,7 @@ class NumOpSumEvolutionJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _num_op_sum_evo_jw(
                 qubits, coeffs=self.coeffs, time=self.time, norb=self.norb
@@ -121,7 +121,7 @@ class NumOpSumEvolutionSpinlessJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         self.definition = QuantumCircuit.from_instructions(
             _num_op_sum_evo_spinless_jw(
                 qubits, coeffs=self.coeffs, time=self.time, norb=self.norb

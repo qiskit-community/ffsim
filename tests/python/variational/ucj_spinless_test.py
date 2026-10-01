@@ -314,3 +314,27 @@ def test_validate():
             orbital_rotations=orbital_rotations,
             final_orbital_rotation=RNG.standard_normal((norb, norb)),
         )
+
+
+def test_empty_interaction_pairs():
+    """Test constructing operators with an empty list of interaction pairs."""
+    norb = 4
+    nocc = 2
+    n_reps = 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+
+    operator = ffsim.UCJOpSpinless.from_t_amplitudes(
+        t2, n_reps=n_reps, interaction_pairs=[]
+    )
+    np.testing.assert_allclose(
+        operator.diag_coulomb_mats, np.zeros((n_reps, norb, norb))
+    )
+
+    params = operator.to_parameters(interaction_pairs=[])
+    assert len(params) == ffsim.UCJOpSpinless.n_params(
+        norb, n_reps, interaction_pairs=[]
+    )
+    roundtrip = ffsim.UCJOpSpinless.from_parameters(
+        params, norb=norb, n_reps=n_reps, interaction_pairs=[]
+    )
+    assert ffsim.approx_eq(operator, roundtrip)
