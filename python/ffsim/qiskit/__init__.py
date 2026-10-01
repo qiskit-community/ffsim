@@ -15,6 +15,8 @@ from qiskit.transpiler import PassManager
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
+    FermionicFFTJW,
+    FermionicFFTSpinlessJW,
     GivensAnsatzOpJW,
     GivensAnsatzOpSpinlessJW,
     NumNumAnsatzOpSpinBalancedJW,
@@ -51,6 +53,8 @@ __all__ = [
     "DiagCoulombEvolutionJW",
     "DiagCoulombEvolutionSpinlessJW",
     "DropNegligible",
+    "FermionicFFTJW",
+    "FermionicFFTSpinlessJW",
     "FfsimSampler",
     "GivensAnsatzOpJW",
     "GivensAnsatzOpSpinlessJW",
