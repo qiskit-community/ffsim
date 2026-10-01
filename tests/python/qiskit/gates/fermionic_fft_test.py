@@ -143,3 +143,22 @@ def test_fermionic_fft_spinless_composite(norb: int):
         expected = ffsim.apply_orbital_rotation(small_vec, mat, norb=norb, nelec=nelec)
 
         np.testing.assert_allclose(result, expected, atol=1e-12)
+
+
+def test_equality():
+    """Test equality comparison."""
+    norb = 5
+    gate = ffsim.qiskit.FermionicFFTJW(norb)
+    assert gate == ffsim.qiskit.FermionicFFTJW(norb)
+    assert gate != ffsim.qiskit.FermionicFFTJW(norb + 1)
+    assert gate != ffsim.qiskit.FermionicFFTSpinlessJW(2 * norb)
+    assert gate != "gate"
+
+
+def test_equality_spinless():
+    """Test equality comparison, spinless."""
+    norb = 5
+    gate = ffsim.qiskit.FermionicFFTSpinlessJW(norb)
+    assert gate == ffsim.qiskit.FermionicFFTSpinlessJW(norb)
+    assert gate != ffsim.qiskit.FermionicFFTSpinlessJW(norb + 1)
+    assert gate != "gate"

@@ -60,7 +60,7 @@ class FermionicFFTJW(Gate):
 
     def _define(self):
         """Gate decomposition."""
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         circuit = QuantumCircuit(qubits, name=self.name)
         norb = len(qubits) // 2
         alpha_qubits = qubits[:norb]
@@ -82,7 +82,7 @@ class FermionicFFTSpinlessJW(Gate):
         super().__init__("ffft_spinless_jw", norb, [], label=label)
 
     def _define(self):
-        qubits = QuantumRegister(self.num_qubits)
+        qubits = QuantumRegister(self.num_qubits, name="q")
         circuit = QuantumCircuit(qubits, name=self.name)
         for instruction in _fermionic_fft_jw(qubits):
             circuit.append(instruction)
