@@ -75,9 +75,18 @@ class FermionicFFTJW(Gate):
 
 
 class FermionicFFTSpinlessJW(Gate):
-    r"""Spinless fermionic fast Fourier transform gate acting on `norb` qubits."""
+    r"""Fermionic fast Fourier transform under the Jordan-Wigner transformation.
+
+    Like :class:`FermionicFFTJW` but only acts on a single spin species.
+    """
 
     def __init__(self, norb: int, *, label: str | None = None):
+        """Create new fermionic FFT gate.
+
+        Args:
+            norb: The number of spatial orbitals.
+            label: Optional label for the gate.
+        """
         self.norb = norb
         super().__init__("ffft_spinless_jw", norb, [], label=label)
 
