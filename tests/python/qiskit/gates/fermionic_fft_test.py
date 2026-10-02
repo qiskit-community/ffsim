@@ -12,9 +12,13 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 import scipy.linalg
+from qiskit.circuit import QuantumCircuit
+from qiskit.circuit.library import PhaseGate, XXPlusYYGate
 from qiskit.quantum_info import Statevector
 
 import ffsim
@@ -115,6 +119,21 @@ def test_fermionic_fft_spinful_composite(norb: int):
     gate = FermionicFFTJW(norb)
     for nelec in [(1, 2), (norb // 2, 1)]:
         assert_implements_dft(gate, norb, nelec, n_trials=1)
+
+
+@pytest.mark.parametrize("norb", [4, 8, 16])
+def test_fixed_angles_power_of_two(norb: int):
+    """Test all gate angles are multiples of 2 pi / N when N is a power of 2."""
+    circuit = QuantumCircuit(norb)
+    circuit.append(FermionicFFTSpinlessJW(norb), range(norb))
+    circuit = circuit.decompose().decompose(gates_to_decompose=["orb_rot_spinless_jw"])
+    unit = 2 * math.pi / norb
+    for instruction in circuit.data:
+        op = instruction.operation
+        assert isinstance(op, (XXPlusYYGate, PhaseGate))
+        for param in op.params:
+            ratio = float(param) / unit
+            assert ratio == pytest.approx(round(ratio), abs=1e-8)
 
 
 def test_equality():

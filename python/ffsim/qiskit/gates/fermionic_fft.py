@@ -36,8 +36,15 @@ class FermionicFFTJW(Gate):
         a^\dagger_k \mapsto \frac{1}{\sqrt{N}}
         \sum_{n=0}^{N-1} e^{-i 2\pi k n / N} a^\dagger_n
 
-    Implemented using a Cooley-Tukey quantum decomposition that minimizes the
-    number of distinct gate parameters.
+    Implemented using a Cooley-Tukey decomposition into DFTs of prime size.
+    Most of the resulting rotations are at fixed angles: :math:`\pi/2` for mode
+    permutations, :math:`\pi/4` for DFTs of size 2, and twiddle-factor phases
+    that are multiples of :math:`2\pi/N`. This is especially true when :math:`N`
+    is a power of 2. Compared with decomposing the DFT matrix directly with
+    :class:`OrbitalRotationJW`, the circuit needs far fewer arbitrary-angle
+    rotations, which matters when those are expensive, as on fault-tolerant
+    hardware. It uses more two-qubit gates, though, so prefer
+    :class:`OrbitalRotationJW` when two-qubit gate count is what matters.
 
     Assumes qubits are ordered with the first ``norb`` qubits for spin alpha
     and the next ``norb`` qubits for spin beta.
