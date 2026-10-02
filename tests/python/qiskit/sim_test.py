@@ -17,6 +17,7 @@ import random
 
 import numpy as np
 import pytest
+import scipy.linalg
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CCZGate,
@@ -96,6 +97,7 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     for q in qubits:
         circuit.append(IGate(), [q])
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTJW(norb), qubits)
     circuit.append(
         ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits
     )
@@ -153,6 +155,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(
         ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), qubits
     )
+    circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), qubits)
     circuit.append(ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
 
@@ -166,6 +169,42 @@ def test_random_gates_spinless(norb: int, nocc: int):
 
     # Check that the state vectors match
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize("norb", [6, 8])
+def test_fermionic_fft_composite_spinful(norb: int):
+    """Test fermionic FFT for composite sizes, spinful."""
+    nelec = (norb // 2, norb // 2 - 1)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTJW(norb), qubits)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+    expected = ffsim.apply_orbital_rotation(
+        ffsim.hartree_fock_state(norb, nelec),
+        scipy.linalg.dft(norb, scale="sqrtn"),
+        norb=norb,
+        nelec=nelec,
+    )
+    np.testing.assert_allclose(ffsim_vec, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("norb", [6, 8])
+def test_fermionic_fft_composite_spinless(norb: int):
+    """Test fermionic FFT for composite sizes, spinless."""
+    nocc = norb // 2
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), qubits)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+    expected = ffsim.apply_orbital_rotation(
+        ffsim.hartree_fock_state(norb, nocc),
+        scipy.linalg.dft(norb, scale="sqrtn"),
+        norb=norb,
+        nelec=nocc,
+    )
+    np.testing.assert_allclose(ffsim_vec, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(

@@ -17,6 +17,7 @@ import math
 from typing import Sequence, cast
 
 import numpy as np
+import scipy.linalg
 from qiskit.circuit import CircuitInstruction, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
@@ -55,6 +56,8 @@ from ffsim import gates, protocols, states, trotter
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
+    FermionicFFTJW,
+    FermionicFFTSpinlessJW,
     GivensAnsatzOpJW,
     GivensAnsatzOpSpinlessJW,
     OrbitalRotationJW,
@@ -229,6 +232,21 @@ def _evolve_state_vector_spinless(
             )
         vec = gates.apply_orbital_rotation(
             vec, op.orbital_rotation, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, FermionicFFTSpinlessJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = gates.apply_orbital_rotation(
+            vec,
+            scipy.linalg.dft(norb, scale="sqrtn"),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
@@ -527,6 +545,21 @@ def _evolve_state_vector_spinful(
         )
         vec = gates.apply_orbital_rotation(
             vec, (None, op.orbital_rotation_b), norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, FermionicFFTJW):
+        if not consecutive_sorted:
+            raise ValueError(
+                f"Gate of type '{op.__class__.__name__}' must be applied to "
+                "consecutive qubits, in ascending order."
+            )
+        vec = gates.apply_orbital_rotation(
+            vec,
+            scipy.linalg.dft(norb, scale="sqrtn"),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
         )
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
