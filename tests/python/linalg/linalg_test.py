@@ -15,6 +15,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 import scipy.linalg
 import scipy.sparse
 
@@ -67,6 +68,68 @@ def test_logm_unitary_orthogonal():
         # matrix with determinant -1 has an eigenvalue of -1, whose principal logarithm
         # can be either of the equally valid values i*pi and -i*pi, and the two
         # functions do not always make the same choice.
+
+
+def _assert_valid_logm_special_orthogonal(log: np.ndarray, mat: np.ndarray):
+    assert log.dtype == float
+    np.testing.assert_allclose(log, -log.T)
+    np.testing.assert_allclose(scipy.linalg.expm(log), mat, atol=1e-12)
+
+
+def test_logm_special_orthogonal():
+    for dim in range(10):
+        for _ in range(5):
+            mat = ffsim.random.random_special_orthogonal(dim, seed=RNG)
+            log = ffsim.linalg.logm_special_orthogonal(mat)
+            _assert_valid_logm_special_orthogonal(log, mat)
+            # agrees with the principal logarithm when there are no -1 eigenvalues
+            np.testing.assert_allclose(log, ffsim.linalg.logm_unitary(mat), atol=1e-12)
+
+
+def test_logm_special_orthogonal_negative_eigenvalues():
+    for eigs in [
+        [-1, -1],
+        [-1, -1, 1],
+        [-1, 1, -1, 1],
+        [1, -1, 1, 1, -1],
+        [-1, -1, -1, -1, 1],
+    ]:
+        basis = ffsim.random.random_orthogonal(len(eigs), seed=RNG)
+        mat = basis @ np.diag(eigs) @ basis.T
+        log = ffsim.linalg.logm_special_orthogonal(mat)
+        _assert_valid_logm_special_orthogonal(log, mat)
+        # the real part of the complex logarithm loses the rotation by pi
+        assert not np.allclose(
+            scipy.linalg.expm(ffsim.linalg.logm_unitary(mat).real), mat
+        )
+
+
+def test_logm_special_orthogonal_angle_near_pi():
+    for eps in [1e-4, 1e-8, 1e-12, 1e-15, 0]:
+        angle = np.pi - eps
+        rotation = np.array(
+            [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
+        )
+        basis = ffsim.random.random_orthogonal(5, seed=RNG)
+        mat = basis @ scipy.linalg.block_diag(rotation, rotation, 1) @ basis.T
+        log = ffsim.linalg.logm_special_orthogonal(mat)
+        _assert_valid_logm_special_orthogonal(log, mat)
+
+
+def test_logm_special_orthogonal_complex_dtype():
+    mat = ffsim.random.random_special_orthogonal(5, seed=RNG)
+    log = ffsim.linalg.logm_special_orthogonal(mat.astype(complex))
+    _assert_valid_logm_special_orthogonal(log, mat)
+    np.testing.assert_allclose(log, ffsim.linalg.logm_special_orthogonal(mat))
+    with pytest.raises(ValueError, match="imaginary"):
+        ffsim.linalg.logm_special_orthogonal(mat + 1e-15j)
+
+
+def test_logm_special_orthogonal_determinant_negative_one():
+    basis = ffsim.random.random_orthogonal(4, seed=RNG)
+    mat = basis @ np.diag([-1, 1, 1, 1]) @ basis.T
+    with pytest.raises(ValueError, match="odd number of -1 eigenvalues"):
+        ffsim.linalg.logm_special_orthogonal(mat)
 
 
 def test_match_global_phase():
