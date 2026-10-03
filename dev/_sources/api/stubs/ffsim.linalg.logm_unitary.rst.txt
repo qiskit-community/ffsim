@@ -1,0 +1,6 @@
+﻿ffsim.linalg.logm\_unitary
+==========================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: logm_unitary

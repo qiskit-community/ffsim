@@ -1,0 +1,49 @@
+﻿ffsim.NumNumAnsatzOpSpinBalanced
+================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: NumNumAnsatzOpSpinBalanced
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NumNumAnsatzOpSpinBalanced.norb
+      ~NumNumAnsatzOpSpinBalanced.interaction_pairs
+      ~NumNumAnsatzOpSpinBalanced.thetas
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: interaction_pairs
+
+   .. autoattribute:: thetas
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NumNumAnsatzOpSpinBalanced.from_diag_coulomb_mats
+      ~NumNumAnsatzOpSpinBalanced.from_parameters
+      ~NumNumAnsatzOpSpinBalanced.n_params
+      ~NumNumAnsatzOpSpinBalanced.to_diag_coulomb_mats
+      ~NumNumAnsatzOpSpinBalanced.to_parameters
+
+   .. automethod:: from_diag_coulomb_mats
+
+   .. automethod:: from_parameters
+
+   .. automethod:: n_params
+
+   .. automethod:: to_diag_coulomb_mats
+
+   .. automethod:: to_parameters
+   
+   

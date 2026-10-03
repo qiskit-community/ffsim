@@ -1,0 +1,6 @@
+﻿ffsim.init\_cache
+=================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: init_cache

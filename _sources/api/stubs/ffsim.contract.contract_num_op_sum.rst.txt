@@ -1,0 +1,6 @@
+﻿ffsim.contract.contract\_num\_op\_sum
+=====================================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: contract_num_op_sum

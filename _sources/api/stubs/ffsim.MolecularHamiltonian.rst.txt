@@ -1,0 +1,49 @@
+﻿ffsim.MolecularHamiltonian
+==========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: MolecularHamiltonian
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MolecularHamiltonian.constant
+      ~MolecularHamiltonian.norb
+      ~MolecularHamiltonian.one_body_tensor_spinless
+      ~MolecularHamiltonian.two_body_tensor_spinless
+      ~MolecularHamiltonian.one_body_tensor
+      ~MolecularHamiltonian.two_body_tensor
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: one_body_tensor_spinless
+
+   .. autoattribute:: two_body_tensor_spinless
+
+   .. autoattribute:: one_body_tensor
+
+   .. autoattribute:: two_body_tensor
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MolecularHamiltonian.from_fermion_operator
+      ~MolecularHamiltonian.rotated
+
+   .. automethod:: from_fermion_operator
+
+   .. automethod:: rotated
+   
+   

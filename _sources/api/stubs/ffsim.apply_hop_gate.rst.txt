@@ -1,0 +1,6 @@
+﻿ffsim.apply\_hop\_gate
+======================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_hop_gate

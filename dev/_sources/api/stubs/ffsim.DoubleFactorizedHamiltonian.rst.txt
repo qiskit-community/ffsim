@@ -1,0 +1,55 @@
+﻿ffsim.DoubleFactorizedHamiltonian
+=================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: DoubleFactorizedHamiltonian
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DoubleFactorizedHamiltonian.constant
+      ~DoubleFactorizedHamiltonian.norb
+      ~DoubleFactorizedHamiltonian.z_representation
+      ~DoubleFactorizedHamiltonian.one_body_tensor
+      ~DoubleFactorizedHamiltonian.diag_coulomb_mats
+      ~DoubleFactorizedHamiltonian.orbital_rotations
+
+   .. autoattribute:: constant
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: z_representation
+
+   .. autoattribute:: one_body_tensor
+
+   .. autoattribute:: diag_coulomb_mats
+
+   .. autoattribute:: orbital_rotations
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DoubleFactorizedHamiltonian.from_molecular_hamiltonian
+      ~DoubleFactorizedHamiltonian.to_molecular_hamiltonian
+      ~DoubleFactorizedHamiltonian.to_number_representation
+      ~DoubleFactorizedHamiltonian.to_z_representation
+
+   .. automethod:: from_molecular_hamiltonian
+
+   .. automethod:: to_molecular_hamiltonian
+
+   .. automethod:: to_number_representation
+
+   .. automethod:: to_z_representation
+   
+   

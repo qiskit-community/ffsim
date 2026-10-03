@@ -1,0 +1,6 @@
+﻿ffsim.linalg.is\_real\_symmetric
+================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: is_real_symmetric

@@ -1,0 +1,6 @@
+﻿ffsim.linalg.modified\_cholesky
+===============================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: modified_cholesky

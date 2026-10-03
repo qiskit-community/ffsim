@@ -1,0 +1,6 @@
+﻿ffsim.apply\_on\_site\_interaction
+==================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_on_site_interaction

@@ -1,0 +1,6 @@
+﻿ffsim.apply\_diag\_coulomb\_evolution
+=====================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_diag_coulomb_evolution
