@@ -18,7 +18,7 @@ from typing import Sequence, cast
 
 import numpy as np
 import scipy.linalg
-from qiskit.circuit import CircuitInstruction, QuantumCircuit
+from qiskit.circuit import CircuitInstruction, Gate, QuantumCircuit
 from qiskit.circuit.library import (
     Barrier,
     CCZGate,
@@ -52,7 +52,7 @@ from qiskit.circuit.library import (
 )
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 
-from ffsim import gates, protocols, states, trotter
+from ffsim import gates, protocols, states, trotter, variational
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
@@ -72,7 +72,7 @@ from ffsim.qiskit.gates import (
     UCJOpSpinUnbalancedJW,
 )
 from ffsim.states.bitstring import BitstringType, restrict_bitstrings
-from ffsim.states.spin import Spin
+from ffsim.states.spin import Spin, pair_for_spin
 
 
 def final_state_vector(
@@ -81,6 +81,11 @@ def final_state_vector(
     nelec: int | tuple[int, int] | None = None,
 ) -> states.StateVector:
     """Return the final state vector of a fermionic quantum circuit.
+
+    In a spinful circuit, spinless orbital rotation, fermionic FFT, Givens ansatz,
+    diagonal Coulomb evolution, and UCJ gates may act on a single spin sector.
+    Each such gate must act on all ``norb`` alpha qubits or all ``norb`` beta
+    qubits, in ascending order.
 
     Args:
         norb: The number of spatial orbitals.
@@ -511,6 +516,66 @@ def _evolve_state_vector_spinful(
     norb = state_vector.norb
     nelec = cast(tuple[int, int], state_vector.nelec)
 
+    if isinstance(
+        op,
+        (OrbitalRotationSpinlessJW, FermionicFFTSpinlessJW, GivensAnsatzOpSpinlessJW),
+    ):
+        spin = _spinless_gate_spin(op, qubit_indices, norb)
+        if isinstance(op, OrbitalRotationSpinlessJW):
+            orbital_rotation = op.orbital_rotation
+        elif isinstance(op, FermionicFFTSpinlessJW):
+            orbital_rotation = scipy.linalg.dft(norb, scale="sqrtn")
+        else:
+            orbital_rotation = op.givens_ansatz_op.to_orbital_rotation()
+        vec = gates.apply_orbital_rotation(
+            vec,
+            pair_for_spin(orbital_rotation, spin),
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, DiagCoulombEvolutionSpinlessJW):
+        spin = _spinless_gate_spin(op, qubit_indices, norb)
+        mat_aa, mat_bb = pair_for_spin(op.mat, spin)
+        vec = gates.apply_diag_coulomb_evolution(
+            vec,
+            (mat_aa, None, mat_bb),
+            op.time,
+            norb=norb,
+            nelec=nelec,
+            copy=False,
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
+    if isinstance(op, UCJOpSpinlessJW):
+        spin = _spinless_gate_spin(op, qubit_indices, norb)
+        spin_index = 0 if spin is Spin.ALPHA else 1
+        ucj_op = op.ucj_op
+        # Embed the operator with identity rotations and no interactions on the
+        # other spin. Applying UCJOpSpinless with spinful nelec acts on both spins.
+        diag_coulomb_mats = np.zeros((ucj_op.n_reps, 3, norb, norb))
+        diag_coulomb_mats[:, 2 * spin_index] = ucj_op.diag_coulomb_mats
+        orbital_rotations = np.tile(np.eye(norb), (ucj_op.n_reps, 2, 1, 1)).astype(
+            complex
+        )
+        orbital_rotations[:, spin_index] = ucj_op.orbital_rotations
+        final_orbital_rotation = None
+        if ucj_op.final_orbital_rotation is not None:
+            final_orbital_rotation = np.tile(np.eye(norb), (2, 1, 1)).astype(complex)
+            final_orbital_rotation[spin_index] = ucj_op.final_orbital_rotation
+        spinful_ucj_op = variational.UCJOpSpinUnbalanced(
+            diag_coulomb_mats,
+            orbital_rotations,
+            final_orbital_rotation,
+            validate=False,
+        )
+        vec = protocols.apply_unitary(
+            vec, spinful_ucj_op, norb=norb, nelec=nelec, copy=False
+        )
+        return states.StateVector(vec=vec, norb=norb, nelec=nelec)
+
     if isinstance(op, DiagCoulombEvolutionJW):
         vec = gates.apply_diag_coulomb_evolution(
             vec,
@@ -933,6 +998,18 @@ def _evolve_state_vector_spinful(
         return states.StateVector(vec=vec, norb=norb, nelec=nelec)
 
     raise ValueError(f"Unsupported gate for spinful circuit: {op}.")
+
+
+def _spinless_gate_spin(op: Gate, qubit_indices: list[int], norb: int) -> Spin:
+    """Validate that a spinless gate acts on one complete spin sector."""
+    if qubit_indices == list(range(norb)):
+        return Spin.ALPHA
+    if qubit_indices == list(range(norb, 2 * norb)):
+        return Spin.BETA
+    raise ValueError(
+        f"Gate of type '{op.__class__.__name__}' must be applied to all qubits "
+        "of a single spin sector, in ascending order."
+    )
 
 
 def _extract_x_gates(circuit: QuantumCircuit) -> tuple[list[int], QuantumCircuit]:
