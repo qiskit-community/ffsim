@@ -748,7 +748,6 @@ dependencies = [
     { name = "opt-einsum" },
     { name = "orjson" },
     { name = "pyscf" },
-    { name = "qiskit" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "typing-extensions" },
@@ -763,6 +762,9 @@ cuda13 = [
     { name = "jax", version = "0.10.2", source = { registry = "https://pypi.org/simple" }, extra = ["cuda13"], marker = "python_full_version < '3.12'" },
     { name = "jax", version = "0.11.1", source = { registry = "https://pypi.org/simple" }, extra = ["cuda13"], marker = "python_full_version >= '3.12'" },
 ]
+qiskit = [
+    { name = "qiskit" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -771,6 +773,7 @@ dev = [
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "qiskit" },
     { name = "ruff" },
     { name = "typos" },
 ]
@@ -797,11 +800,11 @@ requires-dist = [
     { name = "opt-einsum" },
     { name = "orjson" },
     { name = "pyscf", specifier = ">=2.12" },
-    { name = "qiskit", specifier = ">=2.0,<3" },
+    { name = "qiskit", marker = "extra == 'qiskit'", specifier = ">=2.0,<3" },
     { name = "scipy" },
     { name = "typing-extensions" },
 ]
-provides-extras = ["cuda12", "cuda13"]
+provides-extras = ["cuda12", "cuda13", "qiskit"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -810,6 +813,7 @@ dev = [
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "qiskit", specifier = ">=2.0,<3" },
     { name = "ruff" },
     { name = "typos" },
 ]
