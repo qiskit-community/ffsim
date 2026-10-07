@@ -80,7 +80,7 @@ def optimize_orbitals(
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs.
 
     Uses `scipy.optimize.minimize`_ to find an orbital rotation that minimizes the
-    energy of a pair of one- and two-RDMs with respect to a molecualar Hamiltonian.
+    energy of a pair of one- and two-RDMs with respect to a molecular Hamiltonian.
 
     The minimized energy can be computed from the returned orbital rotation as
 
@@ -93,6 +93,8 @@ def optimize_orbitals(
     .. code::
 
         rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
+
+    See :doc:`/how-to-guides/optimize-orbitals` for a how-to guide.
 
     Args:
         rdm: The reduced density matrices.
