@@ -1,0 +1,23 @@
+﻿ffsim.SupportsFermionOperator
+=============================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsFermionOperator
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsFermionOperator._fermion_operator_
+
+   .. automethod:: _fermion_operator_
+   
+   

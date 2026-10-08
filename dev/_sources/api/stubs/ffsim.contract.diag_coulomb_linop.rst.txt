@@ -1,0 +1,6 @@
+﻿ffsim.contract.diag\_coulomb\_linop
+===================================
+
+.. currentmodule:: ffsim.contract
+
+.. autofunction:: diag_coulomb_linop

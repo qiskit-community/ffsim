@@ -1,0 +1,29 @@
+﻿ffsim.Spin
+==========
+
+.. currentmodule:: ffsim
+
+.. autoclass:: Spin
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Spin.ALPHA
+      ~Spin.BETA
+      ~Spin.ALPHA_AND_BETA
+
+   .. autoattribute:: ALPHA
+
+   .. autoattribute:: BETA
+
+   .. autoattribute:: ALPHA_AND_BETA
+   
+   
+
+   
+   
+   

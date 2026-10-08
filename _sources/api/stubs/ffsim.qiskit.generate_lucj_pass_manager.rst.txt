@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.generate\_lucj\_pass\_manager
+==========================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autofunction:: generate_lucj_pass_manager

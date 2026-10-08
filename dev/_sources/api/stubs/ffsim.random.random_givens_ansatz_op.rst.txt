@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_givens\_ansatz\_op
+=======================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_givens_ansatz_op

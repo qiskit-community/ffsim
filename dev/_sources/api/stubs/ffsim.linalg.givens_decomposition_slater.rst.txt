@@ -1,0 +1,6 @@
+﻿ffsim.linalg.givens\_decomposition\_slater
+==========================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: givens_decomposition_slater

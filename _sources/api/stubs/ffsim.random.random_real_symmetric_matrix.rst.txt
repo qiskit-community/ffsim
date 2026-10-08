@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_real\_symmetric\_matrix
+============================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_real_symmetric_matrix

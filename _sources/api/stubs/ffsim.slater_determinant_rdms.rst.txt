@@ -1,0 +1,6 @@
+﻿ffsim.slater\_determinant\_rdms
+===============================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: slater_determinant_rdms

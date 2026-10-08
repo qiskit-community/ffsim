@@ -1,0 +1,6 @@
+﻿ffsim.approx\_eq
+================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: approx_eq

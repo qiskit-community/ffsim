@@ -1,0 +1,23 @@
+﻿ffsim.SupportsLinearOperator
+============================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsLinearOperator
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsLinearOperator._linear_operator_
+
+   .. automethod:: _linear_operator_
+   
+   

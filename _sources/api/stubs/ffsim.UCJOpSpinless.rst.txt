@@ -1,0 +1,61 @@
+﻿ffsim.UCJOpSpinless
+===================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCJOpSpinless
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCJOpSpinless.atol
+      ~UCJOpSpinless.final_orbital_rotation
+      ~UCJOpSpinless.n_reps
+      ~UCJOpSpinless.norb
+      ~UCJOpSpinless.rtol
+      ~UCJOpSpinless.validate
+      ~UCJOpSpinless.diag_coulomb_mats
+      ~UCJOpSpinless.orbital_rotations
+
+   .. autoattribute:: atol
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: n_reps
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: rtol
+
+   .. autoattribute:: validate
+
+   .. autoattribute:: diag_coulomb_mats
+
+   .. autoattribute:: orbital_rotations
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCJOpSpinless.from_parameters
+      ~UCJOpSpinless.from_t_amplitudes
+      ~UCJOpSpinless.n_params
+      ~UCJOpSpinless.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: from_t_amplitudes
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_ucj\_op\_spin\_unbalanced
+==============================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_ucj_op_spin_unbalanced

@@ -1,0 +1,6 @@
+﻿ffsim.uccsd\_generator\_restricted
+==================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: uccsd_generator_restricted
