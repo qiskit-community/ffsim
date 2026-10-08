@@ -34,5 +34,5 @@ RUN mkdir docs && \
 
 # Install ffsim and documentation dependencies
 RUN python -m pip install --no-cache-dir --upgrade "pip>=25.1" && \
-    python -m pip install --no-cache-dir -e .src/ffsim \
+    python -m pip install --no-cache-dir -e ".src/ffsim[qiskit]" \
         --group .src/ffsim/pyproject.toml:docs

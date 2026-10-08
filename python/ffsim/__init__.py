@@ -10,7 +10,9 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import contract, linalg, optimize, qiskit, random, testing
+from typing import TYPE_CHECKING
+
+from ffsim import contract, linalg, optimize, random, testing
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -228,3 +230,19 @@ __all__ = [
     "uccsd_generator_restricted",
     "uccsd_generator_unrestricted",
 ]
+
+if TYPE_CHECKING:
+    from ffsim import qiskit
+
+
+def __getattr__(name: str):
+    # ffsim.qiskit is imported lazily because Qiskit is an optional dependency
+    if name == "qiskit":
+        import importlib
+
+        return importlib.import_module("ffsim.qiskit")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(__all__))

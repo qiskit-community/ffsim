@@ -17,6 +17,14 @@ pip install ffsim
 
 For improved performance on [x86](https://en.wikipedia.org/wiki/X86) systems, considering [installing from source](#install-from-source).
 
+### Qiskit interoperability
+
+The [ffsim.qiskit](https://qiskit-community.github.io/ffsim/api/ffsim.qiskit.html) module, which provides interoperability with [Qiskit](https://www.ibm.com/quantum/qiskit), requires Qiskit to be installed. You can install it together with ffsim using the `qiskit` extra:
+
+```bash
+pip install "ffsim[qiskit]"
+```
+
 ### GPU acceleration
 
 Some functions in ffsim are implemented with [JAX](https://docs.jax.dev/), which uses the CPU by default. If you have an NVIDIA GPU, you can install the appropriate extra to let JAX use the GPU instead:
