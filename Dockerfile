@@ -8,7 +8,14 @@ RUN rm -rf work
 
 # Install apt dependencies
 USER root
-RUN apt update && apt install -y gcc libssl-dev libopenblas-dev pkg-config
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        libc6-dev \
+        libopenblas-dev \
+        libssl-dev \
+        pkg-config && \
+    rm -rf /var/lib/apt/lists/*
 USER ${NB_UID}
 
 # Copy files
@@ -17,12 +24,15 @@ COPY . .src/ffsim
 # Fix the permissions of ~/.src and ~/persistent-volume
 USER root
 RUN fix-permissions .src && \
-    mkdir persistent-volume && fix-permissions persistent-volume
+    mkdir persistent-volume && \
+    fix-permissions persistent-volume
 USER ${NB_UID}
 
 # Consolidate the docs into the home directory
 RUN mkdir docs && \
     cp -a .src/ffsim/docs docs/ffsim
 
-# Pip install ffsim
-RUN pip install -e ".src/ffsim[dev]"
+# Install ffsim and documentation dependencies
+RUN python -m pip install --no-cache-dir --upgrade "pip>=25.1" && \
+    python -m pip install --no-cache-dir -e .src/ffsim \
+        --group .src/ffsim/pyproject.toml:docs
