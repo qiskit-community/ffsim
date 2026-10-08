@@ -11,6 +11,7 @@ simulate-trotter-hubbard
 entanglement-forging
 sample-slater
 compress-orbital-rotation
+optimize-orbitals
 qiskit-lucj
 qiskit-trotter
 qiskit-circuits-sim
