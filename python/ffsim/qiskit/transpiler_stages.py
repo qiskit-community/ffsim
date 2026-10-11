@@ -25,13 +25,12 @@ def pre_init_passes() -> Iterator[BasePass]:
 
     The following transpiler passes are yielded:
 
-    - `Decompose`_ pass that decomposes :class:`PrepareHartreeFockJW` and
-      :class:`UCJOperatorJW` gates to expose the underlying
-      :class:`PrepareSlaterDeterminantJW` and :class:`OrbitalRotationJW` gates.
+    - :class:`~qiskit.transpiler.passes.Decompose` pass that decomposes
+      :class:`PrepareHartreeFockJW` and :class:`UCJOperatorJW` gates to expose
+      the underlying :class:`PrepareSlaterDeterminantJW` and
+      :class:`OrbitalRotationJW` gates.
     - :class:`MergeOrbitalRotations` pass to merge the Slater determinant preparation
       and orbital rotation gates.
-
-    .. _Decompose: https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.passes.Decompose#decompose
     """
     yield Decompose(
         [

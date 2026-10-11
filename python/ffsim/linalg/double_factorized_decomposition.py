@@ -179,7 +179,7 @@ def double_factorized(
     and ``max_vecs``.
     If ``optimize`` is set to ``True``, then the entries of the resulting tensors
     (the diagonal Coulomb matrices and orbital rotations) are further optimized with
-    ``scipy.optimize.minimize`` to reduce the error in the factorization.
+    :func:`scipy.optimize.minimize` to reduce the error in the factorization.
     The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the ``diag_coulomb_indices`` parameter, which is a
@@ -209,8 +209,9 @@ def double_factorized(
             list will be set to zero. This list should contain only upper
             triangular indices, i.e., pairs :math:`(i, j)` where :math:`i \leq j`.
             This argument is ignored if ``optimize`` is set to ``False``.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
+        return_optimize_result: Whether to also return the
+            :class:`~scipy.optimize.OptimizeResult` returned by
+            :func:`scipy.optimize.minimize`.
             This argument is ignored if ``optimize`` is set to ``False``.
         cholesky: Whether to perform the factorization using a modified Cholesky
             decomposition. If False, a full eigenvalue decomposition is used instead,
@@ -228,16 +229,14 @@ def double_factorized(
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the number of terms in the decomposition and n is the number of
         orbitals. If ``optimize`` and ``return_optimize_result`` are both set to
-        ``True``, the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also
-        returned.
+        ``True``, the :class:`~scipy.optimize.OptimizeResult` returned by
+        :func:`scipy.optimize.minimize` is also returned.
 
     Raises:
         ValueError: diag_coulomb_indices contains lower triangular indices.
 
     .. _Motta et al., "Low rank representations for quantum simulation of electronic structure" (2021): https://arxiv.org/abs/1808.02625
     .. _Cohn, Motta, and Parrish, "Quantum Filter Diagonalization with Double-Factorized Hamiltonians" (2021): https://arxiv.org/abs/2104.08957
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """  # noqa: E501
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
@@ -492,7 +491,7 @@ def double_factorized_t2(
     and ``max_terms``.
     If ``optimize`` is set to ``True``, then the entries of the resulting tensors
     (the diagonal Coulomb matrices and orbital rotations) are further optimized with
-    `scipy.optimize.minimize`_ to reduce the error in the factorization.
+    :func:`scipy.optimize.minimize` to reduce the error in the factorization.
     The diagonal Coulomb matrices returned by the optimization can be
     optionally constrained to have only certain elements allowed to be nonzero.
     This is achieved by passing the ``diag_coulomb_indices`` parameter, which is a
@@ -561,8 +560,9 @@ def double_factorized_t2(
         multi_stage_step: The number of terms to eliminate in each stage of multi-stage
             optimization.
             This argument is ignored if ``optimize`` is set to ``False``.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
+        return_optimize_result: Whether to also return the
+            :class:`~scipy.optimize.OptimizeResult` returned by
+            :func:`scipy.optimize.minimize`.
             This argument is ignored if ``optimize`` is set to ``False``.
         optimize_kwargs: Keyword arguments to pass to
             :func:`scipy.optimize.minimize`. The default method is
@@ -576,14 +576,11 @@ def double_factorized_t2(
         containing the orbital rotations. Each Numpy array will have shape (L, n, n)
         where L is the number of terms in the decomposition and n is the number of
         orbitals. If ``optimize`` and ``return_optimize_result`` are both set to
-        ``True``, the `OptimizeResult`_ returned by `scipy.optimize.minimize`_ is also
-        returned.
+        ``True``, the :class:`~scipy.optimize.OptimizeResult` returned by
+        :func:`scipy.optimize.minimize` is also returned.
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
     if np.iscomplexobj(t2_amplitudes):
         raise ValueError(
@@ -909,8 +906,9 @@ def double_factorized_t2_alpha_beta(
         multi_stage_step: The number of terms to eliminate in each stage of multi-stage
             optimization.
             This argument is ignored if ``optimize`` is set to ``False``.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
+        return_optimize_result: Whether to also return the
+            :class:`~scipy.optimize.OptimizeResult` returned by
+            :func:`scipy.optimize.minimize`.
             This argument is ignored if ``optimize`` is set to ``False``.
         optimize_kwargs: Keyword arguments to pass to
             :func:`scipy.optimize.minimize`. The default method is
@@ -933,9 +931,6 @@ def double_factorized_t2_alpha_beta(
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
     """
     if np.iscomplexobj(t2_amplitudes):
         raise ValueError(

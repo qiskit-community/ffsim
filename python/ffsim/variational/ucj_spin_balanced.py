@@ -399,7 +399,7 @@ class UCJOpSpinBalanced(
         ``tol`` and ``n_reps``.
         If ``optimize`` is set to ``True``, then the entries of the resulting tensors
         (the diagonal Coulomb matrices and orbital rotations) are further optimized with
-        `scipy.optimize.minimize`_ to reduce the error in the factorization.
+        :func:`scipy.optimize.minimize` to reduce the error in the factorization.
         See :func:`ffsim.linalg.double_factorized_t2` for details.
 
         Args:
@@ -450,8 +450,6 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
-
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
@@ -594,8 +592,6 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: The CISD reference coefficient is smaller than the
                 specified threshold c0_tol.
-
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         c0, c1, c2 = pyscf.ci.cisd.cisdvec_to_amplitudes(
             cisd_vec, norb, nocc, copy=False

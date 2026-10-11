@@ -77,7 +77,7 @@ def optimize_orbitals(
 ) -> np.ndarray | tuple[np.ndarray, scipy.optimize.OptimizeResult]:
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs.
 
-    Uses `scipy.optimize.minimize`_ to find an orbital rotation that minimizes the
+    Uses :func:`scipy.optimize.minimize` to find an orbital rotation that minimizes the
     energy of a pair of one- and two-RDMs with respect to a molecular Hamiltonian.
 
     The minimized energy can be computed from the returned orbital rotation as
@@ -104,8 +104,9 @@ def optimize_orbitals(
             if the reduced density matrices, Hamiltonian, and initial orbital rotation
             (if one was given) are all real-valued, and to allow complex orbital
             rotations if any of these are complex-valued.
-        return_optimize_result: Whether to also return the `OptimizeResult`_ returned
-            by `scipy.optimize.minimize`_.
+        return_optimize_result: Whether to also return the
+            :class:`~scipy.optimize.OptimizeResult` returned by
+            :func:`scipy.optimize.minimize`.
         optimize_kwargs: Keyword arguments to pass to
             :func:`scipy.optimize.minimize`. The default method is
             ``"L-BFGS-B"``.
@@ -113,11 +114,9 @@ def optimize_orbitals(
     Returns:
         The orbital rotation, which, when applied to the reduced density matrix
         (or conjugated and applied to the Hamiltonian), minimizes its energy.
-        If ``return_optimize_result`` is set to ``True``, the `OptimizeResult`_ returned
-        by `scipy.optimize.minimize`_ is also returned.
-
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-    .. _OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html
+        If ``return_optimize_result`` is set to ``True``, the
+        :class:`~scipy.optimize.OptimizeResult` returned by
+        :func:`scipy.optimize.minimize` is also returned.
     """
     if real is None:
         real = not any(
