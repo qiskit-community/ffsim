@@ -333,6 +333,233 @@ def test_rdms_unsupported_rank(rank: int):
         ffsim.rdms(np.ones(1), 1, (0, 0), rank=rank)
 
 
+@pytest.mark.parametrize(
+    "norb, nelec, rank",
+    [(4, (2, 2), 1), (3, (1, 2), 2), (2, (2, 1), 3), (2, (2, 1), 4)],
+)
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("reorder", [False, True])
+@pytest.mark.parametrize("bra_dtype", [float, complex])
+@pytest.mark.parametrize("ket_dtype", [float, complex])
+def test_transition_rdms_match_definition(
+    norb: int,
+    nelec: tuple[int, int],
+    rank: int,
+    spin_summed: bool,
+    reorder: bool,
+    bra_dtype: type,
+    ket_dtype: type,
+):
+    """Transition RDMs match explicit matrix elements for independent states."""
+    bra = ffsim.random.random_state_vector(
+        ffsim.dim(norb, nelec), seed=RNG, dtype=bra_dtype
+    )
+    ket = ffsim.random.random_state_vector(
+        ffsim.dim(norb, nelec), seed=RNG, dtype=ket_dtype
+    )
+    result = ffsim.transition_rdms(
+        bra, ket, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+    )
+    assert isinstance(result, np.ndarray if rank == 1 else tuple)
+    rdms = _as_tuple(result)
+    assert len(rdms) == rank
+    for k, rdm in enumerate(rdms, start=1):
+        assert rdm.dtype == complex
+        expected = _expected_rdm(bra, norb, nelec, k, spin_summed, reorder, ket=ket)
+        np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("norb, nelec", [(3, (2, 2)), (3, (3, 1))])
+@pytest.mark.parametrize("rank", [3, 4])
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("reorder", [False, True])
+def test_transition_rdms_match_definition_sampled(
+    norb: int, nelec: tuple[int, int], rank: int, spin_summed: bool, reorder: bool
+):
+    """Higher-rank transition RDMs match matrix elements in larger systems."""
+    bra, ket = [
+        ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+        for _ in range(2)
+    ]
+    rdms = _as_tuple(
+        ffsim.transition_rdms(
+            bra, ket, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+        )
+    )
+    for rdm in rdms:
+        largest = tuple(
+            int(i) for i in np.unravel_index(np.argmax(np.abs(rdm)), rdm.shape)
+        )
+        assert abs(rdm[largest]) > 1e-4
+        sampled = [
+            tuple(int(RNG.integers(dim)) for dim in rdm.shape) for _ in range(30)
+        ]
+        for index in [largest, *sampled]:
+            expected = _expected_rdm_entry(
+                bra, norb, nelec, index, spin_summed, reorder, ket=ket
+            )
+            np.testing.assert_allclose(rdm[index], expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec", [(1, (0, 0)), (1, (1, 1)), (2, (0, 1)), (2, (1, 0)), (2, (2, 2))]
+)
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("reorder", [False, True])
+def test_transition_rdms_particle_sectors(
+    norb: int, nelec: tuple[int, int], spin_summed: bool, reorder: bool
+):
+    """Transition RDMs handle vacuum, empty spin sectors, and full occupation."""
+    bra, ket = [
+        ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+        for _ in range(2)
+    ]
+    for rank in [2, 4]:
+        rdms = ffsim.transition_rdms(
+            bra, ket, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+        )
+        for k, rdm in enumerate(rdms, start=1):
+            expected = _expected_rdm(bra, norb, nelec, k, spin_summed, reorder, ket=ket)
+            np.testing.assert_allclose(rdm, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("rank", [1, 2, 3, 4])
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("reorder", [False, True])
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_transition_rdms_equal_states(
+    rank: int, spin_summed: bool, reorder: bool, dtype: type
+):
+    """Equal bra and ket give ordinary RDMs, including for unnormalized states."""
+    norb, nelec = 3, (2, 2)
+    vec = 1.7 * ffsim.random.random_state_vector(
+        ffsim.dim(norb, nelec), seed=RNG, dtype=dtype
+    )
+    actual = _as_tuple(
+        ffsim.transition_rdms(
+            vec, vec, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+        )
+    )
+    expected = _as_tuple(
+        ffsim.rdms(
+            vec, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+        )
+    )
+    for a, e in zip(actual, expected, strict=True):
+        np.testing.assert_allclose(a, e, atol=1e-12)
+
+
+@pytest.mark.parametrize("rank", [1, 2, 3, 4])
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("reorder", [False, True])
+@pytest.mark.parametrize(
+    "scales", [(1.2 + 0.7j, -0.3 + 0.9j), (1j, 1), (1, 1j), (0, 1)]
+)
+def test_transition_rdms_scaling(
+    rank: int, spin_summed: bool, reorder: bool, scales: tuple[complex, complex]
+):
+    """Scaling is conjugate-linear in bra and linear in ket, even for zero input."""
+    norb, nelec = 3, (2, 2)
+    bra, ket = [
+        ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG, dtype=float)
+        for _ in range(2)
+    ]
+    a, b = scales
+    actual = _as_tuple(
+        ffsim.transition_rdms(
+            a * bra,
+            b * ket,
+            norb,
+            nelec,
+            rank=rank,
+            spin_summed=spin_summed,
+            reorder=reorder,
+        )
+    )
+    original = _as_tuple(
+        ffsim.transition_rdms(
+            bra, ket, norb, nelec, rank=rank, spin_summed=spin_summed, reorder=reorder
+        )
+    )
+    for rdm, unscaled in zip(actual, original, strict=True):
+        np.testing.assert_allclose(rdm, a.conjugate() * b * unscaled, atol=1e-12)
+
+
+@pytest.mark.parametrize("rank", [1, 2, 3, 4])
+@pytest.mark.parametrize("spin_summed", [False, True])
+@pytest.mark.parametrize("dtype", [np.float32, np.complex64])
+def test_transition_rdms_strided_single_precision_input(
+    rank: int, spin_summed: bool, dtype: type
+):
+    """Both states can have non-contiguous single-precision amplitudes."""
+    norb, nelec = 3, (2, 1)
+    data: np.ndarray = np.empty((ffsim.dim(norb, nelec), 2), dtype=dtype)
+    data[:] = RNG.standard_normal(data.shape)
+    if np.iscomplexobj(data):
+        data += 1j * RNG.standard_normal(data.shape)
+    bra, ket = data.T
+    assert not bra.flags.c_contiguous
+    assert not ket.flags.c_contiguous
+    actual = _as_tuple(
+        ffsim.transition_rdms(bra, ket, norb, nelec, rank=rank, spin_summed=spin_summed)
+    )
+    expected = _as_tuple(
+        ffsim.transition_rdms(
+            bra.astype(complex),
+            ket.astype(complex),
+            norb,
+            nelec,
+            rank=rank,
+            spin_summed=spin_summed,
+        )
+    )
+    for a, e in zip(actual, expected, strict=True):
+        np.testing.assert_allclose(a, e, atol=1e-12)
+
+
+def test_transition_rdms_orthogonal_states():
+    """Orthogonal determinants can have a nonzero transition RDM."""
+    norb, nelec = 2, (1, 0)
+    bra = np.array([1, 0])
+    ket = np.array([0, 1j])
+    rdm = ffsim.transition_rdms(bra, ket, norb, nelec)
+    np.testing.assert_allclose(rdm[0], np.array([[0, 1j], [0, 0]]), atol=1e-12)
+    np.testing.assert_allclose(rdm[1], 0, atol=1e-12)
+
+
+def test_transition_rdms_hamiltonian_matrix_element():
+    """Contracting transition RDMs gives a molecular Hamiltonian matrix element."""
+    norb, nelec = 4, (2, 1)
+    bra, ket = [
+        ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+        for _ in range(2)
+    ]
+    mol_ham = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG)
+    rdm1, rdm2 = ffsim.transition_rdms(bra, ket, norb, nelec, rank=2, spin_summed=True)
+    actual = (
+        mol_ham.constant * np.vdot(bra, ket)
+        + np.einsum("pq,pq->", mol_ham.one_body_tensor, rdm1)
+        + 0.5 * np.einsum("pqrs,pqrs->", mol_ham.two_body_tensor, rdm2)
+    )
+    expected = np.vdot(bra, ffsim.linear_operator(mol_ham, norb, nelec) @ ket)
+    np.testing.assert_allclose(actual, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("rank", [-1, 0, 5])
+def test_transition_rdms_unsupported_rank(rank: int):
+    """Unsupported ranks raise NotImplementedError for transition RDMs."""
+    with pytest.raises(NotImplementedError, match=f"rank {rank}"):
+        ffsim.transition_rdms(np.ones(1), np.ones(1), 1, (0, 0), rank=rank)
+
+
+def test_transition_rdms_mismatched_shapes():
+    """Bra and ket vectors with different shapes raise ValueError."""
+    norb, nelec = 3, (1, 1)
+    bra = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    with pytest.raises(ValueError, match="same shape"):
+        ffsim.transition_rdms(bra, bra[:3], norb, nelec)
+
+
 def _as_tuple(rdms: np.ndarray | tuple[np.ndarray, ...]) -> tuple[np.ndarray, ...]:
     """Normalize the return value of ffsim.rdms to a tuple of RDMs."""
     return (rdms,) if isinstance(rdms, np.ndarray) else rdms
@@ -350,13 +577,15 @@ def _expected_rdm(
     rank: int,
     spin_summed: bool,
     reorder: bool,
+    *,
+    ket: np.ndarray | None = None,
 ) -> np.ndarray:
     """Compute a whole RDM from explicit fermionic operators."""
     shape = _rdm_shape(norb, rank, spin_summed)
     expected = np.zeros(shape, dtype=complex)
     for index in np.ndindex(shape):
         expected[index] = _expected_rdm_entry(
-            vec, norb, nelec, index, spin_summed, reorder
+            vec, norb, nelec, index, spin_summed, reorder, ket=ket
         )
     return expected
 
@@ -368,6 +597,8 @@ def _expected_rdm_entry(
     index: tuple[int, ...],
     spin_summed: bool,
     reorder: bool,
+    *,
+    ket: np.ndarray | None = None,
 ) -> complex:
     """Compute one RDM entry from explicit fermionic operators.
 
@@ -384,7 +615,9 @@ def _expected_rdm_entry(
     op = ffsim.FermionOperator(
         {_rdm_term(orbitals, spins, reorder): 1 for spins in spin_assignments}
     )
-    return np.vdot(vec, ffsim.linear_operator(op, norb, nelec) @ vec)
+    return np.vdot(
+        vec, ffsim.linear_operator(op, norb, nelec) @ (vec if ket is None else ket)
+    )
 
 
 def _rdm_term(
