@@ -13,11 +13,44 @@
 import numpy as np
 import pyscf
 import pyscf.ci
+import pytest
 import scipy.linalg
+import scipy.optimize
 
 import ffsim
 
 RNG = np.random.default_rng(241127903049053917326682280086371763733)
+
+
+@pytest.mark.parametrize("method", [None, "SLSQP"])
+def test_optimize_orbitals_bounds(method: str | None):
+    # Rotating the occupied orbital toward the lower-energy orbital lowers the
+    # energy, but the bound limits the rotation to 0.2 radians.
+    rdm = ffsim.ReducedDensityMatrix(np.diag([1.0, 0.0]), np.zeros((2, 2, 2, 2)))
+    hamiltonian = ffsim.MolecularHamiltonian(
+        np.diag([1.0, -1.0]), np.zeros((2, 2, 2, 2))
+    )
+    initial_rotation = scipy.linalg.expm(np.array([[0.0, 0.1], [-0.1, 0.0]]))
+    iterates = []
+    kwargs: dict = {} if method is None else dict(method=method)
+    rotation, result = ffsim.optimize_orbitals(
+        rdm,
+        hamiltonian,
+        initial_orbital_rotation=initial_rotation,
+        bounds=scipy.optimize.Bounds(0.0, 0.2),
+        callback=lambda x: iterates.append(x.copy()),
+        options=dict(maxiter=10),
+        return_optimize_result=True,
+        **kwargs,
+    )
+
+    assert result.success
+    assert iterates
+    np.testing.assert_allclose(result.x, [0.2], atol=1e-8)
+    np.testing.assert_allclose(result.fun, np.cos(0.4), atol=1e-8)
+    np.testing.assert_allclose(
+        rdm.rotated(rotation).expectation(hamiltonian), result.fun
+    )
 
 
 def test_optimize_orbitals():

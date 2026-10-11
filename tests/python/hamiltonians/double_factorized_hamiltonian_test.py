@@ -13,13 +13,49 @@
 from __future__ import annotations
 
 import itertools
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
+import scipy.optimize
 
 import ffsim
 
 RNG = np.random.default_rng(73020557092643299885827653110468818597)
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+@pytest.mark.parametrize("method", [None, "SLSQP"])
+def test_from_molecular_hamiltonian_optimize_kwargs(optimize: bool, method: str | None):
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(2, seed=128, dtype=float)
+    callback = Mock()
+    bounds = scipy.optimize.Bounds(-2, 2)
+    constraint = scipy.optimize.NonlinearConstraint(lambda x: np.sum(x**2), 0, 100)
+    options = dict(maxiter=2)
+    kwargs: dict = dict(
+        callback=callback, bounds=bounds, constraints=constraint, options=options
+    )
+    if method is not None:
+        kwargs["method"] = method
+
+    # Observe every SciPy invocation without solving each intermediate optimization.
+    with patch(
+        "scipy.optimize.minimize",
+        side_effect=lambda fun, x0, **kwargs: scipy.optimize.OptimizeResult(x=x0),
+    ) as minimize:
+        ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
+            hamiltonian, max_vecs=1, optimize=optimize, **kwargs
+        )
+
+    assert minimize.call_count == (1 if optimize else 0)
+    for call in minimize.call_args_list:
+        assert call.kwargs["method"] == (method or "L-BFGS-B")
+        assert call.kwargs["callback"] is callback
+        assert call.kwargs["bounds"] is bounds
+        assert call.kwargs["constraints"] is constraint
+        assert call.kwargs["options"] is options
+    assert options == {"maxiter": 2}
+    assert ("method" in kwargs) == (method is not None)
 
 
 @pytest.mark.parametrize("z_representation", [False, True])

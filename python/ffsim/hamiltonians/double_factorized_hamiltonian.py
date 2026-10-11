@@ -144,11 +144,9 @@ class DoubleFactorizedHamiltonian(
         tol: float = 1e-8,
         max_vecs: int | None = None,
         optimize: bool = False,
-        method: str = "L-BFGS-B",
-        callback=None,
-        options: dict | None = None,
         diag_coulomb_indices: list[tuple[int, int]] | None = None,
         cholesky: bool = True,
+        **optimize_kwargs,
     ) -> DoubleFactorizedHamiltonian:
         r"""Initialize a DoubleFactorizedHamiltonian from a MolecularHamiltonian.
 
@@ -174,12 +172,6 @@ class DoubleFactorizedHamiltonian(
             max_vecs: An optional limit on the number of terms to keep in the
                 decomposition of the two-body tensor. This argument overrides ``tol``.
             optimize: Whether to optimize the tensors returned by the decomposition.
-            method: The optimization method. See the documentation of
-                `scipy.optimize.minimize`_ for possible values.
-            callback: Callback function for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-            options: Options for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
             diag_coulomb_indices: Allowed indices for nonzero values of the diagonal
                 Coulomb matrices. Matrix entries corresponding to indices not in this
                 list will be set to zero. This list should contain only upper
@@ -190,6 +182,10 @@ class DoubleFactorizedHamiltonian(
                 decomposition. If False, a full eigenvalue decomposition is used
                 instead, which can be much more expensive. This argument is ignored if
                 ``optimize`` is set to True.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`. The default method is
+                ``"L-BFGS-B"``.
+                These arguments are ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The double-factorized Hamiltonian.
@@ -203,11 +199,9 @@ class DoubleFactorizedHamiltonian(
             tol=tol,
             max_vecs=max_vecs,
             optimize=optimize,
-            method=method,
-            callback=callback,
-            options=options,
             diag_coulomb_indices=diag_coulomb_indices,
             cholesky=cholesky,
+            **optimize_kwargs,
         )
         df_hamiltonian = DoubleFactorizedHamiltonian(
             one_body_tensor=one_body_tensor,

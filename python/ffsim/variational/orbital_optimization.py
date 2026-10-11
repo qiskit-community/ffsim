@@ -72,10 +72,8 @@ def optimize_orbitals(
     *,
     initial_orbital_rotation: np.ndarray | None = None,
     real: bool | None = None,
-    method: str = "L-BFGS-B",
-    callback=None,
-    options: dict | None = None,
     return_optimize_result: bool = False,
+    **optimize_kwargs,
 ) -> np.ndarray | tuple[np.ndarray, scipy.optimize.OptimizeResult]:
     """Find orbitals that minimize the energy of a pair of one- and two-RDMs.
 
@@ -104,14 +102,11 @@ def optimize_orbitals(
             if the reduced density matrices, Hamiltonian, and initial orbital rotation
             (if one was given) are all real-valued, and to allow complex orbital
             rotations if any of these are complex-valued.
-        method: The optimization method. See the documentation of
-            `scipy.optimize.minimize`_ for possible values.
-        callback: Callback function for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
-        options: Options for the optimization. See the documentation of
-            `scipy.optimize.minimize`_ for usage.
         return_optimize_result: Whether to also return the `OptimizeResult`_ returned
             by `scipy.optimize.minimize`_.
+        optimize_kwargs: Keyword arguments to pass to
+            :func:`scipy.optimize.minimize`. The default method is
+            ``"L-BFGS-B"``.
 
     Returns:
         The orbital rotation, which, when applied to the reduced density matrix
@@ -161,13 +156,12 @@ def optimize_orbitals(
     if initial_orbital_rotation is None:
         initial_orbital_rotation = np.eye(norb)
 
+    optimize_kwargs.setdefault("method", "L-BFGS-B")
     result = scipy.optimize.minimize(
         scipy_func,
         unitary_to_parameters(initial_orbital_rotation, real=real),
-        method=method,
         jac=True,
-        callback=callback,
-        options=options,
+        **optimize_kwargs,
     )
 
     orbital_rotation = unitary_from_parameters(result.x, dim=norb, real=real)
