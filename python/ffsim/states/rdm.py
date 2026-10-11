@@ -127,7 +127,7 @@ def rdms(
         order of rank. For example, if ``rank=2`` then a tuple ``(rdm1, rdm2)`` is
         returned.
         The 1-RDMs are: (alpha-alpha, beta-beta).
-        The spin-summed 1-RDM is alpha-alpha + alpha-beta.
+        The spin-summed 1-RDM is alpha-alpha + beta-beta.
         The 2-RDMs are: (alpha-alpha, alpha-beta, beta-beta).
         The spin-summed 2-RDM is alpha-alpha + alpha-beta + beta-alpha + beta-beta.
     """
