@@ -92,6 +92,8 @@ def optimize_orbitals(
 
         rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))
 
+    See :doc:`/how-to-guides/optimize-orbitals` for a how-to guide.
+
     Args:
         rdm: The reduced density matrices.
         hamiltonian: The Hamiltonian.
