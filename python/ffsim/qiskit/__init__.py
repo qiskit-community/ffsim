@@ -8,7 +8,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Code that uses `Qiskit <https://github.com/Qiskit/qiskit>`_."""
+"""Code that uses `Qiskit <https://github.com/Qiskit/qiskit>`_.
+
+This module requires Qiskit, which can be installed with the ``qiskit`` extra:
+``pip install "ffsim[qiskit]"``.
+"""
+
+try:
+    import qiskit  # noqa: F401
+except ModuleNotFoundError as e:
+    if e.name != "qiskit":
+        raise
+    raise ImportError(
+        'ffsim.qiskit requires Qiskit. Install it with: pip install "ffsim[qiskit]"'
+    ) from e
 
 from qiskit.transpiler import PassManager
 
