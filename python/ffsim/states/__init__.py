@@ -21,7 +21,7 @@ from ffsim.states.bitstring import (
 )
 from ffsim.states.dimensions import dim, dims
 from ffsim.states.product_state_sum import ProductStateSum
-from ffsim.states.rdm import ReducedDensityMatrix, rdms
+from ffsim.states.rdm import ReducedDensityMatrix, rdms, transition_rdms
 from ffsim.states.sample_slater import sample_slater
 from ffsim.states.slater import (
     hartree_fock_state,
@@ -63,4 +63,5 @@ __all__ = [
     "spinful_to_spinless_rdm2",
     "spinful_to_spinless_vec",
     "strings_to_addresses",
+    "transition_rdms",
 ]

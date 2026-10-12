@@ -102,6 +102,7 @@ from ffsim.states import (
     spinful_to_spinless_rdm2,
     spinful_to_spinless_vec,
     strings_to_addresses,
+    transition_rdms,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
@@ -227,6 +228,7 @@ __all__ = [
     "strings_to_addresses",
     "testing",
     "trace",
+    "transition_rdms",
     "uccsd_generator_restricted",
     "uccsd_generator_unrestricted",
 ]
