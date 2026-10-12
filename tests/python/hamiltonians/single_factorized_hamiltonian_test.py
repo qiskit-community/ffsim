@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import itertools
 
 import numpy as np
@@ -157,3 +158,96 @@ def test_expectation_product_state(norb: int, nelec: tuple[int, int]):
     expected = np.vdot(vec, linop @ vec)
 
     np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize("norb", range(5))
+@pytest.mark.parametrize("cholesky", [False, True])
+def test_to_molecular_hamiltonian_roundtrip(norb: int, cholesky: bool):
+    """Test converting to molecular Hamiltonian."""
+    hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=RNG, dtype=float)
+    hamiltonian_roundtrip = (
+        ffsim.SingleFactorizedHamiltonian.from_molecular_hamiltonian(
+            hamiltonian, cholesky=cholesky
+        ).to_molecular_hamiltonian()
+    )
+    assert ffsim.approx_eq(hamiltonian_roundtrip, hamiltonian)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    ffsim.testing.generate_norb_nelec(exhaustive=False, include_norb_zero=False),
+)
+@pytest.mark.parametrize("real", [True, False])
+def test_to_molecular_hamiltonian_linear_operator(
+    norb: int, nelec: tuple[int, int], real: bool
+):
+    """Test converted molecular Hamiltonian has the same linear operator."""
+    sf_hamiltonian = ffsim.random.random_single_factorized_hamiltonian(
+        norb, real=real, seed=RNG
+    )
+    mol_hamiltonian = sf_hamiltonian.to_molecular_hamiltonian()
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    actual = ffsim.linear_operator(mol_hamiltonian, norb, nelec) @ vec
+    expected = ffsim.linear_operator(sf_hamiltonian, norb, nelec) @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_diag():
+    """Test computing diagonal."""
+    norb = 5
+    nelec = (3, 2)
+    # TODO remove real=True once complex is supported
+    hamiltonian = ffsim.random.random_single_factorized_hamiltonian(
+        norb, real=True, seed=RNG
+    )
+    linop = ffsim.linear_operator(hamiltonian, norb=norb, nelec=nelec)
+    hamiltonian_dense = linop @ np.eye(ffsim.dim(norb, nelec))
+    np.testing.assert_allclose(
+        ffsim.diag(hamiltonian, norb=norb, nelec=nelec), np.diag(hamiltonian_dense)
+    )
+
+
+@pytest.mark.parametrize(
+    "norb, nelec",
+    [
+        (4, (2, 2)),
+        (4, (1, 2)),
+        (4, (0, 2)),
+        (4, (0, 0)),
+    ],
+)
+@pytest.mark.parametrize("real", [True, False])
+def test_fermion_operator(norb: int, nelec: tuple[int, int], real: bool):
+    """Test FermionOperator."""
+    sf_hamiltonian = ffsim.random.random_single_factorized_hamiltonian(
+        norb, real=real, seed=RNG
+    )
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+
+    op = ffsim.fermion_operator(sf_hamiltonian)
+    linop = ffsim.linear_operator(op, norb, nelec)
+    expected_linop = ffsim.linear_operator(sf_hamiltonian, norb, nelec)
+
+    actual = linop @ vec
+    expected = expected_linop @ vec
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_approx_eq():
+    """Test approximate equality."""
+    norb = 4
+    hamiltonian = ffsim.random.random_single_factorized_hamiltonian(norb, seed=RNG)
+    perturbed = dataclasses.replace(
+        hamiltonian, one_body_tensor=hamiltonian.one_body_tensor + 1e-12
+    )
+    different_constant = dataclasses.replace(
+        hamiltonian, constant=hamiltonian.constant + 1
+    )
+    fewer_terms = dataclasses.replace(
+        hamiltonian, one_body_squares=hamiltonian.one_body_squares[:-1]
+    )
+    assert ffsim.approx_eq(hamiltonian, hamiltonian)
+    assert ffsim.approx_eq(hamiltonian, perturbed)
+    assert not ffsim.approx_eq(hamiltonian, different_constant)
+    assert not ffsim.approx_eq(hamiltonian, fewer_terms)
+    assert not ffsim.approx_eq(hamiltonian, hamiltonian.to_molecular_hamiltonian())
