@@ -1179,6 +1179,52 @@ def random_double_factorized_hamiltonian(
     )
 
 
+def random_single_factorized_hamiltonian(
+    norb: int,
+    *,
+    rank: int | None = None,
+    real: bool = False,
+    seed=None,
+) -> hamiltonians.SingleFactorizedHamiltonian:
+    """Sample a random single-factorized Hamiltonian.
+
+    The two-body part of the Hamiltonian is a sum of ``rank`` squared one-body
+    operators, each built from an independent random matrix sampled from the Gaussian
+    unitary ensemble (see :func:`random_hermitian`), or from the Gaussian orthogonal
+    ensemble (see :func:`random_real_symmetric_matrix`) if ``real`` is True. These
+    matrices are divided by the square root of the rank, which makes the two-body
+    tensor an average over the terms rather than a sum, so that its scale remains
+    bounded as the rank grows.
+
+    Args:
+        norb: The number of spatial orbitals.
+        rank: The desired number of terms in the two-body part of the Hamiltonian.
+            If not specified, it will be set to ``norb * (norb + 1) // 2``.
+        real: Whether to sample a real-valued object rather than a complex-valued one.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled single-factorized Hamiltonian.
+    """
+    if rank is None:
+        rank = norb * (norb + 1) // 2
+    rng = np.random.default_rng(seed)
+    random_mat = random_real_symmetric_matrix if real else random_hermitian
+    one_body_tensor = random_mat(norb, seed=rng)
+    one_body_squares = np.zeros((rank, norb, norb), dtype=float if real else complex)
+    for one_body in one_body_squares:
+        one_body[:] = random_mat(norb, seed=rng)
+    if rank:
+        one_body_squares /= math.sqrt(rank)
+    constant = rng.standard_normal()
+    return hamiltonians.SingleFactorizedHamiltonian(
+        one_body_tensor=one_body_tensor,
+        one_body_squares=one_body_squares,
+        constant=constant,
+    )
+
+
 def random_fermion_operator(
     norb: int,
     *,

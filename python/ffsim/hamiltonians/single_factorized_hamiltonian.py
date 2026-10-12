@@ -23,11 +23,17 @@ from ffsim.linalg.double_factorized_decomposition import (
     _truncated_eigh,
     modified_cholesky,
 )
+from ffsim.operators import FermionOperator
 from ffsim.states.dimensions import dim
 
 
 @dataclasses.dataclass(frozen=True)
-class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
+class SingleFactorizedHamiltonian(
+    protocols.SupportsApproximateEquality,
+    protocols.SupportsDiagonal,
+    protocols.SupportsFermionOperator,
+    protocols.SupportsLinearOperator,
+):
     r"""A Hamiltonian in the single-factorized representation.
 
     The single-factorized form of the molecular Hamiltonian is
@@ -126,6 +132,22 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
             constant=hamiltonian.constant,
         )
 
+    def to_molecular_hamiltonian(self) -> MolecularHamiltonian:
+        """Convert the SingleFactorizedHamiltonian to a MolecularHamiltonian."""
+        two_body_tensor = np.einsum(
+            "tpq,trs->pqrs", self.one_body_squares, self.one_body_squares
+        )
+        # Squaring a one-body operator also produces a one-body term, which arises
+        # from normal-ordering the product of creation and annihilation operators.
+        one_body_tensor = self.one_body_tensor + 0.5 * np.einsum(
+            "tpr,trq->pq", self.one_body_squares, self.one_body_squares
+        )
+        return MolecularHamiltonian(
+            one_body_tensor=one_body_tensor,
+            two_body_tensor=two_body_tensor,
+            constant=self.constant,
+        )
+
     def _linear_operator_(
         self, norb: int, nelec: int | tuple[int, int]
     ) -> LinearOperator:
@@ -139,6 +161,7 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
         ]
 
         def matvec(vec: np.ndarray):
+            vec = vec.astype(complex, copy=False)
             result = self.constant * vec
             result += one_body_tensor_linop @ vec
             for linop in one_body_square_linops:
@@ -148,6 +171,32 @@ class SingleFactorizedHamiltonian(protocols.SupportsLinearOperator):
         return LinearOperator(
             shape=(dim_, dim_), matvec=matvec, rmatvec=matvec, dtype=complex
         )
+
+    def _diag_(self, norb: int, nelec: int | tuple[int, int]) -> np.ndarray:
+        """Return the diagonal entries of the Hamiltonian."""
+        assert isinstance(nelec, tuple)
+        return self.to_molecular_hamiltonian()._diag_(norb, nelec)
+
+    def _fermion_operator_(self) -> FermionOperator:
+        """Return a FermionOperator representing the object."""
+        return protocols.fermion_operator(self.to_molecular_hamiltonian())
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, SingleFactorizedHamiltonian):
+            if self.one_body_squares.shape != other.one_body_squares.shape:
+                return False
+            if not np.allclose(self.constant, other.constant, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(
+                self.one_body_tensor, other.one_body_tensor, rtol=rtol, atol=atol
+            ):
+                return False
+            if not np.allclose(
+                self.one_body_squares, other.one_body_squares, rtol=rtol, atol=atol
+            ):
+                return False
+            return True
+        return NotImplemented
 
     def reduced_matrix_product_states(
         self,
