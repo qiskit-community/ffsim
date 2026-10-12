@@ -5,6 +5,7 @@
 
 sample-from-state-vectors
 compute-expectation-values
+compute-rdms
 simulate-vqe
 simulate-trotter-mol-ham
 simulate-trotter-hubbard
