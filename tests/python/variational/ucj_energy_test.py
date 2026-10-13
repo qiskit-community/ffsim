@@ -63,6 +63,32 @@ def finite_diff_grad(
     return (plus_energy - minus_energy) / (2 * eps)
 
 
+def singular_overlap_orbital_rotation() -> np.ndarray:
+    """Return an orbital rotation that can produce singular occupied overlaps."""
+    return 0.5 * np.array(
+        [
+            [1, 1, 1, 1],
+            [1, -1, 1, -1],
+            [1, 1, -1, -1],
+            [1, -1, -1, 1],
+        ],
+        dtype=complex,
+    )
+
+
+def singular_overlap_diag_coulomb_mat() -> np.ndarray:
+    """Return a Jastrow matrix that produces a near-singular overlap phase."""
+    return (np.pi / 6) * np.array(
+        [
+            [0, -1, 1, -2],
+            [-1, 0, 1, -2],
+            [1, 1, 0, 2],
+            [-2, -2, 2, 0],
+        ],
+        dtype=float,
+    )
+
+
 @pytest.mark.parametrize(
     "pairs",
     [
@@ -208,6 +234,137 @@ def test_ucj_energy_spinless(pairs):
         optimized_ucj_op, mol_hamiltonian, nelec
     )
     assert optimized_energy < ucj_energy
+
+
+def test_ucj_energy_singular_overlap_spin_balanced():
+    """Test spin-balanced energy and gradient near a singular overlap."""
+    norb = 4
+    nelec = (2, 2)
+    orbital_rotation = singular_overlap_orbital_rotation()
+    diag_coulomb_mat = singular_overlap_diag_coulomb_mat()
+    ucj_op = ffsim.UCJOpSpinBalanced(
+        diag_coulomb_mats=np.array(
+            [[diag_coulomb_mat, np.zeros_like(diag_coulomb_mat)]]
+        ),
+        orbital_rotations=orbital_rotation[None],
+    )
+
+    params = ucj_op.to_parameters()
+    params[0] -= 1e-10
+    ucj_op = ffsim.UCJOpSpinBalanced.from_parameters(params, norb=norb, n_reps=1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=0)
+
+    expected = statevector_energy(ucj_op, mol_hamiltonian, norb, nelec)
+    actual = ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
+    chunked = ffsim.ucj_energy_spin_balanced(
+        ucj_op, mol_hamiltonian, nelec, chunk_size=1
+    )
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(chunked, expected, rtol=1e-12, atol=1e-12)
+
+    value_and_grad = ffsim.ucj_energy_and_grad_func_spin_balanced(
+        ucj_op, mol_hamiltonian, nelec
+    )
+    value, grad = value_and_grad(params)
+    np.testing.assert_allclose(value, expected, rtol=1e-12, atol=1e-12)
+    assert np.all(np.isfinite(grad))
+
+    for index in [0, 5, 18, 26, 30]:
+        finite_diff = finite_diff_grad(
+            statevector_energy,
+            ffsim.UCJOpSpinBalanced.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian, norb, nelec),
+            from_parameters_kwargs=dict(norb=norb, n_reps=1),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
+
+
+def test_ucj_energy_singular_overlap_spin_unbalanced():
+    """Test spin-unbalanced energy and gradient near a singular overlap."""
+    norb = 4
+    nelec = (2, 2)
+    orbital_rotation = singular_overlap_orbital_rotation()
+    diag_coulomb_mat = singular_overlap_diag_coulomb_mat()
+    ucj_op = ffsim.UCJOpSpinUnbalanced(
+        diag_coulomb_mats=np.array(
+            [[diag_coulomb_mat, np.zeros_like(diag_coulomb_mat), diag_coulomb_mat]]
+        ),
+        orbital_rotations=np.array([[orbital_rotation, orbital_rotation]]),
+    )
+
+    params = ucj_op.to_parameters()
+    params[0] -= 1e-10
+    ucj_op = ffsim.UCJOpSpinUnbalanced.from_parameters(params, norb=norb, n_reps=1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb, seed=0)
+
+    expected = statevector_energy(ucj_op, mol_hamiltonian, norb, nelec)
+    actual = ffsim.ucj_energy_spin_unbalanced(ucj_op, mol_hamiltonian, nelec)
+    chunked = ffsim.ucj_energy_spin_unbalanced(
+        ucj_op, mol_hamiltonian, nelec, chunk_size=1
+    )
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(chunked, expected, rtol=1e-12, atol=1e-12)
+
+    value_and_grad = ffsim.ucj_energy_and_grad_func_spin_unbalanced(
+        ucj_op, mol_hamiltonian, nelec
+    )
+    value, grad = value_and_grad(params)
+    np.testing.assert_allclose(value, expected, rtol=1e-12, atol=1e-12)
+    assert np.all(np.isfinite(grad))
+
+    for index in [0, 5, 20, 34, 50]:
+        finite_diff = finite_diff_grad(
+            statevector_energy,
+            ffsim.UCJOpSpinUnbalanced.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian, norb, nelec),
+            from_parameters_kwargs=dict(norb=norb, n_reps=1),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
+
+
+def test_ucj_energy_singular_overlap_spinless():
+    """Test energy and gradient near a singular occupied-space overlap."""
+    norb = 4
+    nelec = 2
+    orbital_rotation = singular_overlap_orbital_rotation()
+    diag_coulomb_mat = singular_overlap_diag_coulomb_mat()
+    ucj_op = ffsim.UCJOpSpinless(
+        diag_coulomb_mats=diag_coulomb_mat[None],
+        orbital_rotations=orbital_rotation[None],
+    )
+
+    params = ucj_op.to_parameters()
+    params[0] -= 1e-10
+    ucj_op = ffsim.UCJOpSpinless.from_parameters(params, norb=norb, n_reps=1)
+    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(norb, seed=0)
+
+    expected = statevector_energy(ucj_op, mol_hamiltonian, norb, nelec)
+    actual = ffsim.ucj_energy_spinless(ucj_op, mol_hamiltonian, nelec)
+    chunked = ffsim.ucj_energy_spinless(ucj_op, mol_hamiltonian, nelec, chunk_size=1)
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(chunked, expected, rtol=1e-12, atol=1e-12)
+
+    value_and_grad = ffsim.ucj_energy_and_grad_func_spinless(
+        ucj_op, mol_hamiltonian, nelec
+    )
+    value, grad = value_and_grad(params)
+    np.testing.assert_allclose(value, expected, rtol=1e-12, atol=1e-12)
+    assert np.all(np.isfinite(grad))
+
+    for index in [0, 5, 6, 8, 22]:
+        finite_diff = finite_diff_grad(
+            statevector_energy,
+            ffsim.UCJOpSpinless.from_parameters,
+            params,
+            index=index,
+            energy_args=(mol_hamiltonian, norb, nelec),
+            from_parameters_kwargs=dict(norb=norb, n_reps=1),
+        )
+        np.testing.assert_allclose(grad[index], finite_diff, rtol=1e-4, atol=1e-5)
 
 
 def test_ucj_energy_chunk_size_nondivisor_spin_balanced():
