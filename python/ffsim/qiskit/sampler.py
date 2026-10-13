@@ -69,6 +69,10 @@ class FfsimSampler(BaseSamplerV2):
         pass the ``norb`` and ``nelec`` arguments to the FfsimSampler initialization.
         Otherwise, a spinless simulation will be performed, which is less efficient.
 
+        Spinful circuits may also contain spinless gates acting on all qubits of
+        one spin sector, in ascending order. See :func:`~.final_state_vector` for
+        the supported spinless gates.
+
         Currently, spinless circuits are limited to 64 qubits, and spinful circuits are
         limited to 128 qubits.
 

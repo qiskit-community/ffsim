@@ -10,7 +10,9 @@
 
 """ffsim is a software library for fast simulation of fermionic quantum circuits."""
 
-from ffsim import contract, linalg, optimize, qiskit, random, testing
+from typing import TYPE_CHECKING
+
+from ffsim import contract, linalg, optimize, random, testing
 from ffsim.gates import (
     apply_diag_coulomb_evolution,
     apply_fsim_gate,
@@ -100,6 +102,7 @@ from ffsim.states import (
     spinful_to_spinless_rdm2,
     spinful_to_spinless_vec,
     strings_to_addresses,
+    transition_rdms,
 )
 from ffsim.trotter import (
     simulate_qdrift_double_factorized,
@@ -231,6 +234,7 @@ __all__ = [
     "strings_to_addresses",
     "testing",
     "trace",
+    "transition_rdms",
     "uccsd_generator_restricted",
     "uccsd_generator_unrestricted",
     "ucj_energy_and_grad_func_spin_balanced",
@@ -240,3 +244,19 @@ __all__ = [
     "ucj_energy_spin_unbalanced",
     "ucj_energy_spinless",
 ]
+
+if TYPE_CHECKING:
+    from ffsim import qiskit
+
+
+def __getattr__(name: str):
+    # ffsim.qiskit is imported lazily because Qiskit is an optional dependency
+    if name == "qiskit":
+        import importlib
+
+        return importlib.import_module("ffsim.qiskit")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(__all__))

@@ -21,8 +21,8 @@ class SupportsApproximateEquality(Protocol):
     def _approx_eq_(self, other: Any, rtol: float, atol: float) -> bool:
         """Return whether the object is approximately equal to another object.
 
-        See the documentation of `np.isclose`_ for the interpretation of the tolerance
-        parameters ``rtol`` and ``atol``.
+        See the documentation of :func:`np.isclose <numpy.isclose>` for the
+        interpretation of the tolerance parameters ``rtol`` and ``atol``.
 
         Args:
             other: The object to compare to.
@@ -32,16 +32,14 @@ class SupportsApproximateEquality(Protocol):
         Returns:
             True if the objects are approximately equal up to the specified tolerance,
             and False otherwise.
-
-        .. _np.isclose: https://numpy.org/doc/stable/reference/generated/numpy.isclose.html
         """
 
 
 def approx_eq(obj: Any, other: Any, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
     """Return whether two objects are approximately equal.
 
-    See the documentation of `np.isclose`_ for the interpretation of the tolerance
-    parameters ``rtol`` and ``atol``.
+    See the documentation of :func:`np.isclose <numpy.isclose>` for the interpretation
+    of the tolerance parameters ``rtol`` and ``atol``.
 
     Args:
         obj: The first object.
@@ -52,8 +50,6 @@ def approx_eq(obj: Any, other: Any, rtol: float = 1e-5, atol: float = 1e-8) -> b
     Returns:
         True if the objects are approximately equal up to the specified tolerance,
         and False otherwise.
-
-    .. _np.isclose: https://numpy.org/doc/stable/reference/generated/numpy.isclose.html
     """
     method = getattr(obj, "_approx_eq_", None)
     if method is not None:

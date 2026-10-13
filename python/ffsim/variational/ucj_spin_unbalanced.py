@@ -424,12 +424,10 @@ class UCJOpSpinUnbalanced(
         | None = None,
         tol: float = 1e-8,
         optimize: bool = False,
-        method: str = "L-BFGS-B",
-        callback=None,
-        options: dict | None = None,
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        **optimize_kwargs,
     ) -> UCJOpSpinUnbalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
@@ -478,15 +476,6 @@ class UCJOpSpinUnbalanced(
                 the reconstructed tensor.
             optimize: Whether to optimize the tensors returned by the decomposition to
                 to minimize the error in the factorization.
-            method: The optimization method. See the documentation of
-                `scipy.optimize.minimize`_ for possible values.
-                This argument is ignored if ``optimize`` is set to ``False``.
-            callback: Callback function for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if ``optimize`` is set to ``False``.
-            options: Options for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if ``optimize`` is set to ``False``.
             regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
@@ -496,6 +485,10 @@ class UCJOpSpinUnbalanced(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`. The default method is
+                ``"L-BFGS-B"``.
+                These arguments are ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -504,8 +497,6 @@ class UCJOpSpinUnbalanced(
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
-
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
@@ -534,14 +525,12 @@ class UCJOpSpinUnbalanced(
                     tol=tol,
                     max_terms=n_reps_ab,
                     optimize=optimize,
-                    method=method,
-                    callback=callback,
-                    options=options,
                     diag_coulomb_indices=interaction_pairs,
                     regularization=regularization,
                     multi_stage_start=multi_stage_start,
                     multi_stage_step=multi_stage_step,
                     return_optimize_result=False,
+                    **optimize_kwargs,
                 )
             )
         elif n_reps_ab == 0:
@@ -565,28 +554,24 @@ class UCJOpSpinUnbalanced(
                 tol=tol,
                 max_terms=n_reps_aa,
                 optimize=optimize,
-                method=method,
-                callback=callback,
-                options=options,
                 diag_coulomb_indices=pairs_aa,
                 regularization=regularization,
                 multi_stage_start=multi_stage_start,
                 multi_stage_step=multi_stage_step,
                 return_optimize_result=False,
+                **optimize_kwargs,
             )
             diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
                 t2bb,
                 tol=tol,
                 max_terms=n_reps_aa,
                 optimize=optimize,
-                method=method,
-                callback=callback,
-                options=options,
                 diag_coulomb_indices=pairs_bb,
                 regularization=regularization,
                 multi_stage_start=multi_stage_start,
                 multi_stage_step=multi_stage_step,
                 return_optimize_result=False,
+                **optimize_kwargs,
             )
             if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
                 zero = np.zeros((norb, norb))

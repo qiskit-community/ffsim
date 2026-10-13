@@ -62,6 +62,9 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
     )
+    ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
+    )
     df_hamiltonian_num_rep = ffsim.random.random_double_factorized_hamiltonian(
         norb, rank=3, z_representation=False, seed=RNG
     )
@@ -87,6 +90,21 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     circuit.append(ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
+    for spin_qubits in (qubits[:norb], qubits[norb:]):
+        circuit.append(
+            ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), spin_qubits
+        )
+        circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), spin_qubits)
+        circuit.append(
+            ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(
+                norb, diag_coulomb_mat, time=1.0
+            ),
+            spin_qubits,
+        )
+        circuit.append(
+            ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op), spin_qubits
+        )
+        circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless), spin_qubits)
     circuit.append(
         ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(
             df_hamiltonian_num_rep, time=1.0
@@ -306,7 +324,7 @@ def test_global_depolarizing(
     circuit.measure_all()
 
     # Sample using ffsim Sampler
-    shots = 10_000
+    shots = 50_000
     sampler = ffsim.qiskit.FfsimSampler(
         default_shots=shots, global_depolarizing=global_depolarizing, seed=RNG
     )

@@ -11,11 +11,13 @@
 """Tests for spin-unbalanced unitary cluster Jastrow ansatz."""
 
 import itertools
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pyscf
 import pyscf.cc
 import pytest
+import scipy.optimize
 
 import ffsim
 
@@ -228,6 +230,45 @@ def test_t_amplitudes_random_n_reps():
             norb, total_n_reps, with_final_orbital_rotation=True
         )
         assert actual == expected
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+@pytest.mark.parametrize("method", [None, "SLSQP"])
+def test_t_amplitudes_optimize_kwargs(optimize: bool, method: str | None):
+    t2 = np.ones((1, 1, 1, 1))
+    callback = Mock()
+    bounds = scipy.optimize.Bounds(-2, 2)
+    constraint = scipy.optimize.NonlinearConstraint(lambda x: np.sum(x**2), 0, 100)
+    options = dict(maxiter=2)
+    kwargs: dict = dict(
+        callback=callback, bounds=bounds, constraints=constraint, options=options
+    )
+    if method is not None:
+        kwargs["method"] = method
+
+    # Observe every SciPy invocation without solving each intermediate optimization.
+    with patch(
+        "scipy.optimize.minimize",
+        side_effect=lambda fun, x0, **kwargs: scipy.optimize.OptimizeResult(x=x0),
+    ) as minimize:
+        ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            (t2, t2, t2),
+            n_reps=(1, 1),
+            multi_stage_start=2,
+            multi_stage_step=1,
+            optimize=optimize,
+            **kwargs,
+        )
+
+    assert minimize.call_count == (6 if optimize else 0)
+    for call in minimize.call_args_list:
+        assert call.kwargs["method"] == (method or "L-BFGS-B")
+        assert call.kwargs["callback"] is callback
+        assert call.kwargs["bounds"] is bounds
+        assert call.kwargs["constraints"] is constraint
+        assert call.kwargs["options"] is options
+    assert options == {"maxiter": 2}
+    assert ("method" in kwargs) == (method is not None)
 
 
 def test_t_amplitudes_random_optimize():

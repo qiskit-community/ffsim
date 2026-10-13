@@ -13,12 +13,14 @@
 from __future__ import annotations
 
 import itertools
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pyscf
 import pyscf.cc
 import pyscf.mcscf
 import pytest
+import scipy.optimize
 from opt_einsum import contract
 
 import ffsim
@@ -176,6 +178,60 @@ def test_optimal_diag_coulomb_mats_approximate():
     error = np.sum((reconstructed - two_body_tensor) ** 2)
     error_optimal = np.sum((reconstructed_optimal - two_body_tensor) ** 2)
     assert error_optimal < error
+
+
+@pytest.mark.parametrize(
+    "factorization",
+    [
+        ffsim.linalg.double_factorized,
+        ffsim.linalg.double_factorized_t2,
+        ffsim.linalg.double_factorized_t2_alpha_beta,
+    ],
+    ids=["two_body", "t2", "t2_alpha_beta"],
+)
+@pytest.mark.parametrize("optimize", [False, True])
+@pytest.mark.parametrize("method", [None, "SLSQP"])
+def test_double_factorized_optimize_kwargs(
+    factorization, optimize: bool, method: str | None
+):
+    if factorization is ffsim.linalg.double_factorized:
+        tensor = ffsim.random.random_molecular_hamiltonian(
+            2, seed=128, dtype=float
+        ).two_body_tensor
+        factorization_kwargs = dict(max_vecs=1)
+        n_stages = 1
+    else:
+        tensor = np.ones((1, 1, 1, 1))
+        factorization_kwargs = dict(
+            max_terms=1, multi_stage_start=2, multi_stage_step=1
+        )
+        n_stages = 2
+    callback = Mock()
+    bounds = scipy.optimize.Bounds(-2, 2)
+    constraint = scipy.optimize.NonlinearConstraint(lambda x: np.sum(x**2), 0, 100)
+    options = dict(maxiter=2)
+    kwargs: dict = dict(
+        callback=callback, bounds=bounds, constraints=constraint, options=options
+    )
+    if method is not None:
+        kwargs["method"] = method
+
+    # Observe every SciPy invocation without solving each intermediate optimization.
+    with patch(
+        "scipy.optimize.minimize",
+        side_effect=lambda fun, x0, **kwargs: scipy.optimize.OptimizeResult(x=x0),
+    ) as minimize:
+        factorization(tensor, optimize=optimize, **factorization_kwargs, **kwargs)
+
+    assert minimize.call_count == (n_stages if optimize else 0)
+    for call in minimize.call_args_list:
+        assert call.kwargs["method"] == (method or "L-BFGS-B")
+        assert call.kwargs["callback"] is callback
+        assert call.kwargs["bounds"] is bounds
+        assert call.kwargs["constraints"] is constraint
+        assert call.kwargs["options"] is options
+    assert options == {"maxiter": 2}
+    assert ("method" in kwargs) == (method is not None)
 
 
 def test_double_factorized_compressed_n2_unconstrained():
@@ -396,6 +452,14 @@ def test_double_factorized_t2_amplitudes_max_terms_error():
     t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=float)
     with pytest.raises(ValueError, match="max_terms"):
         _, _ = ffsim.linalg.double_factorized_t2(t2, max_terms=0)
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+def test_double_factorized_t2_complex_error(optimize: bool):
+    """Test double_factorized_t2 raises an error on complex amplitudes."""
+    t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=complex)
+    with pytest.raises(ValueError, match="complex t2 amplitudes"):
+        ffsim.linalg.double_factorized_t2(t2, optimize=optimize)
 
 
 def test_double_factorized_t2_tol_max_terms():
@@ -719,6 +783,14 @@ def test_double_factorized_t2_alpha_beta_max_terms_error():
     t2ab = RNG.standard_normal(shape)
     with pytest.raises(ValueError, match="max_terms"):
         _, _ = ffsim.linalg.double_factorized_t2_alpha_beta(t2ab, max_terms=0)
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+def test_double_factorized_t2_alpha_beta_complex_error(optimize: bool):
+    """Test double_factorized_t2_alpha_beta raises on complex amplitudes."""
+    t2ab = RNG.standard_normal((2, 2, 2, 2)).astype(complex)
+    with pytest.raises(ValueError, match="complex t2 amplitudes"):
+        ffsim.linalg.double_factorized_t2_alpha_beta(t2ab, optimize=optimize)
 
 
 def test_double_factorized_t2_alpha_beta_tol_max_terms():

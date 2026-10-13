@@ -17,6 +17,7 @@ import random
 
 import numpy as np
 import pytest
+import scipy.linalg
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import (
     CCZGate,
@@ -75,6 +76,9 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     ucj_op_unbalanced = ffsim.random.random_ucj_op_spin_unbalanced(
         norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
     )
+    ucj_op_spinless = ffsim.random.random_ucj_op_spinless(
+        norb, n_reps=2, with_final_orbital_rotation=True, seed=RNG
+    )
     df_hamiltonian_num_rep = ffsim.random.random_double_factorized_hamiltonian(
         norb, rank=3, z_representation=False, seed=RNG
     )
@@ -96,12 +100,28 @@ def test_random_gates_spinful(norb: int, nelec: tuple[int, int]):
     for q in qubits:
         circuit.append(IGate(), [q])
     circuit.append(ffsim.qiskit.OrbitalRotationJW(norb, orbital_rotation), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTJW(norb), qubits)
     circuit.append(
         ffsim.qiskit.DiagCoulombEvolutionJW(norb, diag_coulomb_mat, time=1.0), qubits
     )
     circuit.append(ffsim.qiskit.GivensAnsatzOpJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinBalancedJW(ucj_op_balanced), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinUnbalancedJW(ucj_op_unbalanced), qubits)
+    for spin_qubits in (qubits[:norb], qubits[norb:]):
+        circuit.append(
+            ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), spin_qubits
+        )
+        circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), spin_qubits)
+        circuit.append(
+            ffsim.qiskit.DiagCoulombEvolutionSpinlessJW(
+                norb, diag_coulomb_mat, time=1.0
+            ),
+            spin_qubits,
+        )
+        circuit.append(
+            ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op), spin_qubits
+        )
+        circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op_spinless), spin_qubits)
     circuit.append(
         ffsim.qiskit.SimulateTrotterDoubleFactorizedJW(
             df_hamiltonian_num_rep, time=1.0
@@ -153,6 +173,7 @@ def test_random_gates_spinless(norb: int, nocc: int):
     circuit.append(
         ffsim.qiskit.OrbitalRotationSpinlessJW(norb, orbital_rotation), qubits
     )
+    circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), qubits)
     circuit.append(ffsim.qiskit.GivensAnsatzOpSpinlessJW(givens_ansatz_op), qubits)
     circuit.append(ffsim.qiskit.UCJOpSpinlessJW(ucj_op), qubits)
 
@@ -166,6 +187,42 @@ def test_random_gates_spinless(norb: int, nocc: int):
 
     # Check that the state vectors match
     np.testing.assert_allclose(ffsim_vec, qiskit_vec)
+
+
+@pytest.mark.parametrize("norb", [6, 8])
+def test_fermionic_fft_composite_spinful(norb: int):
+    """Test fermionic FFT for composite sizes, spinful."""
+    nelec = (norb // 2, norb // 2 - 1)
+    qubits = QuantumRegister(2 * norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockJW(norb, nelec), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTJW(norb), qubits)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+    expected = ffsim.apply_orbital_rotation(
+        ffsim.hartree_fock_state(norb, nelec),
+        scipy.linalg.dft(norb, scale="sqrtn"),
+        norb=norb,
+        nelec=nelec,
+    )
+    np.testing.assert_allclose(ffsim_vec, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("norb", [6, 8])
+def test_fermionic_fft_composite_spinless(norb: int):
+    """Test fermionic FFT for composite sizes, spinless."""
+    nocc = norb // 2
+    qubits = QuantumRegister(norb)
+    circuit = QuantumCircuit(qubits)
+    circuit.append(ffsim.qiskit.PrepareHartreeFockSpinlessJW(norb, nocc), qubits)
+    circuit.append(ffsim.qiskit.FermionicFFTSpinlessJW(norb), qubits)
+    ffsim_vec = ffsim.qiskit.final_state_vector(circuit)
+    expected = ffsim.apply_orbital_rotation(
+        ffsim.hartree_fock_state(norb, nocc),
+        scipy.linalg.dft(norb, scale="sqrtn"),
+        norb=norb,
+        nelec=nocc,
+    )
+    np.testing.assert_allclose(ffsim_vec, expected, atol=1e-12)
 
 
 @pytest.mark.parametrize(

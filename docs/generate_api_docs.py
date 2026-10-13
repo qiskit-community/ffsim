@@ -102,12 +102,13 @@ def generate_ffsim_rst(sections: list[tuple[str, list[str]]]) -> None:
 
 def generate_submodule_rst(submodule: str) -> None:
     """Generate docs/api/ffsim.<submodule>.rst."""
-    heading, _ = get_module_docstring(submodule)
+    heading, body = get_module_docstring(submodule)
     symbols = read_symbols(module_path(submodule))
 
     title = f"ffsim.{submodule}"
     underline = "=" * len(title)
     entries = "\n".join(f"   {sym}" for sym in symbols)
+    paragraph = f"\n{body}\n" if body else ""
 
     output_path = DOCS_API_DIR / f"ffsim.{submodule}.rst"
     output_path.write_text(
@@ -115,7 +116,7 @@ def generate_submodule_rst(submodule: str) -> None:
         f"{underline}\n"
         f"\n"
         f"{heading}\n"
-        f"\n"
+        f"{paragraph}\n"
         f".. currentmodule:: ffsim.{submodule}\n"
         f"\n"
         f".. autosummary::\n"

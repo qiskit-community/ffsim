@@ -74,12 +74,12 @@ def minimize_linear_method(
         optimize_regularization: Whether to optimize the ``regularization`` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
-            The optimization is performed using `scipy.optimize.minimize`_.
+            The optimization is performed using :func:`scipy.optimize.minimize`.
         optimize_variation: Whether to optimize the ``variation`` hyperparameter
             in each iteration. Optimizing hyperparameters incurs more function and
             energy evaluations in each iteration, but may improve convergence.
-            The optimization is performed using `scipy.optimize.minimize`_.
-        optimize_kwargs: Arguments to use when calling `scipy.optimize.minimize`_ to
+            The optimization is performed using :func:`scipy.optimize.minimize`.
+        optimize_kwargs: Arguments to use when calling :func:`scipy.optimize.minimize` to
             optimize hyperparameters. The call is constructed as
 
             .. code::
@@ -96,7 +96,7 @@ def minimize_linear_method(
 
                 callback(intermediate_result: OptimizeResult)
 
-            where ``intermediate_result`` is a `scipy.optimize.OptimizeResult`_
+            where ``intermediate_result`` is a :class:`scipy.optimize.OptimizeResult`
             with attributes ``x``  and ``fun``, the present values of the parameter
             vector and objective function. For all iterations except for the last,
             it also contains the ``jac`` attribute holding the present value of the
@@ -105,7 +105,7 @@ def minimize_linear_method(
             hyperparameters.
 
     Returns:
-        The optimization result represented as a `scipy.optimize.OptimizeResult`_
+        The optimization result represented as a :class:`scipy.optimize.OptimizeResult`
         object. Note the following definitions of selected attributes:
 
         - ``x``: The final parameters of the optimization.
@@ -117,8 +117,6 @@ def minimize_linear_method(
           applied to a vector.
 
     .. _Motta et al., "Implementation of the Linear Method for the optimization of Jastrow-Feenberg and Backflow Correlations" (2014): https://arxiv.org/abs/1412.0490
-    .. _scipy.optimize.OptimizeResult: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """  # noqa: E501
     if regularization < 0:
         raise ValueError(f"regularization must be nonnegative. Got {regularization}.")

@@ -8,7 +8,7 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.
 
-use num_integer::binomial;
+use num_integer::gcd;
 use numpy::Complex64;
 use pyo3::exceptions::PyKeyError;
 use pyo3::exceptions::PyValueError;
@@ -479,7 +479,7 @@ impl FermionOperator {
     fn _trace_(&self, norb: usize, nelec: (usize, usize)) -> Complex64 {
         self.coeffs
             .iter()
-            .map(|(op, &coeff)| coeff * term_trace(op, norb, nelec) as f64)
+            .map(|(op, &coeff)| coeff * term_trace(op, norb, nelec))
             .sum()
     }
 }
@@ -499,7 +499,42 @@ fn term_phase(op: &[(bool, bool, i32)]) -> i32 {
     (-1i32).pow(phase as u32)
 }
 
-fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i32 {
+/// Computes the binomial coefficient `n` choose `k` exactly.
+///
+/// Returns `None` if the result overflows `u128`, and `Some(0)` if `k > n`.
+fn checked_binomial(n: usize, k: usize) -> Option<u128> {
+    if k > n {
+        return Some(0);
+    }
+
+    let k = k.min(n - k);
+    let mut result = 1_u128;
+    for i in 1..=k {
+        let numerator = (n - k + i) as u128;
+        let denominator = i as u128;
+        let common_factor = gcd(result, denominator);
+        result = (result / common_factor).checked_mul(numerator / (denominator / common_factor))?;
+    }
+    Some(result)
+}
+
+/// Computes the binomial coefficient `n` choose `k` as an `f64`.
+///
+/// The result is exact when the value is below 2^53 and approximate otherwise; it is
+/// `inf` if the value exceeds the `f64` range. Returns 0 if `k > n`.
+fn binomial_f64(n: usize, k: usize) -> f64 {
+    if k > n {
+        return 0.0;
+    }
+    if let Some(result) = checked_binomial(n, k) {
+        return result as f64;
+    }
+
+    let k = k.min(n - k);
+    (1..=k).fold(1.0, |result, i| result * ((n - k + i) as f64 / i as f64))
+}
+
+fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> f64 {
     let (n_alpha, n_beta) = nelec;
 
     let spin_orbs = op
@@ -545,12 +580,12 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
 
         // return 0 if there is no possible initial state
         if !is_zero && !is_one {
-            return 0;
+            return 0.0;
         }
 
         // the state must return to the initial state, otherwise the trace is zero
         if (is_zero && initial_zero != 0) || (is_one && initial_one != 1) {
-            return 0;
+            return 0.0;
         }
 
         // count the number of electrons in the support of op
@@ -564,13 +599,25 @@ fn term_trace(op: &[(bool, bool, i32)], norb: usize, nelec: (usize, usize)) -> i
 
         if nelec_alpha > n_alpha || nelec_beta > n_beta {
             // the number of electrons exceeds the number of allowed electrons
-            return 0;
+            return 0.0;
         }
     }
 
-    term_phase(op)
-        * binomial(norb - norb_alpha, n_alpha - nelec_alpha) as i32
-        * binomial(norb - norb_beta, n_beta - nelec_beta) as i32
+    let alpha_args = (norb - norb_alpha, n_alpha - nelec_alpha);
+    let beta_args = (norb - norb_beta, n_beta - nelec_beta);
+    let alpha_count = checked_binomial(alpha_args.0, alpha_args.1);
+    let beta_count = checked_binomial(beta_args.0, beta_args.1);
+    let fallback =
+        || binomial_f64(alpha_args.0, alpha_args.1) * binomial_f64(beta_args.0, beta_args.1);
+    let count = match (alpha_count, beta_count) {
+        // handle zero first so an overflowing count can't produce inf * 0 = NaN
+        (Some(0), _) | (_, Some(0)) => 0.0,
+        (Some(alpha), Some(beta)) => alpha
+            .checked_mul(beta)
+            .map_or_else(fallback, |result| result as f64),
+        _ => fallback(),
+    };
+    term_phase(op) as f64 * count
 }
 
 /// The sort key used to normal order a term.

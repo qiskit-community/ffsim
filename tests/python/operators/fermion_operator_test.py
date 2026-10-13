@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 
 import numpy as np
 import pyscf.fci
@@ -990,6 +991,50 @@ def test_trace():
     t1 = ffsim.trace(ffsim.fermion_operator(ham), norb=norb, nelec=nelec)
     t2 = ffsim.trace(ham, norb=norb, nelec=nelec)
     np.testing.assert_allclose(t1, t2)
+
+
+@pytest.mark.parametrize(
+    ("norb", "nelec"),
+    [
+        (35, (17, 0)),
+        (18, (9, 9)),
+    ],
+)
+def test_trace_large_fock_space(norb: int, nelec: tuple[int, int]):
+    op = FermionOperator({(): 1.0})
+    expected = math.comb(norb, nelec[0]) * math.comb(norb, nelec[1])
+    assert ffsim.trace(op, norb=norb, nelec=nelec) == expected
+
+
+def test_trace_large_fock_space_nonidentity_term():
+    norb = 35
+    nelec = (17, 0)
+    op = FermionOperator({(cre_a(0), cre_a(1), des_a(0), des_a(1)): 1.0})
+    expected = -math.comb(norb - 2, nelec[0] - 2)
+    assert ffsim.trace(op, norb=norb, nelec=nelec) == expected
+
+
+def test_trace_exceeds_u128():
+    norb = 200
+    nelec = (100, 0)
+    op = FermionOperator({(): 1.0})
+    expected = float(math.comb(norb, nelec[0]))
+    np.testing.assert_allclose(ffsim.trace(op, norb=norb, nelec=nelec), expected)
+
+
+def test_trace_product_exceeds_u128():
+    norb = 130
+    nelec = (65, 65)
+    op = FermionOperator({(): 1.0})
+    expected = float(math.comb(norb, nelec[0]) * math.comb(norb, nelec[1]))
+    np.testing.assert_allclose(ffsim.trace(op, norb=norb, nelec=nelec), expected)
+
+
+def test_trace_exceeds_f64_times_zero():
+    norb = 1100
+    nelec = (550, 0)
+    op = FermionOperator({(cre_b(0), des_b(0)): 1.0})
+    assert ffsim.trace(op, norb=norb, nelec=nelec) == 0
 
 
 def test_adjoint():

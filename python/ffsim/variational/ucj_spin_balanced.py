@@ -382,12 +382,10 @@ class UCJOpSpinBalanced(
         | None = None,
         tol: float = 1e-8,
         optimize: bool = False,
-        method: str = "L-BFGS-B",
-        callback=None,
-        options: dict | None = None,
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        **optimize_kwargs,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
 
@@ -401,7 +399,7 @@ class UCJOpSpinBalanced(
         ``tol`` and ``n_reps``.
         If ``optimize`` is set to ``True``, then the entries of the resulting tensors
         (the diagonal Coulomb matrices and orbital rotations) are further optimized with
-        `scipy.optimize.minimize`_ to reduce the error in the factorization.
+        :func:`scipy.optimize.minimize` to reduce the error in the factorization.
         See :func:`ffsim.linalg.double_factorized_t2` for details.
 
         Args:
@@ -432,15 +430,6 @@ class UCJOpSpinBalanced(
                 the reconstructed tensor.
             optimize: Whether to optimize the tensors returned by the decomposition to
                 to minimize the error in the factorization.
-            method: The optimization method. See the documentation of
-                `scipy.optimize.minimize`_ for possible values.
-                This argument is ignored if ``optimize`` is set to ``False``.
-            callback: Callback function for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if ``optimize`` is set to ``False``.
-            options: Options for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if ``optimize`` is set to ``False``.
             regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
@@ -450,6 +439,10 @@ class UCJOpSpinBalanced(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`. The default method is
+                ``"L-BFGS-B"``.
+                These arguments are ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the t2 amplitudes.
@@ -457,8 +450,6 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
-
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
@@ -479,14 +470,12 @@ class UCJOpSpinBalanced(
             tol=tol,
             max_terms=n_reps,
             optimize=optimize,
-            method=method,
-            callback=callback,
-            options=options,
             diag_coulomb_indices=diag_coulomb_indices,
             regularization=regularization,
             multi_stage_start=multi_stage_start,
             multi_stage_step=multi_stage_step,
             return_optimize_result=False,
+            **optimize_kwargs,
         )
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
 
@@ -531,12 +520,10 @@ class UCJOpSpinBalanced(
         | None = None,
         tol: float = 1e-8,
         optimize: bool = False,
-        method: str = "L-BFGS-B",
-        callback=None,
-        options: dict | None = None,
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        **optimize_kwargs,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from a CISD vector.
 
@@ -585,15 +572,6 @@ class UCJOpSpinBalanced(
                 the reconstructed tensor.
             optimize: Whether to optimize the tensors returned by the decomposition to
                 to minimize the error in the factorization.
-            method: The optimization method. See the documentation of
-                `scipy.optimize.minimize`_ for possible values.
-                This argument is ignored if `optimize` is set to ``False``.
-            callback: Callback function for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
-            options: Options for the optimization. See the documentation of
-                `scipy.optimize.minimize`_ for usage.
-                This argument is ignored if `optimize` is set to ``False``.
             regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
@@ -603,6 +581,10 @@ class UCJOpSpinBalanced(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`. The default method is
+                ``"L-BFGS-B"``.
+                These arguments are ignored if ``optimize`` is set to ``False``.
 
         Returns:
             The UCJ operator with parameters initialized from the CISD amplitudes.
@@ -610,8 +592,6 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: The CISD reference coefficient is smaller than the
                 specified threshold c0_tol.
-
-        .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         """
         c0, c1, c2 = pyscf.ci.cisd.cisdvec_to_amplitudes(
             cisd_vec, norb, nocc, copy=False
@@ -633,12 +613,10 @@ class UCJOpSpinBalanced(
             interaction_pairs=interaction_pairs,
             tol=tol,
             optimize=optimize,
-            method=method,
-            callback=callback,
-            options=options,
             regularization=regularization,
             multi_stage_start=multi_stage_start,
             multi_stage_step=multi_stage_step,
+            **optimize_kwargs,
         )
 
     def _apply_unitary_(
