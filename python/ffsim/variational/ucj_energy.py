@@ -121,29 +121,29 @@ def ucj_energy_spin_balanced(
 
 
 def ucj_energy_and_grad_func_spin_balanced(
-    ucj_op: UCJOpSpinBalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
     interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
     | None = None,
     *,
+    with_final_orbital_rotation: bool = False,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
-    """
-    Return a callable that computes the UCJ energy and parameter gradient for a
-    spin-balanced system.
+    """Return a function that computes the spin-balanced UCJ energy and gradient.
 
-    The gradient is with respect to the flattened parameter vector returned by
-    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+    The returned function takes a parameter vector for a spin-balanced UCJ operator
+    with n_reps=1, as returned by :meth:`UCJOpSpinBalanced.to_parameters` and
+    accepted by :meth:`UCJOpSpinBalanced.from_parameters`, and returns the energy
+    and its gradient with respect to the parameters.
 
     Args:
-        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
-            orbital rotation.
         hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrices. If None, all pairs are considered.
+        with_final_orbital_rotation: Whether the parameter vector includes a final
+            orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
         chunk_size: The number of two-body Hamiltonian terms to process at a time.
@@ -153,12 +153,7 @@ def ucj_energy_and_grad_func_spin_balanced(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
-
-    _validate_ucj_op(ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
-
-    norb = ucj_op.norb
-    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    norb = hamiltonian.norb
     triu_indices = cast(
         list[tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
@@ -297,7 +292,6 @@ def ucj_energy_spin_unbalanced(
 
 
 def ucj_energy_and_grad_func_spin_unbalanced(
-    ucj_op: UCJOpSpinUnbalanced,
     hamiltonian: MolecularHamiltonian,
     nelec: tuple[int, int],
     interaction_pairs: tuple[
@@ -307,23 +301,24 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     ]
     | None = None,
     *,
+    with_final_orbital_rotation: bool = False,
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None = None,
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
-    """
-    Return a callable that computes the UCJ energy and parameter gradient for a
-    spin-unbalanced system.
+    """Return a function that computes the spin-unbalanced UCJ energy and gradient.
 
-    The gradient is with respect to the flattened parameter vector returned by
-    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+    The returned function takes a parameter vector for a spin-unbalanced UCJ operator
+    with n_reps=1, as returned by :meth:`UCJOpSpinUnbalanced.to_parameters` and
+    accepted by :meth:`UCJOpSpinUnbalanced.from_parameters`, and returns the energy
+    and its gradient with respect to the parameters.
 
     Args:
-        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
-            orbital rotation.
         hamiltonian: The Hamiltonian.
         nelec: The number of alpha and beta electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrices. If None, all pairs are considered.
+        with_final_orbital_rotation: Whether the parameter vector includes a final
+            orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
         chunk_size: The number of two-body Hamiltonian terms to process at a time.
@@ -333,11 +328,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
-    _validate_ucj_op(ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
-
-    norb = ucj_op.norb
-    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    norb = hamiltonian.norb
     triu_indices = cast(
         list[tuple[int, int]],
         list(itertools.combinations_with_replacement(range(norb), 2)),
@@ -461,28 +452,28 @@ def ucj_energy_spinless(
 
 
 def ucj_energy_and_grad_func_spinless(
-    ucj_op: UCJOpSpinless,
     hamiltonian: MolecularHamiltonianSpinless,
     nelec: int,
     interaction_pairs: list[tuple[int, int]] | None = None,
     *,
+    with_final_orbital_rotation: bool = False,
     occupied_orbitals: Sequence[int] | None = None,
     chunk_size: int | None = None,
 ) -> Callable[[np.ndarray], tuple[float, np.ndarray]]:
-    """
-    Return a callable that computes the UCJ energy and parameter gradient for a
-    spinless system.
+    """Return a function that computes the spinless UCJ energy and gradient.
 
-    The gradient is with respect to the flattened parameter vector returned by
-    ``ucj_op.to_parameters(interaction_pairs=interaction_pairs)``.
+    The returned function takes a parameter vector for a spinless UCJ operator
+    with n_reps=1, as returned by :meth:`UCJOpSpinless.to_parameters` and
+    accepted by :meth:`UCJOpSpinless.from_parameters`, and returns the energy
+    and its gradient with respect to the parameters.
 
     Args:
-        ucj_op: The UCJ operator. Must have n_reps=1, with an optional final
-            orbital rotation.
         hamiltonian: The Hamiltonian.
         nelec: The number of electrons.
         interaction_pairs: The interaction pairs used to parameterize the Jastrow
             matrix. If None, all pairs are considered.
+        with_final_orbital_rotation: Whether the parameter vector includes a final
+            orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
         chunk_size: The number of two-body Hamiltonian terms to process at a time.
@@ -492,11 +483,7 @@ def ucj_energy_and_grad_func_spinless(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
-    _validate_ucj_op(ucj_op)
-    _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
-
-    norb = ucj_op.norb
-    with_final_orbital_rotation = ucj_op.final_orbital_rotation is not None
+    norb = hamiltonian.norb
     validate_interaction_pairs(interaction_pairs, ordered=False)
     interaction_pairs_resolved = (
         cast(

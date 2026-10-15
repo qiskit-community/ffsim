@@ -82,10 +82,10 @@ def assert_energy_and_grad_match_statevector(
     if params is None:
         params = ucj_op.to_parameters(interaction_pairs=interaction_pairs)
     value_and_grad = energy_and_grad_func(
-        ucj_op,
         hamiltonian,
         nelec,
         interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=ucj_op.final_orbital_rotation is not None,
         occupied_orbitals=occupied_orbitals,
     )
     value, grad = value_and_grad(params)
@@ -340,7 +340,10 @@ def test_ucj_energy_and_grad_func_optimize():
     initial_energy = ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec)
 
     value_and_grad = ffsim.ucj_energy_and_grad_func_spin_balanced(
-        ucj_op, mol_hamiltonian, nelec, interaction_pairs=pairs
+        mol_hamiltonian,
+        nelec,
+        interaction_pairs=pairs,
+        with_final_orbital_rotation=True,
     )
     result = scipy.optimize.minimize(
         value_and_grad,
@@ -392,7 +395,7 @@ def test_ucj_energy_validation():
         ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec, chunk_size=0)
 
     value_and_grad = ffsim.ucj_energy_and_grad_func_spin_balanced(
-        ucj_op, mol_hamiltonian, nelec
+        mol_hamiltonian, nelec
     )
     params = ucj_op.to_parameters()
     with pytest.raises(ValueError, match="did not match"):
