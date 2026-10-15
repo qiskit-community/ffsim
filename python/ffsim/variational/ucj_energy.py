@@ -640,8 +640,8 @@ def _make_spin_balanced_objective(
 ]:
     """Build a jitted value-and-gradient function for spin-balanced UCJ energy."""
     interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
-    occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
-    occupied_beta = jnp.asarray(occupied_orbitals_key[1])
+    occupied_alpha = jnp.asarray(occupied_orbitals_key[0], dtype=int)
+    occupied_beta = jnp.asarray(occupied_orbitals_key[1], dtype=int)
 
     def energy(
         params: jax.Array,
@@ -722,8 +722,8 @@ def _make_spin_unbalanced_objective(
 ]:
     """Build a jitted value-and-gradient function for spin-unbalanced UCJ energy."""
     interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
-    occupied_alpha = jnp.asarray(occupied_orbitals_key[0])
-    occupied_beta = jnp.asarray(occupied_orbitals_key[1])
+    occupied_alpha = jnp.asarray(occupied_orbitals_key[0], dtype=int)
+    occupied_beta = jnp.asarray(occupied_orbitals_key[1], dtype=int)
 
     def energy(
         params: jax.Array,
@@ -842,7 +842,7 @@ def _make_spinless_objective(
 ]:
     """Build a jitted value-and-gradient function for spinless UCJ energy."""
     interaction_pairs = list(interaction_pairs_key)
-    occupied = jnp.asarray(occupied_orbitals_key)
+    occupied = jnp.asarray(occupied_orbitals_key, dtype=int)
 
     def energy(
         params: jax.Array,
@@ -979,6 +979,10 @@ def _transition_factors(
 
 def _overlap_batch(diagonal_phases: jax.Array, occ_coeffs: jax.Array) -> jax.Array:
     """Return diagonal-phase Slater overlaps for a batch of phases."""
+    if occ_coeffs.shape[1] == 0:
+        # The overlap of empty Slater determinants is 1. This is handled separately
+        # because differentiating jnp.linalg.det of 0x0 matrices raises an error.
+        return jnp.ones(diagonal_phases.shape[0], dtype=complex)
     overlap, _, _ = _transition_factors(diagonal_phases, occ_coeffs)
     return jnp.linalg.det(overlap)
 
