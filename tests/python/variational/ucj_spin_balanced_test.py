@@ -161,6 +161,28 @@ def test_t_amplitudes_energy():
     np.testing.assert_allclose(energy, -108.592087)
 
 
+def test_t_amplitudes_first_order_matches_uccsd():
+    """Test from_t_amplitudes agrees with UCCSD to first order in the t2 amplitudes."""
+    norb = 5
+    nelec = (3, 3)
+    nocc, _ = nelec
+    nvrt = norb - nocc
+    reference_state = ffsim.hartree_fock_state(norb, nelec)
+    t1 = np.zeros((nocc, nvrt))
+    eps = 1e-6
+    tol = 1e-12
+    t2 = eps * ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    uccsd_op = ffsim.UCCSDOpRestrictedReal(t1=t1, t2=t2)
+    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, tol=tol)
+    uccsd_state = ffsim.apply_unitary(reference_state, uccsd_op, norb=norb, nelec=nelec)
+    ucj_state = ffsim.apply_unitary(reference_state, ucj_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(
+        (ucj_state - reference_state) / eps,
+        (uccsd_state - reference_state) / eps,
+        atol=1e-4,
+    )
+
+
 def test_t_amplitudes_random_n_reps():
     norb = 5
     nocc = 3

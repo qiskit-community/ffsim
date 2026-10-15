@@ -195,7 +195,7 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.128847)
+    np.testing.assert_allclose(energy, -15.128659)
 
     # Test setting number of reps as None
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
@@ -203,7 +203,46 @@ def test_t_amplitudes_energy():
         reference_state, operator, norb=norb, nelec=nelec
     )
     energy = np.real(np.vdot(ansatz_state, linop @ ansatz_state))
-    np.testing.assert_allclose(energy, -15.139681)
+    np.testing.assert_allclose(energy, -15.140248)
+
+
+def test_t_amplitudes_first_order_matches_uccsd():
+    """Test from_t_amplitudes agrees with UCCSD to first order in the t2 amplitudes."""
+    norb = 5
+    nelec = (3, 2)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    reference_state = ffsim.hartree_fock_state(norb, nelec)
+    t1 = (np.zeros((nocc_a, nvrt_a)), np.zeros((nocc_b, nvrt_b)))
+    t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+    t2aa -= t2aa.transpose(1, 0, 2, 3)
+    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+    t2bb -= t2bb.transpose(1, 0, 2, 3)
+    zero_aa = np.zeros_like(t2aa)
+    zero_ab = np.zeros_like(t2ab)
+    zero_bb = np.zeros_like(t2bb)
+    eps = 1e-6
+    tol = 1e-12
+    for aa, ab, bb in [
+        (t2aa, zero_ab, zero_bb),
+        (zero_aa, t2ab, zero_bb),
+        (zero_aa, zero_ab, t2bb),
+        (t2aa, t2ab, t2bb),
+    ]:
+        t2 = (eps * aa, eps * ab, eps * bb)
+        uccsd_op = ffsim.UCCSDOpUnrestrictedReal(t1=t1, t2=t2)
+        ucj_op = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, tol=tol)
+        uccsd_state = ffsim.apply_unitary(
+            reference_state, uccsd_op, norb=norb, nelec=nelec
+        )
+        ucj_state = ffsim.apply_unitary(reference_state, ucj_op, norb=norb, nelec=nelec)
+        np.testing.assert_allclose(
+            (ucj_state - reference_state) / eps,
+            (uccsd_state - reference_state) / eps,
+            atol=1e-4,
+        )
 
 
 def test_t_amplitudes_random_n_reps():
