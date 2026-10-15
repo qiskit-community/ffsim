@@ -283,9 +283,13 @@ def slater_determinant_rdms(
         rdms_a = [np.ones(())] + [
             _slater_determinant_rdm(rdm_a, k, reorder) for k in range(1, rank + 1)
         ]
-        rdms_b = [np.ones(())] + [
-            _slater_determinant_rdm(rdm_b, k, reorder) for k in range(1, rank + 1)
-        ]
+        if np.array_equal(rdm_a, rdm_b):
+            # Closed-shell case: reuse the alpha RDMs for beta
+            rdms_b = rdms_a
+        else:
+            rdms_b = [np.ones(())] + [
+                _slater_determinant_rdm(rdm_b, k, reorder) for k in range(1, rank + 1)
+            ]
         # There are no contractions between alpha and beta operators, so each spin
         # block is a product of an alpha RDM and a beta RDM
         rdms = [

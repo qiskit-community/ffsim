@@ -280,20 +280,29 @@ def _rdm_entry(
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, reorder",
+    "norb, nelec, closed_shell, reorder",
     [
-        (norb, nelec, reorder)
-        for norb, nelec in [(3, 2), (3, (3, 2))]
+        (norb, nelec, closed_shell, reorder)
+        for norb, nelec, closed_shell in [
+            (4, 3, False),
+            (4, (3, 2), False),
+            (4, (3, 3), False),
+            (4, (3, 3), True),
+        ]
         for reorder in [True, False]
     ],
 )
 def test_slater_determinant_rdms_high_rank(
-    norb: int, nelec: int | tuple[int, int], reorder: bool
+    norb: int, nelec: int | tuple[int, int], closed_shell: bool, reorder: bool
 ):
     """Test sampled entries of a Slater determinant RDM beyond rank 4."""
     rank = 5
     spinless = isinstance(nelec, int)
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
+    if closed_shell:
+        assert isinstance(occupied_orbitals, tuple)
+        occ_a, _ = occupied_orbitals
+        occupied_orbitals = (occ_a, occ_a)
     nelec_spinful = (nelec, 0) if isinstance(nelec, int) else nelec
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
