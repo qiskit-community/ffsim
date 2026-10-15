@@ -550,7 +550,7 @@ class UCJOpSpinUnbalanced(
             _, n_reps_aa = n_reps
         if n_reps_aa is None or n_reps_aa >= 1:
             diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
-                t2aa,
+                0.5 * t2aa,
                 tol=tol,
                 max_terms=n_reps_aa,
                 optimize=optimize,
@@ -562,7 +562,7 @@ class UCJOpSpinUnbalanced(
                 **optimize_kwargs,
             )
             diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
-                t2bb,
+                0.5 * t2bb,
                 tol=tol,
                 max_terms=n_reps_aa,
                 optimize=optimize,
