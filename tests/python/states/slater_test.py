@@ -137,60 +137,67 @@ def test_slater_determinant_diff_rotation(norb: int, nelec: tuple[int, int]):
     np.testing.assert_allclose(state, np.kron(state_a, state_b))
 
 
+def _as_tuple(rdms: np.ndarray | tuple[np.ndarray, ...]) -> tuple[np.ndarray, ...]:
+    return rdms if isinstance(rdms, tuple) else (rdms,)
+
+
 @pytest.mark.parametrize(
-    "norb, nelec, reorder",
+    "norb, nelec, rank, reorder",
     [
-        (norb, nelec, reorder)
+        (norb, nelec, rank, reorder)
         for norb, nelec in ffsim.testing.generate_norb_nelec(exhaustive=False)
+        for rank in [1, 2, 3, 4]
         for reorder in [True, False]
         if norb > 0
     ],
 )
-def test_slater_determinant_rdm2s_same_rotation(
-    norb: int, nelec: tuple[int, int], reorder: bool
+def test_slater_determinant_rdms_same_rotation(
+    norb: int, nelec: tuple[int, int], rank: int, reorder: bool
 ):
-    """Test Slater determinant 2-RDM, same rotation for both spins."""
+    """Test Slater determinant RDMs, same rotation for both spins."""
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
-    rdm1, rdm2 = ffsim.slater_determinant_rdms(
+    rdms = ffsim.slater_determinant_rdms(
         norb,
         occupied_orbitals,
         orbital_rotation=orbital_rotation,
-        rank=2,
+        rank=rank,
         reorder=reorder,
     )
     vec = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
     )
-    expected_rdm1, expected_rdm2 = ffsim.rdms(vec, norb, nelec, rank=2, reorder=reorder)
+    expected_rdms = ffsim.rdms(vec, norb, nelec, rank=rank, reorder=reorder)
 
-    np.testing.assert_allclose(rdm1, expected_rdm1, atol=1e-12)
-    np.testing.assert_allclose(rdm2, expected_rdm2, atol=1e-12)
+    assert len(_as_tuple(rdms)) == len(_as_tuple(expected_rdms))
+    for rdm, expected_rdm in zip(_as_tuple(rdms), _as_tuple(expected_rdms)):
+        np.testing.assert_allclose(rdm, expected_rdm, atol=1e-12)
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, reorder",
+    "norb, nelec, rank, reorder",
     [
-        (norb, nelec, reorder)
+        (norb, nelec, rank, reorder)
         for norb, nelec in ffsim.testing.generate_norb_nelec(exhaustive=False)
+        for rank in [1, 2, 3, 4]
         for reorder in [True, False]
         if norb > 0
     ],
 )
-def test_slater_determinant_rdm2s_diff_rotation(
-    norb: int, nelec: tuple[int, int], reorder: bool
+def test_slater_determinant_rdms_diff_rotation(
+    norb: int, nelec: tuple[int, int], rank: int, reorder: bool
 ):
-    """Test Slater determinant 2-RDM, independent rotations for each spin."""
+    """Test Slater determinant RDMs, independent rotations for each spin."""
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     orbital_rotation_a = ffsim.random.random_unitary(norb, seed=RNG)
     orbital_rotation_b = ffsim.random.random_unitary(norb, seed=RNG)
 
-    rdm1, rdm2 = ffsim.slater_determinant_rdms(
+    rdms = ffsim.slater_determinant_rdms(
         norb,
         occupied_orbitals,
         orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
-        rank=2,
+        rank=rank,
         reorder=reorder,
     )
     vec = ffsim.slater_determinant(
@@ -198,42 +205,148 @@ def test_slater_determinant_rdm2s_diff_rotation(
         occupied_orbitals,
         orbital_rotation=(orbital_rotation_a, orbital_rotation_b),
     )
-    expected_rdm1, expected_rdm2 = ffsim.rdms(vec, norb, nelec, rank=2, reorder=reorder)
+    expected_rdms = ffsim.rdms(vec, norb, nelec, rank=rank, reorder=reorder)
 
-    np.testing.assert_allclose(rdm1, expected_rdm1, atol=1e-12)
-    np.testing.assert_allclose(rdm2, expected_rdm2, atol=1e-12)
+    assert len(_as_tuple(rdms)) == len(_as_tuple(expected_rdms))
+    for rdm, expected_rdm in zip(_as_tuple(rdms), _as_tuple(expected_rdms)):
+        np.testing.assert_allclose(rdm, expected_rdm, atol=1e-12)
 
 
 @pytest.mark.parametrize(
-    "norb, nelec, reorder",
+    "norb, nelec, rank, reorder",
     [
-        (norb, nelec, reorder)
+        (norb, nelec, rank, reorder)
         for norb, nelec in ffsim.testing.generate_norb_nocc(exhaustive=False)
+        for rank in [1, 2, 3, 4]
         for reorder in [True, False]
         if norb > 0
     ],
 )
-def test_slater_determinant_rdm2s_spinless(norb: int, nelec: int, reorder: bool):
-    """Test Slater determinant 2-RDM, spinless."""
+def test_slater_determinant_rdms_spinless(
+    norb: int, nelec: int, rank: int, reorder: bool
+):
+    """Test Slater determinant RDMs, spinless."""
     occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
     orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
 
-    rdm1, rdm2 = ffsim.slater_determinant_rdms(
+    rdms = ffsim.slater_determinant_rdms(
         norb,
         occupied_orbitals,
         orbital_rotation=orbital_rotation,
-        rank=2,
+        rank=rank,
         reorder=reorder,
     )
     vec = ffsim.slater_determinant(
         norb, occupied_orbitals, orbital_rotation=orbital_rotation
     )
-    expected_rdm1, expected_rdm2 = ffsim.rdms(
-        vec, norb, (nelec, 0), rank=2, spin_summed=True, reorder=reorder
+    expected_rdms = ffsim.rdms(
+        vec, norb, (nelec, 0), rank=rank, spin_summed=True, reorder=reorder
     )
 
-    np.testing.assert_allclose(rdm1, expected_rdm1, atol=1e-12)
-    np.testing.assert_allclose(rdm2, expected_rdm2, atol=1e-12)
+    assert len(_as_tuple(rdms)) == len(_as_tuple(expected_rdms))
+    for rdm, expected_rdm in zip(_as_tuple(rdms), _as_tuple(expected_rdms)):
+        np.testing.assert_allclose(rdm, expected_rdm, atol=1e-12)
+
+
+def _rdm_entry(
+    vec: np.ndarray,
+    norb: int,
+    nelec: tuple[int, int],
+    orbitals: tuple[int, ...],
+    n_beta: int,
+    reorder: bool,
+) -> complex:
+    """Compute one RDM entry from explicit fermionic operators.
+
+    The last ``n_beta`` creation-annihilation pairs act on spin beta and the rest
+    act on spin alpha.
+    """
+    rank = len(orbitals) // 2
+    spins = [False] * (rank - n_beta) + [True] * n_beta
+    creators = [
+        ffsim.cre_b(p) if spin else ffsim.cre_a(p)
+        for p, spin in zip(orbitals[::2], spins)
+    ]
+    annihilators = [
+        ffsim.des_b(q) if spin else ffsim.des_a(q)
+        for q, spin in zip(orbitals[1::2], spins)
+    ]
+    if reorder:
+        term = creators + annihilators[::-1]
+    else:
+        term = [op for pair in zip(creators, annihilators) for op in pair]
+    op = ffsim.FermionOperator({tuple(term): 1})
+    return np.vdot(vec, ffsim.linear_operator(op, norb, nelec) @ vec)
+
+
+@pytest.mark.parametrize(
+    "norb, nelec, closed_shell, reorder",
+    [
+        (norb, nelec, closed_shell, reorder)
+        for norb, nelec, closed_shell in [
+            (4, 3, False),
+            (4, (3, 2), False),
+            (4, (3, 3), False),
+            (4, (3, 3), True),
+        ]
+        for reorder in [True, False]
+    ],
+)
+def test_slater_determinant_rdms_high_rank(
+    norb: int, nelec: int | tuple[int, int], closed_shell: bool, reorder: bool
+):
+    """Test sampled entries of a Slater determinant RDM beyond rank 4."""
+    rank = 5
+    spinless = isinstance(nelec, int)
+    occupied_orbitals = ffsim.testing.random_occupied_orbitals(norb, nelec, seed=RNG)
+    if closed_shell:
+        assert isinstance(occupied_orbitals, tuple)
+        occ_a, _ = occupied_orbitals
+        occupied_orbitals = (occ_a, occ_a)
+    nelec_spinful = (nelec, 0) if isinstance(nelec, int) else nelec
+    orbital_rotation = ffsim.random.random_unitary(norb, seed=RNG)
+
+    rdms = ffsim.slater_determinant_rdms(
+        norb,
+        occupied_orbitals,
+        orbital_rotation=orbital_rotation,
+        rank=rank,
+        reorder=reorder,
+    )
+    assert len(rdms) == rank
+    rdm = rdms[-1]
+    vec = ffsim.slater_determinant(
+        norb, occupied_orbitals, orbital_rotation=orbital_rotation
+    )
+
+    blocks = [0] if spinless else list(range(rank + 1))
+    if spinless:
+        rdm = rdm[None]
+    assert rdm.shape == (len(blocks),) + (norb,) * (2 * rank)
+    for n_beta in blocks:
+        for i in range(10):
+            if i % 2:
+                # Repeated orbitals give nonzero entries for reorder=False
+                orbitals = tuple(int(x) for x in RNG.integers(norb, size=2 * rank))
+            else:
+                # Distinct orbitals within each spin give nonzero entries for
+                # reorder=True
+                creators, annihilators = [], []
+                for n_pairs in [rank - n_beta, n_beta]:
+                    replace = n_pairs > norb
+                    creators += list(RNG.choice(norb, n_pairs, replace=replace))
+                    annihilators += list(RNG.choice(norb, n_pairs, replace=replace))
+                orbitals = tuple(
+                    int(x) for pair in zip(creators, annihilators) for x in pair
+                )
+            expected = _rdm_entry(vec, norb, nelec_spinful, orbitals, n_beta, reorder)
+            np.testing.assert_allclose(rdm[(n_beta, *orbitals)], expected, atol=1e-12)
+
+
+def test_slater_determinant_rdms_invalid_rank():
+    """Test that a rank below 1 raises an error."""
+    with pytest.raises(ValueError, match="rank"):
+        ffsim.slater_determinant_rdms(3, [0, 1], rank=0)
 
 
 @pytest.mark.parametrize(
