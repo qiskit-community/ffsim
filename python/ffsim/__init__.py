@@ -124,6 +124,12 @@ from ffsim.variational import (
     multireference_state,
     multireference_state_prod,
     optimize_orbitals,
+    ucj_energy_and_grad_func_spin_balanced,
+    ucj_energy_and_grad_func_spin_unbalanced,
+    ucj_energy_and_grad_func_spinless,
+    ucj_energy_spin_balanced,
+    ucj_energy_spin_unbalanced,
+    ucj_energy_spinless,
 )
 
 __all__ = [
@@ -231,6 +237,12 @@ __all__ = [
     "transition_rdms",
     "uccsd_generator_restricted",
     "uccsd_generator_unrestricted",
+    "ucj_energy_and_grad_func_spin_balanced",
+    "ucj_energy_and_grad_func_spin_unbalanced",
+    "ucj_energy_and_grad_func_spinless",
+    "ucj_energy_spin_balanced",
+    "ucj_energy_spin_unbalanced",
+    "ucj_energy_spinless",
 ]
 
 if TYPE_CHECKING:
