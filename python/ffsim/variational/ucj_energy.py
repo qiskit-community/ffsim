@@ -906,22 +906,26 @@ def _spin_balanced_jastrow_phase(
     The Jastrow operator is given by
 
     .. math::
-        J = \sum_{pq,\sigma\tau} j_{pq,\sigma\tau}
-            \hat{n}_{p\sigma}\hat{n}_{q\tau}.
+        J = \frac12 \sum_{pq,\sigma\tau} \mathbf{J}^{\sigma\tau}_{pq}
+            \hat{n}_{p\sigma}\hat{n}_{q\tau},
 
-    This function rewrites the stored Jastrow generator as
+    where :math:`\mathbf{J}^{\alpha\alpha} = \mathbf{J}^{\beta\beta}` is ``same`` and
+    :math:`\mathbf{J}^{\alpha\beta} = \mathbf{J}^{\beta\alpha}` is ``diff``.
+    Using :math:`\hat{n}_{p\sigma}^2 = \hat{n}_{p\sigma}` to move the same-spin
+    diagonal entries into a linear term, this function rewrites :math:`J` as
 
     .. math::
         J(\mathbf{n}) = \mathbf{n}^T A \mathbf{n} + \mathbf{n}^T \ell,
 
     where ``jastrow_mat`` is :math:`A` and ``jastrow_vec`` is :math:`\ell`.
-    The nested ``jastrow_phase`` helper below converts this representation into
-    the scalar phases :math:`c` and vector phases :math:`\phi` of Lemma 2.
+    :func:`_jastrow_phase` converts this representation into the phases
+    :math:`c` and :math:`\phi` acquired by an excitation.
 
     Args:
         same: The spin-same Jastrow matrix.
         diff: The spin-different Jastrow matrix.
         norb: The number of orbitals.
+
     Returns:
         The spin-orbital Jastrow matrix and vector.
     """
