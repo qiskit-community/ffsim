@@ -225,13 +225,13 @@ def test_t_amplitudes_first_order_matches_uccsd():
     zero_bb = np.zeros_like(t2bb)
     eps = 1e-6
     tol = 1e-12
-    for t2 in [
+    for aa, ab, bb in [
         (t2aa, zero_ab, zero_bb),
         (zero_aa, t2ab, zero_bb),
         (zero_aa, zero_ab, t2bb),
         (t2aa, t2ab, t2bb),
     ]:
-        t2 = tuple(eps * t for t in t2)
+        t2 = (eps * aa, eps * ab, eps * bb)
         uccsd_op = ffsim.UCCSDOpUnrestrictedReal(t1=t1, t2=t2)
         ucj_op = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, tol=tol)
         uccsd_state = ffsim.apply_unitary(
