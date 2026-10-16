@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 from dataclasses import InitVar, dataclass
 from typing import cast
 
@@ -70,6 +71,37 @@ def uccsd_unrestricted_linear_operator(
     """
     return protocols.linear_operator(
         operators.uccsd_generator_unrestricted(t1, t2), norb=norb, nelec=nelec
+    )
+
+
+def uccsd_spinless_linear_operator(
+    t1: np.ndarray, t2: np.ndarray, norb: int, nelec: int
+) -> scipy.sparse.linalg.LinearOperator:
+    """Return a linear operator for a spinless UCCSD operator generator.
+
+    Args:
+        t1: The t1-amplitudes.
+        t2: The t2-amplitudes.
+        norb: The number of spatial orbitals.
+        nelec: The number of fermions.
+
+    Returns:
+        The LinearOperator for the UCCSD operator generator.
+    """
+    nocc, _ = t1.shape
+    assert nelec == nocc
+
+    one_body_tensor = np.zeros((norb, norb), dtype=complex)
+    two_body_tensor = np.zeros((norb, norb, norb, norb), dtype=complex)
+    one_body_tensor[:nocc, nocc:] = -t1.conj()
+    one_body_tensor[nocc:, :nocc] = t1.T
+    # The spinless t2 term carries a factor of 1/4 rather than 1/2
+    two_body_tensor[nocc:, :nocc, nocc:, :nocc] = 0.5 * t2.transpose(2, 0, 3, 1)
+    two_body_tensor[:nocc, nocc:, :nocc, nocc:] = -0.5 * t2.transpose(0, 2, 1, 3).conj()
+    # With no spin beta fermions, the state vector has the same shape and ordering
+    # as the spinless state vector
+    return contract.two_body_linop(
+        two_body_tensor, norb=norb, nelec=(nelec, 0), one_body_tensor=one_body_tensor
     )
 
 
@@ -1105,6 +1137,483 @@ class UCCSDOpUnrestricted(
                 np.allclose(t2_self, t2_other, rtol=rtol, atol=atol)
                 for t2_self, t2_other in zip(self.t2, other.t2)
             ):
+                return False
+            if (self.final_orbital_rotation is None) != (
+                other.final_orbital_rotation is None
+            ):
+                return False
+            if self.final_orbital_rotation is not None:
+                return np.allclose(
+                    cast(np.ndarray, self.final_orbital_rotation),
+                    cast(np.ndarray, other.final_orbital_rotation),
+                    rtol=rtol,
+                    atol=atol,
+                )
+            return True
+        return NotImplemented
+
+
+@dataclass(frozen=True)
+class UCCSDOpSpinlessReal(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
+    r"""Real-valued spinless unitary coupled cluster, singles and doubles operator.
+
+    UCCSD operator with real-valued t-amplitudes. Note that the final orbital rotation,
+    if included, is allowed to be complex-valued.
+
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t_{ia} a^\dagger_a a_i
+        + \frac14 \sum_{ijab} t_{ijab} a^\dagger_a a^\dagger_b a_j a_i.
+
+    Here :math:`i, j` index occupied orbitals and :math:`a, b` index virtual orbitals.
+    The t2 amplitudes must be antisymmetric in :math:`(i, j)` and in :math:`(a, b)`.
+
+    Args:
+        validate: Whether to validate the operator attributes. Setting this to False
+            skips validation, which is useful if you need to create many instances
+            of this class and are confident that the attributes are valid.
+        rtol: Relative numerical tolerance for validation checks.
+        atol: Absolute numerical tolerance for validation checks.
+    """
+
+    t1: np.ndarray  # shape: (nocc, nvrt)
+    """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
+    t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(norb, norb)``."""
+    validate: InitVar[bool] = True
+    rtol: InitVar[float] = 1e-5
+    atol: InitVar[float] = 1e-8
+
+    def __post_init__(self, validate: bool, rtol: float, atol: float):
+        if np.iscomplexobj(self.t1):
+            raise TypeError(
+                "UCCSDOpSpinlessReal only accepts real-valued t1 amplitudes. "
+                "Please pass a t1 amplitudes tensor with a real-valued data type, "
+                "or use UCCSDOpSpinless for complex-valued amplitudes."
+            )
+        if np.iscomplexobj(self.t2):
+            raise TypeError(
+                "UCCSDOpSpinlessReal only accepts real-valued t2 amplitudes. "
+                "Please pass a t2 amplitudes tensor with a real-valued data type, "
+                "or use UCCSDOpSpinless for complex-valued amplitudes."
+            )
+        if validate:
+            # Validate shapes
+            nocc, nvrt = self.t1.shape
+            norb = nocc + nvrt
+            if self.t2.shape != (nocc, nocc, nvrt, nvrt):
+                raise ValueError(
+                    "t2 shape not consistent with t1 shape. "
+                    f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
+                )
+            # Validate antisymmetry of t2
+            if not np.allclose(
+                self.t2, -self.t2.transpose(1, 0, 2, 3), rtol=rtol, atol=atol
+            ) or not np.allclose(
+                self.t2, -self.t2.transpose(0, 1, 3, 2), rtol=rtol, atol=atol
+            ):
+                raise ValueError(
+                    "t2 amplitudes were not antisymmetric in the occupied indices "
+                    "and in the virtual indices."
+                )
+            if self.final_orbital_rotation is not None:
+                if self.final_orbital_rotation.shape != (norb, norb):
+                    raise ValueError(
+                        "Final orbital rotation shape not consistent with t1 shape. "
+                        f"Expected {(norb, norb)} but got "
+                        f"{self.final_orbital_rotation.shape}"
+                    )
+                if not linalg.is_unitary(
+                    self.final_orbital_rotation, rtol=rtol, atol=atol
+                ):
+                    raise ValueError("Final orbital rotation was not unitary.")
+
+    @property
+    def norb(self):
+        """The number of spatial orbitals."""
+        nocc, nvrt = self.t1.shape
+        return nocc + nvrt
+
+    @staticmethod
+    def n_params(
+        norb: int, nocc: int, *, with_final_orbital_rotation: bool = False
+    ) -> int:
+        """Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The number of parameters of the ansatz.
+        """
+        nvrt = norb - nocc
+        # t1 has nocc * nvrt parameters
+        # t2 has comb(nocc, 2) * comb(nvrt, 2) parameters
+        # Final orbital rotation has norb**2 parameters
+        return (
+            nocc * nvrt
+            + math.comb(nocc, 2) * math.comb(nvrt, 2)
+            + with_final_orbital_rotation * norb**2
+        )
+
+    @staticmethod
+    def from_parameters(
+        params: np.ndarray,
+        *,
+        norb: int,
+        nocc: int,
+        with_final_orbital_rotation: bool = False,
+    ) -> UCCSDOpSpinlessReal:
+        r"""Initialize the UCCSD operator from a real-valued parameter vector.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The UCCSD operator constructed from the given parameters.
+
+        Raises:
+            ValueError: The number of parameters passed did not match the number
+                expected based on the function inputs.
+        """
+        n_params = UCCSDOpSpinlessReal.n_params(
+            norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        if len(params) != n_params:
+            raise ValueError(
+                "The number of parameters passed did not match the number expected "
+                "based on the function inputs. "
+                f"Expected {n_params} but got {len(params)}."
+            )
+        nvrt = norb - nocc
+        t1 = np.zeros((nocc, nvrt))
+        t2 = np.zeros((nocc, nocc, nvrt, nvrt))
+        index = 0
+        # t1
+        for i, a in itertools.product(range(nocc), range(nocc, norb)):
+            t1[i, a - nocc] = params[index]
+            index += 1
+        # t2
+        for (i, j), (a, b) in itertools.product(
+            itertools.combinations(range(nocc), 2),
+            itertools.combinations(range(nvrt), 2),
+        ):
+            val = params[index]
+            index += 1
+            t2[i, j, a, b] = val
+            t2[j, i, a, b] = -val
+            t2[i, j, b, a] = -val
+            t2[j, i, b, a] = val
+        # Final orbital rotation
+        final_orbital_rotation = None
+        if with_final_orbital_rotation:
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
+        return UCCSDOpSpinlessReal(
+            t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+        )
+
+    def to_parameters(self) -> np.ndarray:
+        r"""Convert the UCCSD operator to a real-valued parameter vector.
+
+        Returns:
+            The real-valued parameter vector.
+        """
+        nocc, nvrt = self.t1.shape
+        norb = nocc + nvrt
+        n_params = UCCSDOpSpinlessReal.n_params(
+            norb,
+            nocc,
+            with_final_orbital_rotation=self.final_orbital_rotation is not None,
+        )
+        params = np.zeros(n_params)
+        index = 0
+        # t1
+        for i, a in itertools.product(range(nocc), range(nocc, norb)):
+            params[index] = self.t1[i, a - nocc]
+            index += 1
+        # t2
+        for (i, j), (a, b) in itertools.product(
+            itertools.combinations(range(nocc), 2),
+            itertools.combinations(range(nvrt), 2),
+        ):
+            params[index] = self.t2[i, j, a, b]
+            index += 1
+        # Final orbital rotation
+        if self.final_orbital_rotation is not None:
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
+        return params
+
+    def _apply_unitary_(
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
+    ) -> np.ndarray:
+        if isinstance(nelec, tuple):
+            return NotImplemented
+        if copy:
+            vec = vec.copy()
+
+        linop = uccsd_spinless_linear_operator(self.t1, self.t2, norb=norb, nelec=nelec)
+        vec = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=0.0)
+
+        if self.final_orbital_rotation is not None:
+            vec = gates.apply_orbital_rotation(
+                vec, self.final_orbital_rotation, norb=norb, nelec=nelec, copy=False
+            )
+
+        return vec
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, UCCSDOpSpinlessReal):
+            if not np.allclose(self.t1, other.t1, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(self.t2, other.t2, rtol=rtol, atol=atol):
+                return False
+            if (self.final_orbital_rotation is None) != (
+                other.final_orbital_rotation is None
+            ):
+                return False
+            if self.final_orbital_rotation is not None:
+                return np.allclose(
+                    cast(np.ndarray, self.final_orbital_rotation),
+                    cast(np.ndarray, other.final_orbital_rotation),
+                    rtol=rtol,
+                    atol=atol,
+                )
+            return True
+        return NotImplemented
+
+
+@dataclass(frozen=True)
+class UCCSDOpSpinless(
+    protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
+):
+    r"""Spinless unitary coupled cluster, singles and doubles operator.
+
+    UCCSD operator with complex-valued t-amplitudes.
+
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t_{ia} a^\dagger_a a_i
+        + \frac14 \sum_{ijab} t_{ijab} a^\dagger_a a^\dagger_b a_j a_i.
+
+    Here :math:`i, j` index occupied orbitals and :math:`a, b` index virtual orbitals.
+    The t2 amplitudes must be antisymmetric in :math:`(i, j)` and in :math:`(a, b)`.
+
+    Args:
+        validate: Whether to validate the operator attributes. Setting this to False
+            skips validation, which is useful if you need to create many instances
+            of this class and are confident that the attributes are valid.
+        rtol: Relative numerical tolerance for validation checks.
+        atol: Absolute numerical tolerance for validation checks.
+    """
+
+    t1: np.ndarray  # shape: (nocc, nvrt)
+    """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
+    t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
+    """The optional final orbital rotation, as a Numpy array of shape
+    ``(norb, norb)``."""
+    validate: InitVar[bool] = True
+    rtol: InitVar[float] = 1e-5
+    atol: InitVar[float] = 1e-8
+
+    def __post_init__(self, validate: bool, rtol: float, atol: float):
+        if validate:
+            # Validate shapes
+            nocc, nvrt = self.t1.shape
+            norb = nocc + nvrt
+            if self.t2.shape != (nocc, nocc, nvrt, nvrt):
+                raise ValueError(
+                    "t2 shape not consistent with t1 shape. "
+                    f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
+                )
+            # Validate antisymmetry of t2
+            if not np.allclose(
+                self.t2, -self.t2.transpose(1, 0, 2, 3), rtol=rtol, atol=atol
+            ) or not np.allclose(
+                self.t2, -self.t2.transpose(0, 1, 3, 2), rtol=rtol, atol=atol
+            ):
+                raise ValueError(
+                    "t2 amplitudes were not antisymmetric in the occupied indices "
+                    "and in the virtual indices."
+                )
+            if self.final_orbital_rotation is not None:
+                if self.final_orbital_rotation.shape != (norb, norb):
+                    raise ValueError(
+                        "Final orbital rotation shape not consistent with t1 shape. "
+                        f"Expected {(norb, norb)} but got "
+                        f"{self.final_orbital_rotation.shape}"
+                    )
+                if not linalg.is_unitary(
+                    self.final_orbital_rotation, rtol=rtol, atol=atol
+                ):
+                    raise ValueError("Final orbital rotation was not unitary.")
+
+    @property
+    def norb(self):
+        """The number of spatial orbitals."""
+        nocc, nvrt = self.t1.shape
+        return nocc + nvrt
+
+    @staticmethod
+    def n_params(
+        norb: int, nocc: int, *, with_final_orbital_rotation: bool = False
+    ) -> int:
+        """Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The number of parameters of the ansatz.
+        """
+        nvrt = norb - nocc
+        # t1 has 2 * nocc * nvrt parameters
+        # t2 has 2 * comb(nocc, 2) * comb(nvrt, 2) parameters
+        # Final orbital rotation has norb**2 parameters
+        return (
+            2 * nocc * nvrt
+            + 2 * math.comb(nocc, 2) * math.comb(nvrt, 2)
+            + with_final_orbital_rotation * norb**2
+        )
+
+    @staticmethod
+    def from_parameters(
+        params: np.ndarray,
+        *,
+        norb: int,
+        nocc: int,
+        with_final_orbital_rotation: bool = False,
+    ) -> UCCSDOpSpinless:
+        r"""Initialize the UCCSD operator from a real-valued parameter vector.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            with_final_orbital_rotation: Whether to include a final orbital rotation
+                in the operator.
+
+        Returns:
+            The UCCSD operator constructed from the given parameters.
+
+        Raises:
+            ValueError: The number of parameters passed did not match the number
+                expected based on the function inputs.
+        """
+        n_params = UCCSDOpSpinless.n_params(
+            norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        if len(params) != n_params:
+            raise ValueError(
+                "The number of parameters passed did not match the number expected "
+                "based on the function inputs. "
+                f"Expected {n_params} but got {len(params)}."
+            )
+        nvrt = norb - nocc
+        t1 = np.zeros((nocc, nvrt), dtype=complex)
+        t2 = np.zeros((nocc, nocc, nvrt, nvrt), dtype=complex)
+        index = 0
+        # t1
+        for i, a in itertools.product(range(nocc), range(nocc, norb)):
+            t1[i, a - nocc] = params[index] + 1j * params[index + 1]
+            index += 2
+        # t2
+        for (i, j), (a, b) in itertools.product(
+            itertools.combinations(range(nocc), 2),
+            itertools.combinations(range(nvrt), 2),
+        ):
+            val = params[index] + 1j * params[index + 1]
+            index += 2
+            t2[i, j, a, b] = val
+            t2[j, i, a, b] = -val
+            t2[i, j, b, a] = -val
+            t2[j, i, b, a] = val
+        # Final orbital rotation
+        final_orbital_rotation = None
+        if with_final_orbital_rotation:
+            final_orbital_rotation = unitary_from_parameters(params[index:], norb)
+        return UCCSDOpSpinless(
+            t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+        )
+
+    def to_parameters(self) -> np.ndarray:
+        r"""Convert the UCCSD operator to a real-valued parameter vector.
+
+        Returns:
+            The real-valued parameter vector.
+        """
+        nocc, nvrt = self.t1.shape
+        norb = nocc + nvrt
+        n_params = UCCSDOpSpinless.n_params(
+            norb,
+            nocc,
+            with_final_orbital_rotation=self.final_orbital_rotation is not None,
+        )
+        params = np.zeros(n_params)
+        index = 0
+        # t1
+        for i, a in itertools.product(range(nocc), range(nocc, norb)):
+            params[index] = self.t1[i, a - nocc].real
+            params[index + 1] = self.t1[i, a - nocc].imag
+            index += 2
+        # t2
+        for (i, j), (a, b) in itertools.product(
+            itertools.combinations(range(nocc), 2),
+            itertools.combinations(range(nvrt), 2),
+        ):
+            params[index] = self.t2[i, j, a, b].real
+            params[index + 1] = self.t2[i, j, a, b].imag
+            index += 2
+        # Final orbital rotation
+        if self.final_orbital_rotation is not None:
+            params[index:] = unitary_to_parameters(self.final_orbital_rotation)
+        return params
+
+    def _apply_unitary_(
+        self, vec: np.ndarray, norb: int, nelec: int | tuple[int, int], copy: bool
+    ) -> np.ndarray:
+        if isinstance(nelec, tuple):
+            return NotImplemented
+        if copy:
+            vec = vec.copy()
+
+        linop = uccsd_spinless_linear_operator(self.t1, self.t2, norb=norb, nelec=nelec)
+        vec = scipy.sparse.linalg.expm_multiply(linop, vec, traceA=0.0)
+
+        if self.final_orbital_rotation is not None:
+            vec = gates.apply_orbital_rotation(
+                vec, self.final_orbital_rotation, norb=norb, nelec=nelec, copy=False
+            )
+
+        return vec
+
+    def _approx_eq_(self, other, rtol: float, atol: float) -> bool:
+        if isinstance(other, UCCSDOpSpinless):
+            if not np.allclose(self.t1, other.t1, rtol=rtol, atol=atol):
+                return False
+            if not np.allclose(self.t2, other.t2, rtol=rtol, atol=atol):
                 return False
             if (self.final_orbital_rotation is None) != (
                 other.final_orbital_rotation is None

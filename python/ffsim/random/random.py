@@ -349,6 +349,43 @@ def random_t2_amplitudes(
     )
 
 
+def random_antisymmetric_t2_amplitudes(
+    norb: int, nocc: int, *, seed=None, dtype=complex
+) -> np.ndarray:
+    """Sample a random antisymmetric t2 amplitudes tensor.
+
+    An antisymmetric t2 amplitudes tensor satisfies
+    ``t2[i, j, a, b] == -t2[j, i, a, b] == -t2[i, j, b, a]``. This is the symmetry of
+    the t2 amplitudes of spinless fermions, or of same-spin fermions. The independent
+    entries ``t2[i, j, a, b]`` with ``i < j`` and ``a < b`` are sampled independently
+    from the standard normal distribution if ``dtype`` is a real type, and from the
+    standard complex normal distribution if ``dtype`` is a complex type.
+
+    Args:
+        norb: The number of orbitals.
+        nocc: The number of orbitals that are occupied by a fermion.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
+
+    Returns:
+        The sampled t2 amplitudes tensor.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    shape = (nocc, nocc, nvrt, nvrt)
+    t2 = rng.standard_normal(shape).astype(dtype, copy=False)
+    if np.issubdtype(dtype, np.complexfloating):
+        t2 += 1j * rng.standard_normal(shape)
+        # Make the real and imaginary parts each have variance 1/2
+        t2 /= math.sqrt(2)
+    t2 -= t2.transpose(1, 0, 2, 3)
+    t2 -= t2.transpose(0, 1, 3, 2)
+    # Each independent entry is now a sum of 4 independent samples
+    t2 /= 2
+    return t2
+
+
 def random_molecular_hamiltonian(
     norb: int,
     *,
@@ -586,6 +623,71 @@ def random_uccsd_op_restricted(
     if with_final_orbital_rotation:
         final_orbital_rotation = random_unitary(norb, seed=rng)
     return variational.UCCSDOpRestricted(
+        t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+    )
+
+
+def random_uccsd_op_spinless_real(
+    norb: int,
+    nocc: int,
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpSpinlessReal:
+    """Sample a random real-valued spinless UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nocc: The number of occupied orbitals.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    t1 = rng.standard_normal((nocc, nvrt))
+    t2 = random_antisymmetric_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCCSDOpSpinlessReal(
+        t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
+    )
+
+
+def random_uccsd_op_spinless(
+    norb: int,
+    nocc: int,
+    *,
+    with_final_orbital_rotation: bool = False,
+    seed=None,
+) -> variational.UCCSDOpSpinless:
+    """Sample a random spinless UCCSD operator.
+
+    Args:
+        norb: The number of spatial orbitals.
+        nocc: The number of occupied orbitals.
+        with_final_orbital_rotation: Whether to include a final orbital rotation
+            in the operator.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+
+    Returns:
+        The sampled UCCSD operator.
+    """
+    rng = np.random.default_rng(seed)
+    nvrt = norb - nocc
+    t1 = rng.standard_normal((nocc, nvrt)).astype(complex)
+    t1 += 1j * rng.standard_normal((nocc, nvrt))
+    t2 = random_antisymmetric_t2_amplitudes(norb, nocc, seed=rng, dtype=complex)
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = random_unitary(norb, seed=rng)
+    return variational.UCCSDOpSpinless(
         t1=t1, t2=t2, final_orbital_rotation=final_orbital_rotation
     )
 

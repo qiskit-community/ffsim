@@ -15,6 +15,7 @@ import dataclasses
 import numpy as np
 import pyscf
 import pyscf.cc
+import pytest
 
 import ffsim
 
@@ -543,3 +544,164 @@ def test_uccsd_unrestricted_complex_energy():
     hamiltonian = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
     energy = np.real(np.vdot(ansatz_state, hamiltonian @ ansatz_state))
     np.testing.assert_allclose(energy, -2.672171)
+
+
+SPINLESS_CLASSES = [
+    (ffsim.UCCSDOpSpinlessReal, ffsim.random.random_uccsd_op_spinless_real),
+    (ffsim.UCCSDOpSpinless, ffsim.random.random_uccsd_op_spinless),
+]
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_norb(cls, random_op):
+    """Test norb property."""
+    norb = 5
+    nocc = 3
+    operator = random_op(norb, nocc, seed=RNG)
+    assert isinstance(operator, cls)
+    assert operator.norb == norb
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_n_params(cls, random_op):
+    """Test computing number of parameters."""
+    norb = 5
+    nocc = 3
+    # t1 has 3 * 2 parameters and t2 has comb(3, 2) * comb(2, 2) parameters
+    n_amplitudes = 3 * 2 + 3 * 1
+    if cls is ffsim.UCCSDOpSpinless:
+        n_amplitudes *= 2
+    for with_final_orbital_rotation in [False, True]:
+        operator = random_op(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=RNG,
+        )
+        actual = cls.n_params(
+            norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+        )
+        assert actual == len(operator.to_parameters())
+        assert actual == n_amplitudes + with_final_orbital_rotation * norb**2
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_parameters_roundtrip(cls, random_op):
+    """Test parameters roundtrip."""
+    norb = 5
+    nocc = 3
+    for with_final_orbital_rotation in [False, True]:
+        operator = random_op(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=RNG,
+        )
+        roundtripped = cls.from_parameters(
+            operator.to_parameters(),
+            norb=norb,
+            nocc=nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        assert ffsim.approx_eq(roundtripped, operator)
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_approx_eq(cls, random_op):
+    """Test approximate equality."""
+    norb = 5
+    nocc = 3
+    for with_final_orbital_rotation in [False, True]:
+        operator = random_op(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=RNG,
+        )
+        roundtripped = cls.from_parameters(
+            operator.to_parameters(),
+            norb=norb,
+            nocc=nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        assert ffsim.approx_eq(operator, roundtripped)
+        assert not ffsim.approx_eq(
+            operator, dataclasses.replace(operator, t1=2 * operator.t1)
+        )
+        assert not ffsim.approx_eq(
+            operator, dataclasses.replace(operator, t2=2 * operator.t2)
+        )
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_apply_unitary(cls, random_op):
+    """Test unitary."""
+    norb = 5
+    nocc = 3
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nocc), seed=RNG)
+    for with_final_orbital_rotation in [False, True]:
+        operator = random_op(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=RNG,
+        )
+        result = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nocc)
+        np.testing.assert_allclose(np.linalg.norm(result), 1.0)
+
+
+def test_uccsd_spinless_validate():
+    """Test validation of spinless UCCSD operators."""
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    t1 = RNG.standard_normal((nocc, nvrt))
+    t2 = RNG.standard_normal((nocc, nocc, nvrt, nvrt))
+    for cls in [ffsim.UCCSDOpSpinlessReal, ffsim.UCCSDOpSpinless]:
+        with pytest.raises(ValueError, match="antisymmetric"):
+            cls(t1=t1, t2=t2)
+        # Validation can be skipped
+        cls(t1=t1, t2=t2, validate=False)
+    operator = ffsim.random.random_uccsd_op_spinless(norb, nocc, seed=RNG)
+    with pytest.raises(TypeError, match="t1"):
+        ffsim.UCCSDOpSpinlessReal(t1=operator.t1, t2=operator.t2.real)
+    with pytest.raises(TypeError, match="t2"):
+        ffsim.UCCSDOpSpinlessReal(t1=operator.t1.real, t2=operator.t2)
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+def test_uccsd_spinless_matches_unrestricted(cls, random_op):
+    """Test spinless UCCSD agrees with unrestricted UCCSD with no beta electrons."""
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nocc), seed=RNG)
+    for with_final_orbital_rotation in [False, True]:
+        operator = random_op(
+            norb,
+            nocc,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+            seed=RNG,
+        )
+        unrestricted_cls = (
+            ffsim.UCCSDOpUnrestrictedReal
+            if cls is ffsim.UCCSDOpSpinlessReal
+            else ffsim.UCCSDOpUnrestricted
+        )
+        final_orbital_rotation = None
+        if with_final_orbital_rotation:
+            final_orbital_rotation = np.stack(
+                [operator.final_orbital_rotation, np.eye(norb)]
+            )
+        unrestricted_op = unrestricted_cls(
+            t1=(operator.t1, np.zeros((0, norb))),
+            t2=(
+                operator.t2,
+                np.zeros((nocc, 0, nvrt, norb)),
+                np.zeros((0, 0, norb, norb)),
+            ),
+            final_orbital_rotation=final_orbital_rotation,
+        )
+        actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nocc)
+        expected = ffsim.apply_unitary(vec, unrestricted_op, norb=norb, nelec=(nocc, 0))
+        np.testing.assert_allclose(actual, expected, atol=1e-12)

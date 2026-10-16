@@ -25,11 +25,12 @@ RNG = np.random.default_rng(316042750382801529624398161754791060982)
 
 
 def assert_t2_has_correct_symmetry(t2: np.ndarray):
-    nocc, _, nvrt, _ = t2.shape
-    for i, j, a, b in itertools.product(
-        range(nocc), range(nocc), range(nvrt), range(nvrt)
-    ):
-        np.testing.assert_allclose(t2[i, j, a, b], t2[j, i, b, a])
+    np.testing.assert_allclose(t2, t2.transpose(1, 0, 3, 2))
+
+
+def assert_t2_is_antisymmetric(t2: np.ndarray):
+    np.testing.assert_allclose(t2, -t2.transpose(1, 0, 2, 3))
+    np.testing.assert_allclose(t2, -t2.transpose(0, 1, 3, 2))
 
 
 def sample_matrices(sampler, n_samples: int = 8000, dim: int = 4) -> np.ndarray:
@@ -47,8 +48,8 @@ def pair_matrix(two_body_tensor: np.ndarray) -> np.ndarray:
     return two_body_tensor.transpose(0, 1, 3, 2).reshape(dim**2, dim**2)
 
 
-def test_assert_t2_has_correct_symmetry():
-    """Test that t2 amplitudes from a real molecule passes our symmetry test."""
+def test_t2_symmetry_assertions():
+    """Test that same-spin t2 amplitudes from a molecule pass our symmetry checks."""
     mol = pyscf.gto.Mole()
     mol.build(
         atom=[["H", (0, 0, 0)], ["Be", (0, 0, 1.1)]],
@@ -59,6 +60,9 @@ def test_assert_t2_has_correct_symmetry():
     scf = pyscf.scf.ROHF(mol).run()
     ccsd = pyscf.cc.CCSD(scf).run()
     t2aa, _, t2bb = ccsd.t2
+    assert_t2_is_antisymmetric(t2aa)
+    assert_t2_is_antisymmetric(t2bb)
+    # Antisymmetry in (i, j) and in (a, b) implies the restricted symmetry
     assert_t2_has_correct_symmetry(t2aa)
     assert_t2_has_correct_symmetry(t2bb)
 
@@ -73,6 +77,40 @@ def test_random_t2_amplitudes(dtype):
     assert t2.shape == (nocc, nocc, nvrt, nvrt)
     assert t2.dtype == dtype
     assert_t2_has_correct_symmetry(t2)
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_antisymmetric_t2_amplitudes(dtype):
+    """Test random antisymmetric t2 amplitudes."""
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc, seed=RNG, dtype=dtype
+    )
+    assert t2.shape == (nocc, nocc, nvrt, nvrt)
+    assert t2.dtype == dtype
+    assert_t2_is_antisymmetric(t2)
+
+
+def test_random_antisymmetric_t2_amplitudes_variance():
+    """Test the independent entries of random antisymmetric t2 have unit variance."""
+    norb = 6
+    nocc = 3
+    nvrt = norb - nocc
+    rng = np.random.default_rng(1234)
+    for dtype in [float, complex]:
+        samples = np.stack(
+            [
+                ffsim.random.random_antisymmetric_t2_amplitudes(
+                    norb, nocc, seed=rng, dtype=dtype
+                )
+                for _ in range(2000)
+            ]
+        )
+        occ, vrt = np.triu_indices(nocc, k=1), np.triu_indices(nvrt, k=1)
+        entries = samples[:, occ[0], occ[1]][:, :, vrt[0], vrt[1]]
+        np.testing.assert_allclose(np.mean(np.abs(entries) ** 2), 1.0, atol=0.05)
 
 
 def test_random_two_body_tensor_symmetry_real():
