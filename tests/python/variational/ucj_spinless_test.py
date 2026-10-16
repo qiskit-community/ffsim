@@ -166,8 +166,8 @@ def test_t_amplitudes_first_order_matches_uccsd():
     """Test from_t_amplitudes agrees with UCCSD to first order in the t2 amplitudes.
 
     The t2 amplitudes are restricted amplitudes, so the corresponding spinless
-    amplitudes are t2 - t2.transpose(1, 0, 2, 3). The spinless UCCSD reference is
-    unrestricted UCCSD with no spin beta electrons.
+    amplitudes are t2 - t2.transpose(1, 0, 2, 3), which define the spinless UCCSD
+    reference.
     """
     norb = 5
     nocc = 3
@@ -178,19 +178,10 @@ def test_t_amplitudes_first_order_matches_uccsd():
     ucj_op = ffsim.UCJOpSpinless.from_t_amplitudes(t2, tol=tol)
     reference_state = ffsim.hartree_fock_state(norb, nocc)
     ucj_state = ffsim.apply_unitary(reference_state, ucj_op, norb=norb, nelec=nocc)
-    uccsd_op = ffsim.UCCSDOpUnrestrictedReal(
-        t1=(np.zeros((nocc, nvrt)), np.zeros((0, norb))),
-        t2=(
-            t2 - t2.transpose(1, 0, 2, 3),
-            np.zeros((nocc, 0, nvrt, norb)),
-            np.zeros((0, 0, norb, norb)),
-        ),
+    uccsd_op = ffsim.UCCSDOpSpinlessReal(
+        t1=np.zeros((nocc, nvrt)), t2=t2 - t2.transpose(1, 0, 2, 3)
     )
-    # With no spin beta electrons, the state vector has the same shape and ordering
-    # as the spinless state vector
-    uccsd_state = ffsim.apply_unitary(
-        reference_state, uccsd_op, norb=norb, nelec=(nocc, 0)
-    )
+    uccsd_state = ffsim.apply_unitary(reference_state, uccsd_op, norb=norb, nelec=nocc)
     np.testing.assert_allclose(
         (ucj_state - reference_state) / eps,
         (uccsd_state - reference_state) / eps,
