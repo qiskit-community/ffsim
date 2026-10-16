@@ -90,6 +90,41 @@ def test_uccsd_restricted_parameters_roundtrip(
 
 @pytest.mark.parametrize("cls, random_op", RESTRICTED_CLASSES)
 @pytest.mark.parametrize("with_final_orbital_rotation", [False, True])
+def test_uccsd_restricted_from_parameters_roundtrip(
+    cls, random_op, with_final_orbital_rotation
+):
+    """Test parameters roundtrip starting from a random parameter vector."""
+    norb = 5
+    nocc = 3
+    n_params = cls.n_params(
+        norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+    )
+    params = RNG.standard_normal(n_params)
+    operator = cls.from_parameters(
+        params,
+        norb=norb,
+        nocc=nocc,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    np.testing.assert_array_equal(operator.t2, operator.t2.transpose(1, 0, 3, 2))
+    # The amplitude parameters roundtrip exactly. The final orbital rotation
+    # parameters need not, because the matrix logarithm picks a principal branch.
+    n_amplitudes = n_params - with_final_orbital_rotation * norb**2
+    roundtripped_params = operator.to_parameters()
+    np.testing.assert_allclose(
+        roundtripped_params[:n_amplitudes], params[:n_amplitudes]
+    )
+    roundtripped = cls.from_parameters(
+        roundtripped_params,
+        norb=norb,
+        nocc=nocc,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+
+@pytest.mark.parametrize("cls, random_op", RESTRICTED_CLASSES)
+@pytest.mark.parametrize("with_final_orbital_rotation", [False, True])
 def test_uccsd_restricted_approx_eq(cls, random_op, with_final_orbital_rotation):
     """Test approximate equality."""
     norb = 5
@@ -191,6 +226,12 @@ def test_uccsd_unrestricted_n_params(cls, random_op, with_final_orbital_rotation
     """Test computing number of parameters."""
     norb = 5
     nelec = (3, 2)
+    # t1_a and t1_b have 3 * 2 + 2 * 3 parameters, t2_aa has comb(3, 2) * comb(2, 2)
+    # parameters, t2_ab has 3 * 2 * 2 * 3 parameters, and t2_bb has
+    # comb(2, 2) * comb(3, 2) parameters
+    n_amplitudes = 3 * 2 + 2 * 3 + 3 * 1 + 3 * 2 * 2 * 3 + 1 * 3
+    if cls is ffsim.UCCSDOpUnrestricted:
+        n_amplitudes *= 2
     operator = random_op(
         norb,
         nelec,
@@ -200,8 +241,8 @@ def test_uccsd_unrestricted_n_params(cls, random_op, with_final_orbital_rotation
     actual = cls.n_params(
         norb, nelec, with_final_orbital_rotation=with_final_orbital_rotation
     )
-    expected = len(operator.to_parameters())
-    assert actual == expected
+    assert actual == len(operator.to_parameters())
+    assert actual == n_amplitudes + with_final_orbital_rotation * 2 * norb**2
 
 
 @pytest.mark.parametrize("cls, random_op", UNRESTRICTED_CLASSES)
@@ -225,6 +266,76 @@ def test_uccsd_unrestricted_parameters_roundtrip(
         with_final_orbital_rotation=with_final_orbital_rotation,
     )
     assert ffsim.approx_eq(roundtripped, operator)
+
+
+@pytest.mark.parametrize("cls, random_op", UNRESTRICTED_CLASSES)
+@pytest.mark.parametrize("with_final_orbital_rotation", [False, True])
+def test_uccsd_unrestricted_from_parameters_roundtrip(
+    cls, random_op, with_final_orbital_rotation
+):
+    """Test parameters roundtrip starting from a random parameter vector."""
+    norb = 5
+    nelec = (3, 2)
+    n_params = cls.n_params(
+        norb, nelec, with_final_orbital_rotation=with_final_orbital_rotation
+    )
+    params = RNG.standard_normal(n_params)
+    operator = cls.from_parameters(
+        params,
+        norb=norb,
+        nelec=nelec,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    t2_aa, _, t2_bb = operator.t2
+    for t2 in [t2_aa, t2_bb]:
+        np.testing.assert_array_equal(t2, -t2.transpose(1, 0, 2, 3))
+        np.testing.assert_array_equal(t2, -t2.transpose(0, 1, 3, 2))
+    # The amplitude parameters roundtrip exactly. The final orbital rotation
+    # parameters need not, because the matrix logarithm picks a principal branch.
+    n_amplitudes = n_params - with_final_orbital_rotation * 2 * norb**2
+    roundtripped_params = operator.to_parameters()
+    np.testing.assert_allclose(
+        roundtripped_params[:n_amplitudes], params[:n_amplitudes]
+    )
+    roundtripped = cls.from_parameters(
+        roundtripped_params,
+        norb=norb,
+        nelec=nelec,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+
+def test_uccsd_unrestricted_validate():
+    """Test validation of unrestricted UCCSD operators."""
+    norb = 5
+    nelec = (3, 2)
+    operator = ffsim.random.random_uccsd_op_unrestricted_real(norb, nelec, seed=RNG)
+    t2_aa, t2_ab, t2_bb = operator.t2
+    bad_t2_aa = RNG.standard_normal(t2_aa.shape)
+    bad_t2_bb = RNG.standard_normal(t2_bb.shape)
+    for cls in [ffsim.UCCSDOpUnrestrictedReal, ffsim.UCCSDOpUnrestricted]:
+        with pytest.raises(ValueError, match="t2_aa amplitudes were not antisymmetric"):
+            cls(t1=operator.t1, t2=(bad_t2_aa, t2_ab, t2_bb))
+        with pytest.raises(ValueError, match="t2_bb amplitudes were not antisymmetric"):
+            cls(t1=operator.t1, t2=(t2_aa, t2_ab, bad_t2_bb))
+        # Validation can be skipped
+        cls(t1=operator.t1, t2=(bad_t2_aa, t2_ab, bad_t2_bb), validate=False)
+    complex_operator = ffsim.random.random_uccsd_op_unrestricted(norb, nelec, seed=RNG)
+    t1_a, t1_b = complex_operator.t1
+    t2_aa, t2_ab, t2_bb = complex_operator.t2
+    with pytest.raises(
+        TypeError, match="UCCSDOpUnrestrictedReal only accepts real-valued t1"
+    ):
+        ffsim.UCCSDOpUnrestrictedReal(
+            t1=(t1_a, t1_b), t2=(t2_aa.real, t2_ab.real, t2_bb.real)
+        )
+    with pytest.raises(
+        TypeError, match="UCCSDOpUnrestrictedReal only accepts real-valued t2"
+    ):
+        ffsim.UCCSDOpUnrestrictedReal(
+            t1=(t1_a.real, t1_b.real), t2=(t2_aa, t2_ab, t2_bb)
+        )
 
 
 @pytest.mark.parametrize("cls, random_op", UNRESTRICTED_CLASSES)
@@ -365,6 +476,42 @@ def test_uccsd_spinless_parameters_roundtrip(
     )
     roundtripped = cls.from_parameters(
         operator.to_parameters(),
+        norb=norb,
+        nocc=nocc,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    assert ffsim.approx_eq(roundtripped, operator)
+
+
+@pytest.mark.parametrize("cls, random_op", SPINLESS_CLASSES)
+@pytest.mark.parametrize("with_final_orbital_rotation", [False, True])
+def test_uccsd_spinless_from_parameters_roundtrip(
+    cls, random_op, with_final_orbital_rotation
+):
+    """Test parameters roundtrip starting from a random parameter vector."""
+    norb = 5
+    nocc = 3
+    n_params = cls.n_params(
+        norb, nocc, with_final_orbital_rotation=with_final_orbital_rotation
+    )
+    params = RNG.standard_normal(n_params)
+    operator = cls.from_parameters(
+        params,
+        norb=norb,
+        nocc=nocc,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    np.testing.assert_array_equal(operator.t2, -operator.t2.transpose(1, 0, 2, 3))
+    np.testing.assert_array_equal(operator.t2, -operator.t2.transpose(0, 1, 3, 2))
+    # The amplitude parameters roundtrip exactly. The final orbital rotation
+    # parameters need not, because the matrix logarithm picks a principal branch.
+    n_amplitudes = n_params - with_final_orbital_rotation * norb**2
+    roundtripped_params = operator.to_parameters()
+    np.testing.assert_allclose(
+        roundtripped_params[:n_amplitudes], params[:n_amplitudes]
+    )
+    roundtripped = cls.from_parameters(
+        roundtripped_params,
         norb=norb,
         nocc=nocc,
         with_final_orbital_rotation=with_final_orbital_rotation,

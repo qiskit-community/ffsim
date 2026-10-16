@@ -718,9 +718,9 @@ def random_uccsd_op_unrestricted_real(
     nvrt_b = norb - nocc_b
     t1_a = rng.standard_normal((nocc_a, nvrt_a))
     t1_b = rng.standard_normal((nocc_b, nvrt_b))
-    t2_aa = random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
+    t2_aa = random_antisymmetric_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
     t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2_bb = random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
+    t2_bb = random_antisymmetric_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = np.stack(
@@ -761,10 +761,10 @@ def random_uccsd_op_unrestricted(
     t1_a += 1j * rng.standard_normal((nocc_a, nvrt_a))
     t1_b = rng.standard_normal((nocc_b, nvrt_b)).astype(complex)
     t1_b += 1j * rng.standard_normal((nocc_b, nvrt_b))
-    t2_aa = random_t2_amplitudes(norb, nocc_a, seed=rng, dtype=complex)
+    t2_aa = random_antisymmetric_t2_amplitudes(norb, nocc_a, seed=rng, dtype=complex)
     t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)).astype(complex)
     t2_ab += 1j * rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2_bb = random_t2_amplitudes(norb, nocc_b, seed=rng, dtype=complex)
+    t2_bb = random_antisymmetric_t2_amplitudes(norb, nocc_b, seed=rng, dtype=complex)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = np.stack(
