@@ -343,8 +343,20 @@ class UCJOpSpinless(
         :func:`scipy.optimize.minimize` to reduce the error in the factorization.
         See :func:`ffsim.linalg.double_factorized_t2` for details.
 
+        The t2 amplitudes follow the same convention as :class:`ffsim.UCCSDOpSpinless`:
+        they define the doubles operator
+
+        .. math::
+
+            T_2 = \frac14 \sum_{ijab} t_{ijab} a^\dagger_a a^\dagger_b a_j a_i
+
+        and must be antisymmetric in the occupied indices and in the virtual indices.
+        With this convention, the UCJ operator agrees with the UCCSD operator
+        constructed from the same t2 amplitudes to first order in the amplitudes.
+
         Args:
-            t2: The t2 amplitudes.
+            t2: The t2 amplitudes, which must be antisymmetric in the occupied indices
+                and in the virtual indices.
             t1: The t1 amplitudes.
             n_reps: The number of ansatz repetitions. If not specified, then it is set
                 to the number of terms resulting from the double factorization of the
@@ -395,8 +407,10 @@ class UCJOpSpinless(
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
 
+        # double_factorized_t2 expects amplitudes for the doubles operator with a
+        # prefactor of 1/2 rather than 1/4
         diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
-            t2,
+            0.5 * t2,
             tol=tol,
             max_terms=n_reps,
             optimize=optimize,
