@@ -30,6 +30,7 @@ from ffsim.linalg.util import (
 from ffsim.variational.util import (
     orbital_rotation_from_t1_amplitudes,
     validate_interaction_pairs,
+    validate_t2_pair_symmetric,
 )
 
 
@@ -385,6 +386,9 @@ class UCJOpSpinBalanced(
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
         **optimize_kwargs,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
@@ -403,7 +407,8 @@ class UCJOpSpinBalanced(
         See :func:`ffsim.linalg.double_factorized_t2` for details.
 
         Args:
-            t2: The t2 amplitudes.
+            t2: The t2 amplitudes. They must satisfy
+                ``t2[i, j, a, b] == t2[j, i, b, a]``.
             t1: The t1 amplitudes.
             n_reps: The number of ansatz repetitions. If not specified, then it is set
                 to the number of terms resulting from the double factorization of the
@@ -439,6 +444,9 @@ class UCJOpSpinBalanced(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
+            validate: Whether to validate the symmetry of the t2 amplitudes.
+            rtol: Relative numerical tolerance for validation checks.
+            atol: Absolute numerical tolerance for validation checks.
             optimize_kwargs: Keyword arguments to pass to
                 :func:`scipy.optimize.minimize`. The default method is
                 ``"L-BFGS-B"``.
@@ -450,6 +458,7 @@ class UCJOpSpinBalanced(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
+            ValueError: The t2 amplitudes did not have the required symmetry.
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
@@ -458,6 +467,8 @@ class UCJOpSpinBalanced(
         pairs_aa, pairs_ab = interaction_pairs
         validate_interaction_pairs(pairs_aa, ordered=False)
         validate_interaction_pairs(pairs_ab, ordered=False)
+        if validate:
+            validate_t2_pair_symmetric(t2, rtol=rtol, atol=atol)
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
@@ -523,6 +534,9 @@ class UCJOpSpinBalanced(
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
         **optimize_kwargs,
     ) -> UCJOpSpinBalanced:
         r"""Initialize the UCJ operator from a CISD vector.
@@ -581,6 +595,10 @@ class UCJOpSpinBalanced(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
+            validate: Whether to validate the symmetry of the converted t2
+                amplitudes.
+            rtol: Relative numerical tolerance for validation checks.
+            atol: Absolute numerical tolerance for validation checks.
             optimize_kwargs: Keyword arguments to pass to
                 :func:`scipy.optimize.minimize`. The default method is
                 ``"L-BFGS-B"``.
@@ -616,6 +634,9 @@ class UCJOpSpinBalanced(
             regularization=regularization,
             multi_stage_start=multi_stage_start,
             multi_stage_step=multi_stage_step,
+            validate=validate,
+            rtol=rtol,
+            atol=atol,
             **optimize_kwargs,
         )
 

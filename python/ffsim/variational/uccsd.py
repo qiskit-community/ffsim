@@ -22,6 +22,10 @@ import scipy.sparse.linalg
 
 from ffsim import contract, gates, linalg, operators, protocols
 from ffsim.linalg.util import unitary_from_parameters, unitary_to_parameters
+from ffsim.variational.util import (
+    validate_t2_antisymmetric,
+    validate_t2_pair_symmetric,
+)
 
 
 def uccsd_restricted_linear_operator(
@@ -146,18 +150,6 @@ def _antisymmetric_t2_to_values(t2: np.ndarray) -> np.ndarray:
     )
 
 
-def _is_pair_symmetric_t2(t2: np.ndarray, rtol: float, atol: float) -> bool:
-    """Return whether t2 is symmetric under exchange of the pairs (i, a) and (j, b)."""
-    return np.allclose(t2, t2.transpose(1, 0, 3, 2), rtol=rtol, atol=atol)
-
-
-def _is_antisymmetric_t2(t2: np.ndarray, rtol: float, atol: float) -> bool:
-    """Return whether t2 is antisymmetric in the occupied and in the virtual indices."""
-    antisymmetric_occ = np.allclose(t2, -t2.transpose(1, 0, 2, 3), rtol=rtol, atol=atol)
-    antisymmetric_vrt = np.allclose(t2, -t2.transpose(0, 1, 3, 2), rtol=rtol, atol=atol)
-    return antisymmetric_occ and antisymmetric_vrt
-
-
 @dataclass(frozen=True)
 class UCCSDOpRestrictedReal(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
@@ -227,12 +219,7 @@ class UCCSDOpRestrictedReal(
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
                 )
             # Validate pair symmetry of t2
-            if not _is_pair_symmetric_t2(self.t2, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2 amplitudes were not symmetric under exchange of the "
-                    "occupied-virtual pairs (i, a) and (j, b), that is, "
-                    "t2[i, j, a, b] == t2[j, i, b, a]."
-                )
+            validate_t2_pair_symmetric(self.t2, rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
                     raise ValueError(
@@ -459,12 +446,7 @@ class UCCSDOpRestricted(
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
                 )
             # Validate pair symmetry of t2
-            if not _is_pair_symmetric_t2(self.t2, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2 amplitudes were not symmetric under exchange of the "
-                    "occupied-virtual pairs (i, a) and (j, b), that is, "
-                    "t2[i, j, a, b] == t2[j, i, b, a]."
-                )
+            validate_t2_pair_symmetric(self.t2, rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
                     raise ValueError(
@@ -741,16 +723,8 @@ class UCCSDOpUnrestrictedReal(
                     f"{t2_bb.shape}."
                 )
             # Validate antisymmetry of t2_aa and t2_bb
-            if not _is_antisymmetric_t2(t2_aa, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2_aa amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
-            if not _is_antisymmetric_t2(t2_bb, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2_bb amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
+            validate_t2_antisymmetric(t2_aa, name="t2_aa", rtol=rtol, atol=atol)
+            validate_t2_antisymmetric(t2_bb, name="t2_bb", rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (2, norb, norb):
                     raise ValueError(
@@ -1070,16 +1044,8 @@ class UCCSDOpUnrestricted(
                     f"{t2_bb.shape}."
                 )
             # Validate antisymmetry of t2_aa and t2_bb
-            if not _is_antisymmetric_t2(t2_aa, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2_aa amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
-            if not _is_antisymmetric_t2(t2_bb, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2_bb amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
+            validate_t2_antisymmetric(t2_aa, name="t2_aa", rtol=rtol, atol=atol)
+            validate_t2_antisymmetric(t2_bb, name="t2_bb", rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (2, norb, norb):
                     raise ValueError(
@@ -1382,11 +1348,7 @@ class UCCSDOpSpinlessReal(
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
                 )
             # Validate antisymmetry of t2
-            if not _is_antisymmetric_t2(self.t2, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2 amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
+            validate_t2_antisymmetric(self.t2, rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
                     raise ValueError(
@@ -1599,11 +1561,7 @@ class UCCSDOpSpinless(
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
                 )
             # Validate antisymmetry of t2
-            if not _is_antisymmetric_t2(self.t2, rtol=rtol, atol=atol):
-                raise ValueError(
-                    "t2 amplitudes were not antisymmetric in the occupied indices "
-                    "and in the virtual indices."
-                )
+            validate_t2_antisymmetric(self.t2, rtol=rtol, atol=atol)
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
                     raise ValueError(

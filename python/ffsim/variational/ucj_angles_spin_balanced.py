@@ -150,10 +150,20 @@ class UCJAnglesOpSpinBalanced(
         ]
         | None = None,
         tol: float = 1e-8,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
     ) -> UCJAnglesOpSpinBalanced:
         """Initialize the UCJ operator from t2 (and optionally t1) amplitudes."""
         ucj_op = UCJOpSpinBalanced.from_t_amplitudes(
-            t2, t1=t1, n_reps=n_reps, interaction_pairs=interaction_pairs, tol=tol
+            t2,
+            t1=t1,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            tol=tol,
+            validate=validate,
+            rtol=rtol,
+            atol=atol,
         )
         return UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
 

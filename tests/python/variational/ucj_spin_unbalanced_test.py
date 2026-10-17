@@ -78,9 +78,13 @@ def test_t_amplitudes_validate_interaction_pairs():
     nocc_a, nocc_b = 2, 1
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
-    t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+    t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc_a, seed=RNG, dtype=float
+    )
     t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+    t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc_b, seed=RNG, dtype=float
+    )
     t2 = (t2aa, t2ab, t2bb)
 
     # The alpha-beta pairs are allowed to be lower triangular, but not duplicated.
@@ -245,6 +249,31 @@ def test_t_amplitudes_first_order_matches_uccsd():
         )
 
 
+def test_t_amplitudes_validate():
+    """Test from_t_amplitudes validates the antisymmetry of the same-spin amplitudes."""
+    norb = 5
+    nocc_a, nocc_b = 3, 2
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc_a, seed=RNG, dtype=float
+    )
+    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc_b, seed=RNG, dtype=float
+    )
+    bad_t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+    bad_t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+    with pytest.raises(ValueError, match="t2aa amplitudes were not antisymmetric"):
+        ffsim.UCJOpSpinUnbalanced.from_t_amplitudes((bad_t2aa, t2ab, t2bb))
+    with pytest.raises(ValueError, match="t2bb amplitudes were not antisymmetric"):
+        ffsim.UCJOpSpinUnbalanced.from_t_amplitudes((t2aa, t2ab, bad_t2bb))
+    # Validation can be skipped
+    ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        (bad_t2aa, t2ab, bad_t2bb), validate=False
+    )
+
+
 def test_t_amplitudes_random_n_reps():
     norb = 5
     nelec = (3, 2)
@@ -254,9 +283,13 @@ def test_t_amplitudes_random_n_reps():
 
     n_reps: int | tuple[int, int]
     for n_reps in [5, 50, (10, 5), (0, 1)]:  # type: ignore
-        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+        t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_a, seed=RNG, dtype=float
+        )
         t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+        t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_b, seed=RNG, dtype=float
+        )
         t1a = RNG.standard_normal((nocc_a, nvrt_a))
         t1b = RNG.standard_normal((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
@@ -296,6 +329,7 @@ def test_t_amplitudes_optimize_kwargs(optimize: bool, method: str | None):
             multi_stage_start=2,
             multi_stage_step=1,
             optimize=optimize,
+            validate=False,
             **kwargs,
         )
 
@@ -319,9 +353,13 @@ def test_t_amplitudes_random_optimize():
 
     n_reps: int | tuple[int, int]
     for n_reps in [5, (10, 5)]:  # type: ignore
-        t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
+        t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_a, seed=RNG, dtype=float
+        )
         t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-        t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
+        t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_b, seed=RNG, dtype=float
+        )
         t1a = RNG.standard_normal((nocc_a, nvrt_a))
         t1b = RNG.standard_normal((nocc_b, nvrt_b))
         t2 = (t2aa, t2ab, t2bb)
@@ -533,9 +571,13 @@ def test_empty_interaction_pairs():
     empty_pairs: list[tuple[int, int]] = []
     interaction_pairs = (empty_pairs, empty_pairs, empty_pairs)
     t2 = (
-        ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float),
+        ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_a, seed=RNG, dtype=float
+        ),
         RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)),
-        ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float),
+        ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc_b, seed=RNG, dtype=float
+        ),
     )
 
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
