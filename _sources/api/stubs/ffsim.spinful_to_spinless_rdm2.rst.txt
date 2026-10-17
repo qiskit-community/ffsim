@@ -1,0 +1,6 @@
+﻿ffsim.spinful\_to\_spinless\_rdm2
+=================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: spinful_to_spinless_rdm2

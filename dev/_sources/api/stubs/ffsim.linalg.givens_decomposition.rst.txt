@@ -1,0 +1,6 @@
+﻿ffsim.linalg.givens\_decomposition
+==================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: givens_decomposition

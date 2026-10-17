@@ -1,0 +1,6 @@
+﻿ffsim.apply\_unitary
+====================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: apply_unitary

@@ -1,0 +1,6 @@
+﻿ffsim.ucj\_energy\_and\_grad\_func\_spinless
+============================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: ucj_energy_and_grad_func_spinless
