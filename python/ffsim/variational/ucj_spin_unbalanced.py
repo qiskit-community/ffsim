@@ -19,12 +19,6 @@ from typing import cast
 import numpy as np
 
 from ffsim import gates, linalg, protocols
-from ffsim.linalg.double_factorized_decomposition import (
-    _compress_double_factorized_t2,
-    _compress_double_factorized_t2_alpha_beta,
-    _double_factorized_t2_alpha_beta_explicit,
-    _double_factorized_t2_explicit,
-)
 from ffsim.linalg.util import (
     all_indices,
     mask_from_indices,
@@ -494,16 +488,22 @@ class UCJOpSpinUnbalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
-            optimize: Whether to optimize the tensors returned by the decomposition to
-                to minimize the error in the factorization.
-            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            optimize: Whether to optimize the tensors returned by the decomposition
+                to minimize the error in the factorization. The optimization is
+                performed whenever the decomposition has terms, including when no terms
+                are truncated. Any identity operators added as padding are not
+                optimized.
+            regularization: See
+                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
+                this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
-            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_start: See
+                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
+                this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
-            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_step: See
+                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
+                this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             validate: Whether to validate the symmetry of the t2 amplitudes.
             rtol: Relative numerical tolerance for validation checks.
@@ -544,13 +544,15 @@ class UCJOpSpinUnbalanced(
         # available for an integer n_reps to be divided between, and they serve as the
         # initial guess for compression
         diag_coulomb_mats_ab, orbital_rotations_ab, magnitudes_ab = (
-            _double_factorized_t2_alpha_beta_explicit(t2ab, tol=tol)
+            linalg.double_factorized_t2_alpha_beta(
+                t2ab, tol=tol, return_magnitudes=True
+            )
         )
         diag_coulomb_mats_aa, orbital_rotations_aa, magnitudes_aa = (
-            _double_factorized_t2_explicit(0.5 * t2aa, tol=tol)
+            linalg.double_factorized_t2(0.5 * t2aa, tol=tol, return_magnitudes=True)
         )
         diag_coulomb_mats_bb, orbital_rotations_bb, magnitudes_bb = (
-            _double_factorized_t2_explicit(0.5 * t2bb, tol=tol)
+            linalg.double_factorized_t2(0.5 * t2bb, tol=tol, return_magnitudes=True)
         )
 
         n_reps_ab: int | None
@@ -574,9 +576,10 @@ class UCJOpSpinUnbalanced(
                     f"Got {n_reps_same_spin}."
                 )
 
-        if optimize and n_reps_ab:
+        # A sector with no terms requested or available has nothing to optimize
+        if optimize and n_reps_ab != 0 and len(orbital_rotations_ab):
             diag_coulomb_mats_ab, orbital_rotations_ab, _ = (
-                _compress_double_factorized_t2_alpha_beta(
+                linalg.compress_double_factorized_t2_alpha_beta(
                     t2ab,
                     diag_coulomb_mats_ab,
                     orbital_rotations_ab,
@@ -588,9 +591,9 @@ class UCJOpSpinUnbalanced(
                     **optimize_kwargs,
                 )
             )
-        if optimize and n_reps_same_spin:
+        if optimize and n_reps_same_spin != 0 and len(orbital_rotations_aa):
             diag_coulomb_mats_aa, orbital_rotations_aa, _ = (
-                _compress_double_factorized_t2(
+                linalg.compress_double_factorized_t2(
                     0.5 * t2aa,
                     diag_coulomb_mats_aa,
                     orbital_rotations_aa,
@@ -602,8 +605,9 @@ class UCJOpSpinUnbalanced(
                     **optimize_kwargs,
                 )
             )
+        if optimize and n_reps_same_spin != 0 and len(orbital_rotations_bb):
             diag_coulomb_mats_bb, orbital_rotations_bb, _ = (
-                _compress_double_factorized_t2(
+                linalg.compress_double_factorized_t2(
                     0.5 * t2bb,
                     diag_coulomb_mats_bb,
                     orbital_rotations_bb,

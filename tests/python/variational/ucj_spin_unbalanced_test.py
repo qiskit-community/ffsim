@@ -681,3 +681,38 @@ def test_empty_interaction_pairs():
         params, norb=norb, n_reps=n_reps, interaction_pairs=interaction_pairs
     )
     assert ffsim.approx_eq(operator, roundtrip)
+
+
+@pytest.mark.parametrize(
+    "n_reps, n_calls",
+    [
+        # Every sector with terms is optimized
+        (None, 3),
+        (3, None),
+        ((2, 2), 3),
+        ((1000, 1000), 3),
+        # A sector with zero repetitions is not optimized
+        ((0, 2), 2),
+        ((2, 0), 1),
+    ],
+)
+def test_t_amplitudes_optimize_always_optimizes(n_reps, n_calls):
+    """Test that optimize=True optimizes regardless of how n_reps compares."""
+    norb = 4
+    nelec = (2, 2)
+    t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
+    )
+    with patch("scipy.optimize.minimize", wraps=scipy.optimize.minimize) as minimize:
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, n_reps=n_reps, optimize=True, options=dict(maxiter=5)
+        )
+    if n_calls is not None:
+        assert minimize.call_count == n_calls
+    else:
+        # The split of an integer n_reps decides which sectors get repetitions
+        assert 1 <= minimize.call_count <= 3
+    if isinstance(n_reps, int):
+        assert operator.n_reps == n_reps
+    elif isinstance(n_reps, tuple):
+        assert operator.n_reps == sum(n_reps)

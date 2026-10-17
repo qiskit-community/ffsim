@@ -498,3 +498,25 @@ def test_empty_interaction_pairs():
         params, norb=norb, n_reps=n_reps, interaction_pairs=interaction_pairs
     )
     assert ffsim.approx_eq(operator, roundtrip)
+
+
+@pytest.mark.parametrize("n_reps", [None, 3, "n_terms", 100])
+def test_t_amplitudes_optimize_always_optimizes(n_reps):
+    """Test that optimize=True optimizes regardless of how n_reps compares."""
+    norb, nocc = 4, 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    n_terms = len(ffsim.linalg.double_factorized_t2(t2)[0])
+    if n_reps == "n_terms":
+        n_reps = n_terms
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    with patch("scipy.optimize.minimize", wraps=scipy.optimize.minimize) as minimize:
+        operator = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
+            t2,
+            n_reps=n_reps,
+            interaction_pairs=(pairs_aa, pairs_ab),
+            optimize=True,
+            options=dict(maxiter=5),
+        )
+    assert minimize.call_count == 1
+    assert operator.n_reps == (n_terms if n_reps is None else n_reps)

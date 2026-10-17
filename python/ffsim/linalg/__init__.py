@@ -11,6 +11,9 @@
 """Linear algebra utilities."""
 
 from ffsim.linalg.double_factorized_decomposition import (
+    compress_double_factorized,
+    compress_double_factorized_t2,
+    compress_double_factorized_t2_alpha_beta,
     double_factorized,
     double_factorized_t2,
     double_factorized_t2_alpha_beta,
@@ -41,6 +44,9 @@ from ffsim.linalg.predicates import (
 
 __all__ = [
     "apply_matrix_to_slices",
+    "compress_double_factorized",
+    "compress_double_factorized_t2",
+    "compress_double_factorized_t2_alpha_beta",
     "double_factorized",
     "double_factorized_t2",
     "double_factorized_t2_alpha_beta",
