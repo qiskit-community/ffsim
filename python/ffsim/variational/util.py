@@ -35,6 +35,57 @@ def validate_interaction_pairs(
                 )
 
 
+def validate_t2_pair_symmetric(
+    t2: np.ndarray, *, rtol: float = 1e-5, atol: float = 1e-8
+) -> None:
+    """Check that restricted t2 amplitudes have the pair symmetry.
+
+    Restricted t2 amplitudes satisfy ``t2[i, j, a, b] == t2[j, i, b, a]``.
+
+    Args:
+        t2: The t2 amplitudes.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Raises:
+        ValueError: The t2 amplitudes do not have the pair symmetry.
+    """
+    if not np.allclose(t2, t2.transpose(1, 0, 3, 2), rtol=rtol, atol=atol):
+        raise ValueError(
+            "t2 amplitudes were not symmetric under exchange of the "
+            "occupied-virtual pairs (i, a) and (j, b), that is, "
+            "t2[i, j, a, b] == t2[j, i, b, a]."
+        )
+
+
+def validate_t2_antisymmetric(
+    t2: np.ndarray, *, name: str = "t2", rtol: float = 1e-5, atol: float = 1e-8
+) -> None:
+    """Check that spinless or same-spin t2 amplitudes are antisymmetric.
+
+    Spinless and same-spin t2 amplitudes are antisymmetric in the occupied indices
+    and in the virtual indices.
+
+    Args:
+        t2: The t2 amplitudes.
+        name: The name of the amplitudes to use in the error message.
+        rtol: Relative numerical tolerance.
+        atol: Absolute numerical tolerance.
+
+    Raises:
+        ValueError: The t2 amplitudes are not antisymmetric.
+    """
+    if not np.allclose(
+        t2, -t2.transpose(1, 0, 2, 3), rtol=rtol, atol=atol
+    ) or not np.allclose(t2, -t2.transpose(0, 1, 3, 2), rtol=rtol, atol=atol):
+        raise ValueError(
+            f"{name} amplitudes were not antisymmetric in the occupied indices and in "
+            "the virtual indices. Restricted t2 amplitudes, such as those computed "
+            "by PySCF's RCCSD, can be converted to antisymmetric amplitudes with "
+            "t2 - t2.transpose(1, 0, 2, 3)."
+        )
+
+
 def orbital_rotation_from_t1_amplitudes(t1: np.ndarray) -> np.ndarray:
     """Construct an orbital rotation from t1 amplitudes.
 

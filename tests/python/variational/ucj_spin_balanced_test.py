@@ -183,6 +183,21 @@ def test_t_amplitudes_first_order_matches_uccsd():
     )
 
 
+def test_t_amplitudes_validate():
+    """Test from_t_amplitudes validates the symmetry of the t2 amplitudes."""
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    t2 = RNG.standard_normal((nocc, nocc, nvrt, nvrt))
+    with pytest.raises(ValueError, match="t2 amplitudes were not symmetric"):
+        ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2)
+    with pytest.raises(ValueError, match="t2 amplitudes were not symmetric"):
+        ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2)
+    # Validation can be skipped
+    ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, validate=False)
+    ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, validate=False)
+
+
 def test_t_amplitudes_random_n_reps():
     norb = 5
     nocc = 3

@@ -186,6 +186,19 @@ def test_t_amplitudes_first_order_matches_uccsd():
     )
 
 
+def test_t_amplitudes_validate():
+    """Test from_t_amplitudes validates the antisymmetry of the t2 amplitudes."""
+    norb = 5
+    nocc = 3
+    # Restricted amplitudes are rejected, and the error explains how to convert them
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    with pytest.raises(ValueError, match=r"t2 - t2\.transpose\(1, 0, 2, 3\)"):
+        ffsim.UCJOpSpinless.from_t_amplitudes(t2)
+    ffsim.UCJOpSpinless.from_t_amplitudes(t2 - t2.transpose(1, 0, 2, 3))
+    # Validation can be skipped
+    ffsim.UCJOpSpinless.from_t_amplitudes(t2, validate=False)
+
+
 def test_t_amplitudes_random_n_reps():
     norb = 5
     nocc = 3
@@ -230,6 +243,7 @@ def test_t_amplitudes_optimize_kwargs(optimize: bool, method: str | None):
             multi_stage_start=2,
             multi_stage_step=1,
             optimize=optimize,
+            validate=False,
             **kwargs,
         )
 

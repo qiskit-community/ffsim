@@ -28,6 +28,7 @@ from ffsim.linalg.util import (
 from ffsim.variational.util import (
     orbital_rotation_from_t1_amplitudes,
     validate_interaction_pairs,
+    validate_t2_antisymmetric,
 )
 
 
@@ -325,6 +326,9 @@ class UCJOpSpinless(
         regularization: float = 0,
         multi_stage_start: int | None = None,
         multi_stage_step: int | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
         **optimize_kwargs,
     ) -> UCJOpSpinless:
         r"""Initialize the UCJ operator from t2 (and optionally t1) amplitudes.
@@ -388,6 +392,9 @@ class UCJOpSpinless(
             multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
                 description of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
+            validate: Whether to validate the symmetry of the t2 amplitudes.
+            rtol: Relative numerical tolerance for validation checks.
+            atol: Absolute numerical tolerance for validation checks.
             optimize_kwargs: Keyword arguments to pass to
                 :func:`scipy.optimize.minimize`. The default method is
                 ``"L-BFGS-B"``.
@@ -399,10 +406,13 @@ class UCJOpSpinless(
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
             ValueError: Interaction pairs list contained lower triangular pairs.
+            ValueError: The t2 amplitudes were not antisymmetric.
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         validate_interaction_pairs(interaction_pairs, ordered=False)
+        if validate:
+            validate_t2_antisymmetric(t2, rtol=rtol, atol=atol)
 
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
