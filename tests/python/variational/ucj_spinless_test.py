@@ -129,8 +129,10 @@ def test_t_amplitudes_energy():
     assert nelec == (5, 5)
     mol_hamiltonian = mol_data.hamiltonian
 
-    # Construct UCJ operator
-    operator = ffsim.UCJOpSpinless.from_t_amplitudes(ccsd.t2, t1=ccsd.t1)
+    # Construct UCJ operator. The restricted CCSD t2 amplitudes are converted to the
+    # antisymmetric amplitudes of the spinless doubles operator.
+    t2 = ccsd.t2 - ccsd.t2.transpose(1, 0, 2, 3)
+    operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=ccsd.t1)
 
     # Compute energy using entanglement forging
     reference_occupations_spatial = [
@@ -159,28 +161,23 @@ def test_t_amplitudes_energy():
         nelec=nelec,
     )
     np.testing.assert_allclose(energy, energy_alt)
-    np.testing.assert_allclose(energy, -108.512587)
+    np.testing.assert_allclose(energy, -108.512645)
 
 
 def test_t_amplitudes_first_order_matches_uccsd():
-    """Test from_t_amplitudes agrees with UCCSD to first order in the t2 amplitudes.
-
-    The t2 amplitudes are restricted amplitudes, so the corresponding spinless
-    amplitudes are t2 - t2.transpose(1, 0, 2, 3), which define the spinless UCCSD
-    reference.
-    """
+    """Test from_t_amplitudes agrees with UCCSD to first order in the t2 amplitudes."""
     norb = 5
     nocc = 3
     nvrt = norb - nocc
     eps = 1e-6
     tol = 1e-12
-    t2 = eps * ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    t2 = eps * ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc, seed=RNG, dtype=float
+    )
     ucj_op = ffsim.UCJOpSpinless.from_t_amplitudes(t2, tol=tol)
     reference_state = ffsim.hartree_fock_state(norb, nocc)
     ucj_state = ffsim.apply_unitary(reference_state, ucj_op, norb=norb, nelec=nocc)
-    uccsd_op = ffsim.UCCSDOpSpinlessReal(
-        t1=np.zeros((nocc, nvrt)), t2=t2 - t2.transpose(1, 0, 2, 3)
-    )
+    uccsd_op = ffsim.UCCSDOpSpinlessReal(t1=np.zeros((nocc, nvrt)), t2=t2)
     uccsd_state = ffsim.apply_unitary(reference_state, uccsd_op, norb=norb, nelec=nocc)
     np.testing.assert_allclose(
         (ucj_state - reference_state) / eps,
@@ -195,7 +192,9 @@ def test_t_amplitudes_random_n_reps():
     nvrt = norb - nocc
 
     for n_reps in [3, 15]:
-        t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+        t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
+            norb, nocc, seed=RNG, dtype=float
+        )
         t1 = RNG.standard_normal((nocc, nvrt))
         operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
         assert operator.n_reps == n_reps
@@ -250,7 +249,9 @@ def test_t_amplitudes_random_optimize():
     nocc = 3
     nvrt = norb - nocc
     n_reps = 3
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc, seed=RNG, dtype=float
+    )
     t1 = RNG.standard_normal((nocc, nvrt))
     interaction_pairs = [(p, p) for p in range(norb)]
     interaction_pairs.extend([(p, p + 1) for p in range(norb - 1)])
@@ -313,8 +314,9 @@ def test_t_amplitudes_restrict_indices():
     n_reps = 2
     interaction_pairs = [(p, p + 1) for p in range(norb - 1)]
 
+    t2 = ccsd.t2 - ccsd.t2.transpose(1, 0, 2, 3)
     operator = ffsim.UCJOpSpinless.from_t_amplitudes(
-        ccsd.t2, n_reps=n_reps, interaction_pairs=interaction_pairs
+        t2, n_reps=n_reps, interaction_pairs=interaction_pairs
     )
     other_operator = ffsim.UCJOpSpinless.from_parameters(
         operator.to_parameters(interaction_pairs=interaction_pairs),
@@ -389,7 +391,9 @@ def test_empty_interaction_pairs():
     norb = 4
     nocc = 2
     n_reps = 2
-    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
+        norb, nocc, seed=RNG, dtype=float
+    )
 
     operator = ffsim.UCJOpSpinless.from_t_amplitudes(
         t2, n_reps=n_reps, interaction_pairs=[]
