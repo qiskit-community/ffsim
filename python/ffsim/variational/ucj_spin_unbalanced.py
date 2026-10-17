@@ -443,8 +443,10 @@ class UCJOpSpinUnbalanced(
 
         Performs a double factorization of the t2 amplitudes and constructs the
         ansatz repetitions from the terms of the decomposition, up to an optionally
-        specified number of repetitions. Terms are included in decreasing order
-        of the magnitude of the corresponding singular value in the factorization.
+        specified number of repetitions. Within the alpha-beta and same-spin terms,
+        repetitions are included in decreasing order of the magnitude of the
+        corresponding singular value or eigenvalue in the factorization. See the
+        description of ``n_reps`` for how repetitions are divided between the two.
 
         Args:
             t2: The t2 amplitudes. This should be a tuple of 3 Numpy arrays,
@@ -520,8 +522,10 @@ class UCJOpSpinUnbalanced(
                 contained lower triangular pairs.
             ValueError: The same-spin t2 amplitudes were not antisymmetric.
         """
-        if isinstance(n_reps, int) and n_reps <= 0:
-            raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
+        if isinstance(n_reps, (int, np.integer)):
+            n_reps = int(n_reps)
+            if n_reps <= 0:
+                raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs

@@ -290,6 +290,26 @@ def test_t_amplitudes_random_n_reps():
         assert actual == expected
 
 
+def test_t_amplitudes_numpy_integer_n_reps():
+    """Test that n_reps can be a Numpy integer."""
+    norb = 5
+    nelec = (3, 2)
+    t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
+    )
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+        t2,
+        n_reps=np.int64(3),  # type: ignore[arg-type]
+    )
+    expected = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=3)
+    assert ffsim.approx_eq(operator, expected)
+    with pytest.raises(ValueError, match="n_reps"):
+        ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2,
+            n_reps=np.int64(0),  # type: ignore[arg-type]
+        )
+
+
 def test_t_amplitudes_integer_n_reps_split():
     """Test that an integer n_reps selects the terms with the largest weights."""
     norb = 5

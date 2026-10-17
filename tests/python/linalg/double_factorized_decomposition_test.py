@@ -283,6 +283,7 @@ def test_double_factorized_compressed_n2_unconstrained():
     assert error_optimized < 0.5 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
+    assert result is not None
     assert result.nit <= 100
     assert result.nfev <= 150
     assert result.njev <= 150
@@ -348,6 +349,7 @@ def test_double_factorized_compressed_n2_constrained():
     assert error_optimized < 0.5 * error
     assert np.isrealobj(orbital_rotations_optimized)
     assert np.isrealobj(diag_coulomb_mats_optimized)
+    assert result is not None
     assert result.nit <= 100
     assert result.nfev <= 120
     assert result.njev <= 120
@@ -461,6 +463,55 @@ def test_double_factorized_t2_explicit_magnitudes():
     eigs = np.sort(np.abs(np.linalg.eigvalsh(t2_mat)))[::-1]
     assert len(magnitudes) == len(diag_coulomb_mats) == len(orbital_rotations) == 5
     np.testing.assert_allclose(magnitudes, np.repeat(eigs, 2)[:5])
+
+
+@pytest.mark.parametrize("cholesky", [False, True])
+def test_double_factorized_return_optimize_result_no_optimization(cholesky: bool):
+    """Test that None is returned in place of the result when nothing is optimized."""
+    norb = 4
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=float)
+    diag_coulomb_mats, orbital_rotations, result = ffsim.linalg.double_factorized(
+        two_body_tensor, cholesky=cholesky, return_optimize_result=True
+    )
+    assert result is None
+    expected_mats, expected_rots = ffsim.linalg.double_factorized(
+        two_body_tensor, cholesky=cholesky
+    )
+    np.testing.assert_allclose(diag_coulomb_mats, expected_mats)
+    np.testing.assert_allclose(orbital_rotations, expected_rots)
+
+
+@pytest.mark.parametrize(
+    "optimize, max_terms", [(False, None), (False, 1), (True, None), (True, 1000)]
+)
+def test_double_factorized_t2_return_optimize_result_no_optimization(
+    optimize: bool, max_terms: int | None
+):
+    """Test that None is returned in place of the result when nothing is optimized."""
+    norb, nocc = 4, 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    diag_coulomb_mats, orbital_rotations, result = ffsim.linalg.double_factorized_t2(
+        t2, max_terms=max_terms, optimize=optimize, return_optimize_result=True
+    )
+    assert result is None
+    expected_mats, expected_rots = ffsim.linalg.double_factorized_t2(
+        t2, max_terms=max_terms
+    )
+    np.testing.assert_allclose(diag_coulomb_mats, expected_mats)
+    np.testing.assert_allclose(orbital_rotations, expected_rots)
+
+    t2ab = RNG.standard_normal((2, 3, 2, 1))
+    diag_coulomb_mats, orbital_rotations, result = (
+        ffsim.linalg.double_factorized_t2_alpha_beta(
+            t2ab, max_terms=max_terms, optimize=optimize, return_optimize_result=True
+        )
+    )
+    assert result is None
+    expected_mats, expected_rots = ffsim.linalg.double_factorized_t2_alpha_beta(
+        t2ab, max_terms=max_terms
+    )
+    np.testing.assert_allclose(diag_coulomb_mats, expected_mats)
+    np.testing.assert_allclose(orbital_rotations, expected_rots)
 
 
 def test_double_factorized_t2_amplitudes_max_terms_error():
@@ -598,6 +649,7 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     assert error_optimized < 0.7 * error
     assert diag_coulomb_mats_optimized.shape == (max_terms, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, norb, norb)
+    assert result is not None
     assert result.nit <= 25
     assert result.nfev <= 40
     assert result.njev <= 40
@@ -933,6 +985,7 @@ def test_double_factorized_t2_alpha_beta_compressed_max_terms_h5():
     assert error_optimized < 0.7 * error
     assert diag_coulomb_mats_optimized.shape == (max_terms, 3, norb, norb)
     assert orbital_rotations_optimized.shape == (max_terms, 2, norb, norb)
+    assert result is not None
     assert result.nit <= 25
     assert result.nfev <= 40
     assert result.njev <= 40
