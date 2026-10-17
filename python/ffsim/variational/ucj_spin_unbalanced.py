@@ -450,9 +450,12 @@ class UCJOpSpinUnbalanced(
                 ``(t1a, t1b)``, containing the alpha and beta t1 amplitudes.
             n_reps: The number of ansatz repetitions.
                 You can pass a single integer or a pair of integers.
-                If a single integer, terms from the alpha-beta t2 amplitudes are
-                used before including any terms from the alpha-alpha and beta-beta
-                t2 amplitudes. If a pair of integers, then the first integer specifies
+                If a single integer, the repetitions are divided between terms
+                from the alpha-beta t2 amplitudes and terms from the alpha-alpha and
+                beta-beta t2 amplitudes by selecting the terms with the largest
+                diagonal Coulomb matrices, as measured by the Frobenius norm of
+                the uncompressed double factorization.
+                If a pair of integers, then the first integer specifies
                 the number of terms to use from the alpha-beta t2 amplitudes,
                 and the second integer specifies the number of terms to use from the
                 alpha-alpha and beta-beta t2 amplitudes.
@@ -524,11 +527,12 @@ class UCJOpSpinUnbalanced(
         nocc_a, _, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
 
+        if isinstance(n_reps, int):
+            n_reps = _split_n_reps(t2, n_reps, tol=tol)
+
         # alpha-beta
         if n_reps is None:
             n_reps_ab = None
-        elif isinstance(n_reps, int):
-            n_reps_ab = n_reps
         else:
             n_reps_ab, _ = n_reps
         if n_reps_ab is None or n_reps_ab >= 1:
@@ -553,12 +557,9 @@ class UCJOpSpinUnbalanced(
             raise ValueError(
                 f"Number of alpha-beta repetitions must be at least 1. Got {n_reps_ab}."
             )
-        n_reps_ab, _, _, _ = diag_coulomb_mats_ab.shape
         # alpha-alpha and beta-beta
         if n_reps is None:
             n_reps_aa = None
-        elif isinstance(n_reps, int):
-            n_reps_aa = n_reps - n_reps_ab
         else:
             _, n_reps_aa = n_reps
         if n_reps_aa is None or n_reps_aa >= 1:
@@ -617,16 +618,7 @@ class UCJOpSpinUnbalanced(
                 f"Got {n_reps_aa}."
             )
         # concatenate
-        if n_reps is None or isinstance(n_reps, int):
-            diag_coulomb_mats = np.concatenate(
-                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
-            )[:n_reps]
-            orbital_rotations = np.concatenate(
-                [orbital_rotations_ab, orbital_rotations_same_spin]
-            )[:n_reps]
-            diag_coulomb_mats = _pad_diag_coulomb_mats(diag_coulomb_mats, n_reps)
-            orbital_rotations = _pad_orbital_rotations(orbital_rotations, n_reps)
-        else:
+        if n_reps is not None:
             n_reps_ab, n_reps_same_spin = n_reps
             diag_coulomb_mats_ab = _pad_diag_coulomb_mats(
                 diag_coulomb_mats_ab[:n_reps_ab], n_reps_ab
@@ -640,12 +632,12 @@ class UCJOpSpinUnbalanced(
             orbital_rotations_same_spin = _pad_orbital_rotations(
                 orbital_rotations_same_spin[:n_reps_same_spin], n_reps_same_spin
             )
-            diag_coulomb_mats = np.concatenate(
-                [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
-            )
-            orbital_rotations = np.concatenate(
-                [orbital_rotations_ab, orbital_rotations_same_spin]
-            )
+        diag_coulomb_mats = np.concatenate(
+            [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
+        )
+        orbital_rotations = np.concatenate(
+            [orbital_rotations_ab, orbital_rotations_same_spin]
+        )
 
         final_orbital_rotation = None
         if t1 is not None:
@@ -735,6 +727,36 @@ class UCJOpSpinUnbalanced(
                 )
             return True
         return NotImplemented
+
+
+def _split_n_reps(
+    t2: tuple[np.ndarray, np.ndarray, np.ndarray], n_reps: int, tol: float
+) -> tuple[int, int]:
+    """Divide repetitions between alpha-beta and same-spin terms.
+
+    Terms from the alpha-beta and same-spin double factorizations are merged in
+    decreasing order of the Frobenius norm of their diagonal Coulomb matrices, and
+    the first ``n_reps`` terms are selected. Any repetitions beyond the total number
+    of terms are assigned to the same-spin terms, which are padded with identities.
+    """
+    t2aa, t2ab, t2bb = t2
+    mats_ab, _ = linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
+    mats_aa, _ = linalg.double_factorized_t2(0.5 * t2aa, tol=tol)
+    mats_bb, _ = linalg.double_factorized_t2(0.5 * t2bb, tol=tol)
+    weights_ab = np.sum(np.abs(mats_ab) ** 2, axis=(1, 2, 3))
+    weights_aa = np.sum(np.abs(mats_aa) ** 2, axis=(1, 2))
+    weights_bb = np.sum(np.abs(mats_bb) ** 2, axis=(1, 2))
+    # Each same-spin repetition pairs the alpha-alpha and beta-beta terms in order
+    n_same_spin = max(len(weights_aa), len(weights_bb))
+    weights_same_spin = np.zeros(n_same_spin)
+    weights_same_spin[: len(weights_aa)] += weights_aa
+    weights_same_spin[: len(weights_bb)] += weights_bb
+    # The weights within each group are already in decreasing order, so a stable
+    # sort of the concatenation selects a prefix of each group
+    weights = np.concatenate([weights_ab, weights_same_spin])
+    selected = np.argsort(-weights, kind="stable")[:n_reps]
+    n_reps_ab = int(np.count_nonzero(selected < len(weights_ab)))
+    return n_reps_ab, n_reps - n_reps_ab
 
 
 def _pad_diag_coulomb_mats(diag_coulomb_mats: np.ndarray, n_reps: int | None):

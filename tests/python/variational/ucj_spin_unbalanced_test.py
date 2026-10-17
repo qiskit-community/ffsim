@@ -290,6 +290,39 @@ def test_t_amplitudes_random_n_reps():
         assert actual == expected
 
 
+def test_t_amplitudes_integer_n_reps_split():
+    """Test that an integer n_reps selects the terms with the largest weights."""
+    norb = 5
+    nelec = (3, 2)
+    t2aa, t2ab, t2bb = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
+    )
+
+    # Large same-spin amplitudes are used before small alpha-beta amplitudes
+    t2 = (t2aa, 1e-3 * t2ab, t2bb)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=3)
+    expected = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=(0, 3))
+    assert ffsim.approx_eq(operator, expected)
+
+    # Large alpha-beta amplitudes are used before small same-spin amplitudes
+    t2 = (1e-3 * t2aa, t2ab, 1e-3 * t2bb)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=3)
+    expected = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=(3, 0))
+    assert ffsim.approx_eq(operator, expected)
+
+    # The full number of terms reproduces the full decomposition, and extra
+    # repetitions are padded with identities
+    t2 = (t2aa, t2ab, t2bb)
+    full = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=full.n_reps)
+    assert ffsim.approx_eq(operator, full)
+    operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, n_reps=full.n_reps + 2)
+    np.testing.assert_allclose(
+        operator.diag_coulomb_mats[: full.n_reps], full.diag_coulomb_mats
+    )
+    np.testing.assert_allclose(operator.diag_coulomb_mats[full.n_reps :], 0)
+
+
 @pytest.mark.parametrize("optimize", [False, True])
 @pytest.mark.parametrize("method", [None, "SLSQP"])
 def test_t_amplitudes_optimize_kwargs(optimize: bool, method: str | None):
