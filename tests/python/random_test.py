@@ -79,22 +79,41 @@ def test_random_t2_amplitudes(dtype):
     assert_t2_has_correct_symmetry(t2)
 
 
+def test_random_t2_amplitudes_variance():
+    """Test the off-diagonal pair entries of random t2 have unit variance."""
+    norb = 6
+    nocc = 3
+    nvrt = norb - nocc
+    rng = np.random.default_rng(1234)
+    # Mask selecting the entries with (i, a) != (j, b)
+    off_diag = np.ones((nocc, nocc, nvrt, nvrt), dtype=bool)
+    for i, a in itertools.product(range(nocc), range(nvrt)):
+        off_diag[i, i, a, a] = False
+    for dtype in [float, complex]:
+        samples = np.stack(
+            [
+                ffsim.random.random_t2_amplitudes(norb, nocc, seed=rng, dtype=dtype)
+                for _ in range(2000)
+            ]
+        )
+        entries = samples[:, off_diag]
+        np.testing.assert_allclose(np.mean(np.abs(entries) ** 2), 1.0, atol=0.05)
+
+
 @pytest.mark.parametrize("dtype", [float, complex])
-def test_random_antisymmetric_t2_amplitudes(dtype):
-    """Test random antisymmetric t2 amplitudes."""
+def test_random_t2_amplitudes_spinless(dtype):
+    """Test random spinless t2 amplitudes."""
     norb = 5
     nocc = 3
     nvrt = norb - nocc
-    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
-        norb, nocc, seed=RNG, dtype=dtype
-    )
+    t2 = ffsim.random.random_t2_amplitudes_spinless(norb, nocc, seed=RNG, dtype=dtype)
     assert t2.shape == (nocc, nocc, nvrt, nvrt)
     assert t2.dtype == dtype
     assert_t2_is_antisymmetric(t2)
 
 
-def test_random_antisymmetric_t2_amplitudes_variance():
-    """Test the independent entries of random antisymmetric t2 have unit variance."""
+def test_random_t2_amplitudes_spinless_variance():
+    """Test the independent entries of random spinless t2 have unit variance."""
     norb = 6
     nocc = 3
     nvrt = norb - nocc
@@ -102,7 +121,7 @@ def test_random_antisymmetric_t2_amplitudes_variance():
     for dtype in [float, complex]:
         samples = np.stack(
             [
-                ffsim.random.random_antisymmetric_t2_amplitudes(
+                ffsim.random.random_t2_amplitudes_spinless(
                     norb, nocc, seed=rng, dtype=dtype
                 )
                 for _ in range(2000)
@@ -111,6 +130,36 @@ def test_random_antisymmetric_t2_amplitudes_variance():
         occ, vrt = np.triu_indices(nocc, k=1), np.triu_indices(nvrt, k=1)
         entries = samples[:, occ[0], occ[1]][:, :, vrt[0], vrt[1]]
         np.testing.assert_allclose(np.mean(np.abs(entries) ** 2), 1.0, atol=0.05)
+
+
+@pytest.mark.parametrize("dtype", [float, complex])
+def test_random_t2_amplitudes_unrestricted(dtype):
+    """Test random unrestricted t2 amplitudes."""
+    norb = 5
+    nelec = (3, 2)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    rng = np.random.default_rng(1234)
+    t2aa, t2ab, t2bb = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=rng, dtype=dtype
+    )
+    assert t2aa.shape == (nocc_a, nocc_a, nvrt_a, nvrt_a)
+    assert t2ab.shape == (nocc_a, nocc_b, nvrt_a, nvrt_b)
+    assert t2bb.shape == (nocc_b, nocc_b, nvrt_b, nvrt_b)
+    for t2 in (t2aa, t2ab, t2bb):
+        assert t2.dtype == dtype
+    assert_t2_is_antisymmetric(t2aa)
+    assert_t2_is_antisymmetric(t2bb)
+    samples = np.stack(
+        [
+            ffsim.random.random_t2_amplitudes_unrestricted(
+                norb, nelec, seed=rng, dtype=dtype
+            )[1]
+            for _ in range(2000)
+        ]
+    )
+    np.testing.assert_allclose(np.mean(np.abs(samples) ** 2), 1.0, atol=0.05)
 
 
 def test_random_two_body_tensor_symmetry_real():

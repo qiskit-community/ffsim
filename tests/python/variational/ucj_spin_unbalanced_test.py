@@ -75,17 +75,10 @@ def test_n_params():
 def test_t_amplitudes_validate_interaction_pairs():
     """Test from_t_amplitudes validates each list of interaction pairs."""
     norb = 4
-    nocc_a, nocc_b = 2, 1
-    nvrt_a = norb - nocc_a
-    nvrt_b = norb - nocc_b
-    t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
-        norb, nocc_a, seed=RNG, dtype=float
+    nelec = (2, 1)
+    t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
     )
-    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
-        norb, nocc_b, seed=RNG, dtype=float
-    )
-    t2 = (t2aa, t2ab, t2bb)
 
     # The alpha-beta pairs are allowed to be lower triangular, but not duplicated.
     with pytest.raises(ValueError, match="Duplicate"):
@@ -219,11 +212,9 @@ def test_t_amplitudes_first_order_matches_uccsd():
     nvrt_b = norb - nocc_b
     reference_state = ffsim.hartree_fock_state(norb, nelec)
     t1 = (np.zeros((nocc_a, nvrt_a)), np.zeros((nocc_b, nvrt_b)))
-    t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
-    t2aa -= t2aa.transpose(1, 0, 2, 3)
-    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = ffsim.random.random_t2_amplitudes(norb, nocc_b, seed=RNG, dtype=float)
-    t2bb -= t2bb.transpose(1, 0, 2, 3)
+    t2aa, t2ab, t2bb = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
+    )
     zero_aa = np.zeros_like(t2aa)
     zero_ab = np.zeros_like(t2ab)
     zero_bb = np.zeros_like(t2bb)
@@ -255,11 +246,11 @@ def test_t_amplitudes_validate():
     nocc_a, nocc_b = 3, 2
     nvrt_a = norb - nocc_a
     nvrt_b = norb - nocc_b
-    t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
+    t2aa = ffsim.random.random_t2_amplitudes_spinless(
         norb, nocc_a, seed=RNG, dtype=float
     )
     t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
+    t2bb = ffsim.random.random_t2_amplitudes_spinless(
         norb, nocc_b, seed=RNG, dtype=float
     )
     bad_t2aa = ffsim.random.random_t2_amplitudes(norb, nocc_a, seed=RNG, dtype=float)
@@ -283,16 +274,11 @@ def test_t_amplitudes_random_n_reps():
 
     n_reps: int | tuple[int, int]
     for n_reps in [5, 50, (10, 5), (0, 1)]:  # type: ignore
-        t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_a, seed=RNG, dtype=float
-        )
-        t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-        t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_b, seed=RNG, dtype=float
+        t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+            norb, nelec, seed=RNG, dtype=float
         )
         t1a = RNG.standard_normal((nocc_a, nvrt_a))
         t1b = RNG.standard_normal((nocc_b, nvrt_b))
-        t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
         operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
         total_n_reps = n_reps if isinstance(n_reps, int) else sum(n_reps)
@@ -353,16 +339,11 @@ def test_t_amplitudes_random_optimize():
 
     n_reps: int | tuple[int, int]
     for n_reps in [5, (10, 5)]:  # type: ignore
-        t2aa = ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_a, seed=RNG, dtype=float
-        )
-        t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-        t2bb = ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_b, seed=RNG, dtype=float
+        t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+            norb, nelec, seed=RNG, dtype=float
         )
         t1a = RNG.standard_normal((nocc_a, nvrt_a))
         t1b = RNG.standard_normal((nocc_b, nvrt_b))
-        t2 = (t2aa, t2ab, t2bb)
         t1 = (t1a, t1b)
         operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
             t2, t1=t1, n_reps=n_reps, optimize=True, options=dict(maxiter=10)
@@ -565,19 +546,12 @@ def test_validate():
 def test_empty_interaction_pairs():
     """Test constructing operators with empty lists of interaction pairs."""
     norb = 4
-    nocc_a, nocc_b = 2, 1
-    nvrt_a, nvrt_b = norb - nocc_a, norb - nocc_b
+    nelec = (2, 1)
     n_reps = 2
     empty_pairs: list[tuple[int, int]] = []
     interaction_pairs = (empty_pairs, empty_pairs, empty_pairs)
-    t2 = (
-        ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_a, seed=RNG, dtype=float
-        ),
-        RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)),
-        ffsim.random.random_antisymmetric_t2_amplitudes(
-            norb, nocc_b, seed=RNG, dtype=float
-        ),
+    t2 = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
     )
 
     operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(

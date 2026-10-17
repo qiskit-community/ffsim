@@ -12,7 +12,6 @@
 
 from ffsim.random.random import (
     random_antihermitian,
-    random_antisymmetric_t2_amplitudes,
     random_density_matrix,
     random_diagonal_coulomb_hamiltonian,
     random_double_factorized_hamiltonian,
@@ -30,6 +29,8 @@ from ffsim.random.random import (
     random_special_orthogonal,
     random_state_vector,
     random_t2_amplitudes,
+    random_t2_amplitudes_spinless,
+    random_t2_amplitudes_unrestricted,
     random_two_body_tensor,
     random_uccsd_op_restricted,
     random_uccsd_op_restricted_real,
@@ -45,7 +46,6 @@ from ffsim.random.random import (
 
 __all__ = [
     "random_antihermitian",
-    "random_antisymmetric_t2_amplitudes",
     "random_density_matrix",
     "random_diagonal_coulomb_hamiltonian",
     "random_double_factorized_hamiltonian",
@@ -63,6 +63,8 @@ __all__ = [
     "random_special_orthogonal",
     "random_state_vector",
     "random_t2_amplitudes",
+    "random_t2_amplitudes_spinless",
+    "random_t2_amplitudes_unrestricted",
     "random_two_body_tensor",
     "random_uccsd_op_restricted",
     "random_uccsd_op_restricted_real",

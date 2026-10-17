@@ -171,7 +171,7 @@ def test_t_amplitudes_first_order_matches_uccsd():
     nvrt = norb - nocc
     eps = 1e-6
     tol = 1e-12
-    t2 = eps * ffsim.random.random_antisymmetric_t2_amplitudes(
+    t2 = eps * ffsim.random.random_t2_amplitudes_spinless(
         norb, nocc, seed=RNG, dtype=float
     )
     ucj_op = ffsim.UCJOpSpinless.from_t_amplitudes(t2, tol=tol)
@@ -205,7 +205,7 @@ def test_t_amplitudes_random_n_reps():
     nvrt = norb - nocc
 
     for n_reps in [3, 15]:
-        t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
+        t2 = ffsim.random.random_t2_amplitudes_spinless(
             norb, nocc, seed=RNG, dtype=float
         )
         t1 = RNG.standard_normal((nocc, nvrt))
@@ -263,9 +263,7 @@ def test_t_amplitudes_random_optimize():
     nocc = 3
     nvrt = norb - nocc
     n_reps = 3
-    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
-        norb, nocc, seed=RNG, dtype=float
-    )
+    t2 = ffsim.random.random_t2_amplitudes_spinless(norb, nocc, seed=RNG, dtype=float)
     t1 = RNG.standard_normal((nocc, nvrt))
     interaction_pairs = [(p, p) for p in range(norb)]
     interaction_pairs.extend([(p, p + 1) for p in range(norb - 1)])
@@ -405,9 +403,7 @@ def test_empty_interaction_pairs():
     norb = 4
     nocc = 2
     n_reps = 2
-    t2 = ffsim.random.random_antisymmetric_t2_amplitudes(
-        norb, nocc, seed=RNG, dtype=float
-    )
+    t2 = ffsim.random.random_t2_amplitudes_spinless(norb, nocc, seed=RNG, dtype=float)
 
     operator = ffsim.UCJOpSpinless.from_t_amplitudes(
         t2, n_reps=n_reps, interaction_pairs=[]

@@ -324,11 +324,12 @@ def random_t2_amplitudes(
     distribution over such matrices: the Gaussian orthogonal ensemble if ``dtype`` is a
     real type (see :func:`random_real_symmetric_matrix`), and its complex analog, which
     is invariant under the map ``mat -> unitary @ mat @ unitary.T``, if ``dtype`` is a
-    complex type.
+    complex type. For either data type, the off-diagonal entries of the matrix satisfy
+    ``E|t|² = 1``.
 
     Args:
         norb: The number of orbitals.
-        nocc: The number of orbitals that are occupied by an electron.
+        nocc: The number of orbitals that are occupied by a fermion.
         seed: A seed to initialize the pseudorandom number generator.
             Should be a valid input to ``np.random.default_rng``.
         dtype: The data type to use for the result.
@@ -342,6 +343,8 @@ def random_t2_amplitudes(
     mat = rng.standard_normal((n_pairs, n_pairs)).astype(dtype, copy=False)
     if np.issubdtype(dtype, np.complexfloating):
         mat += 1j * rng.standard_normal((n_pairs, n_pairs))
+        # Make the real and imaginary parts each have variance 1/2
+        mat /= math.sqrt(2)
     mat = (mat + mat.T) / math.sqrt(2)
     # The row index of mat is i * nvrt + a, so reshaping gives the axes (i, a, j, b).
     return np.ascontiguousarray(
@@ -349,14 +352,14 @@ def random_t2_amplitudes(
     )
 
 
-def random_antisymmetric_t2_amplitudes(
+def random_t2_amplitudes_spinless(
     norb: int, nocc: int, *, seed=None, dtype=complex
 ) -> np.ndarray:
-    """Sample a random antisymmetric t2 amplitudes tensor.
+    """Sample random t2 amplitudes for spinless fermions.
 
-    An antisymmetric t2 amplitudes tensor satisfies
-    ``t2[i, j, a, b] == -t2[j, i, a, b] == -t2[i, j, b, a]``. This is the symmetry of
-    the t2 amplitudes of spinless fermions, or of same-spin fermions. The independent
+    The t2 amplitudes of spinless fermions satisfy
+    ``t2[i, j, a, b] == -t2[j, i, a, b] == -t2[i, j, b, a]``. This is also the symmetry
+    of the same-spin blocks of unrestricted t2 amplitudes. The independent
     entries ``t2[i, j, a, b]`` with ``i < j`` and ``a < b`` are sampled independently
     from the standard normal distribution if ``dtype`` is a real type, and from the
     standard complex normal distribution if ``dtype`` is a complex type.
@@ -384,6 +387,46 @@ def random_antisymmetric_t2_amplitudes(
     # Each independent entry is now a sum of 4 independent samples
     t2 /= 2
     return t2
+
+
+def random_t2_amplitudes_unrestricted(
+    norb: int, nelec: tuple[int, int], *, seed=None, dtype=complex
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Sample random unrestricted t2 amplitudes.
+
+    The unrestricted t2 amplitudes are returned as a tuple ``(t2aa, t2ab, t2bb)`` of
+    the alpha-alpha, alpha-beta, and beta-beta blocks, with shapes
+    ``(nocc_a, nocc_a, nvrt_a, nvrt_a)``, ``(nocc_a, nocc_b, nvrt_a, nvrt_b)``, and
+    ``(nocc_b, nocc_b, nvrt_b, nvrt_b)``. The same-spin blocks ``t2aa`` and ``t2bb``
+    satisfy ``t2[i, j, a, b] == -t2[j, i, a, b] == -t2[i, j, b, a]`` and are sampled
+    using :func:`random_t2_amplitudes_spinless`. The alpha-beta block ``t2ab`` has no
+    symmetry constraint, and its entries are sampled independently from the standard
+    normal distribution if ``dtype`` is a real type, and from the standard complex
+    normal distribution if ``dtype`` is a complex type.
+
+    Args:
+        norb: The number of orbitals.
+        nelec: The numbers of spin alpha and spin beta fermions.
+        seed: A seed to initialize the pseudorandom number generator.
+            Should be a valid input to ``np.random.default_rng``.
+        dtype: The data type to use for the result.
+
+    Returns:
+        The sampled t2 amplitudes, as a tuple ``(t2aa, t2ab, t2bb)``.
+    """
+    rng = np.random.default_rng(seed)
+    nocc_a, nocc_b = nelec
+    nvrt_a = norb - nocc_a
+    nvrt_b = norb - nocc_b
+    t2aa = random_t2_amplitudes_spinless(norb, nocc_a, seed=rng, dtype=dtype)
+    shape = (nocc_a, nocc_b, nvrt_a, nvrt_b)
+    t2ab = rng.standard_normal(shape).astype(dtype, copy=False)
+    if np.issubdtype(dtype, np.complexfloating):
+        t2ab += 1j * rng.standard_normal(shape)
+        # Make the real and imaginary parts each have variance 1/2
+        t2ab /= math.sqrt(2)
+    t2bb = random_t2_amplitudes_spinless(norb, nocc_b, seed=rng, dtype=dtype)
+    return t2aa, t2ab, t2bb
 
 
 def random_molecular_hamiltonian(
@@ -650,7 +693,7 @@ def random_uccsd_op_spinless_real(
     rng = np.random.default_rng(seed)
     nvrt = norb - nocc
     t1 = rng.standard_normal((nocc, nvrt))
-    t2 = random_antisymmetric_t2_amplitudes(norb, nocc, seed=rng, dtype=float)
+    t2 = random_t2_amplitudes_spinless(norb, nocc, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = random_unitary(norb, seed=rng)
@@ -683,7 +726,7 @@ def random_uccsd_op_spinless(
     nvrt = norb - nocc
     t1 = rng.standard_normal((nocc, nvrt)).astype(complex)
     t1 += 1j * rng.standard_normal((nocc, nvrt))
-    t2 = random_antisymmetric_t2_amplitudes(norb, nocc, seed=rng, dtype=complex)
+    t2 = random_t2_amplitudes_spinless(norb, nocc, seed=rng, dtype=complex)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = random_unitary(norb, seed=rng)
@@ -718,9 +761,7 @@ def random_uccsd_op_unrestricted_real(
     nvrt_b = norb - nocc_b
     t1_a = rng.standard_normal((nocc_a, nvrt_a))
     t1_b = rng.standard_normal((nocc_b, nvrt_b))
-    t2_aa = random_antisymmetric_t2_amplitudes(norb, nocc_a, seed=rng, dtype=float)
-    t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2_bb = random_antisymmetric_t2_amplitudes(norb, nocc_b, seed=rng, dtype=float)
+    t2 = random_t2_amplitudes_unrestricted(norb, nelec, seed=rng, dtype=float)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = np.stack(
@@ -728,7 +769,7 @@ def random_uccsd_op_unrestricted_real(
         )
     return variational.UCCSDOpUnrestrictedReal(
         t1=(t1_a, t1_b),
-        t2=(t2_aa, t2_ab, t2_bb),
+        t2=t2,
         final_orbital_rotation=final_orbital_rotation,
     )
 
@@ -761,10 +802,7 @@ def random_uccsd_op_unrestricted(
     t1_a += 1j * rng.standard_normal((nocc_a, nvrt_a))
     t1_b = rng.standard_normal((nocc_b, nvrt_b)).astype(complex)
     t1_b += 1j * rng.standard_normal((nocc_b, nvrt_b))
-    t2_aa = random_antisymmetric_t2_amplitudes(norb, nocc_a, seed=rng, dtype=complex)
-    t2_ab = rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b)).astype(complex)
-    t2_ab += 1j * rng.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    t2_bb = random_antisymmetric_t2_amplitudes(norb, nocc_b, seed=rng, dtype=complex)
+    t2 = random_t2_amplitudes_unrestricted(norb, nelec, seed=rng, dtype=complex)
     final_orbital_rotation = None
     if with_final_orbital_rotation:
         final_orbital_rotation = np.stack(
@@ -772,7 +810,7 @@ def random_uccsd_op_unrestricted(
         )
     return variational.UCCSDOpUnrestricted(
         t1=(t1_a, t1_b),
-        t2=(t2_aa, t2_ab, t2_bb),
+        t2=t2,
         final_orbital_rotation=final_orbital_rotation,
     )
 
