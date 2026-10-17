@@ -25,6 +25,8 @@ from opt_einsum import contract
 
 import ffsim
 from ffsim.linalg.double_factorized_decomposition import (
+    _double_factorized_t2_alpha_beta_explicit,
+    _double_factorized_t2_explicit,
     optimal_diag_coulomb_mats,
     reconstruct_t2,
     reconstruct_t2_alpha_beta,
@@ -447,6 +449,20 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     )
 
 
+def test_double_factorized_t2_explicit_magnitudes():
+    """Test that term magnitudes are the absolute eigenvalues of the t2 matrix."""
+    norb, nocc = 6, 2
+    nvrt = norb - nocc
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    diag_coulomb_mats, orbital_rotations, magnitudes = _double_factorized_t2_explicit(
+        t2, max_terms=5
+    )
+    t2_mat = t2.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
+    eigs = np.sort(np.abs(np.linalg.eigvalsh(t2_mat)))[::-1]
+    assert len(magnitudes) == len(diag_coulomb_mats) == len(orbital_rotations) == 5
+    np.testing.assert_allclose(magnitudes, np.repeat(eigs, 2)[:5])
+
+
 def test_double_factorized_t2_amplitudes_max_terms_error():
     """Test double_factorized_t2 raises error on invalid max terms."""
     t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=float)
@@ -775,6 +791,19 @@ def test_double_factorized_t2_alpha_beta_random():
         orbital_rotations[index_0, 0], orbital_rotations[index_3, 0].conj(), atol=1e-8
     )
     # TODO add the rest of the relations
+
+
+def test_double_factorized_t2_alpha_beta_explicit_magnitudes():
+    """Test that term magnitudes are the singular values of the t2 matrix."""
+    nocc_a, nocc_b, nvrt_a, nvrt_b = 3, 6, 7, 4
+    t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
+    diag_coulomb_mats, orbital_rotations, magnitudes = (
+        _double_factorized_t2_alpha_beta_explicit(t2ab, max_terms=7)
+    )
+    t2_mat = t2ab.transpose(0, 2, 1, 3).reshape(nocc_a * nvrt_a, nocc_b * nvrt_b)
+    singular_vals = np.linalg.svd(t2_mat, compute_uv=False)
+    assert len(magnitudes) == len(diag_coulomb_mats) == len(orbital_rotations) == 7
+    np.testing.assert_allclose(magnitudes, np.repeat(singular_vals, 4)[:7])
 
 
 def test_double_factorized_t2_alpha_beta_max_terms_error():

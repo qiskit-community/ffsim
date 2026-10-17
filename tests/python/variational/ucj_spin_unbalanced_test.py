@@ -323,6 +323,65 @@ def test_t_amplitudes_integer_n_reps_split():
     np.testing.assert_allclose(operator.diag_coulomb_mats[full.n_reps :], 0)
 
 
+def test_t_amplitudes_integer_n_reps_split_by_magnitude():
+    """Test that an integer n_reps ranks by singular values and eigenvalues."""
+    norb = 5
+    nelec = (3, 2)
+    t2aa, t2ab, t2bb = ffsim.random.random_t2_amplitudes_unrestricted(
+        norb, nelec, seed=RNG, dtype=float
+    )
+    nocc_a, nocc_b = nelec
+    nvrt_a, nvrt_b = norb - nocc_a, norb - nocc_b
+
+    def magnitudes(t2ab):
+        # 4 alpha-beta repetitions per singular value, 2 same-spin terms per eigenvalue
+        mat_ab = t2ab.transpose(0, 2, 1, 3).reshape(nocc_a * nvrt_a, nocc_b * nvrt_b)
+        singular_vals = np.linalg.svd(mat_ab, compute_uv=False)
+        mags_ab = np.repeat(singular_vals[singular_vals > 1e-8], 4)
+        eigs = []
+        for t2, nocc, nvrt in [(t2aa, nocc_a, nvrt_a), (t2bb, nocc_b, nvrt_b)]:
+            these_eigs = np.linalg.eigvalsh(
+                0.5 * t2.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
+            )
+            these_eigs = np.sort(np.abs(these_eigs))[::-1]
+            eigs.append(np.repeat(these_eigs[these_eigs > 1e-8], 2))
+        eigs_aa, eigs_bb = eigs
+        n_same_spin = max(len(eigs_aa), len(eigs_bb))
+        eigs_aa = np.pad(eigs_aa, (0, n_same_spin - len(eigs_aa)))
+        eigs_bb = np.pad(eigs_bb, (0, n_same_spin - len(eigs_bb)))
+        return mags_ab, np.sqrt(eigs_aa**2 + eigs_bb**2)
+
+    # Scale the alpha-beta amplitudes so that the largest same-spin magnitude lies
+    # strictly between the two largest distinct singular values
+    mags_ab, mags_same_spin = magnitudes(t2ab)
+    levels = np.unique(np.round(mags_ab, 8))[::-1]
+    t2ab = mags_same_spin[0] / (0.5 * (levels[0] + levels[1])) * t2ab
+    mags_ab, mags_same_spin = magnitudes(t2ab)
+    n_ab_above = int(np.count_nonzero(mags_ab > mags_same_spin[0]))
+    assert 0 < n_ab_above < len(mags_ab)
+
+    # Merge in decreasing order of magnitude, with ties going to alpha-beta
+    mags = np.concatenate([mags_ab, mags_same_spin])
+    is_same_spin = np.concatenate(
+        [np.zeros(len(mags_ab), dtype=int), np.ones(len(mags_same_spin), dtype=int)]
+    )
+    order = np.lexsort((is_same_spin, -np.round(mags, 8)))
+    for n_reps in range(1, len(mags) + 1):
+        n_reps_same_spin = int(np.sum(is_same_spin[order[:n_reps]]))
+        expected_split = (n_reps - n_reps_same_spin, n_reps_same_spin)
+        if n_reps == n_ab_above + 1:
+            # The alpha-beta repetitions above the largest same-spin magnitude come
+            # first, followed by the largest same-spin repetition
+            assert expected_split == (n_ab_above, 1)
+        operator = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            (t2aa, t2ab, t2bb), n_reps=n_reps
+        )
+        expected = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            (t2aa, t2ab, t2bb), n_reps=expected_split
+        )
+        assert ffsim.approx_eq(operator, expected)
+
+
 @pytest.mark.parametrize("optimize", [False, True])
 @pytest.mark.parametrize("method", [None, "SLSQP"])
 def test_t_amplitudes_optimize_kwargs(optimize: bool, method: str | None):

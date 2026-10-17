@@ -22,6 +22,8 @@ from ffsim import gates, linalg, protocols
 from ffsim.linalg.double_factorized_decomposition import (
     _compress_double_factorized_t2,
     _compress_double_factorized_t2_alpha_beta,
+    _double_factorized_t2_alpha_beta_explicit,
+    _double_factorized_t2_explicit,
 )
 from ffsim.linalg.util import (
     all_indices,
@@ -456,9 +458,12 @@ class UCJOpSpinUnbalanced(
                 You can pass a single integer or a pair of integers.
                 If a single integer, the repetitions are divided between terms
                 from the alpha-beta t2 amplitudes and terms from the alpha-alpha and
-                beta-beta t2 amplitudes by selecting the terms with the largest
-                diagonal Coulomb matrices, as measured by the Frobenius norm of
-                the uncompressed double factorization.
+                beta-beta t2 amplitudes by selecting the repetitions with the largest
+                magnitudes. The magnitude of an alpha-beta repetition is the
+                corresponding singular value of the alpha-beta t2 amplitudes, and the
+                magnitude of a same-spin repetition is the root sum of squares of the
+                corresponding eigenvalues of the alpha-alpha and beta-beta t2
+                amplitudes, each scaled by 1/2.
                 If a pair of integers, then the first integer specifies
                 the number of terms to use from the alpha-beta t2 amplitudes,
                 and the second integer specifies the number of terms to use from the
@@ -531,17 +536,17 @@ class UCJOpSpinUnbalanced(
         nocc_a, _, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
 
-        # The uncompressed double factorizations determine how an integer n_reps is
-        # divided between alpha-beta and same-spin terms, and they serve as the
+        # The uncompressed double factorizations determine the number of terms
+        # available for an integer n_reps to be divided between, and they serve as the
         # initial guess for compression
-        diag_coulomb_mats_ab, orbital_rotations_ab = (
-            linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
+        diag_coulomb_mats_ab, orbital_rotations_ab, magnitudes_ab = (
+            _double_factorized_t2_alpha_beta_explicit(t2ab, tol=tol)
         )
-        diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
-            0.5 * t2aa, tol=tol
+        diag_coulomb_mats_aa, orbital_rotations_aa, magnitudes_aa = (
+            _double_factorized_t2_explicit(0.5 * t2aa, tol=tol)
         )
-        diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
-            0.5 * t2bb, tol=tol
+        diag_coulomb_mats_bb, orbital_rotations_bb, magnitudes_bb = (
+            _double_factorized_t2_explicit(0.5 * t2bb, tol=tol)
         )
 
         n_reps_ab: int | None
@@ -550,18 +555,18 @@ class UCJOpSpinUnbalanced(
             n_reps_ab, n_reps_same_spin = None, None
         elif isinstance(n_reps, int):
             n_reps_ab, n_reps_same_spin = _split_n_reps(
-                diag_coulomb_mats_ab, diag_coulomb_mats_aa, diag_coulomb_mats_bb, n_reps
+                magnitudes_ab, magnitudes_aa, magnitudes_bb, n_reps
             )
         else:
             n_reps_ab, n_reps_same_spin = n_reps
             if n_reps_ab < 0:
                 raise ValueError(
-                    "Number of alpha-beta repetitions must be at least 1. "
+                    "Number of alpha-beta repetitions must be non-negative. "
                     f"Got {n_reps_ab}."
                 )
             if n_reps_same_spin < 0:
                 raise ValueError(
-                    f"Number of alpha-alpha repetitions must be at least 1. "
+                    "Number of same-spin repetitions must be non-negative. "
                     f"Got {n_reps_same_spin}."
                 )
 
@@ -737,28 +742,31 @@ class UCJOpSpinUnbalanced(
 
 
 def _split_n_reps(
-    diag_coulomb_mats_ab: np.ndarray,
-    diag_coulomb_mats_aa: np.ndarray,
-    diag_coulomb_mats_bb: np.ndarray,
+    magnitudes_ab: np.ndarray,
+    magnitudes_aa: np.ndarray,
+    magnitudes_bb: np.ndarray,
     n_reps: int,
 ) -> tuple[int, int]:
     """Divide repetitions between alpha-beta and same-spin terms.
 
-    Terms from the alpha-beta and same-spin double factorizations are merged in
-    decreasing order of the Frobenius norm of their diagonal Coulomb matrices, and
-    the first ``n_reps`` terms are selected. Any repetitions beyond the total number
-    of terms are assigned to the same-spin terms, which are padded with identities.
+    The magnitudes are those returned by the exact double factorizations: the
+    singular values of the alpha-beta t2 amplitudes, and the absolute eigenvalues of
+    the alpha-alpha and beta-beta t2 amplitudes scaled by 1/2, each repeated once per
+    term. A same-spin repetition pairs an alpha-alpha term with a beta-beta term, and
+    its magnitude is the root sum of squares of theirs. These magnitudes are directly
+    comparable because each squared singular value and each squared eigenvalue
+    contributes equally to the norm of the t2 amplitudes in the spin-orbital basis.
+    The ``n_reps`` repetitions with the largest magnitudes are selected. Any
+    repetitions beyond the total number of terms are assigned to the same-spin terms,
+    which are padded with identities.
     """
-    weights_ab = np.sum(np.abs(diag_coulomb_mats_ab) ** 2, axis=(1, 2, 3))
-    weights_aa = np.sum(np.abs(diag_coulomb_mats_aa) ** 2, axis=(1, 2))
-    weights_bb = np.sum(np.abs(diag_coulomb_mats_bb) ** 2, axis=(1, 2))
+    weights_ab = magnitudes_ab**2
     # Each same-spin repetition pairs the alpha-alpha and beta-beta terms in order
-    n_same_spin = max(len(weights_aa), len(weights_bb))
-    weights_same_spin = np.zeros(n_same_spin)
-    weights_same_spin[: len(weights_aa)] += weights_aa
-    weights_same_spin[: len(weights_bb)] += weights_bb
-    # The weights within each group are already in decreasing order, so a stable
-    # sort of the concatenation selects a prefix of each group
+    weights_same_spin = np.zeros(max(len(magnitudes_aa), len(magnitudes_bb)))
+    weights_same_spin[: len(magnitudes_aa)] += magnitudes_aa**2
+    weights_same_spin[: len(magnitudes_bb)] += magnitudes_bb**2
+    # The weights within each group are in decreasing order, so a stable sort of the
+    # concatenation selects a prefix of each group
     weights = np.concatenate([weights_ab, weights_same_spin])
     selected = np.argsort(-weights, kind="stable")[:n_reps]
     n_reps_ab = int(np.count_nonzero(selected < len(weights_ab)))
