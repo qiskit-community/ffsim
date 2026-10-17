@@ -19,6 +19,10 @@ from typing import cast
 import numpy as np
 
 from ffsim import gates, linalg, protocols
+from ffsim.linalg.double_factorized_decomposition import (
+    _compress_double_factorized_t2,
+    _compress_double_factorized_t2_alpha_beta,
+)
 from ffsim.linalg.util import (
     all_indices,
     mask_from_indices,
@@ -527,116 +531,119 @@ class UCJOpSpinUnbalanced(
         nocc_a, _, nvrt_a, _ = t2ab.shape
         norb = nocc_a + nvrt_a
 
-        if isinstance(n_reps, int):
-            n_reps = _split_n_reps(t2, n_reps, tol=tol)
+        # The uncompressed double factorizations determine how an integer n_reps is
+        # divided between alpha-beta and same-spin terms, and they serve as the
+        # initial guess for compression
+        diag_coulomb_mats_ab, orbital_rotations_ab = (
+            linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
+        )
+        diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
+            0.5 * t2aa, tol=tol
+        )
+        diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
+            0.5 * t2bb, tol=tol
+        )
 
-        # alpha-beta
+        n_reps_ab: int | None
+        n_reps_same_spin: int | None
         if n_reps is None:
-            n_reps_ab = None
+            n_reps_ab, n_reps_same_spin = None, None
+        elif isinstance(n_reps, int):
+            n_reps_ab, n_reps_same_spin = _split_n_reps(
+                diag_coulomb_mats_ab, diag_coulomb_mats_aa, diag_coulomb_mats_bb, n_reps
+            )
         else:
-            n_reps_ab, _ = n_reps
-        if n_reps_ab is None or n_reps_ab >= 1:
-            diag_coulomb_mats_ab, orbital_rotations_ab = (
-                linalg.double_factorized_t2_alpha_beta(
+            n_reps_ab, n_reps_same_spin = n_reps
+            if n_reps_ab < 0:
+                raise ValueError(
+                    "Number of alpha-beta repetitions must be at least 1. "
+                    f"Got {n_reps_ab}."
+                )
+            if n_reps_same_spin < 0:
+                raise ValueError(
+                    f"Number of alpha-alpha repetitions must be at least 1. "
+                    f"Got {n_reps_same_spin}."
+                )
+
+        if optimize and n_reps_ab:
+            diag_coulomb_mats_ab, orbital_rotations_ab, _ = (
+                _compress_double_factorized_t2_alpha_beta(
                     t2ab,
-                    tol=tol,
+                    diag_coulomb_mats_ab,
+                    orbital_rotations_ab,
                     max_terms=n_reps_ab,
-                    optimize=optimize,
                     diag_coulomb_indices=interaction_pairs,
                     regularization=regularization,
                     multi_stage_start=multi_stage_start,
                     multi_stage_step=multi_stage_step,
-                    return_optimize_result=False,
                     **optimize_kwargs,
                 )
             )
-        elif n_reps_ab == 0:
-            diag_coulomb_mats_ab = np.empty((0, 3, norb, norb))
-            orbital_rotations_ab = np.empty((0, 2, norb, norb))
-        else:
-            raise ValueError(
-                f"Number of alpha-beta repetitions must be at least 1. Got {n_reps_ab}."
-            )
-        # alpha-alpha and beta-beta
-        if n_reps is None:
-            n_reps_aa = None
-        else:
-            _, n_reps_aa = n_reps
-        if n_reps_aa is None or n_reps_aa >= 1:
-            diag_coulomb_mats_aa, orbital_rotations_aa = linalg.double_factorized_t2(
-                0.5 * t2aa,
-                tol=tol,
-                max_terms=n_reps_aa,
-                optimize=optimize,
-                diag_coulomb_indices=pairs_aa,
-                regularization=regularization,
-                multi_stage_start=multi_stage_start,
-                multi_stage_step=multi_stage_step,
-                return_optimize_result=False,
-                **optimize_kwargs,
-            )
-            diag_coulomb_mats_bb, orbital_rotations_bb = linalg.double_factorized_t2(
-                0.5 * t2bb,
-                tol=tol,
-                max_terms=n_reps_aa,
-                optimize=optimize,
-                diag_coulomb_indices=pairs_bb,
-                regularization=regularization,
-                multi_stage_start=multi_stage_start,
-                multi_stage_step=multi_stage_step,
-                return_optimize_result=False,
-                **optimize_kwargs,
-            )
-            if len(diag_coulomb_mats_aa) or len(diag_coulomb_mats_bb):
-                zero = np.zeros((norb, norb))
-                diag_coulomb_mats_same_spin = np.stack(
-                    [
-                        [mat_aa, zero, mat_bb]
-                        for mat_aa, mat_bb in itertools.zip_longest(
-                            diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
-                        )
-                    ]
+        if optimize and n_reps_same_spin:
+            diag_coulomb_mats_aa, orbital_rotations_aa, _ = (
+                _compress_double_factorized_t2(
+                    0.5 * t2aa,
+                    diag_coulomb_mats_aa,
+                    orbital_rotations_aa,
+                    max_terms=n_reps_same_spin,
+                    diag_coulomb_indices=pairs_aa,
+                    regularization=regularization,
+                    multi_stage_start=multi_stage_start,
+                    multi_stage_step=multi_stage_step,
+                    **optimize_kwargs,
                 )
-                eye = np.eye(norb)
-                orbital_rotations_same_spin = np.stack(
-                    [
-                        [orb_rot_aa, orb_rot_bb]
-                        for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
-                            orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
-                        )
-                    ]
+            )
+            diag_coulomb_mats_bb, orbital_rotations_bb, _ = (
+                _compress_double_factorized_t2(
+                    0.5 * t2bb,
+                    diag_coulomb_mats_bb,
+                    orbital_rotations_bb,
+                    max_terms=n_reps_same_spin,
+                    diag_coulomb_indices=pairs_bb,
+                    regularization=regularization,
+                    multi_stage_start=multi_stage_start,
+                    multi_stage_step=multi_stage_step,
+                    **optimize_kwargs,
                 )
-            else:
-                diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
-                orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
-        elif n_reps_aa == 0:
-            diag_coulomb_mats_same_spin = np.empty((0, 3, norb, norb))
-            orbital_rotations_same_spin = np.empty((0, 2, norb, norb))
-        else:
-            raise ValueError(
-                f"Number of alpha-alpha repetitions must be at least 1. "
-                f"Got {n_reps_aa}."
             )
-        # concatenate
-        if n_reps is not None:
-            n_reps_ab, n_reps_same_spin = n_reps
-            diag_coulomb_mats_ab = _pad_diag_coulomb_mats(
-                diag_coulomb_mats_ab[:n_reps_ab], n_reps_ab
-            )
-            orbital_rotations_ab = _pad_orbital_rotations(
-                orbital_rotations_ab[:n_reps_ab], n_reps_ab
-            )
-            diag_coulomb_mats_same_spin = _pad_diag_coulomb_mats(
-                diag_coulomb_mats_same_spin[:n_reps_same_spin], n_reps_same_spin
-            )
-            orbital_rotations_same_spin = _pad_orbital_rotations(
-                orbital_rotations_same_spin[:n_reps_same_spin], n_reps_same_spin
-            )
+
+        # Pair up alpha-alpha and beta-beta terms into same-spin repetitions
+        zero = np.zeros((norb, norb))
+        eye = np.eye(norb)
+        diag_coulomb_mats_same_spin = np.array(
+            [
+                [mat_aa, zero, mat_bb]
+                for mat_aa, mat_bb in itertools.zip_longest(
+                    diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
+                )
+            ]
+        ).reshape(-1, 3, norb, norb)
+        orbital_rotations_same_spin = np.array(
+            [
+                [orb_rot_aa, orb_rot_bb]
+                for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
+                    orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
+                )
+            ],
+            dtype=complex,
+        ).reshape(-1, 2, norb, norb)
+
+        # Truncate and pad to the requested numbers of repetitions, then concatenate
         diag_coulomb_mats = np.concatenate(
-            [diag_coulomb_mats_ab, diag_coulomb_mats_same_spin]
+            [
+                _pad_diag_coulomb_mats(diag_coulomb_mats_ab[:n_reps_ab], n_reps_ab),
+                _pad_diag_coulomb_mats(
+                    diag_coulomb_mats_same_spin[:n_reps_same_spin], n_reps_same_spin
+                ),
+            ]
         )
         orbital_rotations = np.concatenate(
-            [orbital_rotations_ab, orbital_rotations_same_spin]
+            [
+                _pad_orbital_rotations(orbital_rotations_ab[:n_reps_ab], n_reps_ab),
+                _pad_orbital_rotations(
+                    orbital_rotations_same_spin[:n_reps_same_spin], n_reps_same_spin
+                ),
+            ]
         )
 
         final_orbital_rotation = None
@@ -730,7 +737,10 @@ class UCJOpSpinUnbalanced(
 
 
 def _split_n_reps(
-    t2: tuple[np.ndarray, np.ndarray, np.ndarray], n_reps: int, tol: float
+    diag_coulomb_mats_ab: np.ndarray,
+    diag_coulomb_mats_aa: np.ndarray,
+    diag_coulomb_mats_bb: np.ndarray,
+    n_reps: int,
 ) -> tuple[int, int]:
     """Divide repetitions between alpha-beta and same-spin terms.
 
@@ -739,13 +749,9 @@ def _split_n_reps(
     the first ``n_reps`` terms are selected. Any repetitions beyond the total number
     of terms are assigned to the same-spin terms, which are padded with identities.
     """
-    t2aa, t2ab, t2bb = t2
-    mats_ab, _ = linalg.double_factorized_t2_alpha_beta(t2ab, tol=tol)
-    mats_aa, _ = linalg.double_factorized_t2(0.5 * t2aa, tol=tol)
-    mats_bb, _ = linalg.double_factorized_t2(0.5 * t2bb, tol=tol)
-    weights_ab = np.sum(np.abs(mats_ab) ** 2, axis=(1, 2, 3))
-    weights_aa = np.sum(np.abs(mats_aa) ** 2, axis=(1, 2))
-    weights_bb = np.sum(np.abs(mats_bb) ** 2, axis=(1, 2))
+    weights_ab = np.sum(np.abs(diag_coulomb_mats_ab) ** 2, axis=(1, 2, 3))
+    weights_aa = np.sum(np.abs(diag_coulomb_mats_aa) ** 2, axis=(1, 2))
+    weights_bb = np.sum(np.abs(diag_coulomb_mats_bb) ** 2, axis=(1, 2))
     # Each same-spin repetition pairs the alpha-alpha and beta-beta terms in order
     n_same_spin = max(len(weights_aa), len(weights_bb))
     weights_same_spin = np.zeros(n_same_spin)

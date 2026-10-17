@@ -695,17 +695,52 @@ def _double_factorized_t2_compressed(
     tuple[np.ndarray, np.ndarray]
     | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
 ):
-    nocc, _, nvrt, _ = t2_amplitudes.shape
-    norb = nocc + nvrt
-
     diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
         t2_amplitudes, tol=tol
     )
+    diag_coulomb_mats, orbital_rotations, result = _compress_double_factorized_t2(
+        t2_amplitudes,
+        diag_coulomb_mats,
+        orbital_rotations,
+        max_terms=max_terms,
+        diag_coulomb_indices=diag_coulomb_indices,
+        multi_stage_start=multi_stage_start,
+        multi_stage_step=multi_stage_step,
+        regularization=regularization,
+        **optimize_kwargs,
+    )
+    if return_optimize_result and result is not None:
+        return diag_coulomb_mats, orbital_rotations, result
+    return diag_coulomb_mats, orbital_rotations
+
+
+def _compress_double_factorized_t2(
+    t2_amplitudes: np.ndarray,
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
+    *,
+    max_terms: int | None,
+    diag_coulomb_indices: list[tuple[int, int]] | None,
+    multi_stage_start: int | None,
+    multi_stage_step: int | None,
+    regularization: float,
+    **optimize_kwargs,
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult | None]:
+    """Compress a double factorization of t2 amplitudes.
+
+    The input tensors should be the full uncompressed double factorization of the t2
+    amplitudes, which is used as the initial guess for the optimization. If no
+    optimization is needed, the input tensors are returned unchanged, together with
+    ``None`` in place of the optimization result.
+    """
+    nocc, _, nvrt, _ = t2_amplitudes.shape
+    norb = nocc + nvrt
+
     init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     n_terms_full, _, _ = orbital_rotations.shape
 
     if max_terms is None or n_terms_full < max_terms:
-        return diag_coulomb_mats, orbital_rotations
+        return diag_coulomb_mats, orbital_rotations, None
 
     if multi_stage_start is None and multi_stage_step is None:
         list_reps = [max_terms]
@@ -757,9 +792,7 @@ def _double_factorized_t2_compressed(
             result.x, n_tensors, norb, diag_coulomb_indices
         )
 
-    if return_optimize_result:
-        return diag_coulomb_mats, orbital_rotations, result
-    return diag_coulomb_mats, orbital_rotations
+    return diag_coulomb_mats, orbital_rotations, result
 
 
 @overload
@@ -1054,17 +1087,59 @@ def _double_factorized_t2_alpha_beta_compressed(
     tuple[np.ndarray, np.ndarray]
     | tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]
 ):
-    nocc_a, nocc_b, nvrt_a, _ = t2_amplitudes.shape
-    norb = nocc_a + nvrt_a
-
     diag_coulomb_mats, orbital_rotations = _double_factorized_t2_alpha_beta_explicit(
         t2_amplitudes, tol=tol
     )
+    diag_coulomb_mats, orbital_rotations, result = (
+        _compress_double_factorized_t2_alpha_beta(
+            t2_amplitudes,
+            diag_coulomb_mats,
+            orbital_rotations,
+            max_terms=max_terms,
+            diag_coulomb_indices=diag_coulomb_indices,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            regularization=regularization,
+            **optimize_kwargs,
+        )
+    )
+    if return_optimize_result and result is not None:
+        return diag_coulomb_mats, orbital_rotations, result
+    return diag_coulomb_mats, orbital_rotations
+
+
+def _compress_double_factorized_t2_alpha_beta(
+    t2_amplitudes: np.ndarray,
+    diag_coulomb_mats: np.ndarray,
+    orbital_rotations: np.ndarray,
+    *,
+    max_terms: int | None,
+    diag_coulomb_indices: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None,
+    multi_stage_start: int | None,
+    multi_stage_step: int | None,
+    regularization: float,
+    **optimize_kwargs,
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult | None]:
+    """Compress a double factorization of alpha-beta t2 amplitudes.
+
+    The input tensors should be the full uncompressed double factorization of the t2
+    amplitudes, which is used as the initial guess for the optimization. If no
+    optimization is needed, the input tensors are returned unchanged, together with
+    ``None`` in place of the optimization result.
+    """
+    nocc_a, nocc_b, nvrt_a, _ = t2_amplitudes.shape
+    norb = nocc_a + nvrt_a
+
     init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     n_terms_full, _, _, _ = orbital_rotations.shape
 
     if max_terms is None or n_terms_full < max_terms:
-        return diag_coulomb_mats, orbital_rotations
+        return diag_coulomb_mats, orbital_rotations, None
 
     if multi_stage_start is None and multi_stage_step is None:
         list_reps = [max_terms]
@@ -1122,9 +1197,7 @@ def _double_factorized_t2_alpha_beta_compressed(
             result.x, n_tensors, norb, diag_coulomb_indices
         )
 
-    if return_optimize_result:
-        return diag_coulomb_mats, orbital_rotations, result
-    return diag_coulomb_mats, orbital_rotations
+    return diag_coulomb_mats, orbital_rotations, result
 
 
 def _double_factorized_t2_alpha_beta_explicit(
