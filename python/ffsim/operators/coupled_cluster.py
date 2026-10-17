@@ -244,14 +244,14 @@ def ccsd_generator_unrestricted(
 ) -> FermionOperator:
     r"""Unrestricted coupled cluster, singles and doubles (CCSD) generator.
 
-    The restricted CCSD generator is
+    The unrestricted CCSD generator is
 
     .. math::
 
         T = T_1 + T_2
 
     where :math:`T_1` is the unrestricted singles excitations operator
-    (see :func:`singles_excitations_unrestricted`) and :math:`T_2` is the restricted
+    (see :func:`singles_excitations_unrestricted`) and :math:`T_2` is the unrestricted
     doubles excitations operator (see :func:`doubles_excitations_unrestricted`).
 
     Args:
@@ -302,7 +302,7 @@ def uccsd_generator_restricted(t1: np.ndarray, t2: np.ndarray) -> FermionOperato
 def uccsd_generator_unrestricted(
     t1: tuple[np.ndarray, np.ndarray], t2: tuple[np.ndarray, np.ndarray, np.ndarray]
 ) -> FermionOperator:
-    r"""Unestricted unitary coupled cluster, singles and doubles (UCCSD) generator.
+    r"""Unrestricted unitary coupled cluster, singles and doubles (UCCSD) generator.
 
     The unrestricted UCCSD generator is
 
