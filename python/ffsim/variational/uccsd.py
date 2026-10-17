@@ -146,6 +146,11 @@ def _antisymmetric_t2_to_values(t2: np.ndarray) -> np.ndarray:
     )
 
 
+def _is_pair_symmetric_t2(t2: np.ndarray, rtol: float, atol: float) -> bool:
+    """Return whether t2 is symmetric under exchange of the pairs (i, a) and (j, b)."""
+    return np.allclose(t2, t2.transpose(1, 0, 3, 2), rtol=rtol, atol=atol)
+
+
 def _is_antisymmetric_t2(t2: np.ndarray, rtol: float, atol: float) -> bool:
     """Return whether t2 is antisymmetric in the occupied and in the virtual indices."""
     antisymmetric_occ = np.allclose(t2, -t2.transpose(1, 0, 2, 3), rtol=rtol, atol=atol)
@@ -157,10 +162,27 @@ def _is_antisymmetric_t2(t2: np.ndarray, rtol: float, atol: float) -> bool:
 class UCCSDOpRestrictedReal(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Real-valued restricted unitary coupled cluster, singles and doubles operator.
+    r"""Real-valued restricted unitary coupled cluster, singles and doubles operator.
 
     UCCSD operator with real-valued t-amplitudes. Note that the final orbital rotation,
     if included, is allowed to be complex-valued.
+
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t_{ia}
+        (a^\dagger_{a\alpha} a_{i\alpha} + a^\dagger_{a\beta} a_{i\beta})
+        + \sum_{ijab} t_{ijab} \left[
+        \frac12 \left(
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha}
+        + a^\dagger_{a\beta} a^\dagger_{b\beta} a_{j\beta} a_{i\beta} \right)
+        + a^\dagger_{a\alpha} a^\dagger_{b\beta} a_{j\beta} a_{i\alpha} \right].
+
+    Here :math:`i, j` index occupied orbitals and :math:`a, b` index virtual orbitals.
+    The t2 amplitudes must be symmetric under exchange of the occupied-virtual pairs
+    :math:`(i, a)` and :math:`(j, b)`, that is, :math:`t_{ijab} = t_{jiba}`.
 
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
@@ -173,7 +195,8 @@ class UCCSDOpRestrictedReal(
     t1: np.ndarray  # shape: (nocc, nvrt)
     """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
-    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``.
+    They must satisfy ``t2[i, j, a, b] == t2[j, i, b, a]``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
     """The optional final orbital rotation, as a Numpy array of shape
     ``(norb, norb)``."""
@@ -184,13 +207,15 @@ class UCCSDOpRestrictedReal(
     def __post_init__(self, validate: bool, rtol: float, atol: float):
         if np.iscomplexobj(self.t1):
             raise TypeError(
-                "UCCSDOpRestricted only accepts real-valued t1 amplitudes. "
-                "Please pass a t1 amplitudes tensor with a real-valued data type."
+                "UCCSDOpRestrictedReal only accepts real-valued t1 amplitudes. "
+                "Pass a t1 amplitudes tensor with a real-valued data type, "
+                "or use UCCSDOpRestricted for complex-valued amplitudes."
             )
         if np.iscomplexobj(self.t2):
             raise TypeError(
-                "UCCSDOpRestricted only accepts real-valued t2 amplitudes. "
-                "Please pass a t2 amplitudes tensor with a real-valued data type."
+                "UCCSDOpRestrictedReal only accepts real-valued t2 amplitudes. "
+                "Pass a t2 amplitudes tensor with a real-valued data type, "
+                "or use UCCSDOpRestricted for complex-valued amplitudes."
             )
         if validate:
             # Validate shapes
@@ -200,6 +225,13 @@ class UCCSDOpRestrictedReal(
                 raise ValueError(
                     "t2 shape not consistent with t1 shape. "
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
+                )
+            # Validate pair symmetry of t2
+            if not _is_pair_symmetric_t2(self.t2, rtol=rtol, atol=atol):
+                raise ValueError(
+                    "t2 amplitudes were not symmetric under exchange of the "
+                    "occupied-virtual pairs (i, a) and (j, b), that is, "
+                    "t2[i, j, a, b] == t2[j, i, b, a]."
                 )
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
@@ -375,9 +407,26 @@ class UCCSDOpRestrictedReal(
 class UCCSDOpRestricted(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Restricted unitary coupled cluster, singles and doubles operator.
+    r"""Restricted unitary coupled cluster, singles and doubles operator.
 
     UCCSD operator with complex-valued t-amplitudes.
+
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t_{ia}
+        (a^\dagger_{a\alpha} a_{i\alpha} + a^\dagger_{a\beta} a_{i\beta})
+        + \sum_{ijab} t_{ijab} \left[
+        \frac12 \left(
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha}
+        + a^\dagger_{a\beta} a^\dagger_{b\beta} a_{j\beta} a_{i\beta} \right)
+        + a^\dagger_{a\alpha} a^\dagger_{b\beta} a_{j\beta} a_{i\alpha} \right].
+
+    Here :math:`i, j` index occupied orbitals and :math:`a, b` index virtual orbitals.
+    The t2 amplitudes must be symmetric under exchange of the occupied-virtual pairs
+    :math:`(i, a)` and :math:`(j, b)`, that is, :math:`t_{ijab} = t_{jiba}`.
 
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
@@ -390,7 +439,8 @@ class UCCSDOpRestricted(
     t1: np.ndarray  # shape: (nocc, nvrt)
     """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
-    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``.
+    They must satisfy ``t2[i, j, a, b] == t2[j, i, b, a]``."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
     """The optional final orbital rotation, as a Numpy array of shape
     ``(norb, norb)``."""
@@ -407,6 +457,13 @@ class UCCSDOpRestricted(
                 raise ValueError(
                     "t2 shape not consistent with t1 shape. "
                     f"Expected {(nocc, nocc, nvrt, nvrt)} but got {self.t2.shape}"
+                )
+            # Validate pair symmetry of t2
+            if not _is_pair_symmetric_t2(self.t2, rtol=rtol, atol=atol):
+                raise ValueError(
+                    "t2 amplitudes were not symmetric under exchange of the "
+                    "occupied-virtual pairs (i, a) and (j, b), that is, "
+                    "t2[i, j, a, b] == t2[j, i, b, a]."
                 )
             if self.final_orbital_rotation is not None:
                 if self.final_orbital_rotation.shape != (norb, norb):
@@ -584,10 +641,30 @@ class UCCSDOpRestricted(
 class UCCSDOpUnrestrictedReal(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Real unrestricted unitary coupled cluster, singles and doubles operator.
+    r"""Real-valued unrestricted unitary coupled cluster, singles and doubles operator.
 
-    The same-spin t2 amplitudes ``t2_aa`` and ``t2_bb`` must be antisymmetric in the
-    occupied indices and in the virtual indices.
+    UCCSD operator with real-valued t-amplitudes. Note that the final orbital rotation,
+    if included, is allowed to be complex-valued.
+
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t^{(\alpha)}_{ia} a^\dagger_{a\alpha} a_{i\alpha}
+        + \sum_{IA} t^{(\beta)}_{IA} a^\dagger_{A\beta} a_{I\beta}
+        + \frac14 \sum_{ijab} t^{(\alpha\alpha)}_{ijab}
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha}
+        + \sum_{iJaB} t^{(\alpha\beta)}_{iJaB}
+        a^\dagger_{a\alpha} a^\dagger_{B\beta} a_{J\beta} a_{i\alpha}
+        + \frac14 \sum_{IJAB} t^{(\beta\beta)}_{IJAB}
+        a^\dagger_{A\beta} a^\dagger_{B\beta} a_{J\beta} a_{I\beta}.
+
+    Here :math:`i, j` index occupied spin-up orbitals, :math:`a, b` index virtual
+    spin-up orbitals, :math:`I, J` index occupied spin-down orbitals, and
+    :math:`A, B` index virtual spin-down orbitals. The same-spin t2 amplitudes
+    ``t2_aa`` and ``t2_bb`` must be antisymmetric in the occupied indices and in the
+    virtual indices.
 
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
@@ -602,7 +679,7 @@ class UCCSDOpUnrestrictedReal(
     # t1_b shape: (nocc_b, nvrt_b)
     """The t1 amplitudes, as a pair of Numpy arrays ``(t1_a, t1_b)`` with shapes
     ``(nocc_a, nvrt_a)`` and ``(nocc_b, nvrt_b)``."""
-    t2: tuple[np.ndarray, np.ndarray, np.ndarray]  # (t1_aa, t1_ab, t1_bb)
+    t2: tuple[np.ndarray, np.ndarray, np.ndarray]  # (t2_aa, t2_ab, t2_bb)
     # t2_aa shape: (nocc_a, nocc_a, nvrt_a, nvrt_a)
     # t2_ab shape: (nocc_a, nocc_b, nvrt_a, nvrt_b)
     # t2_bb shape: (nocc_b, nocc_b, nvrt_b, nvrt_b)
@@ -622,13 +699,13 @@ class UCCSDOpUnrestrictedReal(
         if any(np.iscomplexobj(t1) for t1 in self.t1):
             raise TypeError(
                 "UCCSDOpUnrestrictedReal only accepts real-valued t1 amplitudes. "
-                "Please pass t1 amplitudes with a real-valued data type, "
+                "Pass t1 amplitudes with a real-valued data type, "
                 "or use UCCSDOpUnrestricted for complex-valued amplitudes."
             )
         if any(np.iscomplexobj(t2) for t2 in self.t2):
             raise TypeError(
                 "UCCSDOpUnrestrictedReal only accepts real-valued t2 amplitudes. "
-                "Please pass t2 amplitudes with a real-valued data type, "
+                "Pass t2 amplitudes with a real-valued data type, "
                 "or use UCCSDOpUnrestricted for complex-valued amplitudes."
             )
         if validate:
@@ -906,12 +983,29 @@ class UCCSDOpUnrestrictedReal(
 class UCCSDOpUnrestricted(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    """Unrestricted unitary coupled cluster, singles and doubles operator.
+    r"""Unrestricted unitary coupled cluster, singles and doubles operator.
 
     UCCSD operator with complex-valued t-amplitudes.
 
-    The same-spin t2 amplitudes ``t2_aa`` and ``t2_bb`` must be antisymmetric in the
-    occupied indices and in the virtual indices.
+    The operator is :math:`\exp(T - T^\dagger)` followed by the optional final
+    orbital rotation, where
+
+    .. math::
+
+        T = \sum_{ia} t^{(\alpha)}_{ia} a^\dagger_{a\alpha} a_{i\alpha}
+        + \sum_{IA} t^{(\beta)}_{IA} a^\dagger_{A\beta} a_{I\beta}
+        + \frac14 \sum_{ijab} t^{(\alpha\alpha)}_{ijab}
+        a^\dagger_{a\alpha} a^\dagger_{b\alpha} a_{j\alpha} a_{i\alpha}
+        + \sum_{iJaB} t^{(\alpha\beta)}_{iJaB}
+        a^\dagger_{a\alpha} a^\dagger_{B\beta} a_{J\beta} a_{i\alpha}
+        + \frac14 \sum_{IJAB} t^{(\beta\beta)}_{IJAB}
+        a^\dagger_{A\beta} a^\dagger_{B\beta} a_{J\beta} a_{I\beta}.
+
+    Here :math:`i, j` index occupied spin-up orbitals, :math:`a, b` index virtual
+    spin-up orbitals, :math:`I, J` index occupied spin-down orbitals, and
+    :math:`A, B` index virtual spin-down orbitals. The same-spin t2 amplitudes
+    ``t2_aa`` and ``t2_bb`` must be antisymmetric in the occupied indices and in the
+    virtual indices.
 
     Args:
         validate: Whether to validate the operator attributes. Setting this to False
@@ -1256,7 +1350,8 @@ class UCCSDOpSpinlessReal(
     t1: np.ndarray  # shape: (nocc, nvrt)
     """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
-    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``.
+    They must be antisymmetric in the occupied indices and in the virtual indices."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
     """The optional final orbital rotation, as a Numpy array of shape
     ``(norb, norb)``."""
@@ -1268,13 +1363,13 @@ class UCCSDOpSpinlessReal(
         if np.iscomplexobj(self.t1):
             raise TypeError(
                 "UCCSDOpSpinlessReal only accepts real-valued t1 amplitudes. "
-                "Please pass a t1 amplitudes tensor with a real-valued data type, "
+                "Pass a t1 amplitudes tensor with a real-valued data type, "
                 "or use UCCSDOpSpinless for complex-valued amplitudes."
             )
         if np.iscomplexobj(self.t2):
             raise TypeError(
                 "UCCSDOpSpinlessReal only accepts real-valued t2 amplitudes. "
-                "Please pass a t2 amplitudes tensor with a real-valued data type, "
+                "Pass a t2 amplitudes tensor with a real-valued data type, "
                 "or use UCCSDOpSpinless for complex-valued amplitudes."
             )
         if validate:
@@ -1484,7 +1579,8 @@ class UCCSDOpSpinless(
     t1: np.ndarray  # shape: (nocc, nvrt)
     """The t1 amplitudes, as a Numpy array of shape ``(nocc, nvrt)``."""
     t2: np.ndarray  # shape: (nocc, nocc, nvrt, nvrt)
-    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``."""
+    """The t2 amplitudes, as a Numpy array of shape ``(nocc, nocc, nvrt, nvrt)``.
+    They must be antisymmetric in the occupied indices and in the virtual indices."""
     final_orbital_rotation: np.ndarray | None = None  # shape: (norb, norb)
     """The optional final orbital rotation, as a Numpy array of shape
     ``(norb, norb)``."""

@@ -167,6 +167,29 @@ def test_uccsd_restricted_apply_unitary(cls, random_op, with_final_orbital_rotat
     np.testing.assert_allclose(np.linalg.norm(result), 1.0)
 
 
+def test_uccsd_restricted_validate():
+    """Test validation of restricted UCCSD operators."""
+    norb = 5
+    nocc = 3
+    nvrt = norb - nocc
+    t1 = RNG.standard_normal((nocc, nvrt))
+    t2 = RNG.standard_normal((nocc, nocc, nvrt, nvrt))
+    for cls in [ffsim.UCCSDOpRestrictedReal, ffsim.UCCSDOpRestricted]:
+        with pytest.raises(ValueError, match="t2 amplitudes were not symmetric"):
+            cls(t1=t1, t2=t2)
+        # Validation can be skipped
+        cls(t1=t1, t2=t2, validate=False)
+    operator = ffsim.random.random_uccsd_op_restricted(norb, nocc, seed=RNG)
+    with pytest.raises(
+        TypeError, match="UCCSDOpRestrictedReal only accepts real-valued t1"
+    ):
+        ffsim.UCCSDOpRestrictedReal(t1=operator.t1, t2=operator.t2.real)
+    with pytest.raises(
+        TypeError, match="UCCSDOpRestrictedReal only accepts real-valued t2"
+    ):
+        ffsim.UCCSDOpRestrictedReal(t1=operator.t1.real, t2=operator.t2)
+
+
 @pytest.mark.parametrize("cls", [cls for cls, _ in RESTRICTED_CLASSES])
 def test_uccsd_restricted_energy(cls):
     mol = pyscf.gto.Mole()
