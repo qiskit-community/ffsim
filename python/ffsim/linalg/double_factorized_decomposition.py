@@ -483,8 +483,9 @@ def double_factorized_compressed(
         two_body_tensor: The two-body tensor to decompose.
         initial_guess: The initial guess for the optimization, as a tuple of the
             diagonal Coulomb matrices and the orbital rotations, each a Numpy array
-            of shape ``(L, norb, norb)``. Typically, this is the output of
-            :func:`double_factorized`. If not specified, the exact factorization
+            of shape ``(L, norb, norb)``. Both arrays must be real-valued.
+            Typically, this is the output of :func:`double_factorized`. If not
+            specified, the exact factorization
             computed by :func:`double_factorized` with the default tolerance is used.
         max_vecs: An optional limit on the number of terms to keep in the
             decomposition. If not specified, all the terms of the initial guess are
@@ -513,6 +514,7 @@ def double_factorized_compressed(
             ``initial_guess`` is not specified and the exact factorization has no
             terms.
         ValueError: The shapes of the initial guess tensors are inconsistent.
+        ValueError: The initial guess tensors are complex-valued.
     """
     if np.iscomplexobj(two_body_tensor):
         raise ValueError(
@@ -522,16 +524,20 @@ def double_factorized_compressed(
         raise ValueError(f"max_vecs must be at least 1. Got {max_vecs}.")
     _validate_diag_coulomb_indices(diag_coulomb_indices)
     if initial_guess is None:
-        # Modified Cholesky adds vectors one at a time, so this yields the first
-        # max_vecs terms of the full factorization without computing the rest
-        initial_guess = _double_factorized_explicit_cholesky(
-            two_body_tensor, tol=1e-8, max_vecs=max_vecs
-        )
+        # The modified Cholesky decomposition adds vectors one at a time, so this
+        # yields the first max_vecs terms of the full factorization without computing
+        # the rest
+        initial_guess = double_factorized(two_body_tensor, max_vecs=max_vecs)
     diag_coulomb_mats, orbital_rotations = initial_guess
     norb, _, _, _ = two_body_tensor.shape
     _validate_df_tensor_shapes(
         diag_coulomb_mats, orbital_rotations, (norb, norb), (norb, norb)
     )
+    if np.iscomplexobj(diag_coulomb_mats) or np.iscomplexobj(orbital_rotations):
+        raise ValueError(
+            "The initial guess must be real-valued. Got complex diagonal Coulomb "
+            "matrices or orbital rotations."
+        )
 
     diag_coulomb_mats = diag_coulomb_mats[:max_vecs]
     orbital_rotations = orbital_rotations[:max_vecs]

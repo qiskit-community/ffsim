@@ -342,6 +342,12 @@ def test_double_factorized_compressed_validation():
         ffsim.linalg.double_factorized_compressed(
             two_body_tensor, initial_guess=(mats, rots), diag_coulomb_indices=[(1, 0)]
         )
+    with pytest.raises(ValueError, match="real-valued"):
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats, rots.astype(complex))
+        )
+    with pytest.raises(ValueError, match="at least one term"):
+        ffsim.linalg.double_factorized_compressed(np.zeros((0, 0, 0, 0)))
 
     t2 = ffsim.random.random_t2_amplitudes(4, 2, seed=RNG, dtype=float)
     mats, rots = ffsim.linalg.double_factorized_t2(t2)
