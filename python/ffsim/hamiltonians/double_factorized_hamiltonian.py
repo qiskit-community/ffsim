@@ -20,7 +20,7 @@ from ffsim import protocols
 from ffsim.contract.diag_coulomb import diag_coulomb_linop
 from ffsim.contract.num_op_sum import num_op_sum_linop
 from ffsim.hamiltonians.molecular_hamiltonian import MolecularHamiltonian
-from ffsim.linalg import compress_double_factorized, double_factorized
+from ffsim.linalg import double_factorized, double_factorized_compressed
 from ffsim.operators import FermionOperator
 from ffsim.states.dimensions import dim
 
@@ -157,7 +157,7 @@ class DoubleFactorizedHamiltonian(
 
         See :class:`DoubleFactorizedHamiltonian` for a description of the
         ``z_representation`` argument. See :func:`ffsim.linalg.double_factorized` and
-        :func:`ffsim.linalg.compress_double_factorized` for a description of the rest
+        :func:`ffsim.linalg.double_factorized_compressed` for a description of the rest
         of the arguments.
 
         Args:
@@ -201,10 +201,9 @@ class DoubleFactorizedHamiltonian(
             cholesky=cholesky or optimize,
         )
         if optimize and len(orbital_rotations):
-            diag_coulomb_mats, orbital_rotations, _ = compress_double_factorized(
+            diag_coulomb_mats, orbital_rotations, _ = double_factorized_compressed(
                 hamiltonian.two_body_tensor,
-                diag_coulomb_mats,
-                orbital_rotations,
+                initial_guess=(diag_coulomb_mats, orbital_rotations),
                 diag_coulomb_indices=diag_coulomb_indices,
                 **optimize_kwargs,
             )

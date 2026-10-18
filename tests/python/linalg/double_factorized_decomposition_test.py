@@ -183,23 +183,23 @@ def test_optimal_diag_coulomb_mats_approximate():
 @pytest.mark.parametrize(
     "compress",
     [
-        ffsim.linalg.compress_double_factorized,
-        ffsim.linalg.compress_double_factorized_t2,
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta,
+        ffsim.linalg.double_factorized_compressed,
+        ffsim.linalg.double_factorized_t2_compressed,
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed,
     ],
     ids=["two_body", "t2", "t2_alpha_beta"],
 )
 @pytest.mark.parametrize("method", [None, "SLSQP"])
-def test_compress_double_factorized_optimize_kwargs(compress, method: str | None):
+def test_double_factorized_compressed_optimize_kwargs(compress, method: str | None):
     """Test that keyword arguments are passed through to scipy.optimize.minimize."""
-    if compress is ffsim.linalg.compress_double_factorized:
+    if compress is ffsim.linalg.double_factorized_compressed:
         tensor = ffsim.random.random_molecular_hamiltonian(
             2, seed=128, dtype=float
         ).two_body_tensor
         factorization = ffsim.linalg.double_factorized(tensor)
         compress_kwargs: dict = dict(max_vecs=1)
         n_stages = 1
-    elif compress is ffsim.linalg.compress_double_factorized_t2:
+    elif compress is ffsim.linalg.double_factorized_t2_compressed:
         tensor = np.ones((1, 1, 1, 1))
         factorization = ffsim.linalg.double_factorized_t2(tensor)
         compress_kwargs = dict(max_terms=1, multi_stage_start=2, multi_stage_step=1)
@@ -224,7 +224,7 @@ def test_compress_double_factorized_optimize_kwargs(compress, method: str | None
         "scipy.optimize.minimize",
         side_effect=lambda fun, x0, **kwargs: scipy.optimize.OptimizeResult(x=x0),
     ) as minimize:
-        compress(tensor, *factorization, **compress_kwargs, **kwargs)
+        compress(tensor, initial_guess=factorization, **compress_kwargs, **kwargs)
 
     assert minimize.call_count == n_stages
     for call in minimize.call_args_list:
@@ -241,29 +241,31 @@ def test_compress_double_factorized_optimize_kwargs(compress, method: str | None
     "compress, factorize, t2",
     [
         (
-            ffsim.linalg.compress_double_factorized,
+            ffsim.linalg.double_factorized_compressed,
             ffsim.linalg.double_factorized,
             ffsim.random.random_two_body_tensor(3, seed=1234, dtype=float),
         ),
         (
-            ffsim.linalg.compress_double_factorized_t2,
+            ffsim.linalg.double_factorized_t2_compressed,
             ffsim.linalg.double_factorized_t2,
             ffsim.random.random_t2_amplitudes(4, 2, seed=1234, dtype=float),
         ),
         (
-            ffsim.linalg.compress_double_factorized_t2_alpha_beta,
+            ffsim.linalg.double_factorized_t2_alpha_beta_compressed,
             ffsim.linalg.double_factorized_t2_alpha_beta,
             np.random.default_rng(1234).standard_normal((2, 1, 2, 3)),
         ),
     ],
     ids=["two_body", "t2", "t2_alpha_beta"],
 )
-def test_compress_double_factorized_always_optimizes(compress, factorize, t2):
+def test_double_factorized_compressed_always_optimizes(compress, factorize, t2):
     """Test that compression optimizes even if no terms are truncated."""
     diag_coulomb_mats, orbital_rotations = factorize(t2)
     with patch("scipy.optimize.minimize", wraps=scipy.optimize.minimize) as minimize:
         mats, rots, result = compress(
-            t2, diag_coulomb_mats, orbital_rotations, options=dict(maxiter=2)
+            t2,
+            initial_guess=(diag_coulomb_mats, orbital_rotations),
+            options=dict(maxiter=2),
         )
     assert minimize.call_count == 1
     assert isinstance(result, scipy.optimize.OptimizeResult)
@@ -271,91 +273,169 @@ def test_compress_double_factorized_always_optimizes(compress, factorize, t2):
     assert rots.shape == orbital_rotations.shape
 
 
-def test_compress_double_factorized_validation():
+@pytest.mark.parametrize(
+    "compress, factorize, tensor, kwargs",
+    [
+        (
+            ffsim.linalg.double_factorized_compressed,
+            ffsim.linalg.double_factorized,
+            ffsim.random.random_two_body_tensor(3, seed=2345, dtype=float),
+            dict(max_vecs=2),
+        ),
+        (
+            ffsim.linalg.double_factorized_t2_compressed,
+            ffsim.linalg.double_factorized_t2,
+            ffsim.random.random_t2_amplitudes(4, 2, seed=2345, dtype=float),
+            dict(max_terms=2),
+        ),
+        (
+            ffsim.linalg.double_factorized_t2_alpha_beta_compressed,
+            ffsim.linalg.double_factorized_t2_alpha_beta,
+            np.random.default_rng(2345).standard_normal((2, 1, 2, 3)),
+            dict(max_terms=2),
+        ),
+    ],
+    ids=["two_body", "t2", "t2_alpha_beta"],
+)
+def test_double_factorized_compressed_default_initial_guess(
+    compress, factorize, tensor, kwargs
+):
+    """Test that the default initial guess is the exact factorization."""
+    if compress is ffsim.linalg.double_factorized_compressed:
+        initial_guess = factorize(tensor, **kwargs)
+    else:
+        initial_guess = factorize(tensor)
+    mats, rots, result = compress(tensor, **kwargs, options=dict(maxiter=5))
+    expected_mats, expected_rots, expected_result = compress(
+        tensor, initial_guess=initial_guess, **kwargs, options=dict(maxiter=5)
+    )
+    np.testing.assert_array_equal(mats, expected_mats)
+    np.testing.assert_array_equal(rots, expected_rots)
+    np.testing.assert_array_equal(result.x, expected_result.x)
+
+
+def test_double_factorized_compressed_validation():
     """Test input validation for compression functions."""
     two_body_tensor = ffsim.random.random_two_body_tensor(3, seed=RNG, dtype=float)
     mats, rots = ffsim.linalg.double_factorized(two_body_tensor)
     with pytest.raises(ValueError, match="complex"):
-        ffsim.linalg.compress_double_factorized(
-            two_body_tensor.astype(complex), mats, rots
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor.astype(complex), initial_guess=(mats, rots)
         )
     with pytest.raises(ValueError, match="max_vecs"):
-        ffsim.linalg.compress_double_factorized(two_body_tensor, mats, rots, max_vecs=0)
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats, rots), max_vecs=0
+        )
     with pytest.raises(ValueError, match="at least one term"):
-        ffsim.linalg.compress_double_factorized(two_body_tensor, mats[:0], rots[:0])
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats[:0], rots[:0])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized(two_body_tensor, mats, rots[:-1])
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats, rots[:-1])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized(two_body_tensor, mats[:, :2], rots)
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats[:, :2], rots)
+        )
     with pytest.raises(ValueError, match="lower triangular"):
-        ffsim.linalg.compress_double_factorized(
-            two_body_tensor, mats, rots, diag_coulomb_indices=[(1, 0)]
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(mats, rots), diag_coulomb_indices=[(1, 0)]
         )
 
     t2 = ffsim.random.random_t2_amplitudes(4, 2, seed=RNG, dtype=float)
     mats, rots = ffsim.linalg.double_factorized_t2(t2)
     with pytest.raises(ValueError, match="complex t2 amplitudes"):
-        ffsim.linalg.compress_double_factorized_t2(t2.astype(complex), mats, rots)
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2.astype(complex), initial_guess=(mats, rots)
+        )
     with pytest.raises(ValueError, match="max_terms"):
-        ffsim.linalg.compress_double_factorized_t2(t2, mats, rots, max_terms=0)
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats, rots), max_terms=0
+        )
     with pytest.raises(ValueError, match="at least one term"):
-        ffsim.linalg.compress_double_factorized_t2(t2, mats[:0], rots[:0])
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats[:0], rots[:0])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized_t2(t2, mats, rots[:-1])
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats, rots[:-1])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized_t2(t2, mats[:, :3, :3], rots)
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats[:, :3, :3], rots)
+        )
     with pytest.raises(ValueError, match="lower triangular"):
-        ffsim.linalg.compress_double_factorized_t2(
-            t2, mats, rots, diag_coulomb_indices=[(1, 0)]
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats, rots), diag_coulomb_indices=[(1, 0)]
         )
     with pytest.raises(ValueError, match="multi_stage_start"):
-        ffsim.linalg.compress_double_factorized_t2(
-            t2, mats, rots, max_terms=2, multi_stage_start=0
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats, rots), max_terms=2, multi_stage_start=0
         )
     with pytest.raises(ValueError, match="multi_stage_step"):
-        ffsim.linalg.compress_double_factorized_t2(
-            t2, mats, rots, max_terms=2, multi_stage_step=0
+        ffsim.linalg.double_factorized_t2_compressed(
+            t2, initial_guess=(mats, rots), max_terms=2, multi_stage_step=0
         )
+    with pytest.raises(ValueError, match="at least one term"):
+        ffsim.linalg.double_factorized_t2_compressed(np.zeros((2, 2, 2, 2)))
+    # Index validation happens before computing the default initial guess
+    with patch(
+        "ffsim.linalg.double_factorized_decomposition._double_factorized_t2_explicit"
+    ) as factorize:
+        with pytest.raises(ValueError, match="lower triangular"):
+            ffsim.linalg.double_factorized_t2_compressed(
+                t2, diag_coulomb_indices=[(1, 0)]
+            )
+    factorize.assert_not_called()
 
     t2ab = RNG.standard_normal((2, 1, 2, 3))
     mats, rots = ffsim.linalg.double_factorized_t2_alpha_beta(t2ab)
     with pytest.raises(ValueError, match="complex t2 amplitudes"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-            t2ab.astype(complex), mats, rots
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab.astype(complex), initial_guess=(mats, rots)
         )
     with pytest.raises(ValueError, match="max_terms"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-            t2ab, mats, rots, max_terms=0
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats, rots), max_terms=0
         )
     with pytest.raises(ValueError, match="at least one term"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(t2ab, mats[:0], rots[:0])
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats[:0], rots[:0])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(t2ab, mats, rots[:-1])
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats, rots[:-1])
+        )
     with pytest.raises(ValueError, match="shape"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(t2ab, mats[:, :2], rots)
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats[:, :2], rots)
+        )
     for diag_coulomb_indices in [([(1, 0)], None, None), (None, None, [(1, 0)])]:
         with pytest.raises(ValueError, match="lower triangular"):
-            ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-                t2ab, mats, rots, diag_coulomb_indices=diag_coulomb_indices
+            ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+                t2ab,
+                initial_guess=(mats, rots),
+                diag_coulomb_indices=diag_coulomb_indices,
             )
     with pytest.raises(ValueError, match="multi_stage_start"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-            t2ab, mats, rots, max_terms=2, multi_stage_start=-1
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats, rots), max_terms=2, multi_stage_start=-1
         )
     with pytest.raises(ValueError, match="multi_stage_step"):
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-            t2ab, mats, rots, max_terms=2, multi_stage_step=-1
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+            t2ab, initial_guess=(mats, rots), max_terms=2, multi_stage_step=-1
         )
     # Alpha-beta indices may be lower triangular
-    ffsim.linalg.compress_double_factorized_t2_alpha_beta(
-        t2ab, mats, rots, diag_coulomb_indices=(None, [(1, 0)], None)
+    ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
+        t2ab, initial_guess=(mats, rots), diag_coulomb_indices=(None, [(1, 0)], None)
     )
 
 
 def test_double_factorized_optimize_deprecated():
     """Test the deprecated optimize argument of double_factorized."""
     two_body_tensor = ffsim.random.random_two_body_tensor(3, seed=RNG, dtype=float)
-    with pytest.deprecated_call(match="compress_double_factorized"):
+    with pytest.deprecated_call(match="double_factorized_compressed"):
         mats, rots, result = ffsim.linalg.double_factorized(
             two_body_tensor,
             max_vecs=2,
@@ -364,10 +444,8 @@ def test_double_factorized_optimize_deprecated():
             options=dict(maxiter=5),
         )
     expected_mats, expected_rots, expected_result = (
-        ffsim.linalg.compress_double_factorized(
-            two_body_tensor,
-            *ffsim.linalg.double_factorized(two_body_tensor, max_vecs=2),
-            options=dict(maxiter=5),
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, max_vecs=2, options=dict(maxiter=5)
         )
     )
     np.testing.assert_allclose(mats, expected_mats)
@@ -381,12 +459,12 @@ def test_double_factorized_optimize_deprecated():
     [
         (
             ffsim.linalg.double_factorized_t2,
-            ffsim.linalg.compress_double_factorized_t2,
+            ffsim.linalg.double_factorized_t2_compressed,
             ffsim.random.random_t2_amplitudes(4, 2, seed=5678, dtype=float),
         ),
         (
             ffsim.linalg.double_factorized_t2_alpha_beta,
-            ffsim.linalg.compress_double_factorized_t2_alpha_beta,
+            ffsim.linalg.double_factorized_t2_alpha_beta_compressed,
             np.random.default_rng(5678).standard_normal((2, 1, 2, 3)),
         ),
     ],
@@ -404,11 +482,7 @@ def test_double_factorized_t2_optimize_deprecated(factorize, compress, t2):
             options=dict(maxiter=5),
         )
     expected_mats, expected_rots, expected_result = compress(
-        t2,
-        *factorize(t2),
-        max_terms=2,
-        multi_stage_start=4,
-        options=dict(maxiter=5),
+        t2, max_terms=2, multi_stage_start=4, options=dict(maxiter=5)
     )
     np.testing.assert_allclose(mats, expected_mats)
     np.testing.assert_allclose(rots, expected_rots)
@@ -446,10 +520,9 @@ def test_double_factorized_compressed_n2_unconstrained():
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        ffsim.linalg.compress_double_factorized(
+        ffsim.linalg.double_factorized_compressed(
             two_body_tensor,
-            diag_coulomb_mats,
-            orbital_rotations,
+            initial_guess=(diag_coulomb_mats, orbital_rotations),
             options=dict(maxiter=100),
         )
     )
@@ -502,9 +575,9 @@ def test_double_factorized_compressed_n2_constrained():
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
     diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        ffsim.linalg.compress_double_factorized(
+        ffsim.linalg.double_factorized_compressed(
             two_body_tensor,
-            *ffsim.linalg.double_factorized(two_body_tensor, max_vecs=4),
+            initial_guess=ffsim.linalg.double_factorized(two_body_tensor, max_vecs=4),
             options=dict(maxiter=100),
             diag_coulomb_indices=diag_coulomb_indices,
         )
@@ -553,8 +626,8 @@ def test_double_factorized_compressed_random():
         two_body_tensor, max_vecs=2
     )
     diag_coulomb_mats_optimized, orbital_rotations_optimized, _ = (
-        ffsim.linalg.compress_double_factorized(
-            two_body_tensor, diag_coulomb_mats, orbital_rotations
+        ffsim.linalg.double_factorized_compressed(
+            two_body_tensor, initial_guess=(diag_coulomb_mats, orbital_rotations)
         )
     )
     reconstructed = contract(
@@ -588,10 +661,9 @@ def test_double_factorized_compressed_random_constrained():
     )
     diag_coulomb_indices = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2)]
     diag_coulomb_mats_optimized, orbital_rotations_optimized, _ = (
-        ffsim.linalg.compress_double_factorized(
+        ffsim.linalg.double_factorized_compressed(
             two_body_tensor,
-            diag_coulomb_mats,
-            orbital_rotations,
+            initial_guess=(diag_coulomb_mats, orbital_rotations),
             diag_coulomb_indices=diag_coulomb_indices,
         )
     )
@@ -842,9 +914,8 @@ def test_double_factorized_t2_compressed_max_terms_n2_small():
     diag_coulomb_indices = pairs_aa + pairs_ab
     max_terms = 1
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        ffsim.linalg.compress_double_factorized_t2(
+        ffsim.linalg.double_factorized_t2_compressed(
             ccsd.t2,
-            *ffsim.linalg.double_factorized_t2(ccsd.t2),
             max_terms=max_terms,
             diag_coulomb_indices=diag_coulomb_indices,
             method="L-BFGS-B",
@@ -924,9 +995,8 @@ def test_double_factorized_t2_compressed_max_terms_n2_large():
     diag_coulomb_indices.extend([(p, p + 1) for p in range(norb - 1)])
     diag_coulomb_indices.extend([(p, p + 2) for p in range(norb - 2)])
     diag_coulomb_mats_optimized, orbital_rotations_optimized, _ = (
-        ffsim.linalg.compress_double_factorized_t2(
+        ffsim.linalg.double_factorized_t2_compressed(
             ccsd.t2,
-            *ffsim.linalg.double_factorized_t2(ccsd.t2),
             max_terms=max_terms,
             method="L-BFGS-B",
             options=dict(maxiter=150),
@@ -994,9 +1064,8 @@ def test_double_factorized_t2_compressed_max_terms_random():
     diag_coulomb_indices = pairs_aa + pairs_ab
     max_terms = 2
     diag_coulomb_mats_optimized, orbital_rotations_optimized, _ = (
-        ffsim.linalg.compress_double_factorized_t2(
+        ffsim.linalg.double_factorized_t2_compressed(
             t2,
-            *ffsim.linalg.double_factorized_t2(t2),
             max_terms=max_terms,
             diag_coulomb_indices=diag_coulomb_indices,
             method="L-BFGS-B",
@@ -1188,9 +1257,8 @@ def test_double_factorized_t2_alpha_beta_compressed_max_terms_h5():
     pairs_ab = pairs_aa + [(p, p) for p in range(norb)]
     max_terms = 1
     diag_coulomb_mats_optimized, orbital_rotations_optimized, result = (
-        ffsim.linalg.compress_double_factorized_t2_alpha_beta(
+        ffsim.linalg.double_factorized_t2_alpha_beta_compressed(
             t2_ab,
-            *ffsim.linalg.double_factorized_t2_alpha_beta(t2_ab),
             max_terms=max_terms,
             diag_coulomb_indices=(pairs_aa, pairs_ab, pairs_aa),
             method="L-BFGS-B",

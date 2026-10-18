@@ -404,7 +404,7 @@ class UCJOpSpinBalanced(
         If ``optimize`` is set to ``True``, then the entries of the resulting tensors
         (the diagonal Coulomb matrices and orbital rotations) are further optimized with
         :func:`scipy.optimize.minimize` to reduce the error in the factorization.
-        See :func:`ffsim.linalg.compress_double_factorized_t2` for details.
+        See :func:`ffsim.linalg.double_factorized_t2_compressed` for details.
 
         Args:
             t2: The t2 amplitudes. They must satisfy
@@ -439,16 +439,16 @@ class UCJOpSpinBalanced(
                 are truncated. Any identity operators added as padding are not
                 optimized.
             regularization: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_start: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_step: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             validate: Whether to validate the symmetry of the t2 amplitudes.
             rtol: Relative numerical tolerance for validation checks.
@@ -487,10 +487,9 @@ class UCJOpSpinBalanced(
         )
         if optimize and len(orbital_rotations):
             diag_coulomb_mats, orbital_rotations, _ = (
-                linalg.compress_double_factorized_t2(
+                linalg.double_factorized_t2_compressed(
                     t2,
-                    diag_coulomb_mats,
-                    orbital_rotations,
+                    initial_guess=(diag_coulomb_mats, orbital_rotations),
                     max_terms=n_reps,
                     diag_coulomb_indices=diag_coulomb_indices,
                     regularization=regularization,
@@ -601,16 +600,16 @@ class UCJOpSpinBalanced(
                 are truncated. Any identity operators added as padding are not
                 optimized.
             regularization: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
             multi_stage_start: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
             multi_stage_step: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
             validate: Whether to validate the symmetry of the converted t2
                 amplitudes.

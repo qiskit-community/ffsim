@@ -494,16 +494,16 @@ class UCJOpSpinUnbalanced(
                 are truncated. Any identity operators added as padding are not
                 optimized.
             regularization: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_start: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             multi_stage_step: See
-                :func:`ffsim.linalg.compress_double_factorized_t2` for a description of
-                this argument.
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             validate: Whether to validate the symmetry of the t2 amplitudes.
             rtol: Relative numerical tolerance for validation checks.
@@ -579,10 +579,9 @@ class UCJOpSpinUnbalanced(
         # A sector with no terms requested or available has nothing to optimize
         if optimize and n_reps_ab != 0 and len(orbital_rotations_ab):
             diag_coulomb_mats_ab, orbital_rotations_ab, _ = (
-                linalg.compress_double_factorized_t2_alpha_beta(
+                linalg.double_factorized_t2_alpha_beta_compressed(
                     t2ab,
-                    diag_coulomb_mats_ab,
-                    orbital_rotations_ab,
+                    initial_guess=(diag_coulomb_mats_ab, orbital_rotations_ab),
                     max_terms=n_reps_ab,
                     diag_coulomb_indices=interaction_pairs,
                     regularization=regularization,
@@ -593,10 +592,9 @@ class UCJOpSpinUnbalanced(
             )
         if optimize and n_reps_same_spin != 0 and len(orbital_rotations_aa):
             diag_coulomb_mats_aa, orbital_rotations_aa, _ = (
-                linalg.compress_double_factorized_t2(
+                linalg.double_factorized_t2_compressed(
                     0.5 * t2aa,
-                    diag_coulomb_mats_aa,
-                    orbital_rotations_aa,
+                    initial_guess=(diag_coulomb_mats_aa, orbital_rotations_aa),
                     max_terms=n_reps_same_spin,
                     diag_coulomb_indices=pairs_aa,
                     regularization=regularization,
@@ -607,10 +605,9 @@ class UCJOpSpinUnbalanced(
             )
         if optimize and n_reps_same_spin != 0 and len(orbital_rotations_bb):
             diag_coulomb_mats_bb, orbital_rotations_bb, _ = (
-                linalg.compress_double_factorized_t2(
+                linalg.double_factorized_t2_compressed(
                     0.5 * t2bb,
-                    diag_coulomb_mats_bb,
-                    orbital_rotations_bb,
+                    initial_guess=(diag_coulomb_mats_bb, orbital_rotations_bb),
                     max_terms=n_reps_same_spin,
                     diag_coulomb_indices=pairs_bb,
                     regularization=regularization,
