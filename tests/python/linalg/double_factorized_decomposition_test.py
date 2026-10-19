@@ -451,18 +451,20 @@ def test_double_factorized_t2_amplitudes_random(norb: int, nocc: int):
     )
 
 
-def test_double_factorized_t2_explicit_magnitudes():
-    """Test that term magnitudes are the absolute eigenvalues of the t2 matrix."""
+def test_double_factorized_t2_explicit_norms():
+    """Test that term norms are the absolute eigenvalues of the t2 matrix."""
     norb, nocc = 6, 2
     nvrt = norb - nocc
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
-    diag_coulomb_mats, orbital_rotations, magnitudes = _double_factorized_t2_explicit(
+    diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
         t2, max_terms=5
     )
     t2_mat = t2.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
     eigs = np.sort(np.abs(np.linalg.eigvalsh(t2_mat)))[::-1]
-    assert len(magnitudes) == len(diag_coulomb_mats) == len(orbital_rotations) == 5
-    np.testing.assert_allclose(magnitudes, np.repeat(eigs, 2)[:5])
+    assert len(diag_coulomb_mats) == len(orbital_rotations) == 5
+    np.testing.assert_allclose(
+        np.linalg.norm(diag_coulomb_mats, axis=(-2, -1)), np.repeat(eigs, 2)[:5]
+    )
 
 
 @pytest.mark.parametrize("cholesky", [False, True])
@@ -845,17 +847,24 @@ def test_double_factorized_t2_alpha_beta_random():
     # TODO add the rest of the relations
 
 
-def test_double_factorized_t2_alpha_beta_explicit_magnitudes():
-    """Test that term magnitudes are the singular values of the t2 matrix."""
+def test_double_factorized_t2_alpha_beta_explicit_norms():
+    """Test that spin-orbital term norms are the singular values of the t2 matrix."""
     nocc_a, nocc_b, nvrt_a, nvrt_b = 3, 6, 7, 4
     t2ab = RNG.standard_normal((nocc_a, nocc_b, nvrt_a, nvrt_b))
-    diag_coulomb_mats, orbital_rotations, magnitudes = (
-        _double_factorized_t2_alpha_beta_explicit(t2ab, max_terms=7)
+    diag_coulomb_mats, orbital_rotations = _double_factorized_t2_alpha_beta_explicit(
+        t2ab, max_terms=7
     )
     t2_mat = t2ab.transpose(0, 2, 1, 3).reshape(nocc_a * nvrt_a, nocc_b * nvrt_b)
     singular_vals = np.linalg.svd(t2_mat, compute_uv=False)
-    assert len(magnitudes) == len(diag_coulomb_mats) == len(orbital_rotations) == 7
-    np.testing.assert_allclose(magnitudes, np.repeat(singular_vals, 4)[:7])
+    assert len(diag_coulomb_mats) == len(orbital_rotations) == 7
+    mats_aa, mats_ab, mats_bb = diag_coulomb_mats.transpose(1, 0, 2, 3)
+    spin_orbital_mats = np.block(
+        [[mats_aa, mats_ab], [mats_ab.transpose(0, 2, 1), mats_bb]]
+    )
+    np.testing.assert_allclose(
+        np.linalg.norm(spin_orbital_mats, axis=(-2, -1)),
+        np.repeat(singular_vals, 4)[:7],
+    )
 
 
 def test_double_factorized_t2_alpha_beta_max_terms_error():

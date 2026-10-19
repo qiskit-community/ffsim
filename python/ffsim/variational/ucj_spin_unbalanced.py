@@ -543,14 +543,14 @@ class UCJOpSpinUnbalanced(
         # The uncompressed double factorizations determine the number of terms
         # available for an integer n_reps to be divided between, and they serve as the
         # initial guess for compression
-        diag_coulomb_mats_ab, orbital_rotations_ab, magnitudes_ab = (
+        diag_coulomb_mats_ab, orbital_rotations_ab = (
             _double_factorized_t2_alpha_beta_explicit(t2ab, tol=tol)
         )
-        diag_coulomb_mats_aa, orbital_rotations_aa, magnitudes_aa = (
-            _double_factorized_t2_explicit(0.5 * t2aa, tol=tol)
+        diag_coulomb_mats_aa, orbital_rotations_aa = _double_factorized_t2_explicit(
+            0.5 * t2aa, tol=tol
         )
-        diag_coulomb_mats_bb, orbital_rotations_bb, magnitudes_bb = (
-            _double_factorized_t2_explicit(0.5 * t2bb, tol=tol)
+        diag_coulomb_mats_bb, orbital_rotations_bb = _double_factorized_t2_explicit(
+            0.5 * t2bb, tol=tol
         )
 
         n_reps_ab: int | None
@@ -558,8 +558,14 @@ class UCJOpSpinUnbalanced(
         if n_reps is None:
             n_reps_ab, n_reps_same_spin = None, None
         elif isinstance(n_reps, int):
+            diag_coulomb_mats_same_spin, _ = _pair_same_spin(
+                diag_coulomb_mats_aa,
+                orbital_rotations_aa,
+                diag_coulomb_mats_bb,
+                orbital_rotations_bb,
+            )
             n_reps_ab, n_reps_same_spin = _split_n_reps(
-                magnitudes_ab, magnitudes_aa, magnitudes_bb, n_reps
+                diag_coulomb_mats_ab, diag_coulomb_mats_same_spin, n_reps
             )
         else:
             n_reps_ab, n_reps_same_spin = n_reps
@@ -616,26 +622,12 @@ class UCJOpSpinUnbalanced(
                 )
             )
 
-        # Pair up alpha-alpha and beta-beta terms into same-spin repetitions
-        zero = np.zeros((norb, norb))
-        eye = np.eye(norb)
-        diag_coulomb_mats_same_spin = np.array(
-            [
-                [mat_aa, zero, mat_bb]
-                for mat_aa, mat_bb in itertools.zip_longest(
-                    diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
-                )
-            ]
-        ).reshape(-1, 3, norb, norb)
-        orbital_rotations_same_spin = np.array(
-            [
-                [orb_rot_aa, orb_rot_bb]
-                for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
-                    orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
-                )
-            ],
-            dtype=complex,
-        ).reshape(-1, 2, norb, norb)
+        diag_coulomb_mats_same_spin, orbital_rotations_same_spin = _pair_same_spin(
+            diag_coulomb_mats_aa,
+            orbital_rotations_aa,
+            diag_coulomb_mats_bb,
+            orbital_rotations_bb,
+        )
 
         # Truncate and pad to the requested numbers of repetitions, then concatenate
         diag_coulomb_mats = np.concatenate(
@@ -745,36 +737,79 @@ class UCJOpSpinUnbalanced(
         return NotImplemented
 
 
+def _pair_same_spin(
+    diag_coulomb_mats_aa: np.ndarray,
+    orbital_rotations_aa: np.ndarray,
+    diag_coulomb_mats_bb: np.ndarray,
+    orbital_rotations_bb: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Pair up alpha-alpha and beta-beta terms, in order, into same-spin repetitions.
+
+    If one spin sector has fewer terms, it is padded with zero diagonal Coulomb
+    matrices and identity orbital rotations.
+    """
+    _, norb, _ = diag_coulomb_mats_aa.shape
+    zero = np.zeros((norb, norb))
+    eye = np.eye(norb)
+    diag_coulomb_mats = np.array(
+        [
+            [mat_aa, zero, mat_bb]
+            for mat_aa, mat_bb in itertools.zip_longest(
+                diag_coulomb_mats_aa, diag_coulomb_mats_bb, fillvalue=zero
+            )
+        ]
+    ).reshape(-1, 3, norb, norb)
+    orbital_rotations = np.array(
+        [
+            [orb_rot_aa, orb_rot_bb]
+            for orb_rot_aa, orb_rot_bb in itertools.zip_longest(
+                orbital_rotations_aa, orbital_rotations_bb, fillvalue=eye
+            )
+        ],
+        dtype=complex,
+    ).reshape(-1, 2, norb, norb)
+    return diag_coulomb_mats, orbital_rotations
+
+
 def _split_n_reps(
-    magnitudes_ab: np.ndarray,
-    magnitudes_aa: np.ndarray,
-    magnitudes_bb: np.ndarray,
+    diag_coulomb_mats_ab: np.ndarray,
+    diag_coulomb_mats_same_spin: np.ndarray,
     n_reps: int,
 ) -> tuple[int, int]:
     """Divide repetitions between alpha-beta and same-spin terms.
 
-    The magnitudes are those returned by the exact double factorizations: the
-    singular values of the alpha-beta t2 amplitudes, and the absolute eigenvalues of
-    the alpha-alpha and beta-beta t2 amplitudes scaled by 1/2, each repeated once per
-    term. A same-spin repetition pairs an alpha-alpha term with a beta-beta term, and
-    its magnitude is the root sum of squares of theirs. These magnitudes are directly
-    comparable because each squared singular value and each squared eigenvalue
-    contributes equally to the norm of the t2 amplitudes in the spin-orbital basis.
-    The ``n_reps`` repetitions with the largest magnitudes are selected. Any
-    repetitions beyond the total number of terms are assigned to the same-spin terms,
-    which are padded with identities.
+    The diagonal Coulomb matrices are those of the exact double factorizations. Each
+    repetition is weighted by the squared Frobenius norm of its diagonal Coulomb
+    matrix in the spin-orbital basis, which is its contribution to the squared norm
+    of the t2 amplitudes in the spin-orbital basis. For an alpha-beta repetition this
+    is the square of a singular value of the alpha-beta t2 amplitudes, and for a
+    same-spin repetition it is the sum of the squares of an eigenvalue of the
+    alpha-alpha and of the beta-beta t2 amplitudes scaled by 1/2. The ``n_reps``
+    repetitions with the largest weights are selected. Any repetitions beyond the
+    total number of terms are assigned to the same-spin terms, which are padded with
+    identities.
     """
-    weights_ab = magnitudes_ab**2
-    # Each same-spin repetition pairs the alpha-alpha and beta-beta terms in order
-    weights_same_spin = np.zeros(max(len(magnitudes_aa), len(magnitudes_bb)))
-    weights_same_spin[: len(magnitudes_aa)] += magnitudes_aa**2
-    weights_same_spin[: len(magnitudes_bb)] += magnitudes_bb**2
-    # The weights within each group are in decreasing order, so a stable sort of the
-    # concatenation selects a prefix of each group
-    weights = np.concatenate([weights_ab, weights_same_spin])
+    weights = np.concatenate(
+        [
+            _spin_orbital_norms_squared(diag_coulomb_mats_ab),
+            _spin_orbital_norms_squared(diag_coulomb_mats_same_spin),
+        ]
+    )
+    # Only the number of selected alpha-beta repetitions matters, so the ordering of
+    # nearly equal weights within each group does not affect the result
     selected = np.argsort(-weights, kind="stable")[:n_reps]
-    n_reps_ab = int(np.count_nonzero(selected < len(weights_ab)))
+    n_reps_ab = int(np.count_nonzero(selected < len(diag_coulomb_mats_ab)))
     return n_reps_ab, n_reps - n_reps_ab
+
+
+def _spin_orbital_norms_squared(diag_coulomb_mats: np.ndarray) -> np.ndarray:
+    """Squared Frobenius norms of diagonal Coulomb matrices in the spin-orbital basis.
+
+    The alpha-beta block appears twice in the spin-orbital matrix, once above and
+    once below the diagonal.
+    """
+    mats_aa, mats_ab, mats_bb = np.moveaxis(np.abs(diag_coulomb_mats) ** 2, -3, 0)
+    return np.sum(mats_aa + 2 * mats_ab + mats_bb, axis=(-2, -1))
 
 
 def _pad_diag_coulomb_mats(diag_coulomb_mats: np.ndarray, n_reps: int | None):

@@ -654,7 +654,7 @@ def double_factorized_t2(
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
-        diag_coulomb_mats, orbital_rotations, _ = _double_factorized_t2_explicit(
+        diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
             t2_amplitudes, tol=tol
         )
         diag_coulomb_mats, orbital_rotations, result = _compress_double_factorized_t2(
@@ -669,7 +669,7 @@ def double_factorized_t2(
             **optimize_kwargs,
         )
     else:
-        diag_coulomb_mats, orbital_rotations, _ = _double_factorized_t2_explicit(
+        diag_coulomb_mats, orbital_rotations = _double_factorized_t2_explicit(
             t2_amplitudes, tol=tol, max_terms=max_terms
         )
         result = None
@@ -680,13 +680,12 @@ def double_factorized_t2(
 
 def _double_factorized_t2_explicit(
     t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Exact double factorization of t2 amplitudes.
 
-    In addition to the diagonal Coulomb matrices and orbital rotations, returns the
-    magnitude of each term, which is the absolute value of the eigenvalue of the
-    t2 amplitudes matrix that the term comes from. Each eigenvalue gives rise to
-    2 terms. Terms are sorted in decreasing order of magnitude.
+    Each eigenvalue of the t2 amplitudes matrix gives rise to 2 terms, and the
+    Frobenius norm of each term's diagonal Coulomb matrix is the absolute value of
+    its eigenvalue. Terms are sorted in decreasing order of this norm.
     """
     if np.iscomplexobj(t2_amplitudes):
         raise ValueError(
@@ -715,9 +714,8 @@ def _double_factorized_t2_explicit(
 
     orbital_rotations = orbital_rotations.reshape(-1, norb, norb)[:max_terms]
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, norb, norb)[:max_terms]
-    magnitudes = np.repeat(np.abs(outer_eigs), 2)[:max_terms]
 
-    return diag_coulomb_mats, orbital_rotations, magnitudes
+    return diag_coulomb_mats, orbital_rotations
 
 
 @functools.cache
@@ -1014,7 +1012,7 @@ def double_factorized_t2_alpha_beta(
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
     if optimize:
-        diag_coulomb_mats, orbital_rotations, _ = (
+        diag_coulomb_mats, orbital_rotations = (
             _double_factorized_t2_alpha_beta_explicit(t2_amplitudes, tol=tol)
         )
         diag_coulomb_mats, orbital_rotations, result = (
@@ -1031,7 +1029,7 @@ def double_factorized_t2_alpha_beta(
             )
         )
     else:
-        diag_coulomb_mats, orbital_rotations, _ = (
+        diag_coulomb_mats, orbital_rotations = (
             _double_factorized_t2_alpha_beta_explicit(
                 t2_amplitudes, tol=tol, max_terms=max_terms
             )
@@ -1253,13 +1251,13 @@ def _multi_stage_compress(
 
 def _double_factorized_t2_alpha_beta_explicit(
     t2_amplitudes: np.ndarray, *, tol: float = 1e-8, max_terms: int | None = None
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Exact double factorization of alpha-beta t2 amplitudes.
 
-    In addition to the diagonal Coulomb matrices and orbital rotations, returns the
-    magnitude of each term, which is the singular value of the t2 amplitudes matrix
-    that the term comes from. Each singular value gives rise to 4 terms. Terms are
-    sorted in decreasing order of magnitude.
+    Each singular value of the t2 amplitudes matrix gives rise to 4 terms. The
+    Frobenius norm of each term's diagonal Coulomb matrix in the spin-orbital basis,
+    whose blocks are the alpha-alpha, alpha-beta, and beta-beta matrices, is its
+    singular value. Terms are sorted in decreasing order of this norm.
     """
     if np.iscomplexobj(t2_amplitudes):
         raise ValueError(
@@ -1304,9 +1302,8 @@ def _double_factorized_t2_alpha_beta_explicit(
 
     orbital_rotations = orbital_rotations.reshape(-1, 2, norb, norb)[:max_terms]
     diag_coulomb_mats = diag_coulomb_mats.reshape(-1, 3, norb, norb)[:max_terms]
-    magnitudes = np.repeat(singular_vals, 4)[:max_terms]
 
-    return diag_coulomb_mats, orbital_rotations, magnitudes
+    return diag_coulomb_mats, orbital_rotations
 
 
 def _quadrature(mat: np.ndarray, sign: int):
