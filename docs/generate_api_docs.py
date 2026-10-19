@@ -27,6 +27,7 @@ docstring and re-run this script.
 
 import ast
 import pkgutil
+import shutil
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -185,8 +186,10 @@ def main() -> None:
         if not mod.name.startswith("_") and mod.name not in exported_submodules
     )
 
-    # Generate API docs
-    DOCS_API_DIR.mkdir(parents=True, exist_ok=True)
+    # Generate API docs. Remove the existing directory first so that autosummary
+    # stubs for removed symbols don't linger and break the build.
+    shutil.rmtree(DOCS_API_DIR, ignore_errors=True)
+    DOCS_API_DIR.mkdir(parents=True)
     generate_ffsim_rst(sections)
     for submodule in standalone_submodules:
         generate_submodule_rst(submodule)
