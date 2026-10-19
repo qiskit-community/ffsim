@@ -465,7 +465,10 @@ class UCJOpSpinUnbalanced(
                 corresponding singular value of the alpha-beta t2 amplitudes, and the
                 magnitude of a same-spin repetition is the root sum of squares of the
                 corresponding eigenvalues of the alpha-alpha and beta-beta t2
-                amplitudes, each scaled by 1/2.
+                amplitudes, each scaled by :math:`1/\sqrt{2}`. With this scaling,
+                the squared magnitudes of all repetitions sum to the squared norm of
+                the t2 amplitudes in the spin-orbital basis, so every distinct
+                excitation counts equally.
                 If a pair of integers, then the first integer specifies
                 the number of terms to use from the alpha-beta t2 amplitudes,
                 and the second integer specifies the number of terms to use from the
@@ -779,12 +782,15 @@ def _split_n_reps(
     """Divide repetitions between alpha-beta and same-spin terms.
 
     The diagonal Coulomb matrices are those of the exact double factorizations. Each
-    repetition is weighted by the squared Frobenius norm of its diagonal Coulomb
-    matrix in the spin-orbital basis, which is its contribution to the squared norm
-    of the t2 amplitudes in the spin-orbital basis. For an alpha-beta repetition this
-    is the square of a singular value of the alpha-beta t2 amplitudes, and for a
-    same-spin repetition it is the sum of the squares of an eigenvalue of the
-    alpha-alpha and of the beta-beta t2 amplitudes scaled by 1/2. The ``n_reps``
+    repetition is weighted by its contribution to the squared norm of the t2
+    amplitudes in the spin-orbital basis, so that every distinct excitation counts
+    equally. For an alpha-beta repetition this is the squared Frobenius norm of its
+    diagonal Coulomb matrix in the spin-orbital basis, which is the square of a
+    singular value of the alpha-beta t2 amplitudes. A same-spin diagonal Coulomb
+    matrix factorizes half of the same-spin t2 amplitudes, because its alpha-alpha
+    and beta-beta blocks act on each pair of orbitals in both orders, so its weight
+    is twice its squared Frobenius norm. This is half the sum of the squares of an
+    eigenvalue of the alpha-alpha and of the beta-beta t2 amplitudes. The ``n_reps``
     repetitions with the largest weights are selected. Any repetitions beyond the
     total number of terms are assigned to the same-spin terms, which are padded with
     identities.
@@ -792,7 +798,7 @@ def _split_n_reps(
     weights = np.concatenate(
         [
             _spin_orbital_norms_squared(diag_coulomb_mats_ab),
-            _spin_orbital_norms_squared(diag_coulomb_mats_same_spin),
+            2 * _spin_orbital_norms_squared(diag_coulomb_mats_same_spin),
         ]
     )
     # Only the number of selected alpha-beta repetitions matters, so the ordering of

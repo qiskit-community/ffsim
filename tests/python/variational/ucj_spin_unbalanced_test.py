@@ -354,14 +354,16 @@ def test_t_amplitudes_integer_n_reps_split_by_magnitude():
     nvrt_a, nvrt_b = norb - nocc_a, norb - nocc_b
 
     def magnitudes(t2ab):
-        # 4 alpha-beta repetitions per singular value, 2 same-spin terms per eigenvalue
+        # 4 alpha-beta repetitions per singular value, 2 same-spin terms per eigenvalue.
+        # Same-spin eigenvalues are scaled by 1/sqrt(2) so that every distinct
+        # excitation counts equally in the spin-orbital norm.
         mat_ab = t2ab.transpose(0, 2, 1, 3).reshape(nocc_a * nvrt_a, nocc_b * nvrt_b)
         singular_vals = np.linalg.svd(mat_ab, compute_uv=False)
         mags_ab = np.repeat(singular_vals[singular_vals > 1e-8], 4)
         eigs = []
         for t2, nocc, nvrt in [(t2aa, nocc_a, nvrt_a), (t2bb, nocc_b, nvrt_b)]:
             these_eigs = np.linalg.eigvalsh(
-                0.5 * t2.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt)
+                t2.transpose(0, 2, 1, 3).reshape(nocc * nvrt, nocc * nvrt) / np.sqrt(2)
             )
             these_eigs = np.sort(np.abs(these_eigs))[::-1]
             eigs.append(np.repeat(these_eigs[these_eigs > 1e-8], 2))
