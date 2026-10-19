@@ -58,6 +58,23 @@ def test_from_molecular_hamiltonian_optimize_kwargs(optimize: bool, method: str 
     assert ("method" in kwargs) == (method is not None)
 
 
+def test_from_molecular_hamiltonian_optimize_no_terms():
+    """Test optimize with a two-body tensor that has no terms."""
+    norb = 3
+    hamiltonian = ffsim.MolecularHamiltonian(
+        one_body_tensor=ffsim.random.random_hermitian(norb, seed=RNG).real,
+        two_body_tensor=np.zeros((norb, norb, norb, norb)),
+    )
+    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
+        hamiltonian, optimize=True
+    )
+    assert df_hamiltonian.diag_coulomb_mats.shape == (0, norb, norb)
+    assert df_hamiltonian.orbital_rotations.shape == (0, norb, norb)
+    np.testing.assert_allclose(
+        df_hamiltonian.one_body_tensor, hamiltonian.one_body_tensor
+    )
+
+
 @pytest.mark.parametrize("z_representation", [False, True])
 def test_linear_operator(z_representation: bool):
     """Test linear operator."""

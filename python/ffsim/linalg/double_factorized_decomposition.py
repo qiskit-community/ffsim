@@ -273,8 +273,9 @@ def double_factorized(
         where L is the number of terms in the decomposition and n is the number of
         orbitals. If ``return_optimize_result`` is set to ``True``, the
         :class:`~scipy.optimize.OptimizeResult` returned by
-        :func:`scipy.optimize.minimize` is also returned, or ``None`` if
-        ``optimize`` is set to ``False``.
+        :func:`scipy.optimize.minimize` is also returned, or ``None`` if no
+        optimization was performed. No optimization is performed if ``optimize`` is
+        set to ``False``, or if the factorization has no terms.
 
     Raises:
         ValueError: diag_coulomb_indices contains lower triangular indices.
@@ -430,11 +431,13 @@ def _double_factorized_compressed(
     max_vecs: int | None,
     diag_coulomb_indices: list[tuple[int, int]] | None,
     **optimize_kwargs,
-) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult]:
+) -> tuple[np.ndarray, np.ndarray, scipy.optimize.OptimizeResult | None]:
     diag_coulomb_mats, orbital_rotations = _double_factorized_explicit_cholesky(
         two_body_tensor, tol=tol, max_vecs=max_vecs
     )
     n_tensors, norb, _ = orbital_rotations.shape
+    if not n_tensors:
+        return diag_coulomb_mats, orbital_rotations, None
 
     # Structure key for the cached jitted objective. Convert to a hashable tuple so it
     # can be used as a cache key, and back to a list inside the builder.
@@ -649,6 +652,8 @@ def double_factorized_t2(
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
+        ValueError: max_terms is less than 1.
+        ValueError: multi_stage_start or multi_stage_step is less than 1.
     """
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
@@ -1006,6 +1011,8 @@ def double_factorized_t2_alpha_beta(
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
+        ValueError: max_terms is less than 1.
+        ValueError: multi_stage_start or multi_stage_step is less than 1.
     """
     if max_terms is not None and max_terms < 1:
         raise ValueError(f"max_terms must be at least 1. Got {max_terms}.")
@@ -1199,6 +1206,14 @@ def _multi_stage_compress(
     factorization has no terms, the input tensors are returned unchanged, together
     with ``None`` in place of the optimization result.
     """
+    if multi_stage_start is not None and multi_stage_start < 1:
+        raise ValueError(
+            f"multi_stage_start must be at least 1. Got {multi_stage_start}."
+        )
+    if multi_stage_step is not None and multi_stage_step < 1:
+        raise ValueError(
+            f"multi_stage_step must be at least 1. Got {multi_stage_step}."
+        )
     init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     n_terms_full = len(orbital_rotations)
 
@@ -1210,8 +1225,11 @@ def _multi_stage_compress(
     elif multi_stage_start is None and multi_stage_step is None:
         list_reps = [max_terms]
     else:
-        multi_stage_start = min(n_terms_full, multi_stage_start or n_terms_full)
-        multi_stage_step = multi_stage_step or 1
+        if multi_stage_start is None:
+            multi_stage_start = n_terms_full
+        multi_stage_start = min(n_terms_full, multi_stage_start)
+        if multi_stage_step is None:
+            multi_stage_step = 1
         list_reps = list(range(multi_stage_start, max_terms, -multi_stage_step))
         list_reps.append(max_terms)
 

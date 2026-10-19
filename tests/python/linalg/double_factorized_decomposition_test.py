@@ -553,6 +553,63 @@ def test_double_factorized_t2_optimize_without_truncation(max_terms):
     assert len(diag_coulomb_mats) == len(orbital_rotations) == n_terms
 
 
+@pytest.mark.parametrize(
+    "func, tensor",
+    [
+        (ffsim.linalg.double_factorized, np.zeros((3, 3, 3, 3))),
+        (ffsim.linalg.double_factorized_t2, np.zeros((2, 2, 2, 2))),
+        (ffsim.linalg.double_factorized_t2_alpha_beta, np.zeros((2, 1, 2, 3))),
+    ],
+    ids=["two_body", "t2", "t2_alpha_beta"],
+)
+def test_double_factorized_optimize_no_terms(func, tensor: np.ndarray):
+    """Test that optimize returns None in place of the result if there are no terms."""
+    with patch("scipy.optimize.minimize") as minimize:
+        diag_coulomb_mats, orbital_rotations, result = func(
+            tensor, optimize=True, return_optimize_result=True
+        )
+    minimize.assert_not_called()
+    assert result is None
+    assert len(diag_coulomb_mats) == len(orbital_rotations) == 0
+
+
+@pytest.mark.parametrize(
+    "factorize, t2",
+    [
+        (
+            ffsim.linalg.double_factorized_t2,
+            ffsim.random.random_t2_amplitudes(4, 2, seed=3456, dtype=float),
+        ),
+        (
+            ffsim.linalg.double_factorized_t2_alpha_beta,
+            np.random.default_rng(3456).standard_normal((2, 1, 2, 3)),
+        ),
+    ],
+    ids=["t2", "t2_alpha_beta"],
+)
+@pytest.mark.parametrize(
+    "multi_stage_start, multi_stage_step, match",
+    [
+        (0, None, "multi_stage_start"),
+        (-1, None, "multi_stage_start"),
+        (None, 0, "multi_stage_step"),
+        (None, -1, "multi_stage_step"),
+    ],
+)
+def test_double_factorized_t2_multi_stage_error(
+    factorize, t2, multi_stage_start, multi_stage_step, match
+):
+    """Test that invalid multi-stage arguments raise an error."""
+    with pytest.raises(ValueError, match=match):
+        factorize(
+            t2,
+            max_terms=2,
+            optimize=True,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+        )
+
+
 def test_double_factorized_t2_amplitudes_max_terms_error():
     """Test double_factorized_t2 raises error on invalid max terms."""
     t2 = ffsim.random.random_t2_amplitudes(4, 2, dtype=float)
