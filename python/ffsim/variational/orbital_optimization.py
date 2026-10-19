@@ -21,6 +21,8 @@ from ffsim.hamiltonians import MolecularHamiltonian
 from ffsim.linalg.util import (
     rotate_one_body_tensor,
     rotate_two_body_tensor,
+    special_orthogonal_from_parameters,
+    special_orthogonal_from_parameters_jax,
     unitary_from_parameters,
     unitary_from_parameters_jax,
 )
@@ -48,7 +50,12 @@ def _make_optimize_orbitals_value_and_grad(norb: int, real: bool):
         two_body_tensor: jax.Array,
         constant: jax.Array,
     ) -> jax.Array:
-        orbital_rotation = unitary_from_parameters_jax(x, dim=norb, real=real)
+        from_parameters = (
+            special_orthogonal_from_parameters_jax
+            if real
+            else unitary_from_parameters_jax
+        )
+        orbital_rotation = from_parameters(x, dim=norb)
         # Reduced density matrices are dual to operator tensors, so they transform under
         # the conjugate of the orbital rotation: rotating the RDMs by U gives the same
         # energy as rotating the Hamiltonian by U^dagger. The rotation helpers implement
@@ -192,10 +199,10 @@ def optimize_orbitals(
     optimize_kwargs.setdefault("method", "L-BFGS-B")
     result = scipy.optimize.minimize(scipy_func, x0, jac=True, **optimize_kwargs)
 
-    orbital_rotation = (
-        unitary_from_parameters(result.x, dim=norb, real=real)
-        @ initial_orbital_rotation
+    from_parameters = (
+        special_orthogonal_from_parameters if real else unitary_from_parameters
     )
+    orbital_rotation = from_parameters(result.x, dim=norb) @ initial_orbital_rotation
 
     if return_optimize_result:
         return orbital_rotation, result

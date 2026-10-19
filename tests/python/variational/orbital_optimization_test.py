@@ -21,7 +21,10 @@ import scipy.linalg
 import scipy.optimize
 
 import ffsim
-from ffsim.linalg.util import unitary_from_parameters
+from ffsim.linalg.util import (
+    special_orthogonal_from_parameters,
+    unitary_from_parameters,
+)
 
 RNG = np.random.default_rng(241127903049053917326682280086371763733)
 
@@ -163,7 +166,7 @@ def test_optimize_orbitals_components(norb: int, sign: int) -> None:
     )
     np.testing.assert_allclose(np.linalg.det(rotation), sign)
     np.testing.assert_allclose(
-        unitary_from_parameters(result.x, norb, real=True) @ initial,
+        special_orthogonal_from_parameters(result.x, norb) @ initial,
         rotation,
         atol=1e-12,
     )
@@ -308,7 +311,7 @@ def test_optimize_orbitals_callback(stop: bool) -> None:
         assert intermediate_result.x.shape == (6,)
         iterates.append(intermediate_result.x.copy())
         rotation = (
-            unitary_from_parameters(intermediate_result.x, 4, real=True) @ initial
+            special_orthogonal_from_parameters(intermediate_result.x, 4) @ initial
         )
         np.testing.assert_allclose(
             intermediate_result.fun, rdm.rotated(rotation).expectation(hamiltonian)
