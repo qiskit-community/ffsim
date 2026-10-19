@@ -483,17 +483,15 @@ def test_double_factorized_return_optimize_result_no_optimization(cholesky: bool
     np.testing.assert_allclose(orbital_rotations, expected_rots)
 
 
-@pytest.mark.parametrize(
-    "optimize, max_terms", [(False, None), (False, 1), (True, None), (True, 1000)]
-)
+@pytest.mark.parametrize("max_terms", [None, 1])
 def test_double_factorized_t2_return_optimize_result_no_optimization(
-    optimize: bool, max_terms: int | None
+    max_terms: int | None,
 ):
     """Test that None is returned in place of the result when nothing is optimized."""
     norb, nocc = 4, 2
     t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
     diag_coulomb_mats, orbital_rotations, result = ffsim.linalg.double_factorized_t2(
-        t2, max_terms=max_terms, optimize=optimize, return_optimize_result=True
+        t2, max_terms=max_terms, return_optimize_result=True
     )
     assert result is None
     expected_mats, expected_rots = ffsim.linalg.double_factorized_t2(
@@ -505,7 +503,7 @@ def test_double_factorized_t2_return_optimize_result_no_optimization(
     t2ab = RNG.standard_normal((2, 3, 2, 1))
     diag_coulomb_mats, orbital_rotations, result = (
         ffsim.linalg.double_factorized_t2_alpha_beta(
-            t2ab, max_terms=max_terms, optimize=optimize, return_optimize_result=True
+            t2ab, max_terms=max_terms, return_optimize_result=True
         )
     )
     assert result is None
@@ -514,6 +512,45 @@ def test_double_factorized_t2_return_optimize_result_no_optimization(
     )
     np.testing.assert_allclose(diag_coulomb_mats, expected_mats)
     np.testing.assert_allclose(orbital_rotations, expected_rots)
+
+
+@pytest.mark.parametrize("max_terms", [None, "n_terms", 1000])
+def test_double_factorized_t2_optimize_without_truncation(max_terms):
+    """Test that optimize=True optimizes even if no terms are truncated."""
+    norb, nocc = 4, 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    n_terms = len(ffsim.linalg.double_factorized_t2(t2)[0])
+    if max_terms == "n_terms":
+        max_terms = n_terms
+    diag_coulomb_indices = [(p, p + 1) for p in range(norb - 1)]
+    diag_coulomb_mats, orbital_rotations, result = ffsim.linalg.double_factorized_t2(
+        t2,
+        max_terms=max_terms,
+        optimize=True,
+        diag_coulomb_indices=diag_coulomb_indices,
+        return_optimize_result=True,
+        options=dict(maxiter=5),
+    )
+    assert isinstance(result, scipy.optimize.OptimizeResult)
+    assert len(diag_coulomb_mats) == len(orbital_rotations) == n_terms
+    mask = np.zeros((norb, norb), dtype=bool)
+    for i, j in diag_coulomb_indices:
+        mask[i, j] = mask[j, i] = True
+    np.testing.assert_array_equal(diag_coulomb_mats[:, ~mask], 0)
+
+    t2ab = RNG.standard_normal((2, 3, 2, 1))
+    n_terms = len(ffsim.linalg.double_factorized_t2_alpha_beta(t2ab)[0])
+    diag_coulomb_mats, orbital_rotations, result = (
+        ffsim.linalg.double_factorized_t2_alpha_beta(
+            t2ab,
+            max_terms=None if max_terms is None else max(max_terms, n_terms),
+            optimize=True,
+            return_optimize_result=True,
+            options=dict(maxiter=5),
+        )
+    )
+    assert isinstance(result, scipy.optimize.OptimizeResult)
+    assert len(diag_coulomb_mats) == len(orbital_rotations) == n_terms
 
 
 def test_double_factorized_t2_amplitudes_max_terms_error():

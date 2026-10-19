@@ -583,7 +583,7 @@ class UCJOpSpinUnbalanced(
                     f"Got {n_reps_same_spin}."
                 )
 
-        if optimize and n_reps_ab:
+        if optimize and n_reps_ab != 0:
             diag_coulomb_mats_ab, orbital_rotations_ab, _ = (
                 _compress_double_factorized_t2_alpha_beta(
                     t2ab,
@@ -597,7 +597,7 @@ class UCJOpSpinUnbalanced(
                     **optimize_kwargs,
                 )
             )
-        if optimize and n_reps_same_spin:
+        if optimize and n_reps_same_spin != 0:
             diag_coulomb_mats_aa, orbital_rotations_aa, _ = (
                 _compress_double_factorized_t2(
                     0.5 * t2aa,

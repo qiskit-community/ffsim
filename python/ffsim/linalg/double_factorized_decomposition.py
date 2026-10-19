@@ -645,8 +645,7 @@ def double_factorized_t2(
         :class:`~scipy.optimize.OptimizeResult` returned by
         :func:`scipy.optimize.minimize` is also returned, or ``None`` if no
         optimization was performed. No optimization is performed if ``optimize`` is
-        set to ``False``, or if ``max_terms`` is not specified or is larger than the
-        number of terms in the exact factorization.
+        set to ``False``, or if the exact factorization has no terms.
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
@@ -780,9 +779,9 @@ def _compress_double_factorized_t2(
     """Compress a double factorization of t2 amplitudes.
 
     The input tensors should be the full uncompressed double factorization of the t2
-    amplitudes, which is used as the initial guess for the optimization. If no
-    optimization is needed, the input tensors are returned unchanged, together with
-    ``None`` in place of the optimization result.
+    amplitudes, which is used as the initial guess for the optimization. If the
+    factorization has no terms, the input tensors are returned unchanged, together
+    with ``None`` in place of the optimization result.
     """
     nocc, _, nvrt, _ = t2_amplitudes.shape
     norb = nocc + nvrt
@@ -1003,8 +1002,7 @@ def double_factorized_t2_alpha_beta(
           :class:`~scipy.optimize.OptimizeResult` returned by
           :func:`scipy.optimize.minimize`, or ``None`` if no optimization was
           performed. No optimization is performed if ``optimize`` is set to ``False``,
-          or if ``max_terms`` is not specified or is larger than the number of terms
-          in the exact factorization.
+          or if the exact factorization has no terms.
 
     Raises:
         ValueError: The t2 amplitudes are complex-valued.
@@ -1139,9 +1137,9 @@ def _compress_double_factorized_t2_alpha_beta(
     """Compress a double factorization of alpha-beta t2 amplitudes.
 
     The input tensors should be the full uncompressed double factorization of the t2
-    amplitudes, which is used as the initial guess for the optimization. If no
-    optimization is needed, the input tensors are returned unchanged, together with
-    ``None`` in place of the optimization result.
+    amplitudes, which is used as the initial guess for the optimization. If the
+    factorization has no terms, the input tensors are returned unchanged, together
+    with ``None`` in place of the optimization result.
     """
     nocc_a, nocc_b, nvrt_a, _ = t2_amplitudes.shape
     norb = nocc_a + nvrt_a
@@ -1197,16 +1195,19 @@ def _multi_stage_compress(
     Each stage truncates the current factorization to fewer terms and optimizes it,
     starting from the result of the previous stage. The loss, parameterization, and
     term structure are supplied by the caller. If ``max_terms`` is not specified or is
-    larger than the number of terms, the input tensors are returned unchanged,
-    together with ``None`` in place of the optimization result.
+    at least the number of terms, a single stage is run with all of the terms. If the
+    factorization has no terms, the input tensors are returned unchanged, together
+    with ``None`` in place of the optimization result.
     """
     init_diag_coulomb_norm = np.sum(np.abs(diag_coulomb_mats) ** 2)
     n_terms_full = len(orbital_rotations)
 
-    if max_terms is None or n_terms_full < max_terms:
+    if not n_terms_full:
         return diag_coulomb_mats, orbital_rotations, None
 
-    if multi_stage_start is None and multi_stage_step is None:
+    if max_terms is None or max_terms >= n_terms_full:
+        list_reps = [n_terms_full]
+    elif multi_stage_start is None and multi_stage_step is None:
         list_reps = [max_terms]
     else:
         multi_stage_start = min(n_terms_full, multi_stage_start or n_terms_full)
