@@ -254,7 +254,11 @@ def slater_determinant_rdms(
         if orbital_rotation is not None:
             orbital_rotation = cast(np.ndarray, orbital_rotation)
             rdm1 = orbital_rotation.conj() @ rdm1 @ orbital_rotation.T
-        rdms = [_slater_determinant_rdm(rdm1, k, reorder) for k in range(1, rank + 1)]
+        # The helper returns a transposed view, so copy it into contiguous memory
+        rdms = [
+            np.ascontiguousarray(_slater_determinant_rdm(rdm1, k, reorder))
+            for k in range(1, rank + 1)
+        ]
     else:
         # Spinful case
         alpha_orbitals, beta_orbitals = cast(
