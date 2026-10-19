@@ -387,6 +387,43 @@ def test_double_factorized_compressed_random():
     assert error_optimized < 0.1 * error
 
 
+@pytest.mark.parametrize("norb", range(2, 6))
+def test_double_factorized_compressed_initial_guess(norb: int):
+    """Test compressed double factorization starts from the unoptimized result."""
+    two_body_tensor = ffsim.random.random_two_body_tensor(norb, seed=RNG, dtype=float)
+    diag_coulomb_mats, orbital_rotations = ffsim.linalg.double_factorized(
+        two_body_tensor, cholesky=True
+    )
+    # The test is only meaningful if some orbital rotations have determinant -1
+    assert np.any(np.linalg.det(orbital_rotations) < 0)
+    diag_coulomb_mats_optimized, orbital_rotations_optimized = (
+        ffsim.linalg.double_factorized(
+            two_body_tensor, optimize=True, options=dict(maxiter=0)
+        )
+    )
+    np.testing.assert_allclose(
+        np.linalg.det(orbital_rotations_optimized), 1, atol=1e-12
+    )
+    reconstructed = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations,
+        orbital_rotations,
+        diag_coulomb_mats,
+        orbital_rotations,
+        orbital_rotations,
+    )
+    reconstructed_optimized = contract(
+        "kpi,kqi,kij,krj,ksj->pqrs",
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+        diag_coulomb_mats_optimized,
+        orbital_rotations_optimized,
+        orbital_rotations_optimized,
+    )
+    np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
+    np.testing.assert_allclose(reconstructed_optimized, two_body_tensor, atol=1e-8)
+
+
 def test_double_factorized_compressed_random_constrained():
     """Test constrained compressed double factorization"""
     dim = 3

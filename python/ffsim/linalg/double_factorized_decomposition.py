@@ -438,6 +438,11 @@ def _double_factorized_compressed(
     n_tensors, norb, _ = orbital_rotations.shape
     if not n_tensors:
         return diag_coulomb_mats, orbital_rotations, None
+    # The optimization parameterizes special orthogonal orbital rotations, but eigh
+    # may return orbital rotations with determinant -1. Each column of an orbital
+    # rotation appears twice in the reconstructed tensor, so negating one column fixes
+    # the determinant without changing the factorization.
+    orbital_rotations[np.linalg.det(orbital_rotations) < 0, :, 0] *= -1
 
     # Structure key for the cached jitted objective. Convert to a hashable tuple so it
     # can be used as a cache key, and back to a list inside the builder.
