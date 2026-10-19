@@ -18,7 +18,6 @@ from typing import cast, overload
 
 import numpy as np
 import scipy.linalg
-from opt_einsum import contract
 from pyscf.fci import cistring
 
 from ffsim import linalg
@@ -208,7 +207,7 @@ def slater_determinant_rdms(
     Note:
         The higher-rank RDMs are computed from the 1-RDM using Wick's theorem, so
         any rank is supported. A rank-``k`` tensor stores ``norb ** (2*k)`` entries,
-        and computing it takes ``k!`` tensor products of that size.
+        and computing it takes about ``k`` tensor products of that size.
 
     Args:
         norb: The number of spatial orbitals.
@@ -255,7 +254,11 @@ def slater_determinant_rdms(
         if orbital_rotation is not None:
             orbital_rotation = cast(np.ndarray, orbital_rotation)
             rdm1 = orbital_rotation.conj() @ rdm1 @ orbital_rotation.T
-        rdms = [_slater_determinant_rdm(rdm1, k, reorder) for k in range(1, rank + 1)]
+        # The helper returns transposed views, so copy them into contiguous memory
+        rdms = [
+            np.ascontiguousarray(rdm)
+            for rdm in _slater_determinant_rdms(rdm1, rank, reorder)
+        ]
     else:
         # Spinful case
         alpha_orbitals, beta_orbitals = cast(
@@ -280,16 +283,12 @@ def slater_determinant_rdms(
             if orbital_rotation_b is not None:
                 rdm_b = orbital_rotation_b.conj() @ rdm_b @ orbital_rotation_b.T
         # Index k holds the rank-k RDM of each spin sector, with rank 0 equal to 1
-        rdms_a = [np.ones(())] + [
-            _slater_determinant_rdm(rdm_a, k, reorder) for k in range(1, rank + 1)
-        ]
+        rdms_a = [np.ones(()), *_slater_determinant_rdms(rdm_a, rank, reorder)]
         if np.array_equal(rdm_a, rdm_b):
             # Closed-shell case: reuse the alpha RDMs for beta
             rdms_b = rdms_a
         else:
-            rdms_b = [np.ones(())] + [
-                _slater_determinant_rdm(rdm_b, k, reorder) for k in range(1, rank + 1)
-            ]
+            rdms_b = [np.ones(()), *_slater_determinant_rdms(rdm_b, rank, reorder)]
         # There are no contractions between alpha and beta operators, so each spin
         # block is a product of an alpha RDM and a beta RDM
         rdms = [
@@ -304,29 +303,51 @@ def slater_determinant_rdms(
     return rdms[0] if rank == 1 else tuple(rdms)
 
 
-def _slater_determinant_rdm(rdm1: np.ndarray, rank: int, reorder: bool) -> np.ndarray:
-    """Return the rank-``rank`` RDM of a Slater determinant from its 1-RDM.
+def _slater_determinant_rdms(
+    rdm1: np.ndarray, rank: int, reorder: bool
+) -> list[np.ndarray]:
+    """Return the RDMs of a Slater determinant up to rank ``rank`` from its 1-RDM.
 
     By Wick's theorem, the RDM entry is the determinant of the matrix whose
     ``(i, j)`` entry is the contraction of the ``i``-th creation operator with the
-    ``j``-th annihilation operator. The determinant is expanded as a sum over
-    permutations, each of which contributes an outer product of 1-RDMs.
+    ``j``-th annihilation operator. The determinant is computed by Laplace expansion
+    along its rows, building each minor from the minors one row smaller so that every
+    minor is computed only once. The rank-``k`` RDM is the minor of the first ``k``
+    rows and columns, so all ranks come from a single expansion.
+
+    The returned arrays are transposed views and are not contiguous in general.
     """
     norb, _ = rdm1.shape
     # Contracting an annihilator with a later creator gives ⟨q p+⟩ = δ - ⟨p+ q⟩
     anti_rdm1 = rdm1 - np.eye(norb)
-    # Pair i has its creation index on axis 2*i and annihilation index on 2*i + 1
-    output_axes = list(range(2 * rank))
-    result = np.zeros((norb,) * (2 * rank), dtype=rdm1.dtype)
-    for perm in itertools.permutations(range(rank)):
-        operands: list[np.ndarray | list[int]] = []
-        for i, j in enumerate(perm):
-            # With reorder=False, the annihilator of pair j precedes the creator of
-            # pair i if j < i
-            mat = anti_rdm1 if not reorder and j < i else rdm1
-            operands += [mat, [2 * i, 2 * j + 1]]
-        result += _permutation_sign(np.array(perm)) * contract(*operands, output_axes)
-    return result
+    # minors[cols] is the minor of the first len(cols) rows and the columns in cols.
+    # Its axes are the creation indices of those rows followed by the annihilation
+    # indices of those columns.
+    minors: dict[tuple[int, ...], np.ndarray] = {(): np.ones((), dtype=rdm1.dtype)}
+    rdms = []
+    for i in range(rank):
+        next_minors: dict[tuple[int, ...], np.ndarray] = {}
+        for cols in itertools.combinations(range(rank), i + 1):
+            minor = np.zeros((norb,) * (2 * i + 2), dtype=rdm1.dtype)
+            for pos, j in enumerate(cols):
+                # With reorder=False, the annihilator of pair j precedes the creator of
+                # pair i if j < i
+                mat = anti_rdm1 if not reorder and j < i else rdm1
+                term = np.multiply.outer(minors[cols[:pos] + cols[pos + 1 :]], mat)
+                # Move the new creation and annihilation axes into place
+                term = np.moveaxis(term, [-2, -1], [i, i + 1 + pos])
+                if (i + pos) % 2:
+                    minor -= term
+                else:
+                    minor += term
+            next_minors[cols] = minor
+        minors = next_minors
+        # Interleave the axes so that pair j has its creation index on axis 2*j and
+        # annihilation index on axis 2*j + 1
+        k = i + 1
+        axes = [axis for j in range(k) for axis in (j, k + j)]
+        rdms.append(minors[tuple(range(k))].transpose(axes))
+    return rdms
 
 
 def slater_determinant_amplitudes(
