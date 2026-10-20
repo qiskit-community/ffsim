@@ -347,10 +347,12 @@ def test_t_amplitudes_zero_n_reps():
     nocc = 3
     nvrt = norb - nocc
 
-    for n_reps in [3, 15]:
+    for n_reps, optimize in itertools.product([3, 15], [False, True]):
         t2 = np.zeros((nocc, nocc, nvrt, nvrt))
         t1 = np.zeros((nocc, nvrt))
-        operator = ffsim.UCJOpSpinless.from_t_amplitudes(t2, t1=t1, n_reps=n_reps)
+        operator = ffsim.UCJOpSpinless.from_t_amplitudes(
+            t2, t1=t1, n_reps=n_reps, optimize=optimize
+        )
         assert operator.n_reps == n_reps
         actual = len(operator.to_parameters())
         expected = ffsim.UCJOpSpinless.n_params(

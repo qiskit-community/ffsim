@@ -411,7 +411,7 @@ class UCJOpSpinBalanced(
         If ``optimize`` is set to ``True``, then the entries of the resulting tensors
         (the diagonal Coulomb matrices and orbital rotations) are further optimized with
         :func:`scipy.optimize.minimize` to reduce the error in the factorization.
-        See :func:`ffsim.linalg.double_factorized_t2` for details.
+        See :func:`ffsim.linalg.double_factorized_t2_compressed` for details.
 
         Args:
             t2: The t2 amplitudes. They must satisfy
@@ -440,16 +440,19 @@ class UCJOpSpinBalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
-            optimize: Whether to optimize the tensors returned by the decomposition to
+            optimize: Whether to optimize the tensors returned by the decomposition
                 to minimize the error in the factorization.
-            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            regularization: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
-            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_start: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
-            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_step: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if ``optimize`` is set to ``False``.
             validate: Whether to validate the symmetry of the t2 amplitudes.
             rtol: Relative numerical tolerance for validation checks.
@@ -484,18 +487,24 @@ class UCJOpSpinBalanced(
             diag_coulomb_indices = None
         else:
             diag_coulomb_indices = list(set((pairs_aa or []) + (pairs_ab or [])))
+        # Compression starts from the untruncated factorization
         diag_coulomb_mats, orbital_rotations = linalg.double_factorized_t2(
-            t2,
-            tol=tol,
-            max_terms=n_reps,
-            optimize=optimize,
-            diag_coulomb_indices=diag_coulomb_indices,
-            regularization=regularization,
-            multi_stage_start=multi_stage_start,
-            multi_stage_step=multi_stage_step,
-            return_optimize_result=False,
-            **optimize_kwargs,
+            t2, tol=tol, max_terms=None if optimize else n_reps
         )
+        # The compression requires at least one term
+        if optimize and len(orbital_rotations):
+            diag_coulomb_mats, orbital_rotations, _ = (
+                linalg.double_factorized_t2_compressed(
+                    t2,
+                    initial_guess=(diag_coulomb_mats, orbital_rotations),
+                    max_terms=n_reps,
+                    diag_coulomb_indices=diag_coulomb_indices,
+                    regularization=regularization,
+                    multi_stage_start=multi_stage_start,
+                    multi_stage_step=multi_stage_step,
+                    **optimize_kwargs,
+                )
+            )
         diag_coulomb_mats = np.stack([diag_coulomb_mats, diag_coulomb_mats], axis=1)
 
         n_vecs, _, _, _ = diag_coulomb_mats.shape
@@ -592,16 +601,19 @@ class UCJOpSpinBalanced(
                 The error is defined as the maximum absolute difference between
                 an element of the original tensor and the corresponding element of
                 the reconstructed tensor.
-            optimize: Whether to optimize the tensors returned by the decomposition to
+            optimize: Whether to optimize the tensors returned by the decomposition
                 to minimize the error in the factorization.
-            regularization: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            regularization: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
-            multi_stage_start: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_start: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
-            multi_stage_step: See :func:`ffsim.linalg.double_factorized_t2` for a
-                description of this argument.
+            multi_stage_step: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
                 This argument is ignored if `optimize` is set to ``False``.
             validate: Whether to validate the symmetry of the converted t2
                 amplitudes.
