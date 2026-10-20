@@ -14,6 +14,22 @@ from __future__ import annotations
 
 import importlib.util
 
+import jax
+import pytest
+
 collect_ignore = []
 if importlib.util.find_spec("qiskit") is None:
     collect_ignore.append("qiskit")
+
+
+@pytest.fixture(autouse=True, scope="module")
+def clear_jax_caches():
+    """Free JAX compiled executables after each test module.
+
+    Each compiled executable holds memory mappings that are not released until its
+    cache entry is cleared. Without this, the mappings accumulate across the test
+    session and can exceed the Linux vm.max_map_count limit, which aborts the process
+    during compilation.
+    """
+    yield
+    jax.clear_caches()
