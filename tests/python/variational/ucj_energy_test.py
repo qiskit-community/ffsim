@@ -57,41 +57,56 @@ def assert_energy_and_grad_match_statevector(
     occupied_orbitals: Any = None,
     interaction_pairs: Any = None,
     params: np.ndarray | None = None,
-    chunk_size: int = 7,
+    chunk_size: int = 5,
     grad_indices: Sequence[int] | np.ndarray | None = None,
     rtol: float = 1e-7,
     atol: float = 0.0,
     eps: float = 1e-6,
 ):
-    """Check the energy, chunked energy, and gradient against the statevector.
+    """Check the energy and gradient against the statevector, with and without chunks.
 
-    The gradient is checked against central finite differences of the statevector
-    energy at ``grad_indices``, or at 5 random parameter indices if not given.
+    The unchunked energy is checked against the statevector energy, and the gradient
+    is checked against central finite differences of the statevector energy at
+    ``grad_indices``, or at 5 random parameter indices if not given. The chunked
+    energy and gradient are checked against the unchunked ones. With norb=4, the
+    default ``chunk_size`` of 5 leaves padded terms in both the same-spin and
+    opposite-spin two-body blocks.
     """
     expected = statevector_energy(ucj_op, hamiltonian, nelec, occupied_orbitals)
-    for this_chunk_size in [None, chunk_size]:
-        energy = energy_func(
-            ucj_op,
-            hamiltonian,
-            nelec,
-            occupied_orbitals=occupied_orbitals,
-            chunk_size=this_chunk_size,
-        )
-        np.testing.assert_allclose(energy, expected, rtol=rtol, atol=atol)
+    energy = energy_func(
+        ucj_op, hamiltonian, nelec, occupied_orbitals=occupied_orbitals
+    )
+    np.testing.assert_allclose(energy, expected, rtol=rtol, atol=atol)
+    chunked_energy = energy_func(
+        ucj_op,
+        hamiltonian,
+        nelec,
+        occupied_orbitals=occupied_orbitals,
+        chunk_size=chunk_size,
+    )
+    np.testing.assert_allclose(chunked_energy, energy, rtol=1e-12, atol=1e-12)
 
     if params is None:
         params = ucj_op.to_parameters(interaction_pairs=interaction_pairs)
-    value_and_grad = energy_and_grad_func(
-        hamiltonian,
-        nelec,
+    energy_and_grad_func_kwargs = dict(
         interaction_pairs=interaction_pairs,
         with_final_orbital_rotation=ucj_op.final_orbital_rotation is not None,
         occupied_orbitals=occupied_orbitals,
+    )
+    value_and_grad = energy_and_grad_func(
+        hamiltonian, nelec, **energy_and_grad_func_kwargs
     )
     value, grad = value_and_grad(params)
     np.testing.assert_allclose(value, expected, rtol=rtol, atol=atol)
     assert grad.shape == params.shape
     assert np.all(np.isfinite(grad))
+
+    chunked_value_and_grad = energy_and_grad_func(
+        hamiltonian, nelec, **energy_and_grad_func_kwargs, chunk_size=chunk_size
+    )
+    chunked_value, chunked_grad = chunked_value_and_grad(params)
+    np.testing.assert_allclose(chunked_value, value, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(chunked_grad, grad, rtol=1e-12, atol=1e-12)
 
     if grad_indices is None:
         grad_indices = RNG.choice(params.shape[0], size=5, replace=False)
