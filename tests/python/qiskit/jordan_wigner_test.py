@@ -41,7 +41,7 @@ def test_random(norb: int, nelec: tuple[int, int]):
 def test_inferred_norb(norb: int):
     """Test that norb is correctly inferred from the operator when not specified."""
     op = ffsim.random.random_fermion_hamiltonian(norb, seed=RNG)
-    norb_in_op = (1 + max(orb for term in op for _, _, orb in term)) if op else 0
+    norb_in_op = 1 + max((orb for term in op for _, _, orb in term), default=-1)
     nelec = (norb_in_op // 2, norb_in_op - norb_in_op // 2)
     linop = ffsim.linear_operator(op, norb=norb_in_op, nelec=nelec)
     vec = ffsim.random.random_state_vector(ffsim.dim(norb_in_op, nelec), seed=RNG)
@@ -56,6 +56,16 @@ def test_inferred_norb(norb: int):
         vec, norb_in_op, nelec
     )
     np.testing.assert_allclose(actual_result, expected_result, atol=1e-12)
+
+
+@pytest.mark.parametrize("norb", [None, 0, 2])
+def test_constant_operator(norb: int | None):
+    """Test operator with only a constant term."""
+    op = ffsim.FermionOperator({(): 2.0})
+    qubit_op = ffsim.qiskit.jordan_wigner(op, norb=norb)
+    num_qubits = 2 * (norb or 0)
+    assert qubit_op.num_qubits == num_qubits
+    assert qubit_op.to_sparse_list() == [("", [], 2.0)]
 
 
 def test_more_norb():

@@ -62,7 +62,7 @@ def jordan_wigner(
             [("", [], 0.0)], num_qubits=2 * (norb or 0)
         )
 
-    norb_in_op = 1 + max(orb for term in op for _, _, orb in term)
+    norb_in_op = 1 + max((orb for term in op for _, _, orb in term), default=-1)
     if norb is None:
         norb = norb_in_op
     if norb < norb_in_op:
