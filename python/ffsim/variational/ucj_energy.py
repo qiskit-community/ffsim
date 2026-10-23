@@ -774,6 +774,7 @@ def _spin_balanced_energy(
         jastrow_vec,
         norb,
         chunk_size=chunk_size,
+        spin_symmetric=set(occupied_alpha) == set(occupied_beta),
     )
 
 
@@ -1029,6 +1030,52 @@ def _chunked_term_sum(
     return jnp.sum(jax.lax.map(jax.checkpoint(chunk_sum), (index_chunks, mask_chunks)))
 
 
+def _symmetry_reduced_terms(
+    coeffs: jax.Array, symmetries: Sequence[tuple[tuple[int, ...], bool]]
+) -> tuple[jax.Array, jax.Array]:
+    r"""Reduce a sum of term expectation values using their symmetries.
+
+    Consider the energy contribution :math:`\mathrm{Re} \sum_t c_t X_t`, where
+    :math:`c` is ``coeffs`` and :math:`X` is the array of term expectation values,
+    which has the same shape. Each symmetry ``(axes, conjugate)`` states that
+    ``X.transpose(axes)`` equals ``X``, or its complex conjugate if ``conjugate`` is
+    True. Together with the identity, the symmetries must form a group.
+
+    Each term can be replaced by the group average of the correspondingly transposed
+    and conjugated coefficients without changing the real part of the sum. With these
+    symmetrized coefficients, all terms in an orbit of the group contribute the same
+    real part, so only one representative term per orbit needs to be evaluated,
+    weighted by the size of its orbit.
+
+    Args:
+        coeffs: The term coefficients.
+        symmetries: The non-identity symmetries of the term expectation values.
+
+    Returns:
+        The flat indices of the representative terms, and their weights, such that
+        the energy contribution is :math:`\mathrm{Re} \sum_k w_k X_{t_k}`.
+    """
+    group = [(tuple(range(coeffs.ndim)), False), *symmetries]
+    coeffs_sym = jnp.mean(
+        jnp.stack(
+            [
+                jnp.conj(coeffs.transpose(axes))
+                if conjugate
+                else coeffs.transpose(axes)
+                for axes, conjugate in group
+            ]
+        ),
+        axis=0,
+    )
+    flat_indices = np.arange(coeffs.size).reshape(coeffs.shape)
+    images = np.stack([flat_indices.transpose(axes).ravel() for axes, _ in group])
+    # Choose the smallest flat index in each orbit as its representative
+    reps = np.flatnonzero(images.min(axis=0) == flat_indices.ravel())
+    orbit_images = np.sort(images[:, reps], axis=0)
+    orbit_sizes = 1 + np.count_nonzero(np.diff(orbit_images, axis=0), axis=0)
+    return jnp.asarray(reps), orbit_sizes * coeffs_sym.reshape(-1)[reps]
+
+
 def _sector_and_other_factors(
     phi: jax.Array, q_other: jax.Array | None, norb: int, spin: int
 ) -> tuple[jax.Array, jax.Array | float]:
@@ -1090,20 +1137,36 @@ def _same_spin_two_body_energy(
     spin: int,
     chunk_size: int | None,
 ) -> jax.Array:
-    """Evaluate all canonical same-spin two-body terms.
+    r"""Evaluate all canonical same-spin two-body terms.
+
+    The canonical terms are indexed by orbital pairs ``(p, r)`` and ``(q, s)`` with
+    ``p < r`` and ``q < s``, and the term is the expectation value of
+    :math:`a^\dagger_p a^\dagger_r a_s a_q`. Swapping the two pairs gives the adjoint
+    operator, whose expectation value is the complex conjugate, so only the real part
+    of the returned value is meaningful.
 
     Pass ``q_other=None`` for a spinless Hamiltonian.
     """
-    n_terms = (norb * (norb - 1) // 2) ** 2
-    if n_terms == 0:
+    n_pairs = norb * (norb - 1) // 2
+    if n_pairs == 0:
         return jnp.array(0.0)
     pair_rows, pair_cols = jnp.triu_indices(norb, k=1)
-    n_pairs = pair_rows.shape[0]
+    p = pair_rows[:, None]
+    q = pair_rows[None, :]
+    r = pair_cols[:, None]
+    s = pair_cols[None, :]
+    coeffs = 0.5 * (
+        g_sector[p, q, r, s]
+        - g_sector[r, q, p, s]
+        - g_sector[p, s, r, q]
+        + g_sector[r, s, p, q]
+    )
+    reps, weights = _symmetry_reduced_terms(coeffs, [((1, 0), True)])
     n_spin_orbitals = jastrow_mat.shape[0]
     offset = spin * norb
 
     def term_chunk(indices: jax.Array) -> jax.Array:
-        left, right = jnp.divmod(indices, n_pairs)
+        left, right = jnp.divmod(reps[indices], n_pairs)
         p = pair_rows[left]
         q = pair_rows[right]
         r = pair_cols[left]
@@ -1129,15 +1192,9 @@ def _same_spin_two_body_energy(
             jnp.stack([q, s], axis=1),
             jnp.stack([p, r], axis=1),
         )
-        coeff = (
-            g_sector[p, q, r, s]
-            - g_sector[r, q, p, s]
-            - g_sector[p, s, r, q]
-            + g_sector[r, s, p, q]
-        )
-        return 0.5 * coeff * const * det_wick * det_other
+        return weights[indices] * const * det_wick * det_other
 
-    return _chunked_term_sum(n_terms, chunk_size, term_chunk)
+    return _chunked_term_sum(len(reps), chunk_size, term_chunk)
 
 
 def _opposite_spin_two_body_energy(
@@ -1148,19 +1205,29 @@ def _opposite_spin_two_body_energy(
     jastrow_vec: jax.Array,
     norb: int,
     chunk_size: int | None,
+    spin_symmetric: bool,
 ) -> jax.Array:
-    """Evaluate all opposite-spin two-body terms.
+    r"""Evaluate all opposite-spin two-body terms.
 
     The first pair of indices of ``g`` acts on alpha orbitals and the second pair
     acts on beta orbitals. Both the alpha-beta and beta-alpha terms must be
     included in ``g``.
+
+    The term for ``(p, q, r, s)`` is the expectation value of
+    :math:`a^\dagger_{p\alpha} a_{q\alpha} a^\dagger_{r\beta} a_{s\beta}`. The term
+    for ``(q, p, s, r)`` is its complex conjugate, so only the real part of the
+    returned value is meaningful. If ``spin_symmetric`` is True, the state must be
+    invariant under exchanging the alpha and beta orbitals, which makes the term for
+    ``(r, s, p, q)`` equal to the term for ``(p, q, r, s)``.
     """
-    n_terms = norb**4
-    g_flat = g.reshape(-1)
+    symmetries = [((1, 0, 3, 2), True)]
+    if spin_symmetric:
+        symmetries += [((2, 3, 0, 1), False), ((3, 2, 1, 0), True)]
+    reps, weights = _symmetry_reduced_terms(0.5 * g, symmetries)
     n_spin_orbitals = 2 * norb
 
     def term_chunk(indices: jax.Array) -> jax.Array:
-        p, q, r, s = jnp.unravel_index(indices, (norb, norb, norb, norb))
+        p, q, r, s = jnp.unravel_index(reps[indices], (norb, norb, norb, norb))
         rows = jnp.arange(indices.shape[0])
 
         delta = (
@@ -1181,9 +1248,9 @@ def _opposite_spin_two_body_energy(
         det_rho_beta = _det_weighted_transition_batch(
             phi[:, _spin_slice(1, norb)], q_beta, s[:, None], r[:, None]
         )
-        return 0.5 * g_flat[indices] * const * det_rho_alpha * det_rho_beta
+        return weights[indices] * const * det_rho_alpha * det_rho_beta
 
-    return _chunked_term_sum(n_terms, chunk_size, term_chunk)
+    return _chunked_term_sum(len(reps), chunk_size, term_chunk)
 
 
 def _spinful_two_body_energy(
@@ -1196,33 +1263,52 @@ def _spinful_two_body_energy(
     jastrow_vec: jax.Array,
     norb: int,
     chunk_size: int | None,
+    spin_symmetric: bool,
 ) -> jax.Array:
     """Evaluate all spin cases of the two-body Hamiltonian terms.
 
     ``g_opposite_spin`` combines the alpha-beta and beta-alpha terms, with the first
     pair of indices acting on alpha orbitals and the second pair acting on beta
     orbitals.
+
+    If ``spin_symmetric`` is True, the state must be invariant under exchanging the
+    alpha and beta orbitals. Then the beta-beta expectation values equal the
+    alpha-alpha ones, so both spin sectors are evaluated at once from the summed
+    tensor.
+
+    Only the real part of the returned value is meaningful.
     """
-    term_alpha_alpha = _same_spin_two_body_energy(
-        q_alpha,
-        q_beta,
-        g_alpha_alpha,
-        jastrow_mat,
-        jastrow_vec,
-        norb,
-        0,
-        chunk_size,
-    )
-    term_beta_beta = _same_spin_two_body_energy(
-        q_beta,
-        q_alpha,
-        g_beta_beta,
-        jastrow_mat,
-        jastrow_vec,
-        norb,
-        1,
-        chunk_size,
-    )
+    if spin_symmetric:
+        term_same_spin = _same_spin_two_body_energy(
+            q_alpha,
+            q_beta,
+            g_alpha_alpha + g_beta_beta,
+            jastrow_mat,
+            jastrow_vec,
+            norb,
+            0,
+            chunk_size,
+        )
+    else:
+        term_same_spin = _same_spin_two_body_energy(
+            q_alpha,
+            q_beta,
+            g_alpha_alpha,
+            jastrow_mat,
+            jastrow_vec,
+            norb,
+            0,
+            chunk_size,
+        ) + _same_spin_two_body_energy(
+            q_beta,
+            q_alpha,
+            g_beta_beta,
+            jastrow_mat,
+            jastrow_vec,
+            norb,
+            1,
+            chunk_size,
+        )
     term_opposite_spin = _opposite_spin_two_body_energy(
         q_alpha,
         q_beta,
@@ -1231,11 +1317,12 @@ def _spinful_two_body_energy(
         jastrow_vec,
         norb,
         chunk_size,
+        spin_symmetric,
     )
-    return term_alpha_alpha + term_beta_beta + term_opposite_spin
+    return term_same_spin + term_opposite_spin
 
 
-@jax.jit(static_argnames=["norb", "chunk_size"])
+@jax.jit(static_argnames=["norb", "chunk_size", "spin_symmetric"])
 def _compute_energy_spin_balanced(
     q_alpha: jax.Array,
     q_beta: jax.Array,
@@ -1247,6 +1334,7 @@ def _compute_energy_spin_balanced(
     norb: int,
     *,
     chunk_size: int | None = None,
+    spin_symmetric: bool = False,
 ) -> jax.Array:
     r"""Compute the spin-balanced UCJ energy from backpropagated tensors.
 
@@ -1295,16 +1383,23 @@ def _compute_energy_spin_balanced(
         norb: The number of spatial orbitals.
         chunk_size: Maximum number of two-body terms to evaluate per chunk. If
             ``None``, all terms are processed in one batch.
+        spin_symmetric: Whether ``q_alpha`` and ``q_beta`` describe the same occupied
+            orbitals, which makes the UCJ state invariant under exchanging the alpha
+            and beta orbitals.
 
     Returns:
         The real-valued spin-balanced UCJ energy.
     """
-    energy_alpha_1 = _one_body_spin_sector_energy(
-        q_alpha, q_beta, h_rotated, jastrow_mat, jastrow_vec, norb, 0
-    )
-    energy_beta_1 = _one_body_spin_sector_energy(
-        q_beta, q_alpha, h_rotated, jastrow_mat, jastrow_vec, norb, 1
-    )
+    if spin_symmetric:
+        energy_1 = _one_body_spin_sector_energy(
+            q_alpha, q_beta, 2 * h_rotated, jastrow_mat, jastrow_vec, norb, 0
+        )
+    else:
+        energy_1 = _one_body_spin_sector_energy(
+            q_alpha, q_beta, h_rotated, jastrow_mat, jastrow_vec, norb, 0
+        ) + _one_body_spin_sector_energy(
+            q_beta, q_alpha, h_rotated, jastrow_mat, jastrow_vec, norb, 1
+        )
     energy_2 = _spinful_two_body_energy(
         q_alpha,
         q_beta,
@@ -1315,9 +1410,10 @@ def _compute_energy_spin_balanced(
         jastrow_vec,
         norb,
         chunk_size,
+        spin_symmetric,
     )
 
-    return jnp.real(constant + energy_alpha_1 + energy_beta_1 + energy_2)
+    return jnp.real(constant + energy_1 + energy_2)
 
 
 @jax.jit(static_argnames=["norb", "chunk_size"])
@@ -1381,6 +1477,7 @@ def _compute_energy_spin_unbalanced(
         jastrow_vec,
         norb,
         chunk_size,
+        False,
     )
 
     return jnp.real(constant + energy_alpha_1 + energy_beta_1 + energy_2)
