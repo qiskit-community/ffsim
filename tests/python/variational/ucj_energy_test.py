@@ -403,6 +403,16 @@ def test_ucj_energy_validation():
     with pytest.raises(ValueError, match="1-dimensional"):
         value_and_grad(params[None])
 
+    for interaction_pairs in [([(0, 1), (0, norb)], None), (None, [(-1, 0)])]:
+        with pytest.raises(ValueError, match="outside the range"):
+            ffsim.ucj_energy_and_grad_func_spin_balanced(
+                mol_hamiltonian, nelec, interaction_pairs=interaction_pairs
+            )
+    with pytest.raises(ValueError, match="outside the range"):
+        ffsim.ucj_energy_and_grad_func_spin_unbalanced(
+            mol_hamiltonian, nelec, interaction_pairs=(None, [(norb, 0)], None)
+        )
+
     spinless_op = ffsim.random.random_ucj_op_spinless(norb, n_reps=1, seed=RNG)
     spinless_hamiltonian = ffsim.random.random_molecular_hamiltonian_spinless(
         norb, seed=RNG
@@ -410,4 +420,8 @@ def test_ucj_energy_validation():
     with pytest.raises(ValueError, match="duplicates"):
         ffsim.ucj_energy_spinless(
             spinless_op, spinless_hamiltonian, 2, occupied_orbitals=[1, 1]
+        )
+    with pytest.raises(ValueError, match="outside the range"):
+        ffsim.ucj_energy_and_grad_func_spinless(
+            spinless_hamiltonian, 2, interaction_pairs=[(0, norb)]
         )

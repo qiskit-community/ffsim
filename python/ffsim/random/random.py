@@ -896,8 +896,8 @@ def random_ucj_op_spin_balanced(
     if interaction_pairs is None:
         interaction_pairs = (None, None)
     pairs_aa, pairs_ab = interaction_pairs
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=False)
+    validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+    validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
 
     rng = np.random.default_rng(seed)
     _symmetric_matrix_generator = (
@@ -998,9 +998,9 @@ def random_ucj_op_spin_unbalanced(
     if interaction_pairs is None:
         interaction_pairs = (None, None, None)
     pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=True)
-    validate_interaction_pairs(pairs_bb, ordered=False)
+    validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+    validate_interaction_pairs(pairs_ab, ordered=True, norb=norb)
+    validate_interaction_pairs(pairs_bb, ordered=False, norb=norb)
 
     rng = np.random.default_rng(seed)
     _symmetric_matrix_generator = (
@@ -1107,7 +1107,7 @@ def random_ucj_op_spinless(
     Returns:
         The sampled UCJ operator.
     """
-    validate_interaction_pairs(interaction_pairs, ordered=False)
+    validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
 
     rng = np.random.default_rng(seed)
     _symmetric_matrix_generator = (

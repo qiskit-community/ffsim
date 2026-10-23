@@ -195,15 +195,16 @@ class UCJOpSpinUnbalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
         """
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        validate_interaction_pairs(pairs_aa, ordered=False)
-        validate_interaction_pairs(pairs_ab, ordered=True)
-        validate_interaction_pairs(pairs_bb, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+        validate_interaction_pairs(pairs_ab, ordered=True, norb=norb)
+        validate_interaction_pairs(pairs_bb, ordered=False, norb=norb)
         # Each same-spin diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -261,6 +262,7 @@ class UCJOpSpinUnbalanced(
             ValueError: The number of parameters passed did not match the number
                 expected based on the function inputs.
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
         """
@@ -363,6 +365,7 @@ class UCJOpSpinUnbalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
         """
@@ -521,6 +524,7 @@ class UCJOpSpinUnbalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list for alpha-alpha or beta-beta interactions
                 contained lower triangular pairs.
             ValueError: The same-spin t2 amplitudes were not antisymmetric.
@@ -532,16 +536,15 @@ class UCJOpSpinUnbalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None, None)
         pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        validate_interaction_pairs(pairs_aa, ordered=False)
-        validate_interaction_pairs(pairs_ab, ordered=True)
-        validate_interaction_pairs(pairs_bb, ordered=False)
-
         t2aa, t2ab, t2bb = t2
+        nocc_a, _, nvrt_a, _ = t2ab.shape
+        norb = nocc_a + nvrt_a
+        validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+        validate_interaction_pairs(pairs_ab, ordered=True, norb=norb)
+        validate_interaction_pairs(pairs_bb, ordered=False, norb=norb)
         if validate:
             validate_t2_antisymmetric(t2aa, name="t2aa", rtol=rtol, atol=atol)
             validate_t2_antisymmetric(t2bb, name="t2bb", rtol=rtol, atol=atol)
-        nocc_a, _, nvrt_a, _ = t2ab.shape
-        norb = nocc_a + nvrt_a
 
         # The uncompressed double factorizations determine the number of terms
         # available for an integer n_reps to be divided between, and they serve as the

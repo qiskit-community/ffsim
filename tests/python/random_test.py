@@ -737,6 +737,10 @@ def test_raise_errors():
         _ = ffsim.random.random_ucj_op_spin_unbalanced(
             4, interaction_pairs=(None, None, [(1, 0)]), seed=RNG
         )
+    with pytest.raises(ValueError, match="outside the range"):
+        _ = ffsim.random.random_ucj_op_spin_unbalanced(
+            4, interaction_pairs=(None, [(0, 4)], None), seed=RNG
+        )
 
     with pytest.raises(ValueError, match="Duplicate"):
         _ = ffsim.random.random_num_num_ansatz_op_spin_balanced(

@@ -130,8 +130,8 @@ def ucj_energy_and_grad_func_spin_balanced(
     pairs_aa, pairs_ab = (
         interaction_pairs if interaction_pairs is not None else (None, None)
     )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=False)
+    validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+    validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
     if pairs_aa is None:
         pairs_aa = triu_indices
     if pairs_ab is None:
@@ -271,9 +271,9 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     pairs_aa, pairs_ab, pairs_bb = (
         interaction_pairs if interaction_pairs is not None else (None, None, None)
     )
-    validate_interaction_pairs(pairs_aa, ordered=False)
-    validate_interaction_pairs(pairs_ab, ordered=True)
-    validate_interaction_pairs(pairs_bb, ordered=False)
+    validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+    validate_interaction_pairs(pairs_ab, ordered=True, norb=norb)
+    validate_interaction_pairs(pairs_bb, ordered=False, norb=norb)
     if pairs_aa is None:
         pairs_aa = triu_indices
     if pairs_ab is None:
@@ -401,7 +401,7 @@ def ucj_energy_and_grad_func_spinless(
         value and gradient.
     """
     norb = hamiltonian.norb
-    validate_interaction_pairs(interaction_pairs, ordered=False)
+    validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
     interaction_pairs_resolved = (
         cast(
             list[tuple[int, int]],

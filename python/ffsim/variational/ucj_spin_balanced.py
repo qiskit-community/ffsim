@@ -182,13 +182,14 @@ class UCJOpSpinBalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        validate_interaction_pairs(pairs_aa, ordered=False)
-        validate_interaction_pairs(pairs_ab, ordered=False)
+        validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+        validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
         # Each diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -240,6 +241,7 @@ class UCJOpSpinBalanced(
             ValueError: The number of parameters passed did not match the number
                 expected based on the function inputs.
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         n_params = UCJOpSpinBalanced.n_params(
@@ -329,6 +331,7 @@ class UCJOpSpinBalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         n_reps, _, norb, _ = self.diag_coulomb_mats.shape
@@ -457,6 +460,7 @@ class UCJOpSpinBalanced(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
             ValueError: The t2 amplitudes did not have the required symmetry.
         """
@@ -465,13 +469,13 @@ class UCJOpSpinBalanced(
         if interaction_pairs is None:
             interaction_pairs = (None, None)
         pairs_aa, pairs_ab = interaction_pairs
-        validate_interaction_pairs(pairs_aa, ordered=False)
-        validate_interaction_pairs(pairs_ab, ordered=False)
+        nocc, _, nvrt, _ = t2.shape
+        norb = nocc + nvrt
+        validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+        validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
         if validate:
             validate_t2_pair_symmetric(t2, rtol=rtol, atol=atol)
 
-        nocc, _, nvrt, _ = t2.shape
-        norb = nocc + nvrt
         if pairs_aa is None and pairs_ab is None:
             diag_coulomb_indices = None
         else:

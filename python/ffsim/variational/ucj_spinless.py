@@ -162,9 +162,10 @@ class UCJOpSpinless(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
-        validate_interaction_pairs(interaction_pairs, ordered=False)
+        validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
         # Each diagonal Coulomb matrix has one parameter per upper triangular
         # entry unless indices are passed explicitly
         n_triu_indices = norb * (norb + 1) // 2
@@ -210,6 +211,7 @@ class UCJOpSpinless(
             ValueError: The number of parameters passed did not match the number
                 expected based on the function inputs.
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         n_params = UCJOpSpinless.n_params(
@@ -281,6 +283,7 @@ class UCJOpSpinless(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         n_reps, norb, _ = self.diag_coulomb_mats.shape
@@ -405,17 +408,17 @@ class UCJOpSpinless(
 
         Raises:
             ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
             ValueError: Interaction pairs list contained lower triangular pairs.
             ValueError: The t2 amplitudes were not antisymmetric.
         """
         if isinstance(n_reps, int) and n_reps <= 0:
             raise ValueError(f"n_reps must be at least 1. Got {n_reps}.")
-        validate_interaction_pairs(interaction_pairs, ordered=False)
-        if validate:
-            validate_t2_antisymmetric(t2, rtol=rtol, atol=atol)
-
         nocc, _, nvrt, _ = t2.shape
         norb = nocc + nvrt
+        validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
+        if validate:
+            validate_t2_antisymmetric(t2, rtol=rtol, atol=atol)
 
         # double_factorized_t2 expects amplitudes for the doubles operator with a
         # prefactor of 1/2 rather than 1/4

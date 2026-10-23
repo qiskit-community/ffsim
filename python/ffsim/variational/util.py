@@ -17,7 +17,7 @@ import scipy.linalg
 
 
 def validate_interaction_pairs(
-    interaction_pairs: list[tuple[int, int]] | None, ordered: bool
+    interaction_pairs: list[tuple[int, int]] | None, ordered: bool, *, norb: int
 ) -> None:
     if interaction_pairs is None:
         return
@@ -33,6 +33,12 @@ def validate_interaction_pairs(
                     "interaction pairs, you must provide only upper triangular pairs. "
                     f"Got {(i, j)}, which is a lower triangular pair."
                 )
+    for i, j in interaction_pairs:
+        if not (0 <= i < norb and 0 <= j < norb):
+            raise ValueError(
+                f"Interaction pair {(i, j)} contains an orbital index outside the "
+                f"range [0, {norb})."
+            )
 
 
 def validate_t2_pair_symmetric(

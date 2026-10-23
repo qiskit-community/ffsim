@@ -62,6 +62,12 @@ def test_n_params():
                 n_reps,
                 interaction_pairs=[(1, 0), (1, 0)],
             )
+        with pytest.raises(ValueError, match="outside the range"):
+            actual = ffsim.UCJOpSpinless.n_params(
+                norb,
+                n_reps,
+                interaction_pairs=[(0, norb)],
+            )
 
 
 def test_parameters_roundtrip_all_to_all():

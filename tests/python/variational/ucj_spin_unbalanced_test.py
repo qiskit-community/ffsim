@@ -70,6 +70,12 @@ def test_n_params():
                 n_reps,
                 interaction_pairs=(pairs_aa, [(1, 0), (1, 0)], pairs_bb),
             )
+        with pytest.raises(ValueError, match="outside the range"):
+            actual = ffsim.UCJOpSpinUnbalanced.n_params(
+                norb,
+                n_reps,
+                interaction_pairs=(pairs_aa, [(norb, 0)], pairs_bb),
+            )
 
 
 def test_t_amplitudes_validate_interaction_pairs():
@@ -92,6 +98,10 @@ def test_t_amplitudes_validate_interaction_pairs():
     with pytest.raises(ValueError, match="triangular"):
         _ = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
             t2, n_reps=2, interaction_pairs=(None, None, [(1, 0)])
+        )
+    with pytest.raises(ValueError, match="outside the range"):
+        _ = ffsim.UCJOpSpinUnbalanced.from_t_amplitudes(
+            t2, n_reps=2, interaction_pairs=(None, [(0, norb)], None)
         )
 
 
