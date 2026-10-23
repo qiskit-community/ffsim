@@ -13,9 +13,8 @@
 from __future__ import annotations
 
 import functools
-import itertools
 from collections.abc import Sequence
-from typing import Callable, cast
+from typing import Callable
 
 import jax
 import jax.numpy as jnp
@@ -25,7 +24,12 @@ from ffsim.hamiltonians.molecular_hamiltonian import (
     MolecularHamiltonian,
     MolecularHamiltonianSpinless,
 )
-from ffsim.linalg.util import rotate_one_body_tensor, rotate_two_body_tensor
+from ffsim.linalg.util import (
+    all_indices,
+    rotate_one_body_tensor,
+    rotate_two_body_tensor,
+    upper_triangular_indices,
+)
 from ffsim.variational.ucj_spin_balanced import (
     UCJOpSpinBalanced,
     ucj_op_spin_balanced_from_parameters_jax,
@@ -129,10 +133,7 @@ def ucj_energy_and_grad_func_spin_balanced(
     """
     _validate_chunk_size(chunk_size)
     norb = hamiltonian.norb
-    triu_indices = cast(
-        list[tuple[int, int]],
-        list(itertools.combinations_with_replacement(range(norb), 2)),
-    )
+    triu_indices = upper_triangular_indices(norb)
     pairs_aa, pairs_ab = (
         interaction_pairs if interaction_pairs is not None else (None, None)
     )
@@ -269,13 +270,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     """
     _validate_chunk_size(chunk_size)
     norb = hamiltonian.norb
-    triu_indices = cast(
-        list[tuple[int, int]],
-        list(itertools.combinations_with_replacement(range(norb), 2)),
-    )
-    mat_indices = cast(
-        list[tuple[int, int]], list(itertools.product(range(norb), repeat=2))
-    )
+    triu_indices = upper_triangular_indices(norb)
     pairs_aa, pairs_ab, pairs_bb = (
         interaction_pairs if interaction_pairs is not None else (None, None, None)
     )
@@ -285,7 +280,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
     if pairs_aa is None:
         pairs_aa = triu_indices
     if pairs_ab is None:
-        pairs_ab = mat_indices
+        pairs_ab = all_indices(norb)
     if pairs_bb is None:
         pairs_bb = triu_indices
     interaction_pairs_key = (
@@ -413,10 +408,7 @@ def ucj_energy_and_grad_func_spinless(
     norb = hamiltonian.norb
     validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
     interaction_pairs_resolved = (
-        cast(
-            list[tuple[int, int]],
-            list(itertools.combinations_with_replacement(range(norb), 2)),
-        )
+        upper_triangular_indices(norb)
         if interaction_pairs is None
         else interaction_pairs
     )
@@ -506,7 +498,7 @@ def _occupied_orbitals_key(
     nelec: tuple[int, int],
     occupied_orbitals: tuple[Sequence[int], Sequence[int]] | None,
 ) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    """functools.cache requires arguments to be hashable."""
+    """Resolve and validate occupied reference orbital indices for each spin."""
     if occupied_orbitals is None:
         occupied_orbitals = (range(nelec[0]), range(nelec[1]))
 
@@ -923,7 +915,8 @@ def _det_weighted_transition_batch(
     lower = jnp.concatenate([selected_rows, zeros], axis=2)
     bordered = jnp.concatenate([upper, lower], axis=1)
     det = jnp.linalg.det(bordered)
-    return jnp.where(body_order == 1, -det, det)
+    # det([[M, B], [C, 0]]) = (-1)^k det(M) det(C M^-1 B) when C has k rows
+    return (-1) ** body_order * det
 
 
 def _jastrow_phase(
