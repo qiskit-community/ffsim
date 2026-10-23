@@ -59,9 +59,9 @@ def ucj_energy_spin_balanced(
         nelec: The number of alpha and beta electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch. This is useful
-            for large systems where the two-body tensor may not fit in GPU memory.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         The expectation value of the Hamiltonian with respect to the UCJ state.
@@ -114,8 +114,9 @@ def ucj_energy_and_grad_func_spin_balanced(
             orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         A callable that takes a flattened parameter vector and returns the energy
@@ -192,8 +193,9 @@ def ucj_energy_spin_unbalanced(
         nelec: The number of alpha and beta electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         The expectation value of the Hamiltonian with respect to the UCJ state.
@@ -250,8 +252,9 @@ def ucj_energy_and_grad_func_spin_unbalanced(
             orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         A callable that takes a flattened parameter vector and returns the energy
@@ -335,9 +338,9 @@ def ucj_energy_spinless(
         nelec: The number of electrons.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch. This is useful
-            for large systems where the two-body tensor may not fit in GPU memory.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         The expectation value of the Hamiltonian with respect to the UCJ state.
@@ -389,8 +392,9 @@ def ucj_energy_and_grad_func_spinless(
             orbital rotation.
         occupied_orbitals: The occupied orbitals for the reference state. Defaults to
             the Hartree-Fock state.
-        chunk_size: The number of two-body Hamiltonian terms to process at a time.
-            If ``None``, all two-body terms are processed in one batch.
+        chunk_size: The maximum number of two-body Hamiltonian terms to evaluate at
+            a time. Smaller values use less memory but take longer to run. If
+            ``None``, all two-body terms are evaluated in one batch.
 
     Returns:
         A callable that takes a flattened parameter vector and returns the energy
@@ -995,12 +999,18 @@ def _spin_slice(spin: int, norb: int) -> slice:
 def _chunked_term_sum(
     n_terms: int, chunk_size: int | None, func: Callable[[jax.Array], jax.Array]
 ) -> jax.Array:
-    """Sum per-term values over indices, optionally in fixed-size chunks."""
+    """Sum per-term values over indices, optionally in chunks of at most chunk_size.
+
+    The terms are split into the fewest chunks allowed by ``chunk_size``, with all
+    chunks of equal size. The last chunk is padded with masked-out terms, which are
+    fully evaluated, so equal splitting keeps the padding below one term per chunk.
+    """
     if chunk_size is None or chunk_size >= n_terms:
         return jnp.sum(func(jnp.arange(n_terms)))
     if chunk_size <= 0:
         raise ValueError("chunk_size must be positive.")
     n_chunks = (n_terms + chunk_size - 1) // chunk_size
+    chunk_size = (n_terms + n_chunks - 1) // n_chunks
     padded_n_terms = n_chunks * chunk_size
     indices = jnp.arange(padded_n_terms)
     mask = indices < n_terms
@@ -1285,7 +1295,7 @@ def _compute_energy_spin_balanced(
         jastrow_mat: Spin-orbital Jastrow quadratic matrix :math:`A`.
         jastrow_vec: Spin-orbital Jastrow linear vector :math:`\ell`.
         norb: The number of spatial orbitals.
-        chunk_size: Number of two-body tensor elements to process per chunk. If
+        chunk_size: Maximum number of two-body terms to evaluate per chunk. If
             ``None``, all terms are processed in one batch.
 
     Returns:
