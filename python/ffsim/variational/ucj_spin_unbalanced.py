@@ -16,6 +16,8 @@ import itertools
 from dataclasses import InitVar, dataclass
 from typing import cast
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 
 from ffsim import gates, linalg, protocols
@@ -28,8 +30,11 @@ from ffsim.linalg.double_factorized_decomposition import (
 from ffsim.linalg.util import (
     all_indices,
     mask_from_indices,
+    real_matrices_from_parameters_jax,
+    real_symmetric_from_parameters_jax,
     rows_and_cols,
     unitary_from_parameters,
+    unitary_from_parameters_jax,
     unitary_to_parameters,
     upper_triangular_indices,
 )
@@ -844,3 +849,81 @@ def _pad_orbital_rotations(orbital_rotations: np.ndarray, n_reps: int | None):
             ]
         )
     return orbital_rotations
+
+
+def ucj_op_spin_unbalanced_from_parameters_jax(
+    params: jax.Array,
+    *,
+    norb: int,
+    n_reps: int,
+    interaction_pairs: tuple[
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+        list[tuple[int, int]] | None,
+    ]
+    | None = None,
+    with_final_orbital_rotation: bool = False,
+) -> tuple[jax.Array, jax.Array, jax.Array | None]:
+    """JAX version of UCJOpSpinUnbalanced.from_parameters.
+
+    Returns:
+        The diagonal Coulomb matrices, orbital rotations, and final orbital rotation
+        (or None), with the same shapes as the corresponding attributes of
+        UCJOpSpinUnbalanced.
+    """
+    n_params = UCJOpSpinUnbalanced.n_params(
+        norb,
+        n_reps,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    if len(params) != n_params:
+        raise ValueError(
+            "The number of parameters passed did not match the number expected "
+            "based on the function inputs. "
+            f"Expected {n_params} but got {len(params)}."
+        )
+    if interaction_pairs is None:
+        interaction_pairs = (None, None, None)
+    pairs_aa, pairs_ab, pairs_bb = interaction_pairs
+    triu_indices = upper_triangular_indices(norb)
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = all_indices(norb)
+    if pairs_bb is None:
+        pairs_bb = triu_indices
+    diag_coulomb_mats = jnp.zeros((n_reps, 3, norb, norb))
+    orbital_rotations = jnp.zeros((n_reps, 2, norb, norb), dtype=complex)
+    index = 0
+    for rep in range(n_reps):
+        # Orbital rotations
+        n_params = norb**2
+        for sigma in range(2):
+            orbital_rotations = orbital_rotations.at[rep, sigma].set(
+                unitary_from_parameters_jax(params[index : index + n_params], norb)
+            )
+            index += n_params
+        # Diag Coulomb matrices
+        for i, (indices, symmetric) in enumerate(
+            zip((pairs_aa, pairs_ab, pairs_bb), (True, False, True))
+        ):
+            n_params = len(indices)
+            vals = params[index : index + n_params]
+            diag_coulomb_mats = diag_coulomb_mats.at[rep, i].set(
+                real_symmetric_from_parameters_jax(vals, norb, indices)
+                if symmetric
+                else real_matrices_from_parameters_jax(vals, norb, 1, indices)[0]
+            )
+            index += n_params
+    # Final orbital rotation
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = jnp.zeros((2, norb, norb), dtype=complex)
+        n_params = norb**2
+        for sigma in range(2):
+            final_orbital_rotation = final_orbital_rotation.at[sigma].set(
+                unitary_from_parameters_jax(params[index : index + n_params], norb)
+            )
+            index += n_params
+    return diag_coulomb_mats, orbital_rotations, final_orbital_rotation

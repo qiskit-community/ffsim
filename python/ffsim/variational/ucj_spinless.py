@@ -15,13 +15,17 @@ from __future__ import annotations
 from dataclasses import InitVar, dataclass
 from typing import cast
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 
 from ffsim import gates, linalg, protocols
 from ffsim.linalg.util import (
     mask_from_indices,
+    real_symmetric_from_parameters_jax,
     rows_and_cols,
     unitary_from_parameters,
+    unitary_from_parameters_jax,
     unitary_to_parameters,
     upper_triangular_indices,
 )
@@ -546,3 +550,57 @@ class UCJOpSpinless(
                 )
             return True
         return NotImplemented
+
+
+def ucj_op_spinless_from_parameters_jax(
+    params: jax.Array,
+    *,
+    norb: int,
+    n_reps: int,
+    interaction_pairs: list[tuple[int, int]] | None = None,
+    with_final_orbital_rotation: bool = False,
+) -> tuple[jax.Array, jax.Array, jax.Array | None]:
+    """JAX version of UCJOpSpinless.from_parameters.
+
+    Returns:
+        The diagonal Coulomb matrices, orbital rotations, and final orbital rotation
+        (or None), with the same shapes as the corresponding attributes of
+        UCJOpSpinless.
+    """
+    n_params = UCJOpSpinless.n_params(
+        norb,
+        n_reps,
+        interaction_pairs=interaction_pairs,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+    )
+    if len(params) != n_params:
+        raise ValueError(
+            "The number of parameters passed did not match the number expected "
+            "based on the function inputs. "
+            f"Expected {n_params} but got {len(params)}."
+        )
+    if interaction_pairs is None:
+        interaction_pairs = upper_triangular_indices(norb)
+    diag_coulomb_mats = jnp.zeros((n_reps, norb, norb))
+    orbital_rotations = jnp.zeros((n_reps, norb, norb), dtype=complex)
+    index = 0
+    for rep in range(n_reps):
+        # Orbital rotation
+        n_params = norb**2
+        orbital_rotations = orbital_rotations.at[rep].set(
+            unitary_from_parameters_jax(params[index : index + n_params], norb)
+        )
+        index += n_params
+        # Diag Coulomb matrix
+        n_params = len(interaction_pairs)
+        diag_coulomb_mats = diag_coulomb_mats.at[rep].set(
+            real_symmetric_from_parameters_jax(
+                params[index : index + n_params], norb, interaction_pairs
+            )
+        )
+        index += n_params
+    # Final orbital rotation
+    final_orbital_rotation = None
+    if with_final_orbital_rotation:
+        final_orbital_rotation = unitary_from_parameters_jax(params[index:], norb)
+    return diag_coulomb_mats, orbital_rotations, final_orbital_rotation

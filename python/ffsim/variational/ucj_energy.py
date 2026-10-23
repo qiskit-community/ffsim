@@ -25,15 +25,19 @@ from ffsim.hamiltonians.molecular_hamiltonian import (
     MolecularHamiltonian,
     MolecularHamiltonianSpinless,
 )
-from ffsim.linalg.util import (
-    real_symmetrics_from_parameters_jax,
-    rotate_one_body_tensor,
-    rotate_two_body_tensor,
-    unitary_from_parameters_jax,
+from ffsim.linalg.util import rotate_one_body_tensor, rotate_two_body_tensor
+from ffsim.variational.ucj_spin_balanced import (
+    UCJOpSpinBalanced,
+    ucj_op_spin_balanced_from_parameters_jax,
 )
-from ffsim.variational.ucj_spin_balanced import UCJOpSpinBalanced
-from ffsim.variational.ucj_spin_unbalanced import UCJOpSpinUnbalanced
-from ffsim.variational.ucj_spinless import UCJOpSpinless
+from ffsim.variational.ucj_spin_unbalanced import (
+    UCJOpSpinUnbalanced,
+    ucj_op_spin_unbalanced_from_parameters_jax,
+)
+from ffsim.variational.ucj_spinless import (
+    UCJOpSpinless,
+    ucj_op_spinless_from_parameters_jax,
+)
 from ffsim.variational.util import validate_interaction_pairs
 
 jax.config.update("jax_enable_x64", True)
@@ -554,7 +558,7 @@ def _make_spin_balanced_objective(
     [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
 ]:
     """Build a jitted value-and-gradient function for spin-balanced UCJ energy."""
-    interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
+    pairs_aa, pairs_ab = interaction_pairs_key
 
     def energy(
         params: jax.Array,
@@ -562,35 +566,18 @@ def _make_spin_balanced_objective(
         two_body_tensor: jax.Array,
         constant: jax.Array,
     ) -> jax.Array:
-        param_offset = 0
-        n_orbital_rotation_params = norb**2
-        orbital_rotation = unitary_from_parameters_jax(
-            params[param_offset : param_offset + n_orbital_rotation_params], dim=norb
-        )
-        param_offset += n_orbital_rotation_params
-
-        diag_coulomb_mats = []
-        for pairs in interaction_pairs:
-            n_diag_coulomb_params = len(pairs)
-            mat = real_symmetrics_from_parameters_jax(
-                params[param_offset : param_offset + n_diag_coulomb_params],
-                dim=norb,
-                n_mats=1,
-                triu_indices=pairs,
-            )[0]
-            param_offset += n_diag_coulomb_params
-            diag_coulomb_mats.append(mat)
-        diag_coulomb_mat_array = jnp.stack(diag_coulomb_mats)
-
-        final_orbital_rotation = None
-        if with_final_orbital_rotation:
-            final_orbital_rotation = unitary_from_parameters_jax(
-                params[param_offset:], dim=norb
+        diag_coulomb_mats, orbital_rotations, final_orbital_rotation = (
+            ucj_op_spin_balanced_from_parameters_jax(
+                params,
+                norb=norb,
+                n_reps=1,
+                interaction_pairs=(list(pairs_aa), list(pairs_ab)),
+                with_final_orbital_rotation=with_final_orbital_rotation,
             )
-
+        )
         return _spin_balanced_energy(
-            orbital_rotation,
-            diag_coulomb_mat_array,
+            orbital_rotations[0],
+            diag_coulomb_mats[0],
             final_orbital_rotation,
             one_body_tensor,
             two_body_tensor,
@@ -618,7 +605,7 @@ def _make_spin_unbalanced_objective(
     [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
 ]:
     """Build a jitted value-and-gradient function for spin-unbalanced UCJ energy."""
-    interaction_pairs = tuple(list(pairs) for pairs in interaction_pairs_key)
+    pairs_aa, pairs_ab, pairs_bb = interaction_pairs_key
 
     def energy(
         params: jax.Array,
@@ -626,60 +613,18 @@ def _make_spin_unbalanced_objective(
         two_body_tensor: jax.Array,
         constant: jax.Array,
     ) -> jax.Array:
-        pairs_aa, pairs_ab, pairs_bb = interaction_pairs
-        param_offset = 0
-
-        orbital_rotation_list = []
-        n_orbital_rotation_params = norb**2
-        for _ in range(2):
-            orbital_rotation_list.append(
-                unitary_from_parameters_jax(
-                    params[param_offset : param_offset + n_orbital_rotation_params],
-                    dim=norb,
-                )
+        diag_coulomb_mats, orbital_rotations, final_orbital_rotation = (
+            ucj_op_spin_unbalanced_from_parameters_jax(
+                params,
+                norb=norb,
+                n_reps=1,
+                interaction_pairs=(list(pairs_aa), list(pairs_ab), list(pairs_bb)),
+                with_final_orbital_rotation=with_final_orbital_rotation,
             )
-            param_offset += n_orbital_rotation_params
-        orbital_rotations = jnp.stack(orbital_rotation_list)
-
-        mat_aa = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(pairs_aa)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=pairs_aa,
-        )[0]
-        param_offset += len(pairs_aa)
-        mat_ab = jnp.zeros((norb, norb))
-        if pairs_ab:
-            rows, cols = zip(*pairs_ab)
-            mat_ab = mat_ab.at[jnp.asarray(rows), jnp.asarray(cols)].set(
-                params[param_offset : param_offset + len(pairs_ab)]
-            )
-        param_offset += len(pairs_ab)
-        mat_bb = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(pairs_bb)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=pairs_bb,
-        )[0]
-        param_offset += len(pairs_bb)
-        diag_coulomb_mats = jnp.stack([mat_aa, mat_ab, mat_bb])
-
-        final_orbital_rotation = None
-        if with_final_orbital_rotation:
-            final_orbital_rotation_list = []
-            for _ in range(2):
-                final_orbital_rotation_list.append(
-                    unitary_from_parameters_jax(
-                        params[param_offset : param_offset + n_orbital_rotation_params],
-                        dim=norb,
-                    )
-                )
-                param_offset += n_orbital_rotation_params
-            final_orbital_rotation = jnp.stack(final_orbital_rotation_list)
-
+        )
         return _spin_unbalanced_energy(
-            orbital_rotations,
-            diag_coulomb_mats,
+            orbital_rotations[0],
+            diag_coulomb_mats[0],
             final_orbital_rotation,
             one_body_tensor,
             two_body_tensor,
@@ -703,7 +648,6 @@ def _make_spinless_objective(
     [jax.Array, jax.Array, jax.Array, jax.Array], tuple[jax.Array, jax.Array]
 ]:
     """Build a jitted value-and-gradient function for spinless UCJ energy."""
-    interaction_pairs = list(interaction_pairs_key)
 
     def energy(
         params: jax.Array,
@@ -711,30 +655,18 @@ def _make_spinless_objective(
         two_body_tensor: jax.Array,
         constant: jax.Array,
     ) -> jax.Array:
-        param_offset = 0
-        n_orbital_rotation_params = norb**2
-        orbital_rotation = unitary_from_parameters_jax(
-            params[param_offset : param_offset + n_orbital_rotation_params], dim=norb
-        )
-        param_offset += n_orbital_rotation_params
-
-        diag_coulomb_mat = real_symmetrics_from_parameters_jax(
-            params[param_offset : param_offset + len(interaction_pairs)],
-            dim=norb,
-            n_mats=1,
-            triu_indices=interaction_pairs,
-        )[0]
-        param_offset += len(interaction_pairs)
-
-        final_orbital_rotation = None
-        if with_final_orbital_rotation:
-            final_orbital_rotation = unitary_from_parameters_jax(
-                params[param_offset:], dim=norb
+        diag_coulomb_mats, orbital_rotations, final_orbital_rotation = (
+            ucj_op_spinless_from_parameters_jax(
+                params,
+                norb=norb,
+                n_reps=1,
+                interaction_pairs=list(interaction_pairs_key),
+                with_final_orbital_rotation=with_final_orbital_rotation,
             )
-
+        )
         return _spinless_energy(
-            orbital_rotation,
-            diag_coulomb_mat,
+            orbital_rotations[0],
+            diag_coulomb_mats[0],
             final_orbital_rotation,
             one_body_tensor,
             two_body_tensor,

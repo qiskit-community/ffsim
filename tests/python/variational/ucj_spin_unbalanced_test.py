@@ -13,6 +13,7 @@
 import itertools
 from unittest.mock import Mock, patch
 
+import jax.numpy as jnp
 import numpy as np
 import pyscf
 import pyscf.cc
@@ -20,6 +21,9 @@ import pytest
 import scipy.optimize
 
 import ffsim
+from ffsim.variational.ucj_spin_unbalanced import (
+    ucj_op_spin_unbalanced_from_parameters_jax,
+)
 
 RNG = np.random.default_rng(155313014187200663515254027006546431903)
 
@@ -152,6 +156,62 @@ def test_parameters_roundtrip_interaction_pairs():
                 with_final_orbital_rotation=with_final_orbital_rotation,
             )
             assert ffsim.approx_eq(roundtripped, operator)
+
+
+def test_from_parameters_jax():
+    """Test JAX parameter unpacking matches from_parameters."""
+    norb = 4
+    interaction_pairs_list: list[
+        tuple[
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+            list[tuple[int, int]] | None,
+        ]
+        | None
+    ] = [
+        None,
+        ([(0, 1)], [(3, 1), (0, 2)], None),
+        (None, [], [(2, 3)]),
+        ([], [], []),
+    ]
+    for n_reps, interaction_pairs, with_final_orbital_rotation in itertools.product(
+        [0, 1, 2], interaction_pairs_list, [False, True]
+    ):
+        n_params = ffsim.UCJOpSpinUnbalanced.n_params(
+            norb,
+            n_reps,
+            interaction_pairs=interaction_pairs,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        params = RNG.standard_normal(n_params)
+        operator = ffsim.UCJOpSpinUnbalanced.from_parameters(
+            params,
+            norb=norb,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            with_final_orbital_rotation=with_final_orbital_rotation,
+        )
+        diag_coulomb_mats, orbital_rotations, final_orbital_rotation = (
+            ucj_op_spin_unbalanced_from_parameters_jax(
+                jnp.asarray(params),
+                norb=norb,
+                n_reps=n_reps,
+                interaction_pairs=interaction_pairs,
+                with_final_orbital_rotation=with_final_orbital_rotation,
+            )
+        )
+        np.testing.assert_allclose(diag_coulomb_mats, operator.diag_coulomb_mats)
+        np.testing.assert_allclose(
+            orbital_rotations, operator.orbital_rotations, atol=1e-12
+        )
+        if with_final_orbital_rotation:
+            assert final_orbital_rotation is not None
+            assert operator.final_orbital_rotation is not None
+            np.testing.assert_allclose(
+                final_orbital_rotation, operator.final_orbital_rotation, atol=1e-12
+            )
+        else:
+            assert final_orbital_rotation is None
 
 
 def test_t_amplitudes_energy():
