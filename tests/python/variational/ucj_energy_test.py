@@ -407,8 +407,19 @@ def test_ucj_energy_validation():
                 ucj_op, mol_hamiltonian, nelec, occupied_orbitals=occupied_orbitals
             )
 
-    with pytest.raises(ValueError, match="chunk_size must be positive"):
-        ffsim.ucj_energy_spin_balanced(ucj_op, mol_hamiltonian, nelec, chunk_size=0)
+    for chunk_size in [0, -1]:
+        with pytest.raises(ValueError, match="chunk_size must be positive"):
+            ffsim.ucj_energy_spin_balanced(
+                ucj_op, mol_hamiltonian, nelec, chunk_size=chunk_size
+            )
+        with pytest.raises(ValueError, match="chunk_size must be positive"):
+            ffsim.ucj_energy_and_grad_func_spin_balanced(
+                mol_hamiltonian, nelec, chunk_size=chunk_size
+            )
+        with pytest.raises(ValueError, match="chunk_size must be positive"):
+            ffsim.ucj_energy_and_grad_func_spin_unbalanced(
+                mol_hamiltonian, nelec, chunk_size=chunk_size
+            )
 
     value_and_grad = ffsim.ucj_energy_and_grad_func_spin_balanced(
         mol_hamiltonian, nelec
@@ -441,3 +452,7 @@ def test_ucj_energy_validation():
         ffsim.ucj_energy_and_grad_func_spinless(
             spinless_hamiltonian, 2, interaction_pairs=[(0, norb)]
         )
+    with pytest.raises(ValueError, match="chunk_size must be positive"):
+        ffsim.ucj_energy_spinless(spinless_op, spinless_hamiltonian, 2, chunk_size=0)
+    with pytest.raises(ValueError, match="chunk_size must be positive"):
+        ffsim.ucj_energy_and_grad_func_spinless(spinless_hamiltonian, 2, chunk_size=0)

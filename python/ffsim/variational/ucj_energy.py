@@ -68,6 +68,7 @@ def ucj_energy_spin_balanced(
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+    _validate_chunk_size(chunk_size)
 
     norb = ucj_op.norb
     final_orbital_rotation = ucj_op.final_orbital_rotation
@@ -122,6 +123,7 @@ def ucj_energy_and_grad_func_spin_balanced(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
+    _validate_chunk_size(chunk_size)
     norb = hamiltonian.norb
     triu_indices = cast(
         list[tuple[int, int]],
@@ -202,6 +204,7 @@ def ucj_energy_spin_unbalanced(
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+    _validate_chunk_size(chunk_size)
 
     norb = ucj_op.norb
     final_orbital_rotation = ucj_op.final_orbital_rotation
@@ -260,6 +263,7 @@ def ucj_energy_and_grad_func_spin_unbalanced(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
+    _validate_chunk_size(chunk_size)
     norb = hamiltonian.norb
     triu_indices = cast(
         list[tuple[int, int]],
@@ -347,6 +351,7 @@ def ucj_energy_spinless(
     """
     _validate_ucj_op(ucj_op)
     _validate_molecular_hamiltonian(hamiltonian, ucj_op.norb)
+    _validate_chunk_size(chunk_size)
 
     norb = ucj_op.norb
     final_orbital_rotation = ucj_op.final_orbital_rotation
@@ -400,6 +405,7 @@ def ucj_energy_and_grad_func_spinless(
         A callable that takes a flattened parameter vector and returns the energy
         value and gradient.
     """
+    _validate_chunk_size(chunk_size)
     norb = hamiltonian.norb
     validate_interaction_pairs(interaction_pairs, ordered=False, norb=norb)
     interaction_pairs_resolved = (
@@ -465,6 +471,11 @@ def _validate_molecular_hamiltonian(
             "The Hamiltonian and UCJ operator should have the same number of "
             f"orbitals. Got {hamiltonian.norb} and {norb}."
         )
+
+
+def _validate_chunk_size(chunk_size: int | None) -> None:
+    if chunk_size is not None and chunk_size <= 0:
+        raise ValueError(f"chunk_size must be positive. Got {chunk_size}.")
 
 
 def _validate_parameter_vector(x: np.ndarray, expected_n_params: int) -> None:
@@ -1012,8 +1023,6 @@ def _chunked_term_sum(
     """
     if chunk_size is None or chunk_size >= n_terms:
         return jnp.sum(func(jnp.arange(n_terms)))
-    if chunk_size <= 0:
-        raise ValueError("chunk_size must be positive.")
     n_chunks = (n_terms + chunk_size - 1) // chunk_size
     chunk_size = (n_terms + n_chunks - 1) // n_chunks
     padded_n_terms = n_chunks * chunk_size
