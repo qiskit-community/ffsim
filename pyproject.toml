@@ -29,7 +29,6 @@ dependencies = [
     "orjson",
     "pyscf>=2.12",
     "scipy",
-    "typing-extensions",
 ]
 
 [project.optional-dependencies]
