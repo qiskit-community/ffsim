@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.FermionicFFTJW
+===========================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: FermionicFFTJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

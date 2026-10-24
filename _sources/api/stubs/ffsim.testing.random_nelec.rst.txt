@@ -1,0 +1,6 @@
+﻿ffsim.testing.random\_nelec
+===========================
+
+.. currentmodule:: ffsim.testing
+
+.. autofunction:: random_nelec

@@ -1,0 +1,37 @@
+﻿ffsim.ReducedDensityMatrix
+==========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: ReducedDensityMatrix
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ReducedDensityMatrix.one_rdm
+      ~ReducedDensityMatrix.two_rdm
+
+   .. autoattribute:: one_rdm
+
+   .. autoattribute:: two_rdm
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ReducedDensityMatrix.expectation
+      ~ReducedDensityMatrix.rotated
+
+   .. automethod:: expectation
+
+   .. automethod:: rotated
+   
+   

@@ -1,0 +1,55 @@
+﻿ffsim.UCCSDOpSpinlessReal
+=========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCCSDOpSpinlessReal
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCCSDOpSpinlessReal.atol
+      ~UCCSDOpSpinlessReal.final_orbital_rotation
+      ~UCCSDOpSpinlessReal.norb
+      ~UCCSDOpSpinlessReal.rtol
+      ~UCCSDOpSpinlessReal.validate
+      ~UCCSDOpSpinlessReal.t1
+      ~UCCSDOpSpinlessReal.t2
+
+   .. autoattribute:: atol
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: rtol
+
+   .. autoattribute:: validate
+
+   .. autoattribute:: t1
+
+   .. autoattribute:: t2
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCCSDOpSpinlessReal.from_parameters
+      ~UCCSDOpSpinlessReal.n_params
+      ~UCCSDOpSpinlessReal.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

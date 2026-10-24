@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_single\_factorized\_hamiltonian
+====================================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_single_factorized_hamiltonian

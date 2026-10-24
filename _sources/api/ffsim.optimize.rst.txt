@@ -1,0 +1,11 @@
+ffsim.optimize
+==============
+
+Optimization algorithms
+
+.. currentmodule:: ffsim.optimize
+
+.. autosummary::
+   :toctree: stubs/
+
+   minimize_linear_method

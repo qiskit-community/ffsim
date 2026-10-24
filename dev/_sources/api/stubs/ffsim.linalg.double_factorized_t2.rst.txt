@@ -1,0 +1,6 @@
+﻿ffsim.linalg.double\_factorized\_t2
+===================================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: double_factorized_t2

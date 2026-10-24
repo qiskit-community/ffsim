@@ -1,0 +1,34 @@
+﻿ffsim.StateVector
+=================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: StateVector
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StateVector.vec
+      ~StateVector.norb
+      ~StateVector.nelec
+
+   .. autoattribute:: vec
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: nelec
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

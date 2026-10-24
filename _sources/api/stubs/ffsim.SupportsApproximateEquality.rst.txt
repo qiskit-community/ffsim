@@ -1,0 +1,23 @@
+﻿ffsim.SupportsApproximateEquality
+=================================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsApproximateEquality
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsApproximateEquality._approx_eq_
+
+   .. automethod:: _approx_eq_
+   
+   
