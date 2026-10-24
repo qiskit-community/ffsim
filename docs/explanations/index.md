@@ -14,4 +14,5 @@ fermionic-fft
 fermion-operator
 protocols
 qubit-gate-decompositions
+paldus-transform
 ```

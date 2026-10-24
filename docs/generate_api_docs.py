@@ -17,7 +17,9 @@ Run this script after adding or removing symbols from the ffsim package:
 This generates:
 - docs/api/index.rst (API index page)
 - docs/api/ffsim.rst from python/ffsim/__init__.py
-- docs/api/ffsim.<submodule>.rst for each public submodule
+- docs/api/ffsim.<submodule>.rst for each public submodule, and for each
+  nested submodule, such as ffsim.qiskit.nonconserving, that its parent package
+  lists in __all__
 
 The section headings in ffsim.rst are read from the first line of each
 submodule's docstring, and the remainder of the docstring is included as a
@@ -36,9 +38,13 @@ DOCS_API_DIR = REPO_ROOT / "docs" / "api"
 
 
 def module_path(submodule: str) -> Path:
-    """Return the source file path for ffsim.<submodule>."""
-    pkg_path = FFSIM_PKG / submodule / "__init__.py"
-    mod_path = FFSIM_PKG / f"{submodule}.py"
+    """Return the source file path for ffsim.<submodule>.
+
+    submodule may be dotted, for example "qiskit.nonconserving".
+    """
+    base = FFSIM_PKG.joinpath(*submodule.split("."))
+    pkg_path = base / "__init__.py"
+    mod_path = base.with_suffix(".py")
     if pkg_path.exists():
         return pkg_path
     if mod_path.exists():
@@ -104,7 +110,11 @@ def generate_ffsim_rst(sections: list[tuple[str, list[str]]]) -> None:
 def generate_submodule_rst(submodule: str) -> None:
     """Generate docs/api/ffsim.<submodule>.rst."""
     heading, body = get_module_docstring(submodule)
-    symbols = read_symbols(module_path(submodule))
+    # Nested submodules get their own pages, so they are not listed as symbols
+    child_modules = set(exported_child_modules(submodule))
+    symbols = [
+        sym for sym in read_symbols(module_path(submodule)) if sym not in child_modules
+    ]
 
     title = f"ffsim.{submodule}"
     underline = "=" * len(title)
@@ -161,6 +171,38 @@ def generate_index_rst(submodules: list[str]) -> None:
     print(f"Written {output_path}")
 
 
+def exported_child_modules(package: str) -> list[str]:
+    """Return the submodules that ffsim.<package> imports and lists in __all__.
+
+    A submodule counts only if it is imported as a module, as in
+    "from ffsim.<package> import <submodule>", and not if a symbol with the same
+    name is imported from it. package is a dotted name relative to ffsim.
+    """
+    path = module_path(package)
+    if path.name != "__init__.py":
+        return []
+    tree = ast.parse(path.read_text())
+    symbols = set(read_symbols(path))
+    children = {mod.name for mod in pkgutil.iter_modules([str(path.parent)])}
+    return sorted(
+        alias.asname or alias.name
+        for node in tree.body
+        if isinstance(node, ast.ImportFrom) and node.module == f"ffsim.{package}"
+        for alias in node.names
+        if alias.name in children and (alias.asname or alias.name) in symbols
+    )
+
+
+def nested_submodules(package: str) -> list[str]:
+    """Return the exported submodules of ffsim.<package>, recursively."""
+    result = []
+    for name in exported_child_modules(package):
+        submodule = f"{package}.{name}"
+        result.append(submodule)
+        result.extend(nested_submodules(submodule))
+    return result
+
+
 def main() -> None:
     tree = ast.parse((FFSIM_PKG / "__init__.py").read_text())
 
@@ -178,22 +220,24 @@ def main() -> None:
         sections.append((submodule, symbols))
 
     # Detect separately-documented submodules: public submodules of the ffsim
-    # package that are not re-exported in ffsim's __init__.py.
+    # package that are not re-exported in ffsim's __init__.py, along with nested
+    # submodules that their parent packages list in __all__.
     exported_submodules = {submodule for submodule, _ in sections}
-    standalone_submodules = sorted(
-        mod.name
-        for mod in pkgutil.iter_modules([str(FFSIM_PKG)])
-        if not mod.name.startswith("_") and mod.name not in exported_submodules
-    )
+    submodules = []
+    for mod in sorted(pkgutil.iter_modules([str(FFSIM_PKG)]), key=lambda m: m.name):
+        if mod.name.startswith("_") or mod.name in exported_submodules:
+            continue
+        submodules.append(mod.name)
+        submodules.extend(nested_submodules(mod.name))
 
     # Generate API docs. Remove the existing directory first so that autosummary
     # stubs for removed symbols don't linger and break the build.
     shutil.rmtree(DOCS_API_DIR, ignore_errors=True)
     DOCS_API_DIR.mkdir(parents=True)
     generate_ffsim_rst(sections)
-    for submodule in standalone_submodules:
+    for submodule in submodules:
         generate_submodule_rst(submodule)
-    generate_index_rst(standalone_submodules)
+    generate_index_rst(submodules)
 
 
 if __name__ == "__main__":

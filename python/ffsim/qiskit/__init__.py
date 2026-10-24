@@ -25,6 +25,7 @@ except ModuleNotFoundError as e:
 
 from qiskit.transpiler import PassManager
 
+from ffsim.qiskit import nonconserving
 from ffsim.qiskit.gates import (
     DiagCoulombEvolutionJW,
     DiagCoulombEvolutionSpinlessJW,
@@ -90,6 +91,7 @@ __all__ = [
     "final_state_vector",
     "generate_lucj_pass_manager",
     "jordan_wigner",
+    "nonconserving",
     "pre_init_passes",
     "qiskit_vec_to_ffsim_vec",
 ]
