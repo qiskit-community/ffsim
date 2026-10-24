@@ -240,22 +240,6 @@ def test_linear_operator_spinless(norb: int, nelec: tuple[int, int]):
     )
 
 
-def test_tensor_spinless_deprecated():
-    """Test deprecated spinless tensor properties."""
-    mol_hamiltonian = ffsim.random.random_molecular_hamiltonian(norb=4, seed=RNG)
-    hamiltonian_spinless = mol_hamiltonian.to_spinless()
-    with pytest.deprecated_call():
-        np.testing.assert_allclose(
-            mol_hamiltonian.one_body_tensor_spinless,
-            hamiltonian_spinless.one_body_tensor,
-        )
-    with pytest.deprecated_call():
-        np.testing.assert_allclose(
-            mol_hamiltonian.two_body_tensor_spinless,
-            hamiltonian_spinless.two_body_tensor,
-        )
-
-
 @pytest.mark.parametrize("norb, nelec", NORB_NELEC_SPINLESS)
 def test_diag_and_trace_spinless(norb: int, nelec: int):
     """Test computing diagonal and trace for MolecularHamiltonianSpinless."""
