@@ -7,10 +7,10 @@ state-vectors-and-gates
 hamiltonians
 variational-ansatzes
 orbital-rotation
-fermionic-fft
 double-factorized
 diag-coulomb-hamiltonian
 lucj
+fermionic-fft
 fermion-operator
 protocols
 qubit-gate-decompositions
