@@ -406,10 +406,21 @@ def test_from_cisd_vec_matches_t_amplitudes(optimize: bool):
         options=dict(maxiter=10),
     )
 
+    # Recompute the amplitudes from the CISD vector the same way from_cisd_vec does.
+    # The roundoff from the conversion is enough to change the result: it can flip
+    # the sign of angles that are exactly +-pi, and with optimize=True the
+    # compressed factorization can converge to a different minimizer.
+    c0, c1, c2 = pyscf.ci.cisd.cisdvec_to_amplitudes(cisd_vec, norb, nocc)
+    t1 = c1 / c0
+    t2_from_cisd = c2 / c0 - 0.5 * np.einsum("ia,jb->ijab", t1, t1)
+    np.testing.assert_allclose(t2_from_cisd, t2, atol=1e-12)
+
     operator = ffsim.UCJAnglesOpSpinBalanced.from_cisd_vec(
         cisd_vec, norb=norb, nocc=nocc, **kwargs
     )
-    expected = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, t1=t1, **kwargs)
+    expected = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(
+        t2_from_cisd, t1=t1, **kwargs
+    )
 
     assert ffsim.approx_eq(operator, expected, rtol=1e-12)
 
