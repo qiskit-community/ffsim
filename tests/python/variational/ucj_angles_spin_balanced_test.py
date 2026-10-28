@@ -11,6 +11,7 @@
 """Tests for spin-balanced UCJ ansatz parameterized by gate rotation angles."""
 
 import itertools
+from typing import Any
 
 import numpy as np
 import pyscf
@@ -59,7 +60,9 @@ def test_n_params():
             with_final_orbital_rotation=with_final_orbital_rotation,
             interaction_pairs=(pairs_aa, pairs_ab),
         )
-        operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
+        operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(
+            ucj_op, interaction_pairs=(pairs_aa, pairs_ab)
+        )
         actual = ffsim.UCJAnglesOpSpinBalanced.n_params(
             norb,
             n_reps,
@@ -87,7 +90,9 @@ def test_parameters_roundtrip():
             interaction_pairs=(pairs_aa, pairs_ab),
             seed=RNG,
         )
-        operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
+        operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(
+            ucj_op, interaction_pairs=(pairs_aa, pairs_ab)
+        )
         roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
             operator.to_parameters(),
             norb=norb,
@@ -234,3 +239,148 @@ def test_t_amplitudes_restrict_indices():
     )
 
     assert ffsim.approx_eq(operator, other_operator, rtol=1e-12)
+
+
+def test_from_ucj_op_parameter_layout_independent_of_zeros():
+    norb = 4
+    n_reps = 2
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    brickwork_indices = list(_brickwork(norb, norb))
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(norb, n_reps=n_reps, seed=RNG)
+    diag_coulomb_mats = ucj_op.diag_coulomb_mats.copy()
+    diag_coulomb_mats[0, 0, 0, 1] = diag_coulomb_mats[0, 0, 1, 0] = 0
+    diag_coulomb_mats[1] = 0
+    ucj_op = ffsim.UCJOpSpinBalanced(
+        diag_coulomb_mats=diag_coulomb_mats,
+        orbital_rotations=ucj_op.orbital_rotations,
+    )
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
+    roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        operator.to_parameters(),
+        norb=norb,
+        n_reps=n_reps,
+        num_num_interaction_pairs=(triu_indices, triu_indices),
+        givens_interaction_pairs=brickwork_indices,
+    )
+    assert ffsim.approx_eq(operator, roundtripped)
+
+
+def test_from_t_amplitudes_padded_n_reps():
+    norb = 4
+    nocc = 2
+    nelec = (nocc, nocc)
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    n_terms = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2).n_reps
+    n_reps = n_terms + 2
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    brickwork_indices = list(_brickwork(norb, norb))
+
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, n_reps=n_reps)
+    assert operator.n_reps == n_reps
+    params = operator.to_parameters()
+    assert len(params) == ffsim.UCJAnglesOpSpinBalanced.n_params(
+        norb,
+        n_reps,
+        num_num_interaction_pairs=(triu_indices, triu_indices),
+        givens_interaction_pairs=brickwork_indices,
+    )
+    roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        params,
+        norb=norb,
+        n_reps=n_reps,
+        num_num_interaction_pairs=(triu_indices, triu_indices),
+        givens_interaction_pairs=brickwork_indices,
+    )
+    assert ffsim.approx_eq(operator, roundtripped)
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, n_reps=n_reps)
+    actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
+    expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_from_t_amplitudes_interaction_pairs_order():
+    norb = 4
+    nocc = 2
+    nelec = (nocc, nocc)
+    n_reps = 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    pairs_aa = [(2, 3), (0, 1), (1, 2)]
+    pairs_ab = [(3, 3), (0, 0), (2, 2), (1, 1)]
+
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(
+        t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab)
+    )
+    roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        operator.to_parameters(),
+        norb=norb,
+        n_reps=n_reps,
+        num_num_interaction_pairs=(pairs_aa, pairs_ab),
+        givens_interaction_pairs=list(_brickwork(norb, norb)),
+    )
+    assert ffsim.approx_eq(operator, roundtripped)
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
+        t2, n_reps=n_reps, interaction_pairs=(pairs_aa, pairs_ab)
+    )
+    actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
+    expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_from_t_amplitudes_optimize_consistent_with_ucj_op():
+    norb = 4
+    nocc = 2
+    nelec = (nocc, nocc)
+    n_reps = 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    t1 = RNG.standard_normal((nocc, norb - nocc))
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    kwargs: dict[str, Any] = dict(
+        t1=t1,
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab),
+        optimize=True,
+        regularization=1e-4,
+        multi_stage_start=4,
+        multi_stage_step=1,
+        options=dict(maxiter=10),
+    )
+
+    ucj_op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(t2, **kwargs)
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, **kwargs)
+    assert ffsim.approx_eq(
+        operator,
+        ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(
+            ucj_op, interaction_pairs=(pairs_aa, pairs_ab)
+        ),
+    )
+
+    vec = ffsim.random.random_state_vector(ffsim.dim(norb, nelec), seed=RNG)
+    actual = ffsim.apply_unitary(vec, operator, norb=norb, nelec=nelec)
+    expected = ffsim.apply_unitary(vec, ucj_op, norb=norb, nelec=nelec)
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_approx_eq_final_givens_ansatz_op_tolerance():
+    norb = 4
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+        norb, n_reps=1, with_final_orbital_rotation=True, seed=RNG
+    )
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
+    params = operator.to_parameters()
+    params[-1] += 1e-3
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    other = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        params,
+        norb=norb,
+        n_reps=1,
+        num_num_interaction_pairs=(triu_indices, triu_indices),
+        givens_interaction_pairs=list(_brickwork(norb, norb)),
+        with_final_givens_ansatz_op=True,
+    )
+    assert not ffsim.approx_eq(operator, other)
+    assert ffsim.approx_eq(operator, other, atol=1e-2)
