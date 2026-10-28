@@ -16,6 +16,8 @@ from typing import Any
 import numpy as np
 import pyscf
 import pyscf.cc
+import pyscf.ci
+import pytest
 
 import ffsim
 
@@ -384,3 +386,29 @@ def test_approx_eq_final_givens_ansatz_op_tolerance():
     )
     assert not ffsim.approx_eq(operator, other)
     assert ffsim.approx_eq(operator, other, atol=1e-2)
+
+
+@pytest.mark.parametrize("optimize", [False, True])
+def test_from_cisd_vec_matches_t_amplitudes(optimize: bool):
+    norb = 4
+    nocc = 2
+    n_reps = 2
+    t2 = ffsim.random.random_t2_amplitudes(norb, nocc, seed=RNG, dtype=float)
+    t1 = RNG.standard_normal((nocc, norb - nocc))
+    c2 = t2 + 0.5 * np.einsum("ia,jb->ijab", t1, t1)
+    cisd_vec = pyscf.ci.cisd.amplitudes_to_cisdvec(1.0, t1, c2)
+    pairs_aa = [(p, p + 1) for p in range(norb - 1)]
+    pairs_ab = [(p, p) for p in range(norb)]
+    kwargs: dict[str, Any] = dict(
+        n_reps=n_reps,
+        interaction_pairs=(pairs_aa, pairs_ab),
+        optimize=optimize,
+        options=dict(maxiter=10),
+    )
+
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_cisd_vec(
+        cisd_vec, norb=norb, nocc=nocc, **kwargs
+    )
+    expected = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, t1=t1, **kwargs)
+
+    assert ffsim.approx_eq(operator, expected, rtol=1e-12)

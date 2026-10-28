@@ -28,12 +28,41 @@ from ffsim.variational.util import validate_interaction_pairs
 class UCJAnglesOpSpinBalanced(
     protocols.SupportsApplyUnitary, protocols.SupportsApproximateEquality
 ):
-    r"""A spin-balanced UCJ operator parameterized by gate rotation angles."""
+    r"""A spin-balanced UCJ operator parameterized by gate rotation angles.
+
+    This operator has the same form as :class:`UCJOpSpinBalanced`,
+
+    .. math::
+
+        \prod_{k = 1}^L \mathcal{U}_k e^{i \mathcal{J}_k} \mathcal{U}_k^\dagger,
+
+    but it is parameterized by the angles of the gates that implement it rather than
+    by orbital rotation and diagonal Coulomb matrices.
+    Each orbital rotation :math:`\mathcal{U}_k` is represented by a
+    :class:`GivensAnsatzOp`, a sequence of Givens rotations followed by a layer of
+    single-orbital phase gates. Each diagonal Coulomb evolution
+    :math:`e^{i \mathcal{J}_k}` is represented by a
+    :class:`NumNumAnsatzOpSpinBalanced`, a sequence of number-number interactions
+    whose angles are the entries of the diagonal Coulomb matrices
+    :math:`\mathbf{J}^{(\alpha \alpha)}` and :math:`\mathbf{J}^{(\alpha \beta)}`
+    at the specified interaction pairs.
+    The number of terms :math:`L` is referred to as the
+    number of ansatz repetitions and is accessible via the ``n_reps`` attribute.
+
+    To support variational optimization of the orbital basis, an optional final
+    orbital rotation can be included in the operator, to be performed at the end.
+    """
 
     norb: int
+    """The number of spatial orbitals."""
     num_num_ansatz_ops: list[NumNumAnsatzOpSpinBalanced]
+    """The number-number interaction ansatz operators, one per ansatz repetition."""
     givens_ansatz_ops: list[GivensAnsatzOp]
+    r"""The Givens rotation ansatz operators, one per ansatz repetition. The operator
+    for repetition :math:`k` represents the orbital rotation :math:`\mathcal{U}_k`."""
     final_givens_ansatz_op: GivensAnsatzOp | None = None
+    """The optional Givens rotation ansatz operator representing the final orbital
+    rotation."""
 
     def __post_init__(self):
         if len(self.num_num_ansatz_ops) != len(self.givens_ansatz_ops):
@@ -44,7 +73,7 @@ class UCJAnglesOpSpinBalanced(
             )
 
     @property
-    def n_reps(self):
+    def n_reps(self) -> int:
         """The number of ansatz repetitions."""
         return len(self.num_num_ansatz_ops)
 
@@ -56,7 +85,25 @@ class UCJAnglesOpSpinBalanced(
         givens_interaction_pairs: list[tuple[int, int]],
         with_final_givens_ansatz_op: bool = False,
     ) -> int:
-        """Return the number of parameters of an ansatz with given settings."""
+        r"""Return the number of parameters of an ansatz with given settings.
+
+        Args:
+            norb: The number of spatial orbitals.
+            n_reps: The number of ansatz repetitions.
+            num_num_interaction_pairs: The orbital pairs to apply the number-number
+                interactions to. This should be a pair of lists, for alpha-alpha and
+                alpha-beta interactions, in that order.
+                Each integer pair must be upper triangular, that is, of the form
+                :math:`(i, j)` where :math:`i \leq j`.
+            givens_interaction_pairs: The orbital pairs to apply the Givens rotations
+                to in each ansatz repetition.
+            with_final_givens_ansatz_op: Whether to include a final Givens rotation
+                ansatz operator. The final operator uses a full brickwork pattern of
+                Givens rotations, so it contributes ``norb**2`` parameters.
+
+        Returns:
+            The number of parameters of the ansatz.
+        """
         pairs_aa, pairs_ab = num_num_interaction_pairs
         n_params_num_num = len(pairs_aa) + len(pairs_ab)
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
@@ -75,7 +122,40 @@ class UCJAnglesOpSpinBalanced(
         givens_interaction_pairs: list[tuple[int, int]],
         with_final_givens_ansatz_op: bool = False,
     ) -> UCJAnglesOpSpinBalanced:
-        r"""Initialize the UCJ operator from a real-valued parameter vector."""
+        r"""Initialize the UCJ operator from a real-valued parameter vector.
+
+        For each ansatz repetition, the parameter vector contains the parameters of
+        the Givens rotation ansatz operator followed by the parameters of the
+        number-number interaction ansatz operator. These are followed by the
+        parameters of the final Givens rotation ansatz operator, if present.
+        See :meth:`GivensAnsatzOp.to_parameters` and
+        :meth:`NumNumAnsatzOpSpinBalanced.to_parameters` for the parameter orderings
+        of the individual operators.
+
+        Args:
+            params: The real-valued parameter vector.
+            norb: The number of spatial orbitals.
+            n_reps: The number of ansatz repetitions.
+            num_num_interaction_pairs: The orbital pairs to apply the number-number
+                interactions to. This should be a pair of lists, for alpha-alpha and
+                alpha-beta interactions, in that order.
+                Each integer pair must be upper triangular, that is, of the form
+                :math:`(i, j)` where :math:`i \leq j`.
+            givens_interaction_pairs: The orbital pairs to apply the Givens rotations
+                to in each ansatz repetition. Operators constructed with
+                :meth:`from_ucj_op` or :meth:`from_t_amplitudes` use a full brickwork
+                pattern of nearest-neighbor pairs with ``norb`` layers.
+            with_final_givens_ansatz_op: Whether to include a final Givens rotation
+                ansatz operator. The final operator uses a full brickwork pattern of
+                Givens rotations.
+
+        Returns:
+            The UCJ operator constructed from the given parameters.
+
+        Raises:
+            ValueError: The number of parameters passed did not match the number
+                expected based on the function inputs.
+        """
         n_params = UCJAnglesOpSpinBalanced.n_params(
             norb,
             n_reps,
@@ -130,7 +210,13 @@ class UCJAnglesOpSpinBalanced(
         )
 
     def to_parameters(self) -> np.ndarray:
-        r"""Convert the UCJ operator to a real-valued parameter vector."""
+        r"""Convert the UCJ operator to a real-valued parameter vector.
+
+        See :meth:`from_parameters` for the ordering of the parameters.
+
+        Returns:
+            The real-valued parameter vector.
+        """
         param_arrays = []
         for givens_ansatz, num_num_ansatz in zip(
             self.givens_ansatz_ops, self.num_num_ansatz_ops
@@ -226,6 +312,121 @@ class UCJAnglesOpSpinBalanced(
         ucj_op = UCJOpSpinBalanced.from_t_amplitudes(
             t2,
             t1=t1,
+            n_reps=n_reps,
+            interaction_pairs=interaction_pairs,
+            tol=tol,
+            optimize=optimize,
+            regularization=regularization,
+            multi_stage_start=multi_stage_start,
+            multi_stage_step=multi_stage_step,
+            validate=validate,
+            rtol=rtol,
+            atol=atol,
+            **optimize_kwargs,
+        )
+        return UCJAnglesOpSpinBalanced.from_ucj_op(
+            ucj_op, interaction_pairs=interaction_pairs
+        )
+
+    @staticmethod
+    def from_cisd_vec(
+        cisd_vec: np.ndarray,
+        *,
+        norb: int,
+        nocc: int,
+        c0_threshold: float = 1e-12,
+        n_reps: int | None = None,
+        interaction_pairs: tuple[
+            list[tuple[int, int]] | None, list[tuple[int, int]] | None
+        ]
+        | None = None,
+        tol: float = 1e-8,
+        optimize: bool = False,
+        regularization: float = 0,
+        multi_stage_start: int | None = None,
+        multi_stage_step: int | None = None,
+        validate: bool = True,
+        rtol: float = 1e-5,
+        atol: float = 1e-8,
+        **optimize_kwargs,
+    ) -> UCJAnglesOpSpinBalanced:
+        r"""Initialize the UCJ operator from a CISD vector.
+
+        Constructs a :class:`UCJOpSpinBalanced` using
+        :meth:`UCJOpSpinBalanced.from_cisd_vec` and converts it using
+        :meth:`from_ucj_op`. See :meth:`UCJOpSpinBalanced.from_cisd_vec` for how the
+        CISD amplitudes are converted to CC-style amplitudes.
+
+        Args:
+            cisd_vec: The CISD vector. This is a one-dimensional array containing the
+                reference coefficient :math:`c_0` in the first entry, followed by the
+                singles and then doubles coefficients.
+            norb: The number of spatial orbitals.
+            nocc: The number of occupied orbitals.
+            c0_threshold: Absolute value threshold for the reference coefficient. An
+                error is raised if the absolute value of :math:`c_0` is smaller than
+                this threshold.
+            n_reps: The number of ansatz repetitions. If not specified, then it is set
+                to the number of terms resulting from the double factorization of the
+                t2 amplitudes. If the specified number of repetitions is larger than the
+                number of terms resulting from the double factorization, then the ansatz
+                is padded with additional identity operators up to the specified number
+                of repetitions.
+            interaction_pairs: Optional restrictions on allowed orbital interactions
+                for the number-number interactions.
+                If specified, ``interaction_pairs`` should be a pair of lists,
+                for alpha-alpha and alpha-beta interactions, in that order.
+                Either list can be substituted with ``None`` to indicate no restrictions
+                on interactions.
+                Each list should contain pairs of integers representing the orbitals
+                that are allowed to interact.
+                Each integer pair must be upper triangular, that is, of the form
+                :math:`(i, j)` where :math:`i \leq j`.
+            tol: Tolerance for error in the double-factorized decomposition of the
+                converted t2 amplitudes.
+                The error is defined as the maximum absolute difference between
+                an element of the original tensor and the corresponding element of
+                the reconstructed tensor.
+            optimize: Whether to optimize the tensors returned by the decomposition
+                to minimize the error in the factorization.
+            regularization: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
+                This argument is ignored if ``optimize`` is set to ``False``.
+            multi_stage_start: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
+                This argument is ignored if ``optimize`` is set to ``False``.
+            multi_stage_step: See
+                :func:`ffsim.linalg.double_factorized_t2_compressed` for a description
+                of this argument.
+                This argument is ignored if ``optimize`` is set to ``False``.
+            validate: Whether to validate the symmetry of the converted t2
+                amplitudes.
+            rtol: Relative numerical tolerance for validation checks.
+            atol: Absolute numerical tolerance for validation checks.
+            optimize_kwargs: Keyword arguments to pass to
+                :func:`scipy.optimize.minimize`. The default method is
+                ``"L-BFGS-B"``.
+                These arguments are ignored if ``optimize`` is set to ``False``.
+
+        Returns:
+            The UCJ operator with parameters initialized from the CISD amplitudes.
+
+        Raises:
+            ValueError: The CISD reference coefficient is smaller than the
+                specified threshold c0_threshold.
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
+            ValueError: Interaction pairs list contained lower triangular pairs.
+            ValueError: The converted t2 amplitudes did not have the required
+                symmetry.
+        """
+        ucj_op = UCJOpSpinBalanced.from_cisd_vec(
+            cisd_vec,
+            norb=norb,
+            nocc=nocc,
+            c0_threshold=c0_threshold,
             n_reps=n_reps,
             interaction_pairs=interaction_pairs,
             tol=tol,
@@ -388,6 +589,11 @@ class UCJAnglesOpSpinBalanced(
 
 
 def brickwork(norb: int, n_layers: int):
+    r"""Yield the orbital pairs of a brickwork pattern of nearest-neighbor gates.
+
+    Even-numbered layers act on pairs :math:`(0, 1), (2, 3), \ldots` and odd-numbered
+    layers act on pairs :math:`(1, 2), (3, 4), \ldots`.
+    """
     for i in range(n_layers):
         for j in range(i % 2, norb - 1, 2):
             yield (j, j + 1)
