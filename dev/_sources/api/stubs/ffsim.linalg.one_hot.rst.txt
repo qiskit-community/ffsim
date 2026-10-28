@@ -1,0 +1,6 @@
+﻿ffsim.linalg.one\_hot
+=====================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: one_hot

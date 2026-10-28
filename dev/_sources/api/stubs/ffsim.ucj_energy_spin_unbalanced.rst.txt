@@ -1,0 +1,6 @@
+﻿ffsim.ucj\_energy\_spin\_unbalanced
+===================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: ucj_energy_spin_unbalanced

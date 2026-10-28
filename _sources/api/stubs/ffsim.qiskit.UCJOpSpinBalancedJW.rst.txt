@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.UCJOpSpinBalancedJW
+================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: UCJOpSpinBalancedJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

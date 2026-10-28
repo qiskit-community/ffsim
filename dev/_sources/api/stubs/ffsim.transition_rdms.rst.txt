@@ -1,0 +1,6 @@
+﻿ffsim.transition\_rdms
+======================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: transition_rdms

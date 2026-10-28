@@ -1,0 +1,64 @@
+﻿ffsim.UCJOpSpinBalanced
+=======================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCJOpSpinBalanced
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCJOpSpinBalanced.atol
+      ~UCJOpSpinBalanced.final_orbital_rotation
+      ~UCJOpSpinBalanced.n_reps
+      ~UCJOpSpinBalanced.norb
+      ~UCJOpSpinBalanced.rtol
+      ~UCJOpSpinBalanced.validate
+      ~UCJOpSpinBalanced.diag_coulomb_mats
+      ~UCJOpSpinBalanced.orbital_rotations
+
+   .. autoattribute:: atol
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: n_reps
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: rtol
+
+   .. autoattribute:: validate
+
+   .. autoattribute:: diag_coulomb_mats
+
+   .. autoattribute:: orbital_rotations
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCJOpSpinBalanced.from_cisd_vec
+      ~UCJOpSpinBalanced.from_parameters
+      ~UCJOpSpinBalanced.from_t_amplitudes
+      ~UCJOpSpinBalanced.n_params
+      ~UCJOpSpinBalanced.to_parameters
+
+   .. automethod:: from_cisd_vec
+
+   .. automethod:: from_parameters
+
+   .. automethod:: from_t_amplitudes
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

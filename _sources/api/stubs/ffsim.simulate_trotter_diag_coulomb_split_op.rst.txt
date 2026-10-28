@@ -1,0 +1,6 @@
+﻿ffsim.simulate\_trotter\_diag\_coulomb\_split\_op
+=================================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: simulate_trotter_diag_coulomb_split_op
