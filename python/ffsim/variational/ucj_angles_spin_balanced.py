@@ -81,8 +81,12 @@ class UCJAnglesOpSpinBalanced(
     def n_params(
         norb: int,
         n_reps: int,
-        num_num_interaction_pairs: tuple[list[tuple[int, int]], list[tuple[int, int]]],
-        givens_interaction_pairs: list[tuple[int, int]],
+        *,
+        num_num_interaction_pairs: tuple[
+            list[tuple[int, int]] | None, list[tuple[int, int]] | None
+        ]
+        | None = None,
+        givens_interaction_pairs: list[tuple[int, int]] | None = None,
         with_final_givens_ansatz_op: bool = False,
     ) -> int:
         r"""Return the number of parameters of an ansatz with given settings.
@@ -90,21 +94,35 @@ class UCJAnglesOpSpinBalanced(
         Args:
             norb: The number of spatial orbitals.
             n_reps: The number of ansatz repetitions.
-            num_num_interaction_pairs: The orbital pairs to apply the number-number
-                interactions to. This should be a pair of lists, for alpha-alpha and
-                alpha-beta interactions, in that order.
+            num_num_interaction_pairs: Optional restrictions on allowed orbital
+                interactions for the number-number interactions.
+                If specified, ``num_num_interaction_pairs`` should be a pair of lists,
+                for alpha-alpha and alpha-beta interactions, in that order.
+                Either list can be substituted with ``None`` to indicate no restrictions
+                on interactions, in which case all upper triangular pairs are used.
                 Each integer pair must be upper triangular, that is, of the form
                 :math:`(i, j)` where :math:`i \leq j`.
             givens_interaction_pairs: The orbital pairs to apply the Givens rotations
-                to in each ansatz repetition.
+                to in each ansatz repetition. If not specified, a full brickwork pattern
+                of nearest-neighbor pairs with ``norb`` layers is used, which is the
+                pattern produced by :meth:`from_ucj_op` and :meth:`from_t_amplitudes`.
             with_final_givens_ansatz_op: Whether to include a final Givens rotation
                 ansatz operator. The final operator uses a full brickwork pattern of
                 Givens rotations, so it contributes ``norb**2`` parameters.
 
         Returns:
             The number of parameters of the ansatz.
+
+        Raises:
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
+            ValueError: Interaction pairs list contained lower triangular pairs.
         """
-        pairs_aa, pairs_ab = num_num_interaction_pairs
+        pairs_aa, pairs_ab = _resolve_num_num_interaction_pairs(
+            num_num_interaction_pairs, norb=norb
+        )
+        if givens_interaction_pairs is None:
+            givens_interaction_pairs = list(brickwork(norb, norb))
         n_params_num_num = len(pairs_aa) + len(pairs_ab)
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
         return (
@@ -118,8 +136,11 @@ class UCJAnglesOpSpinBalanced(
         *,
         norb: int,
         n_reps: int,
-        num_num_interaction_pairs: tuple[list[tuple[int, int]], list[tuple[int, int]]],
-        givens_interaction_pairs: list[tuple[int, int]],
+        num_num_interaction_pairs: tuple[
+            list[tuple[int, int]] | None, list[tuple[int, int]] | None
+        ]
+        | None = None,
+        givens_interaction_pairs: list[tuple[int, int]] | None = None,
         with_final_givens_ansatz_op: bool = False,
     ) -> UCJAnglesOpSpinBalanced:
         r"""Initialize the UCJ operator from a real-valued parameter vector.
@@ -136,15 +157,18 @@ class UCJAnglesOpSpinBalanced(
             params: The real-valued parameter vector.
             norb: The number of spatial orbitals.
             n_reps: The number of ansatz repetitions.
-            num_num_interaction_pairs: The orbital pairs to apply the number-number
-                interactions to. This should be a pair of lists, for alpha-alpha and
-                alpha-beta interactions, in that order.
+            num_num_interaction_pairs: Optional restrictions on allowed orbital
+                interactions for the number-number interactions.
+                If specified, ``num_num_interaction_pairs`` should be a pair of lists,
+                for alpha-alpha and alpha-beta interactions, in that order.
+                Either list can be substituted with ``None`` to indicate no restrictions
+                on interactions, in which case all upper triangular pairs are used.
                 Each integer pair must be upper triangular, that is, of the form
                 :math:`(i, j)` where :math:`i \leq j`.
             givens_interaction_pairs: The orbital pairs to apply the Givens rotations
-                to in each ansatz repetition. Operators constructed with
-                :meth:`from_ucj_op` or :meth:`from_t_amplitudes` use a full brickwork
-                pattern of nearest-neighbor pairs with ``norb`` layers.
+                to in each ansatz repetition. If not specified, a full brickwork pattern
+                of nearest-neighbor pairs with ``norb`` layers is used, which is the
+                pattern produced by :meth:`from_ucj_op` and :meth:`from_t_amplitudes`.
             with_final_givens_ansatz_op: Whether to include a final Givens rotation
                 ansatz operator. The final operator uses a full brickwork pattern of
                 Givens rotations.
@@ -155,6 +179,9 @@ class UCJAnglesOpSpinBalanced(
         Raises:
             ValueError: The number of parameters passed did not match the number
                 expected based on the function inputs.
+            ValueError: Interaction pairs list contained duplicate interactions.
+            ValueError: Interaction pairs list contained out-of-range orbital indices.
+            ValueError: Interaction pairs list contained lower triangular pairs.
         """
         n_params = UCJAnglesOpSpinBalanced.n_params(
             norb,
@@ -169,6 +196,11 @@ class UCJAnglesOpSpinBalanced(
                 "based on the function inputs. "
                 f"Expected {n_params} but got {len(params)}."
             )
+        num_num_interaction_pairs = _resolve_num_num_interaction_pairs(
+            num_num_interaction_pairs, norb=norb
+        )
+        if givens_interaction_pairs is None:
+            givens_interaction_pairs = list(brickwork(norb, norb))
         n_params_num_num = sum(len(pairs) for pairs in num_num_interaction_pairs)
         n_params_givens = 2 * len(givens_interaction_pairs) + norb
         num_num_ansatz_ops = []
@@ -483,18 +515,11 @@ class UCJAnglesOpSpinBalanced(
             ValueError: Interaction pairs list contained lower triangular pairs.
         """
         norb = ucj_op.norb
-        if interaction_pairs is None:
-            interaction_pairs = (None, None)
-        pairs_aa, pairs_ab = interaction_pairs
-        validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
-        validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
         # Fix the pairs up front so that the parameter layout does not depend on
         # which diagonal Coulomb matrix entries happen to be zero
-        triu_indices = upper_triangular_indices(norb)
-        if pairs_aa is None:
-            pairs_aa = triu_indices
-        if pairs_ab is None:
-            pairs_ab = triu_indices
+        pairs_aa, pairs_ab = _resolve_num_num_interaction_pairs(
+            interaction_pairs, norb=norb
+        )
         rows_aa, cols_aa = rows_and_cols(pairs_aa)
         rows_ab, cols_ab = rows_and_cols(pairs_ab)
         num_num_ansatz_ops = [
@@ -586,6 +611,30 @@ class UCJAnglesOpSpinBalanced(
                 return False
             return True
         return NotImplemented
+
+
+def _resolve_num_num_interaction_pairs(
+    interaction_pairs: tuple[list[tuple[int, int]] | None, list[tuple[int, int]] | None]
+    | None,
+    *,
+    norb: int,
+) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
+    """Validate number-number interaction pairs and fill in defaults.
+
+    ``None`` in place of either list, or in place of the whole pair, stands for all
+    upper triangular pairs.
+    """
+    if interaction_pairs is None:
+        interaction_pairs = (None, None)
+    pairs_aa, pairs_ab = interaction_pairs
+    validate_interaction_pairs(pairs_aa, ordered=False, norb=norb)
+    validate_interaction_pairs(pairs_ab, ordered=False, norb=norb)
+    triu_indices = upper_triangular_indices(norb)
+    if pairs_aa is None:
+        pairs_aa = triu_indices
+    if pairs_ab is None:
+        pairs_ab = triu_indices
+    return pairs_aa, pairs_ab
 
 
 def brickwork(norb: int, n_layers: int):

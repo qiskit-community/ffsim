@@ -412,3 +412,78 @@ def test_from_cisd_vec_matches_t_amplitudes(optimize: bool):
     expected = ffsim.UCJAnglesOpSpinBalanced.from_t_amplitudes(t2, t1=t1, **kwargs)
 
     assert ffsim.approx_eq(operator, expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize("with_final_orbital_rotation", [False, True])
+def test_parameters_roundtrip_default_interaction_pairs(
+    with_final_orbital_rotation: bool,
+):
+    norb = 5
+    n_reps = 2
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(
+        norb,
+        n_reps=n_reps,
+        with_final_orbital_rotation=with_final_orbital_rotation,
+        seed=RNG,
+    )
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(ucj_op)
+    params = operator.to_parameters()
+    assert len(params) == ffsim.UCJAnglesOpSpinBalanced.n_params(
+        norb, n_reps, with_final_givens_ansatz_op=with_final_orbital_rotation
+    )
+    roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        params,
+        norb=norb,
+        n_reps=n_reps,
+        with_final_givens_ansatz_op=with_final_orbital_rotation,
+    )
+    assert ffsim.approx_eq(operator, roundtripped)
+
+
+def test_parameters_roundtrip_partial_interaction_pairs():
+    norb = 4
+    n_reps = 2
+    pairs_ab = [(p, p) for p in range(norb)]
+    ucj_op = ffsim.random.random_ucj_op_spin_balanced(norb, n_reps=n_reps, seed=RNG)
+    operator = ffsim.UCJAnglesOpSpinBalanced.from_ucj_op(
+        ucj_op, interaction_pairs=(None, pairs_ab)
+    )
+    params = operator.to_parameters()
+    assert len(params) == ffsim.UCJAnglesOpSpinBalanced.n_params(
+        norb, n_reps, num_num_interaction_pairs=(None, pairs_ab)
+    )
+    roundtripped = ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+        params,
+        norb=norb,
+        n_reps=n_reps,
+        num_num_interaction_pairs=(None, pairs_ab),
+    )
+    assert ffsim.approx_eq(operator, roundtripped)
+    triu_indices = list(itertools.combinations_with_replacement(range(norb), 2))
+    for num_num_op in roundtripped.num_num_ansatz_ops:
+        assert num_num_op.interaction_pairs == (triu_indices, pairs_ab)
+
+
+@pytest.mark.parametrize(
+    "pairs, match",
+    [
+        ([(0, 1), (0, 1)], "Duplicate"),
+        ([(1, 0)], "lower triangular"),
+        ([(0, 4)], "outside the range"),
+    ],
+)
+def test_invalid_num_num_interaction_pairs(pairs: list[tuple[int, int]], match: str):
+    norb = 4
+    n_reps = 1
+    for interaction_pairs in [(pairs, None), (None, pairs)]:
+        with pytest.raises(ValueError, match=match):
+            ffsim.UCJAnglesOpSpinBalanced.n_params(
+                norb, n_reps, num_num_interaction_pairs=interaction_pairs
+            )
+        with pytest.raises(ValueError, match=match):
+            ffsim.UCJAnglesOpSpinBalanced.from_parameters(
+                np.zeros(100),
+                norb=norb,
+                n_reps=n_reps,
+                num_num_interaction_pairs=interaction_pairs,
+            )
