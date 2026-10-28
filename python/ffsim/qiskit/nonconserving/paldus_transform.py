@@ -21,13 +21,9 @@ from qiskit.circuit import (
     QuantumRegister,
     Qubit,
 )
-from qiskit.circuit.library import CXGate, CZGate, UCRYGate
+from qiskit.circuit.library import CXGate, CZGate, RCCXGate, UCRYGate, XGate
 
-from ffsim.qiskit.nonconserving._util import (
-    _cg_angles,
-    _controlled_decrement,
-    _controlled_increment,
-)
+from ffsim.qiskit.nonconserving._util import _cg_angles, _controlled_increment
 
 
 class PaldusTransformJW(Gate):
@@ -114,41 +110,75 @@ class PaldusTransformJW(Gate):
             for i in range(j):
                 circuit.append(CZGate(), (beta_qubits[i], alpha_qubits[j]))
 
+        # The low bits of N, 2S, and 2M are all equal to the parity of the number of
+        # singly occupied orbitals. The low bit of N is copied from that of 2S at the
+        # end, so only N / 2, rounded down, is tracked.
+        s_low = s_qubits[0]
         for i, (a, b) in enumerate(zip(alpha_qubits, beta_qubits)):
-            # Update M to its outgoing value. All bits are updated to keep the
-            # two's complement sign extension correct.
-            for instruction in _controlled_increment(a, m_qubits):
+            # Before this step, 2S <= i and |2M| <= i. After it, 2S <= i + 1 and
+            # |2M| <= i + 1, so only the low bits of the registers are needed. The
+            # M register grows by at most one bit, so sign extend it.
+            n_s = i.bit_length()
+            m_bits = m_qubits[: (i + 1).bit_length() + 1]
+            if i and (i + 1).bit_length() > i.bit_length():
+                circuit.append(CXGate(), (m_bits[-2], m_bits[-1]))
+            # Set alpha to the parity of the orbital occupation. Then alpha is 1 for
+            # inputs 01 and 10, and beta distinguishes them.
+            circuit.append(CXGate(), (b, a))
+            # Update M to its outgoing value
+            for instruction in _controlled_add_sign(a, b, m_bits):
                 circuit.append(instruction)
-            for instruction in _controlled_decrement(b, m_qubits):
+            # Rotate by Clebsch-Gordan coefficients
+            for instruction in _cg_rotation(a, b, s_qubits[:n_s], m_bits, max_two_s=i):
                 circuit.append(instruction)
-            # Rotate by Clebsch-Gordan coefficients. Before this step, 2S <= i and
-            # |2M| <= i + 1, so only the low bits of the S and M registers are needed.
-            for instruction in _cg_rotation(
-                a,
-                b,
-                s_qubits[: i.bit_length()],
-                m_qubits[: (i + 1).bit_length() + 1],
-                max_two_s=i,
-            ):
+            # Update N / 2, rounded down, to its outgoing value. It increases by 1 if
+            # the orbital is doubly occupied, or if it is singly occupied and the low
+            # bit of N is 1. Compute this condition in the low bit of 2S, which is the
+            # incoming low bit of N. The relative phases of the RCCX gate cancel when
+            # it is undone, because the increment in between only uses its qubits as
+            # controls.
+            n_bits = n_qubits[1 : (i + 1).bit_length() + 1]
+            carry = [
+                CircuitInstruction(CXGate(), (s_low, b)),
+                CircuitInstruction(XGate(), (a,)),
+                CircuitInstruction(RCCXGate(), (a, b, s_low)),
+                CircuitInstruction(XGate(), (a,)),
+            ]
+            for instruction in carry:
+                circuit.append(instruction)
+            for instruction in _controlled_increment(s_low, n_bits):
+                circuit.append(instruction)
+            for instruction in reversed(carry):
                 circuit.append(instruction)
             # Update S to its outgoing value, which is at most i + 1
-            s_bits = s_qubits[: (i + 1).bit_length()]
-            for instruction in _controlled_increment(a, s_bits):
+            for instruction in _controlled_add_sign(
+                a, b, s_qubits[: (i + 1).bit_length()]
+            ):
                 circuit.append(instruction)
-            for instruction in _controlled_decrement(b, s_bits):
-                circuit.append(instruction)
-            # Update N to its outgoing value, which is at most 2 * (i + 1)
-            n_bits = n_qubits[: (2 * (i + 1)).bit_length()]
-            for instruction in _controlled_increment(a, n_bits):
-                circuit.append(instruction)
-            for instruction in _controlled_increment(b, n_bits):
-                circuit.append(instruction)
+            circuit.append(CXGate(), (b, a))
+        circuit.append(CXGate(), (s_low, n_qubits[0]))
 
         self.definition = circuit
 
 
+def _controlled_add_sign(
+    control: Qubit, sign: Qubit, register: Sequence[Qubit]
+) -> Iterator[CircuitInstruction]:
+    """Add 1 to a register if sign is 0, or subtract 1 if sign is 1, if control is set.
+
+    The register is little-endian and the addition is modulo 2**len(register).
+    """
+    # Subtracting 1 is the same as adding 1 to the bitwise complement and taking the
+    # bitwise complement of the result
+    for q in register:
+        yield CircuitInstruction(CXGate(), (sign, q))
+    yield from _controlled_increment(control, register)
+    for q in register:
+        yield CircuitInstruction(CXGate(), (sign, q))
+
+
 def _cg_rotation(
-    alpha: Qubit,
+    parity: Qubit,
     beta: Qubit,
     s_qubits: Sequence[Qubit],
     m_qubits: Sequence[Qubit],
@@ -156,7 +186,8 @@ def _cg_rotation(
 ) -> Iterator[CircuitInstruction]:
     r"""Givens rotation on an orbital multiplexed on the S and M registers.
 
-    For incoming spin S and outgoing spin projection M, maps
+    Here parity holds the XOR of the alpha and beta occupations of the orbital. For
+    incoming spin S and outgoing spin projection M, the rotation maps
 
     .. math::
         |01\rangle \mapsto c |01\rangle + s |10\rangle, \quad
@@ -168,11 +199,12 @@ def _cg_rotation(
     (in two's complement) and may be truncated to their low bits, as long as they
     can represent all 2S up to max_two_s and all 2M with |2M| <= max_two_s + 1.
     """
-    # The rotation is conjugated by CX gates that set alpha to 1 for inputs 01 and
-    # 10, and to 0 for inputs 00 and 11. Alpha is the least significant control.
-    angles = [0.0] * (1 << (1 + len(s_qubits) + len(m_qubits)))
-    for index, angle in enumerate(_cg_angles(len(s_qubits), len(m_qubits), max_two_s)):
-        angles[1 | (index << 1)] = angle
-    yield CircuitInstruction(CXGate(), (beta, alpha))
-    yield CircuitInstruction(UCRYGate(angles), (beta, alpha, *s_qubits, *m_qubits))
-    yield CircuitInstruction(CXGate(), (beta, alpha))
+    # The rotation is only nontrivial if parity is 1, and then the low bit of 2M is
+    # the complement of the low bit of 2S. So the low bit of 2M is not a control.
+    # Parity is the least significant control.
+    n_s = len(s_qubits)
+    n_m = len(m_qubits)
+    angles = [0.0] * (1 << (n_s + n_m))
+    for two_s, two_m, angle in _cg_angles(max_two_s):
+        angles[1 | (two_s << 1) | ((two_m % (1 << n_m)) >> 1 << (n_s + 1))] = angle
+    yield CircuitInstruction(UCRYGate(angles), (beta, parity, *s_qubits, *m_qubits[1:]))

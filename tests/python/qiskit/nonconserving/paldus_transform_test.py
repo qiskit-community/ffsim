@@ -170,7 +170,7 @@ def test_paldus_transform_basis_states(norb: int):
         np.testing.assert_allclose(result, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("norb", range(1, 4))
+@pytest.mark.parametrize("norb", range(1, 5))
 def test_paldus_transform_superposition(norb: int):
     """Test the gate and its inverse on a random superposition of GT states."""
     gate = PaldusTransformJW(norb)

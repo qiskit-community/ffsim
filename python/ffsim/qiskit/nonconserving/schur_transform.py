@@ -12,8 +12,16 @@
 
 from __future__ import annotations
 
-from qiskit.circuit import CircuitInstruction, Gate, QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import UCRYGate, XGate
+from collections.abc import Iterator, Sequence
+
+from qiskit.circuit import (
+    CircuitInstruction,
+    Gate,
+    QuantumCircuit,
+    QuantumRegister,
+    Qubit,
+)
+from qiskit.circuit.library import CXGate, UCRYGate, XGate
 
 from ffsim.qiskit.nonconserving._util import (
     _cg_angles,
@@ -90,32 +98,59 @@ class SchurTransform(Gate):
         s_qubits = qubits[self.num_spins : self.num_spins + self.num_qubits_s]
         m_qubits = qubits[self.num_spins + self.num_qubits_s :]
 
+        # Before coupling spin i, the low bits of 2S and 2M are both i % 2. So only
+        # 2S / 2 and 2M / 2, rounded down, are tracked, and the low bits are set at
+        # the end.
         for i, q in enumerate(spin_qubits):
-            # Update M to its outgoing value, adding 1 for spin up and subtracting 1
-            # for spin down. All bits are updated to keep the two's complement sign
-            # extension correct.
-            circuit.append(XGate(), (q,))
-            for instruction in _controlled_increment(q, m_qubits):
+            # Before this step, 2S <= i and |2M| <= i. After it, 2S <= i + 1 and
+            # |2M| <= i + 1, so only the low bits of the registers are needed. The
+            # M register grows by at most one bit, so sign extend it.
+            n_s = i.bit_length()
+            s_bits = s_qubits[1 : (i + 1).bit_length()]
+            m_bits = m_qubits[1 : (i + 1).bit_length() + 1]
+            if i and (i + 1).bit_length() > i.bit_length():
+                circuit.append(CXGate(), (m_bits[-2], m_bits[-1]))
+            # Update M to its outgoing value, adding 1 to 2M for spin up and
+            # subtracting 1 for spin down
+            for instruction in _update_high_bits(q, m_bits, odd=i % 2 == 1):
                 circuit.append(instruction)
-            circuit.append(XGate(), (q,))
-            for instruction in _controlled_decrement(q, m_qubits):
-                circuit.append(instruction)
-            # Rotate by Clebsch-Gordan coefficients. Before this step, 2S <= i and
-            # |2M| <= i + 1, so only the low bits of the S and M registers are needed.
-            s_controls = s_qubits[: i.bit_length()]
-            m_controls = m_qubits[: (i + 1).bit_length() + 1]
-            angles = _cg_angles(len(s_controls), len(m_controls), max_two_s=i)
+            # Rotate by Clebsch-Gordan coefficients. The low bits of 2S and 2M are
+            # known, so they are not controls.
+            s_controls = s_qubits[1:n_s]
+            angles = [0.0] * (1 << (len(s_controls) + len(m_bits)))
+            for two_s, two_m, angle in _cg_angles(max_two_s=i):
+                if two_s % 2 == i % 2:
+                    index = (two_s >> 1) | (
+                        (two_m % (1 << (len(m_bits) + 1))) >> 1 << len(s_controls)
+                    )
+                    angles[index] = angle
             circuit.append(
-                CircuitInstruction(UCRYGate(angles), (q, *s_controls, *m_controls))
+                CircuitInstruction(UCRYGate(angles), (q, *s_controls, *m_bits))
             )
-            # Update S to its outgoing value, which is at most i + 1, adding 1 for a
-            # Yamanouchi bit of 0 and subtracting 1 for a Yamanouchi bit of 1
-            s_bits = s_qubits[: (i + 1).bit_length()]
-            circuit.append(XGate(), (q,))
-            for instruction in _controlled_increment(q, s_bits):
+            # Update S to its outgoing value, which is at most i + 1, adding 1 to 2S
+            # for a Yamanouchi bit of 0 and subtracting 1 for a Yamanouchi bit of 1
+            for instruction in _update_high_bits(q, s_bits, odd=i % 2 == 1):
                 circuit.append(instruction)
-            circuit.append(XGate(), (q,))
-            for instruction in _controlled_decrement(q, s_bits):
-                circuit.append(instruction)
+        if self.num_spins % 2:
+            circuit.append(XGate(), (s_qubits[0],))
+            circuit.append(XGate(), (m_qubits[0],))
 
         self.definition = circuit
+
+
+def _update_high_bits(
+    qubit: Qubit, register: Sequence[Qubit], odd: bool
+) -> Iterator[CircuitInstruction]:
+    """Add 1 to a value if qubit is 0, or subtract 1 from it if qubit is 1.
+
+    The register holds the value divided by 2, rounded down, and odd is whether the
+    value is odd before the update. If the value is odd, adding 1 increments the
+    register and subtracting 1 leaves it unchanged. If the value is even, adding 1
+    leaves the register unchanged and subtracting 1 decrements it.
+    """
+    if odd:
+        yield CircuitInstruction(XGate(), (qubit,))
+        yield from _controlled_increment(qubit, register)
+        yield CircuitInstruction(XGate(), (qubit,))
+    else:
+        yield from _controlled_decrement(qubit, register)

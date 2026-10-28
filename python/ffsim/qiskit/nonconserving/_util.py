@@ -34,25 +34,21 @@ def _controlled_decrement(
     yield from reversed(list(_controlled_increment(control, register)))
 
 
-def _cg_angles(n_s: int, n_m: int, max_two_s: int) -> list[float]:
-    r"""Return the angles for coupling a spin 1/2 by a uniformly controlled Y rotation.
+def _cg_angles(max_two_s: int) -> Iterator[tuple[int, int, float]]:
+    r"""Yield the angles for coupling a spin 1/2 by a Y rotation.
 
     For incoming spin S and outgoing spin projection M, the rotation
-    :math:`R_y(\theta)` with the returned angle has
+    :math:`R_y(\theta)` with the yielded angle has
     :math:`\cos(\theta / 2) = c` and :math:`\sin(\theta / 2) = -s`, where
     :math:`c = \sqrt{(S + M + 1/2) / (2S + 1)}` and
     :math:`s = \sqrt{(S - M + 1/2) / (2S + 1)}` are Clebsch-Gordan coefficients.
 
-    The angle for 2S and 2M is stored at index ``two_s | (two_m << n_s)``, with 2M
-    in two's complement modulo ``2**n_m``. The registers holding 2S and 2M may be
-    truncated to n_s and n_m low bits, as long as they can represent all 2S up to
-    max_two_s and all 2M with |2M| <= max_two_s + 1. All other angles are zero.
+    Yields a tuple (2S, 2M, angle) for each 2S up to max_two_s and each 2M with
+    |2M| <= 2S + 1 and the opposite parity to 2S.
     """
-    angles = [0.0] * (1 << (n_s + n_m))
     for two_s in range(max_two_s + 1):
         for two_m in range(-two_s - 1, two_s + 2, 2):
-            index = two_s | ((two_m % (1 << n_m)) << n_s)
-            angles[index] = -2 * math.atan2(
+            angle = -2 * math.atan2(
                 math.sqrt(two_s - two_m + 1), math.sqrt(two_s + two_m + 1)
             )
-    return angles
+            yield two_s, two_m, angle
