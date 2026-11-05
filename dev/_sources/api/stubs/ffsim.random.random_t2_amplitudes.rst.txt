@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_t2\_amplitudes
+===================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_t2_amplitudes

@@ -1,0 +1,6 @@
+﻿ffsim.linalg.lup
+================
+
+.. currentmodule:: ffsim.linalg
+
+.. autofunction:: lup

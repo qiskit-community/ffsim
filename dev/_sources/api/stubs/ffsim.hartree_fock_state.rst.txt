@@ -1,0 +1,6 @@
+﻿ffsim.hartree\_fock\_state
+==========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: hartree_fock_state

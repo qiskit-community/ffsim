@@ -1,0 +1,6 @@
+﻿ffsim.ucj\_energy\_spinless
+===========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: ucj_energy_spinless

@@ -1,0 +1,6 @@
+﻿ffsim.slater\_determinant
+=========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: slater_determinant

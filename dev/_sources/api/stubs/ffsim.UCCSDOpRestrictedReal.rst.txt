@@ -1,0 +1,55 @@
+﻿ffsim.UCCSDOpRestrictedReal
+===========================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: UCCSDOpRestrictedReal
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UCCSDOpRestrictedReal.atol
+      ~UCCSDOpRestrictedReal.final_orbital_rotation
+      ~UCCSDOpRestrictedReal.norb
+      ~UCCSDOpRestrictedReal.rtol
+      ~UCCSDOpRestrictedReal.validate
+      ~UCCSDOpRestrictedReal.t1
+      ~UCCSDOpRestrictedReal.t2
+
+   .. autoattribute:: atol
+
+   .. autoattribute:: final_orbital_rotation
+
+   .. autoattribute:: norb
+
+   .. autoattribute:: rtol
+
+   .. autoattribute:: validate
+
+   .. autoattribute:: t1
+
+   .. autoattribute:: t2
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UCCSDOpRestrictedReal.from_parameters
+      ~UCCSDOpRestrictedReal.n_params
+      ~UCCSDOpRestrictedReal.to_parameters
+
+   .. automethod:: from_parameters
+
+   .. automethod:: n_params
+
+   .. automethod:: to_parameters
+   
+   

@@ -1,0 +1,6 @@
+﻿ffsim.spin\_square
+==================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: spin_square

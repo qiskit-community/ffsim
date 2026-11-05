@@ -1,0 +1,6 @@
+﻿ffsim.optimize\_orbitals
+========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: optimize_orbitals

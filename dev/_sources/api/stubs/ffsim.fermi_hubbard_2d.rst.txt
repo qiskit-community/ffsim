@@ -1,0 +1,6 @@
+﻿ffsim.fermi\_hubbard\_2d
+========================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: fermi_hubbard_2d

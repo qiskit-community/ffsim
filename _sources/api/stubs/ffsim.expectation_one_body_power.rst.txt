@@ -1,0 +1,6 @@
+﻿ffsim.expectation\_one\_body\_power
+===================================
+
+.. currentmodule:: ffsim
+
+.. autofunction:: expectation_one_body_power

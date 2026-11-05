@@ -1,0 +1,25 @@
+﻿ffsim.qiskit.SimulateTrotterDiagCoulombSplitOpJW
+================================================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autoclass:: SimulateTrotterDiagCoulombSplitOpJW
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

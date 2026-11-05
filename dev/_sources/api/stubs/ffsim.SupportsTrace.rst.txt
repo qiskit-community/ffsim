@@ -1,0 +1,23 @@
+﻿ffsim.SupportsTrace
+===================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: SupportsTrace
+   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupportsTrace._trace_
+
+   .. automethod:: _trace_
+   
+   

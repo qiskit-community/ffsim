@@ -1,0 +1,6 @@
+﻿ffsim.diag
+==========
+
+.. currentmodule:: ffsim
+
+.. autofunction:: diag

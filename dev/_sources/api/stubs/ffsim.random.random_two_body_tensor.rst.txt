@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_two\_body\_tensor
+======================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_two_body_tensor

@@ -1,0 +1,31 @@
+﻿ffsim.ProductStateSum
+=====================
+
+.. currentmodule:: ffsim
+
+.. autoclass:: ProductStateSum
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ProductStateSum.coeffs
+      ~ProductStateSum.states
+
+   .. autoattribute:: coeffs
+
+   .. autoattribute:: states
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   

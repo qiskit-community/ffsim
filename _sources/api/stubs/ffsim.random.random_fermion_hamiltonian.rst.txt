@@ -1,0 +1,6 @@
+﻿ffsim.random.random\_fermion\_hamiltonian
+=========================================
+
+.. currentmodule:: ffsim.random
+
+.. autofunction:: random_fermion_hamiltonian

@@ -1,0 +1,6 @@
+﻿ffsim.qiskit.pre\_init\_passes
+==============================
+
+.. currentmodule:: ffsim.qiskit
+
+.. autofunction:: pre_init_passes

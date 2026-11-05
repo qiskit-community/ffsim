@@ -1,0 +1,450 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e7b0a1d4",
+   "metadata": {},
+   "source": [
+    "# Optimize orbitals\n",
+    "\n",
+    "In this guide, we show how to use [ffsim.optimize_orbitals](../api/stubs/ffsim.optimize_orbitals.rst#ffsim.optimize_orbitals) to lower the energy of a correlated state by applying an [orbital rotation](../explanations/orbital-rotation.ipynb). The function takes one- and two-body reduced density matrices (1- and 2-RDMs) and a [MolecularHamiltonian](../api/stubs/ffsim.MolecularHamiltonian.rst#ffsim.MolecularHamiltonian), and returns an optimized orbital rotation matrix.\n",
+    "\n",
+    "The RDMs can come from any source. Here, we'll use a nitrogen molecule and obtain them from a configuration interaction singles and doubles (CISD) calculation with PySCF."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "31b2c4e5",
+   "metadata": {},
+   "source": [
+    "## Build molecule and active space Hamiltonian\n",
+    "\n",
+    "We'll use a nitrogen molecule ($N_2$) at a stretched bond length ($R = 2.4\\text{ \\AA}$) in the 6-31G basis set. At stretched bond lengths, static correlation is pronounced, making orbital relaxation effects particularly evident. We freeze the core $1s$ orbitals and construct an active space on the remaining orbitals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "78c9d0e1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "converged SCF energy = -108.139527186846\n",
+      "Number of active orbitals: 16\n",
+      "Number of active electrons: (5, 5)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf\n",
+    "\n",
+    "import ffsim\n",
+    "\n",
+    "# Build N2 molecule at stretched geometry\n",
+    "mol = pyscf.gto.Mole()\n",
+    "mol.build(\n",
+    "    atom=[[\"N\", (0, 0, -1.2)], [\"N\", (0, 0, 1.2)]],\n",
+    "    basis=\"6-31g\",\n",
+    "    symmetry=\"Dooh\",\n",
+    ")\n",
+    "\n",
+    "# Define active space by freezing 1s core orbitals\n",
+    "n_frozen = 2\n",
+    "active_space = range(n_frozen, mol.nao_nr())\n",
+    "\n",
+    "# Run RHF and obtain molecular Hamiltonian\n",
+    "scf = pyscf.scf.RHF(mol).run()\n",
+    "mol_data = ffsim.MolecularData.from_scf(scf, active_space=active_space)\n",
+    "mol_hamiltonian = mol_data.hamiltonian\n",
+    "norb = mol_data.norb\n",
+    "\n",
+    "print(f\"Number of active orbitals: {norb}\")\n",
+    "print(f\"Number of active electrons: {mol_data.nelec}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52f7a8b9",
+   "metadata": {},
+   "source": [
+    "## Compute correlated state and reduced density matrices\n",
+    "\n",
+    "Next, we run a CISD calculation within the active space and extract the 1- and 2-RDMs. We wrap them in [ReducedDensityMatrix](../api/stubs/ffsim.ReducedDensityMatrix.rst#ffsim.ReducedDensityMatrix), which provides methods to rotate RDMs and compute energy expectation values with molecular Hamiltonians.\n",
+    "\n",
+    "We check that the initial energy evaluated using the canonical Hartree-Fock orbitals matches the CISD total energy."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "14d8f2a3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "E(RCISD) = -108.5853221021409  E_corr = -0.4457949152950727\n",
+      "Initial CISD energy: -108.58532210 Ha\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "import pyscf.ci\n",
+    "\n",
+    "# Run CISD in the active space\n",
+    "cisd = pyscf.ci.CISD(scf, frozen=n_frozen).run()\n",
+    "\n",
+    "# Extract 1- and 2-RDMs in the active space\n",
+    "rdm1 = cisd.make_rdm1()[n_frozen:, n_frozen:]\n",
+    "rdm2 = cisd.make_rdm2()[n_frozen:, n_frozen:, n_frozen:, n_frozen:]\n",
+    "rdm = ffsim.ReducedDensityMatrix(rdm1, rdm2)\n",
+    "\n",
+    "# Compute energy using canonical Hartree-Fock orbitals\n",
+    "initial_energy = rdm.expectation(mol_hamiltonian)\n",
+    "np.testing.assert_allclose(initial_energy, cisd.e_tot)\n",
+    "print(f\"Initial CISD energy: {initial_energy:.8f} Ha\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89e1b2c4",
+   "metadata": {},
+   "source": [
+    "## Optimize orbitals\n",
+    "\n",
+    "We now call [ffsim.optimize_orbitals](../api/stubs/ffsim.optimize_orbitals.rst#ffsim.optimize_orbitals) to find the orbital rotation matrix $U$ that minimizes the energy of the RDMs with respect to `mol_hamiltonian`. The default settings are sufficient for this example.\n",
+    "\n",
+    "The RDMs and Hamiltonian stay fixed during optimization; only the orbital rotation varies.\n",
+    "\n",
+    "We can compute the optimized energy by rotating the RDMs by $U$ or, equivalently, rotating the Hamiltonian by $U^\\dagger$. The following code cell demonstrates both methods."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "67a3f1d8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Optimized energy: -108.58613394 Ha\n",
+      "Energy lowering: -0.00081183 Ha\n"
+     ]
+    }
+   ],
+   "source": [
+    "orbital_rotation = ffsim.optimize_orbitals(rdm, mol_hamiltonian)\n",
+    "\n",
+    "# Compute the energy in the optimized orbital basis\n",
+    "energy_rotated_rdm = rdm.rotated(orbital_rotation).expectation(mol_hamiltonian)\n",
+    "energy_rotated_ham = rdm.expectation(mol_hamiltonian.rotated(orbital_rotation.T.conj()))\n",
+    "np.testing.assert_allclose(energy_rotated_ham, energy_rotated_rdm)\n",
+    "\n",
+    "print(f\"Optimized energy: {energy_rotated_rdm:.8f} Ha\")\n",
+    "print(f\"Energy lowering: {energy_rotated_rdm - initial_energy:.8f} Ha\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0891b89",
+   "metadata": {},
+   "source": [
+    "## Configure SciPy optimization\n",
+    "\n",
+    "Additional keyword arguments to `ffsim.optimize_orbitals` are passed to [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html). Use `method` to choose the optimizer, `options` to configure it, and `callback` to monitor progress. The default method is L-BFGS-B.\n",
+    "\n",
+    "Setting `return_optimize_result=True` returns both the orbital rotation and a [scipy.optimize.OptimizeResult](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html). Its fields include the final energy (`fun`), termination status (`success` and `message`), iteration count (`nit`), and function evaluation count (`nfev`).\n",
+    "\n",
+    "Here we repeat the optimization with an explicit method, a limit of 10 iterations, and a callback that prints the energy after each iteration. The callback argument is named `intermediate_result` so SciPy passes an `OptimizeResult` containing the current parameters and energy."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1f3c9d20",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy = -108.58599926 Ha\n",
+      "Energy = -108.58610334 Ha\n",
+      "Energy = -108.58612508 Ha\n",
+      "Energy = -108.58612954 Ha\n",
+      "Energy = -108.58613168 Ha\n",
+      "Energy = -108.58613372 Ha\n",
+      "Energy = -108.58613394 Ha\n",
+      "Optimized energy:     -108.58613394 Ha\n",
+      "Termination:          CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH\n",
+      "Optimizer success:    True\n",
+      "Iterations:           7\n",
+      "Function evaluations: 9\n"
+     ]
+    }
+   ],
+   "source": [
+    "def callback(intermediate_result):\n",
+    "    print(f\"Energy = {intermediate_result.fun:.8f} Ha\")\n",
+    "\n",
+    "\n",
+    "orbital_rotation_configured, result = ffsim.optimize_orbitals(\n",
+    "    rdm,\n",
+    "    mol_hamiltonian,\n",
+    "    return_optimize_result=True,\n",
+    "    method=\"L-BFGS-B\",\n",
+    "    options=dict(maxiter=10),\n",
+    "    callback=callback,\n",
+    ")\n",
+    "\n",
+    "energy_configured = rdm.rotated(orbital_rotation_configured).expectation(\n",
+    "    mol_hamiltonian\n",
+    ")\n",
+    "np.testing.assert_allclose(energy_configured, result.fun)\n",
+    "\n",
+    "print(f\"Optimized energy:     {result.fun:.8f} Ha\")\n",
+    "print(f\"Termination:          {result.message}\")\n",
+    "print(f\"Optimizer success:    {result.success}\")\n",
+    "print(f\"Iterations:           {result.nit}\")\n",
+    "print(f\"Function evaluations: {result.nfev}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3790624f",
+   "metadata": {},
+   "source": [
+    "For both real and complex optimization, the returned rotation is $U = \\exp(K)U_0$, where $U_0$ is the initial rotation and `result.x` parameterizes the additional rotation $\\exp(K)$. The initial rotation stays fixed throughout optimization, and the generator parameters start at zero. This keeps all rotation directions available at initialization, including when $U_0$ has several eigenvalues equal to $-1$. Bounds, constraints, and callbacks use these incremental generator parameters. For example, in two real orbitals, an initial rotation of $0.1$ radians and an additional rotation of $0.2$ radians give a total rotation of $0.3$ radians."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "93b4e2d7",
+   "metadata": {},
+   "source": [
+    "## Real vs. complex orbital rotations\n",
+    "\n",
+    "For $N$ spatial orbitals, the `real` keyword argument controls whether the optimization uses real orthogonal rotations or general complex unitary rotations:\n",
+    "\n",
+    "- When `real=True`, the rotation is parameterized by $N(N - 1) / 2$ skew-symmetric generator parameters and stays in the determinant component of the initial rotation. The initial rotation defaults to identity (determinant $+1$); an initial rotation with determinant $-1$ is also honored.\n",
+    "- When `real=False`, the rotation is parameterized by $N^2$ anti-Hermitian generator parameters.\n",
+    "- When `real=None` (the default), `ffsim.optimize_orbitals` automatically detects whether the RDMs, Hamiltonian, and initial orbital rotation are all real-valued, and defaults to real optimization if so.\n",
+    "\n",
+    "With one orbital, real optimization raises a `ValueError` because there are no continuous parameters. Complex optimization (`real=False`) is supported; its single phase parameter does not change the energy, but SciPy can still enforce constraints on it.\n",
+    "\n",
+    "If we initialize with a complex orbital rotation (or pass `real=False`), the optimizer optimizes over the full unitary group:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "42c8d1e5",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Optimized energy (complex): -108.58613389 Ha\n",
+      "Number of parameters:       256 (vs 120 real)\n",
+      "Is complex rotation matrix: True\n"
+     ]
+    }
+   ],
+   "source": [
+    "import scipy.linalg\n",
+    "\n",
+    "# Generate a small complex perturbation to the initial orbital rotation\n",
+    "rng = np.random.default_rng(12345)\n",
+    "perturbation = 1e-4 * ffsim.random.random_antihermitian(norb, seed=rng)\n",
+    "initial_orbital_rotation = scipy.linalg.expm(perturbation)\n",
+    "\n",
+    "# Optimize orbitals allowing complex rotations\n",
+    "orbital_rotation_complex, result_complex = ffsim.optimize_orbitals(\n",
+    "    rdm,\n",
+    "    mol_hamiltonian,\n",
+    "    initial_orbital_rotation=initial_orbital_rotation,\n",
+    "    return_optimize_result=True,\n",
+    ")\n",
+    "\n",
+    "energy_complex = rdm.rotated(orbital_rotation_complex).expectation(mol_hamiltonian)\n",
+    "\n",
+    "print(f\"Optimized energy (complex): {energy_complex:.8f} Ha\")\n",
+    "print(\n",
+    "    f\"Number of parameters:       {len(result_complex.x)} \"\n",
+    "    f\"(vs {norb * (norb - 1) // 2} real)\"\n",
+    ")\n",
+    "print(f\"Is complex rotation matrix: {np.iscomplexobj(orbital_rotation_complex)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c9b18ef4",
+   "metadata": {},
+   "source": [
+    "### Choose the determinant component\n",
+    "\n",
+    "With `real=True`, the returned rotation has the same determinant sign as `initial_orbital_rotation`. The default initial rotation is identity, with determinant $+1$.\n",
+    "\n",
+    "For a correlated state, flipping one orbital's sign can change relative configuration signs and thus the energy. This differs from a basis change in which configuration coefficients are transformed consistently to preserve the physical state.\n",
+    "\n",
+    "To optimize in the determinant $-1$ component, supply an initial reflection:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "bce69d34",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Optimized energy (negative determinant): -108.53256623 Ha\n",
+      "Determinant: -1\n"
+     ]
+    }
+   ],
+   "source": [
+    "initial_reflection = np.eye(norb)\n",
+    "initial_reflection[0, 0] = -1\n",
+    "\n",
+    "orbital_rotation_reflected, result_reflected = ffsim.optimize_orbitals(\n",
+    "    rdm,\n",
+    "    mol_hamiltonian,\n",
+    "    initial_orbital_rotation=initial_reflection,\n",
+    "    real=True,\n",
+    "    return_optimize_result=True,\n",
+    "    options=dict(maxiter=10),\n",
+    ")\n",
+    "\n",
+    "energy_reflected = rdm.rotated(orbital_rotation_reflected).expectation(mol_hamiltonian)\n",
+    "np.testing.assert_allclose(energy_reflected, result_reflected.fun, atol=1e-8, rtol=0)\n",
+    "np.testing.assert_allclose(np.linalg.det(orbital_rotation_reflected), -1)\n",
+    "\n",
+    "print(f\"Optimized energy (negative determinant): {energy_reflected:.8f} Ha\")\n",
+    "print(f\"Determinant: {np.linalg.det(orbital_rotation_reflected):+.0f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "71d5a8b2",
+   "metadata": {},
+   "source": [
+    "## Update molecular orbital coefficients\n",
+    "\n",
+    "To express the optimized orbitals in the atomic orbital basis, apply the orbital rotation matrix $U$ to the active-space molecular orbital coefficient matrix $C$:\n",
+    "\n",
+    "$$\n",
+    "C_{\\text{opt}} = C_{\\text{active}} U\n",
+    "$$\n",
+    "\n",
+    "where $C_{\\text{active}}$ contains the active-space columns of the original Hartree-Fock MO coefficients."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "36f9c0e4",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Original active MO coefficients shape:  (18, 16)\n",
+      "Optimized active MO coefficients shape: (18, 16)\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Transform molecular orbital coefficients for downstream calculations\n",
+    "mo_coeff_active = scf.mo_coeff[:, active_space]\n",
+    "mo_coeff_optimized = mo_coeff_active @ orbital_rotation\n",
+    "\n",
+    "print(f\"Original active MO coefficients shape:  {mo_coeff_active.shape}\")\n",
+    "print(f\"Optimized active MO coefficients shape: {mo_coeff_optimized.shape}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "28ddcf91",
+   "metadata": {},
+   "source": [
+    "Updating the coefficients with $C_{\\text{active}}U$ transforms both the one-body and two-body integrals, giving `mol_hamiltonian.rotated(U.conj().T)`.\n",
+    "\n",
+    "For the real rotation above, we rebuild the integrals with PySCF and check that they match the rotated Hamiltonian. Using the original RDMs with the rebuilt Hamiltonian should reproduce the optimized energy."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "b74ad902",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Energy from updated MO coefficients: -108.58613394 Ha\n",
+      "Optimized energy:                   -108.58613394 Ha\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pyscf.ao2mo\n",
+    "import pyscf.mcscf\n",
+    "\n",
+    "# Rebuild the integrals from the updated MO coefficients\n",
+    "mo_coeff_full = np.array(scf.mo_coeff, copy=True)\n",
+    "mo_coeff_full[:, active_space] = mo_coeff_optimized\n",
+    "cas = pyscf.mcscf.CASCI(scf, norb, mol_data.nelec)\n",
+    "one_body, core_energy = cas.get_h1cas(mo_coeff_full)\n",
+    "two_body = pyscf.ao2mo.restore(1, cas.get_h2cas(mo_coeff_full), norb)\n",
+    "rebuilt_hamiltonian = ffsim.MolecularHamiltonian(one_body, two_body, core_energy)\n",
+    "\n",
+    "# Compare with the Hamiltonian rotated by the adjoint of U\n",
+    "expected_hamiltonian = mol_hamiltonian.rotated(orbital_rotation.conj().T)\n",
+    "np.testing.assert_allclose(one_body, expected_hamiltonian.one_body_tensor, atol=1e-8)\n",
+    "np.testing.assert_allclose(two_body, expected_hamiltonian.two_body_tensor, atol=1e-8)\n",
+    "np.testing.assert_allclose(core_energy, expected_hamiltonian.constant, atol=1e-8)\n",
+    "\n",
+    "# Keep the original RDMs fixed when evaluating the rebuilt Hamiltonian\n",
+    "energy_from_mo_coeff = rdm.expectation(rebuilt_hamiltonian)\n",
+    "np.testing.assert_allclose(energy_from_mo_coeff, energy_rotated_rdm)\n",
+    "\n",
+    "print(f\"Energy from updated MO coefficients: {energy_from_mo_coeff:.8f} Ha\")\n",
+    "print(f\"Optimized energy:                   {energy_rotated_rdm:.8f} Ha\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
