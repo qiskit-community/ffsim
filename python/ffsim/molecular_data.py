@@ -138,9 +138,13 @@ class MolecularData:
     def scf(self) -> pyscf.scf.hf.SCF:
         """A PySCF SCF class for this molecular data."""
         # HACK Not sure if there's a better way to do this...
-        with tempfile.NamedTemporaryFile() as fp:
-            self.to_fcidump(fp.name)
-            scf = pyscf.tools.fcidump.to_scf(fp.name)
+        # Use a temporary directory rather than a NamedTemporaryFile because on
+        # Windows, PySCF can't reopen a NamedTemporaryFile by name unless
+        # delete_on_close=False, which requires Python 3.12
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "fcidump")
+            self.to_fcidump(filepath)
+            scf = pyscf.tools.fcidump.to_scf(filepath)
         # Disable chkfile to silence PySCF serialization warning
         scf.chkfile = None
         return scf

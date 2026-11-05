@@ -1,11 +1,6 @@
 # Installation
 
-ffsim is supported directly on Linux and macOS.
-
-ffsim is not supported directly on Windows. Windows users have two main options:
-
-- Use [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/). WSL provides a Linux environment where ffsim can be pip installed from PyPI or from source.
-- Use ffsim within Docker. See [Use within Docker](#use-within-docker).
+ffsim is supported on Linux, macOS, and Windows. On Windows, only x86-64 is supported, because [PySCF](https://pyscf.org/) does not publish wheels for Windows on ARM.
 
 ## Pip install
 
@@ -15,7 +10,7 @@ ffsim is available on [PyPI](https://pypi.org/project/ffsim/). You can install i
 pip install ffsim
 ```
 
-For improved performance on [x86](https://en.wikipedia.org/wiki/X86) systems, considering [installing from source](#install-from-source).
+For improved performance on [x86-64](https://en.wikipedia.org/wiki/X86-64) systems, consider [installing from source](#install-from-source).
 
 ### Qiskit interoperability
 
@@ -48,7 +43,7 @@ cd ffsim
 pip install .
 ```
 
-Installing from source may improve performance on x86 systems because the Rust extensions in the PyPI wheels are compiled with `-C target-cpu=x86-64`, which targets the baseline x86-64 instruction set for broad compatibility. When you build from source, ffsim is configured to compile its Rust extensions with `-C target-cpu=native`, so the Rust compiler can emit optimized instructions (e.g., AVX2, AVX-512) for your specific CPU.
+Installing from source may improve performance on x86-64 systems because the Rust extensions in the PyPI wheels are compiled with `-C target-cpu=x86-64`, which targets the baseline x86-64 instruction set for broad compatibility. When you build from source, ffsim is configured to compile its Rust extensions with `-C target-cpu=native`, so the Rust compiler can emit optimized instructions (e.g., AVX2, AVX-512) for your specific CPU.
 
 Similarly, you can install [PySCF](https://pyscf.org/) from source with `-DBUILD_MARCH_NATIVE=ON` to enable CPU-specific optimizations in PySCF's C extensions. See [PySCF's installation instructions](https://pyscf.org/user/install.html#build-from-source) for details.
 

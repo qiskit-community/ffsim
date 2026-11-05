@@ -209,7 +209,7 @@ def _zero_one_subspace_indices(
     indices = np.argsort(strings)
     n00 = math.comb(norb - 2, nocc)
     n11 = math.comb(norb - 2, nocc - 2) if nocc >= 2 else 0
-    return indices[n00 : len(indices) - n11].astype(np.uint, copy=False)
+    return indices[n00 : len(indices) - n11].astype(np.uintp, copy=False)
 
 
 @cache
@@ -223,7 +223,7 @@ def _one_subspace_indices(
     n0 = math.comb(norb, nocc)
     if nocc >= len(target_orbs):
         n0 -= math.comb(norb - len(target_orbs), nocc - len(target_orbs))
-    return indices[n0:].astype(np.uint, copy=False)
+    return indices[n0:].astype(np.uintp, copy=False)
 
 
 @cache
