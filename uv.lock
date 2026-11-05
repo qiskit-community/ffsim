@@ -798,7 +798,7 @@ requires-dist = [
     { name = "numpy" },
     { name = "opt-einsum" },
     { name = "orjson" },
-    { name = "pyscf", specifier = ">=2.12" },
+    { name = "pyscf", specifier = ">=2.15" },
     { name = "qiskit", marker = "extra == 'qiskit'", specifier = ">=2.0,<3" },
     { name = "scipy" },
 ]
@@ -3160,7 +3160,7 @@ wheels = [
 
 [[package]]
 name = "pyscf"
-version = "2.14.0"
+version = "2.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "h5py" },
@@ -3171,12 +3171,13 @@ dependencies = [
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "setuptools" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/76/4b4f33877f4ee460733bd8b9af64cb9c13be9d5111fb8f6357d227c2c908/pyscf-2.14.0.tar.gz", hash = "sha256:9b6ea3c2470baac9d0492d93b335542c04ab96277e79f1abcbe1cea0eb063c5f", size = 11565773, upload-time = "2026-07-18T22:50:28.053Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6e/30/39707040412f20c61a91a7edcd921a5973c9b604c4d6095c2e0a5f7b35d3/pyscf-2.15.0.tar.gz", hash = "sha256:46601b24bb5fa8583f4734c65f096f1cb2006cd1a2c581b7761e1e740f36d74f", size = 10941454, upload-time = "2026-11-05T05:42:06.643Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/6e/16109bef2ed8b276c954e5a951e14eaa501d8f79ee928b64bc6fd0d2b440/pyscf-2.14.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:2f4964d64c5cbb7eaa363ed8a5d1b7cc8541f2008b9c3c81c22494d789fbcd33", size = 37156346, upload-time = "2026-07-18T22:27:48.81Z" },
-    { url = "https://files.pythonhosted.org/packages/48/ed/bb4aeb728505b4ce7edd55e9b2e35bcbd99ad0b0cae5c45b59e48b9ed62d/pyscf-2.14.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:a4bdc6f4155e258d78c90b4de0c88ab9260a45801264d6c471c3beec83a4da4c", size = 36492544, upload-time = "2026-07-18T22:24:50.025Z" },
-    { url = "https://files.pythonhosted.org/packages/89/f2/24c58dad0c33ab417c5a090695a6788292d5d4edceae59bad055e5377e92/pyscf-2.14.0-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:2c01234a5480e545e5e156d1fabe9b97264bf87ee274c62d14478ab9fe644100", size = 46031836, upload-time = "2026-07-19T00:57:07.889Z" },
-    { url = "https://files.pythonhosted.org/packages/88/30/8e48717aff32f11fd78f981192d0b567971eb285ea048414b7dac2a211cf/pyscf-2.14.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:37b0bccc55450311a55318cd643e851353331ddeab4fc0c0065e83c905e41502", size = 52848663, upload-time = "2026-07-18T22:49:58.707Z" },
+    { url = "https://files.pythonhosted.org/packages/70/ff/a8d1086c7029aa05e370b015f364e421a148af7fb6969b00ef5565a04eeb/pyscf-2.15.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:3640c34e938a09c4211fda448ee857374cf8a10eb345547f003ee25650d26392", size = 25301270, upload-time = "2026-11-05T05:41:29.587Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/e8/579b0353de0ba84621a2530fcccc4ca7ef9ca78e05697c1c4e3ce319a88a/pyscf-2.15.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:727f854866e7930f1c28722030a25efff61f594fcca78735e60c1a62829a4e62", size = 23364845, upload-time = "2026-11-05T05:37:05.523Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/1d/7e4e878248fae458f4934dc6f31ae2cbcf5f67230d6b4505b3655c8559bb/pyscf-2.15.0-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:ca9427ae9f41c03e44c74763cc61d240e46be9a7cc75166c22817eebf1e0b87b", size = 33597044, upload-time = "2026-11-05T06:43:39.266Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/c4/ae16e0cf2d391e87bfa0e81a764fb5847253eabf1e8bdaf07959244c73e2/pyscf-2.15.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a372e4ac136b969ef4a22fb328905cfbc84513bcd4d85321026af0493345b94b", size = 40598332, upload-time = "2026-11-05T05:41:36.196Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/09/aaf029f524f4cf186a98e3d084ea81e2b9ee156d6e6fddc4fad17e5e99a4/pyscf-2.15.0-py3-none-win_amd64.whl", hash = "sha256:dadffed2a2e547d5d95d8ad7e96be7ef480ed73999b497c2f343c13cb278197d", size = 75095110, upload-time = "2026-11-05T05:45:23.381Z" },
 ]
 
 [[package]]

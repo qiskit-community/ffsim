@@ -27,7 +27,7 @@ dependencies = [
     "numpy",
     "opt_einsum",
     "orjson",
-    "pyscf>=2.12",
+    "pyscf>=2.15",
     "scipy",
 ]
 
@@ -69,7 +69,7 @@ python-source = "python"
 module-name = "ffsim._lib"
 
 [tool.cibuildwheel]
-build = "cp311-macosx* cp311-manylinux_x86_64 cp311-manylinux_aarch64"
+build = "cp311-macosx* cp311-manylinux_x86_64 cp311-manylinux_aarch64 cp311-win_amd64"
 test-requires = "pytest"
 test-extras = ["qiskit"]
 test-command = "pytest {project}/tests"
@@ -78,7 +78,7 @@ test-command = "pytest {project}/tests"
 before-all = "dnf install -y openssl-devel"
 
 [[tool.cibuildwheel.overrides]]
-select = "*-manylinux_x86_64"
+select = "*-manylinux_x86_64 *-win_amd64"
 environment = { RUSTFLAGS = "-C target-cpu=x86-64" }
 
 [tool.pytest.ini_options]

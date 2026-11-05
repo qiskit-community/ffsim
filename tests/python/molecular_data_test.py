@@ -128,7 +128,7 @@ def test_molecular_data_run_methods_open_shell():
 
     # Check values
     assert isinstance(mol_data.mp2_energy, float)
-    np.testing.assert_allclose(mol_data.mp2_energy, -2.6324626466721246)
+    np.testing.assert_allclose(mol_data.mp2_energy, -2.6414554868723963)
     assert isinstance(mol_data.ccsd_energy, float)
     np.testing.assert_allclose(mol_data.ccsd_energy, -2.672451550833221)
     assert isinstance(mol_data.cisd_energy, float)

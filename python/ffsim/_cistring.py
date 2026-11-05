@@ -27,7 +27,7 @@ def make_strings(orbitals: range, nocc: int) -> np.ndarray:
 @cache
 def gen_occslst(orbitals: range, nocc: int) -> np.ndarray:
     """Cached version of pyscf.fci.cistring.gen_occslst."""
-    return cistring.gen_occslst(orbitals, nocc).astype(np.uint, copy=False)
+    return cistring.gen_occslst(orbitals, nocc).astype(np.uintp, copy=False)
 
 
 @cache
